@@ -4,7 +4,7 @@
 #include "common.h"
 #include "EngineCore.h"
 
-void main()
+int main()
 {
 	MonoMaxGraphics::GraphicsEngine* graphicsEngine = new MonoMaxGraphics::GraphicsEngine();
 	graphicsEngine->Init();
@@ -13,4 +13,5 @@ void main()
 		graphicsEngine->Render(nullptr);
 	}
 
+	return 0;
 }

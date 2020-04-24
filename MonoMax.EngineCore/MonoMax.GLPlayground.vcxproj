@@ -76,14 +76,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>C:\DEV\source\MonoMax.GLPlayground\Dependencies\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\includes\</IncludePath>
+    <LibraryPath>C:\DEV\source\MonoMax.GLPlayground\Dependencies\libs;$(LibraryPath);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\libs\</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\Users\cuwak\source\repos\MonoMax.GLPlayground\includes\</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\Users\cuwak\source\repos\MonoMax.GLPlayground\libs\</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -160,7 +162,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\shared libaries\glad\src\glad.c" />
+    <ClCompile Include="..\includes\glad\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GraphicsEngine.cpp" />
   </ItemGroup>
