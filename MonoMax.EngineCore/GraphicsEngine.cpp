@@ -1,4 +1,5 @@
 #include "GraphicsEngine.h"
+#include "../SMGE/CGEEngineBase.h"
 
 namespace MonoMaxGraphics
 {
@@ -52,6 +53,9 @@ namespace MonoMaxGraphics
 
 	void GraphicsEngine::Render(char* imgBuffer)
 	{
+		CGEEngineBase smge;
+		smge.main();
+		
 		glClearColor(0.8f, 0.8f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

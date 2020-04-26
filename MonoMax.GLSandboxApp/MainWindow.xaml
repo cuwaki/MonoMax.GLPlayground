@@ -7,7 +7,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="480" Width="640">
     <Grid>
-        <Grid Panel.ZIndex="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="317*"/>
+            <ColumnDefinition Width="315*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Panel.ZIndex="1" Grid.ColumnSpan="2">
             <TreeView Background="Transparent">
                 <TreeView.Items>
                     <TreeViewItem Header="Node_1">
@@ -32,7 +36,7 @@
             </TreeView>
             <ListView VerticalAlignment="Center" HorizontalAlignment="Center"
                       Background="Transparent"
-                      MaxHeight="100">
+                      MaxHeight="100" Margin="511,10,10,339">
                 <ListView.Items>
                     <TextBlock Text="ListViewItem_1" />
                     <TextBlock Text="ListViewItem_2" />

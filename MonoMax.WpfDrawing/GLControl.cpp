@@ -19,7 +19,7 @@ namespace MonoMaxGraphics
 
 		if (!isInitialized)
 		{
-			double updateRate = 1;
+			double updateRate = 0.1;
 
 			Grid^ mainGrid = gcnew Grid();
 			m_fpsCounter = gcnew TextBlock();
