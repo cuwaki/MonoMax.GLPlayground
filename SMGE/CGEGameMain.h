@@ -2,18 +2,21 @@
 
 #include "GECommonIncludes.h"
 
-struct SGEGameSettings
+namespace MonoMaxGraphics
 {
-	CWString gameProjectName_;
-};
+	struct SGEGameSettings
+	{
+		CWString gameProjectName_;
+	};
 
-class CGEGameMain
-{
-public:
-	CGEGameMain();
+	class CGEGameMain
+	{
+	public:
+		CGEGameMain();
 
-	virtual void main(float timeDelta) = 0;
+		virtual void Tick(float timeDelta);
 
-public:
-	SGEGameSettings* gameSettings_;
+	public:
+		SGEGameSettings* gameSettings_;
+	};
 };

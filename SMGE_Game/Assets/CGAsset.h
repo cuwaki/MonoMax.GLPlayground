@@ -4,25 +4,28 @@
 #include "../Objects/CGObject.h"
 #include "../Interfaces/CGInterf_Reflection.h"
 
-class CGAsset;
-
-struct SGRefl_Asset : public SGReflection
+namespace MonoMaxGraphics
 {
-	SGRefl_Asset(const CGAsset& asset);
+	class CGAsset;
 
-	CWString &filePath_;
-};
+	struct SGRefl_Asset : public SGReflection
+	{
+		SGRefl_Asset(const CGAsset& asset);
 
-class CGAsset : public CGObject, public CGInterf_Reflection
-{
-	using ReflectionStruct = SGRefl_Asset;
-	friend struct ReflectionStruct;
+		CWString& filePath_;
+	};
 
-public:
-	virtual SGReflection& getReflection() = 0;
+	class CGAsset : public CGObject, public CGInterf_Reflection
+	{
+		using ReflectionStruct = SGRefl_Asset;
+		friend struct ReflectionStruct;
 
-protected:
-	CWString& filePath_;
+	public:
+		virtual SGReflection& getReflection() = 0;
 
-	CUniqPtr<SGRefl_Asset> reflAsset_;
+	protected:
+		CWString& filePath_;
+
+		CUniqPtr<SGRefl_Asset> reflAsset_;
+	};
 };

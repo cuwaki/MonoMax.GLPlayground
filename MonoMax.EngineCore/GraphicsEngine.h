@@ -17,7 +17,7 @@ namespace MonoMaxGraphics
 		GLuint m_prg;
 		GLuint m_rbo, m_fbo;
 		int m_width, m_height;
-		GLFWwindow* m_window;
+		GLFWwindow* m_window = nullptr;
 		bool isRunning = false;
 
 		std::string getShaderCode(const char* filename);

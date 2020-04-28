@@ -117,11 +117,13 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\DEV\source\MonoMax.GLPlayground\Dependencies\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -162,6 +164,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\glad\glad.c" />

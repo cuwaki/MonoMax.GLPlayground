@@ -2,6 +2,9 @@
 
 #include "CGComponent.h"
 
-class CGWorldMoveComponent : public CGComponent
+namespace MonoMaxGraphics
 {
+	class CGWorldMoveComponent : public CGComponent
+	{
+	};
 };

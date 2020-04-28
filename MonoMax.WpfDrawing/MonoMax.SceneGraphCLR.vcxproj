@@ -101,8 +101,11 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>smge.lib;smge_game.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\DEV\source\MonoMax.GLPlayground\packages\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\DEV\source\MonoMax.GLPlayground\packages\libs;%(AdditionalLibraryDirectories);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug</AdditionalLibraryDirectories>
     </Link>
+    <Lib>
+      <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -137,7 +140,11 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>smge.lib;smge_game.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>;C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Release</AdditionalLibraryDirectories>
     </Link>
+    <Lib>
+      <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />

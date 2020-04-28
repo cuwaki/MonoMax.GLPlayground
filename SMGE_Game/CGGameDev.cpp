@@ -1,6 +1,18 @@
 #include "CGGameDev.h"
+#include "Objects/CGActor.h"
 
-void CGGameDev::main(float dt)
+namespace MonoMaxGraphics
 {
-	Super::main(dt);
-}
+	void CGGameDev::Tick(float dt)
+	{
+		Super::Tick(dt);
+
+		CGActor actor;
+
+		SGStringStreamOut strOut;
+		strOut << actor.getReflection();
+
+		SGStringStreamIn strIn;
+		strIn >> actor.getReflection();
+	}
+};

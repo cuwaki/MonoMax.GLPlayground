@@ -57,6 +57,12 @@
     <ClCompile Include="Assets\CGAssetManager.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\CGMap.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces\CGInterf_Reflection.cpp">
+      <Filter>Interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GCommonIncludes.h">
@@ -100,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="Assets\CGAssetManager.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\CGMap.h">
+      <Filter>Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

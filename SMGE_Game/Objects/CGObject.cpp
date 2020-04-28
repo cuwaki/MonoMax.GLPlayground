@@ -1,10 +1,13 @@
 #include "CGObject.h"
 
-CGObject::CGObject()
+namespace MonoMaxGraphics
 {
+	CGObject::CGObject() :
+		reflClassName_(wtext("CGObject"))
+	{
+	}
 
-}
-
-void CGObject::MakeDefault()
-{
+	void CGObject::MakeDefault()
+	{
+	}
 }

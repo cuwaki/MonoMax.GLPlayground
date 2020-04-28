@@ -4,10 +4,13 @@
 #include "CGDrawComponent.h"
 #include "../Assets/CGStaticMeshAsset.h"
 
-class CGStaticMeshComponent : public CGDrawComponent
+namespace MonoMaxGraphics
 {
-public:
-	CGStaticMeshComponent();
+	class CGStaticMeshComponent : public CGDrawComponent
+	{
+	public:
+		CGStaticMeshComponent();
 
-	CSharPtr<CGStaticMeshAsset> asset_;
+		CSharPtr<CGStaticMeshAsset> asset_;
+	};
 };

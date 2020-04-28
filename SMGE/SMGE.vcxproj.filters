@@ -24,6 +24,9 @@
     <ClInclude Include="CGEGameMain.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CGEContainers.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGEEngineBase.cpp">

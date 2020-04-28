@@ -1,8 +1,22 @@
 #include "GraphicsEngine.h"
 #include "../SMGE/CGEEngineBase.h"
+#include "../SMGE_Game/Objects/CGActor.h"
 
 namespace MonoMaxGraphics
 {
+	void testSMGE()
+	{
+		// ¿©±â ÇÒ Â÷·Ê
+
+		CGActor actor;
+
+		SGStringStreamOut strOut;
+		strOut << actor.getReflection();
+
+		SGStringStreamIn strIn;
+		strIn >> actor.getReflection();
+	}
+
 	glm::mat4 modelMat;
 	float rotY;
 
@@ -53,9 +67,8 @@ namespace MonoMaxGraphics
 
 	void GraphicsEngine::Render(char* imgBuffer)
 	{
-		CGEEngineBase smge;
-		smge.main();
-		
+		testSMGE();
+
 		glClearColor(0.8f, 0.8f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

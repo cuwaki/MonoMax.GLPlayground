@@ -1,5 +1,8 @@
 #pragma once
 
-class CGInterface
+namespace MonoMaxGraphics
 {
+	class CGInterface
+	{
+	};
 };

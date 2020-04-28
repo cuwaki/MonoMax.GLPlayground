@@ -158,6 +158,7 @@
     <ClCompile Include="CGEGameMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CGEContainers.h" />
     <ClInclude Include="CGEGameMain.h" />
     <ClInclude Include="GECommonIncludes.h" />
     <ClInclude Include="CGEEngineBase.h" />

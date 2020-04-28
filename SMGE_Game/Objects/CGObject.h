@@ -2,12 +2,18 @@
 
 #include "../GCommonIncludes.h"
 
-class CGObject
+namespace MonoMaxGraphics
 {
-public:
-	CGObject();
+	class CGObject
+	{
+		friend struct SGReflection;
 
-	virtual void MakeDefault();
+	public:
+		CGObject();
 
-protected:
+		virtual void MakeDefault();
+
+	protected:
+		CWString reflClassName_;
+	};
 };

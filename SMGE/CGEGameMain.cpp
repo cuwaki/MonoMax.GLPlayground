@@ -1,6 +1,12 @@
 #include "CGEGameMain.h"
 
-CGEGameMain::CGEGameMain()
+namespace MonoMaxGraphics
 {
+	CGEGameMain::CGEGameMain()
+	{
+	}
 
-}
+	void CGEGameMain::Tick(float timeDelta)
+	{
+	}
+};

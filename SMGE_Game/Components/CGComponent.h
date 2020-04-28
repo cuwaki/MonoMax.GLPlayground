@@ -1,5 +1,8 @@
 #pragma once
-class CGComponent
-{
-};
 
+namespace MonoMaxGraphics
+{
+	class CGComponent
+	{
+	};
+}
