@@ -10,16 +10,27 @@ namespace MonoMaxGraphics
 
 	struct SGRefl_Actor : public SGReflection
 	{
-		SGRefl_Actor(CGActor& actor);
-		SGRefl_Actor(const CSharPtr<CGActor>& actorPtr);
+		using Super = SGReflection;
 
-		ActorKey& actorKey_;
+		SGRefl_Actor(CGActor& actor);
+		SGRefl_Actor(const CSharPtr<CGActor>& actorPtr) : SGRefl_Actor(*actorPtr) {}
+
+		virtual void buildVariablesMap() override;
+
+		virtual operator CWString() const override;
+
+	protected:
+		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value> &in) override;
+		virtual SGReflection& operator=(CVector<CWString>& in) override;
+
+		TActorKey& actorKey_;
 		glm::mat4& worldTransform_;
 	};
 
 	class CGActor : public CGObject,
 		public CGInterf_Reflection, public CGInterf_Component
 	{
+	public:
 		using Super = CGObject;
 		using ReflectionStruct = SGRefl_Actor;
 
@@ -51,6 +62,6 @@ namespace MonoMaxGraphics
 		CUniqPtr<ReflectionStruct> reflActor_;
 		ComponentVector components_;
 
-		ActorKey actorKey_ = InvalidActorKey;
+		TActorKey actorKey_ = InvalidActorKey;
 	};
 };

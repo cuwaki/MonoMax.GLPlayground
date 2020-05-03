@@ -1,20 +1,13 @@
 #include "GraphicsEngine.h"
 #include "../SMGE/CGEEngineBase.h"
-#include "../SMGE_Game/Objects/CGActor.h"
+#include "../SMGE_Game/CGGameDev.h"
 
 namespace MonoMaxGraphics
 {
 	void testSMGE()
 	{
-		// ¿©±â ÇÒ Â÷·Ê
-
-		CGActor actor;
-
-		SGStringStreamOut strOut;
-		strOut << actor.getReflection();
-
-		SGStringStreamIn strIn;
-		strIn >> actor.getReflection();
+		static CGGameDev game;
+		game.Tick(0.01f);
 	}
 
 	glm::mat4 modelMat;

@@ -155,11 +155,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CGEEngineBase.cpp" />
-    <ClCompile Include="CGEGameMain.cpp" />
+    <ClCompile Include="CGEGameBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CGEContainers.h" />
-    <ClInclude Include="CGEGameMain.h" />
+    <ClInclude Include="CGEGameBase.h" />
     <ClInclude Include="GECommonIncludes.h" />
     <ClInclude Include="CGEEngineBase.h" />
   </ItemGroup>

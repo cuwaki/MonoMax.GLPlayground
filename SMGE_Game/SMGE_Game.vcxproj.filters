@@ -63,6 +63,9 @@
     <ClCompile Include="Interfaces\CGInterf_Reflection.cpp">
       <Filter>Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="GCommonIncludes.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GCommonIncludes.h">

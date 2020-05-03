@@ -9,14 +9,47 @@ namespace MonoMaxGraphics
 	{
 	}
 
-	SGRefl_Actor::SGRefl_Actor(const CSharPtr<CGActor>& actorPtr) :
-		worldTransform_(actorPtr->worldTransform_), actorKey_(actorPtr->actorKey_),
-		SGReflection(*actorPtr)
+	void SGRefl_Actor::buildVariablesMap()
 	{
+		Super::buildVariablesMap();
+
+		_ADD_REFL_VARIABLE(actorKey_);
+		_ADD_REFL_VARIABLE(worldTransform_);
+	}
+
+	SGRefl_Actor::operator CWString() const
+	{
+		CWString ret = Super::operator CWString();
+
+		ret += _TO_REFL(TActorKey, actorKey_);
+		ret += _TO_REFL(glm::mat4, worldTransform_);
+		return ret;
+	}
+
+	SGReflection& SGRefl_Actor::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	{
+		Super::operator=(variableSplitted);
+
+		_FROM_REFL(actorKey_, variableSplitted);
+		_FROM_REFL(worldTransform_, variableSplitted);
+
+		return *this;
+	}
+
+	SGReflection& SGRefl_Actor::operator=(CVector<CWString>& variableSplitted)
+	{
+		Super::operator=(variableSplitted);
+
+		// from fast
+		_FROM_REFL(actorKey_, variableSplitted);
+		_FROM_REFL(worldTransform_, variableSplitted);
+
+		return *this;
 	}
 
 	CGActor::CGActor()
 	{
+		reflClassName_ = wtext("CGActor");
 	}
 
 	SGReflection& CGActor::getReflection()

@@ -7,11 +7,11 @@
 
 namespace MonoMaxGraphics
 {
-	using ActorKey = uint32;
+	using TActorKey = uint32;
 
-	const ActorKey InvalidActorKey = 0;
+	const TActorKey InvalidActorKey = 0;
 
-	inline bool IsValidActorKey(const ActorKey& ak)
+	inline bool IsValidActorKey(const TActorKey& ak)
 	{
 		return ak > 0;
 	}

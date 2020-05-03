@@ -162,6 +162,7 @@
     <ClCompile Include="Components\CGDrawComponent.cpp" />
     <ClCompile Include="Components\CGStaticMeshComponent.cpp" />
     <ClCompile Include="Components\CGWorldMoveComponent.cpp" />
+    <ClCompile Include="GCommonIncludes.cpp" />
     <ClCompile Include="Interfaces\CGInterf_Reflection.cpp" />
     <ClCompile Include="Objects\CGActor.cpp" />
     <ClCompile Include="Objects\CGMap.cpp" />

@@ -27,6 +27,7 @@ namespace MonoMaxGraphics
 
 	class CGMap : public CGObject, public CGInterf_Reflection
 	{
+	public:
 		using ReflectionStruct = SGRefl_Map;
 
 		using Super = CGObject;

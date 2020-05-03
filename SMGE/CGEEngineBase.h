@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GECommonIncludes.h"
-#include "CGEGameMain.h"
+#include "CGEGameBase.h"
 
 namespace MonoMaxGraphics
 {
@@ -19,7 +19,7 @@ namespace MonoMaxGraphics
 		std::int32_t main();
 
 	protected:
-		CGEGameMain* gameMain_ = nullptr;
+		CGEGameBase* gameBase_ = nullptr;
 
 		SGEEngineSettings* settings_;
 	};

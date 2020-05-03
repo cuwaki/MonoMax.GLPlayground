@@ -9,10 +9,11 @@ namespace MonoMaxGraphics
 		CWString gameProjectName_;
 	};
 
-	class CGEGameMain
+	class CGEGameBase
 	{
 	public:
-		CGEGameMain();
+		CGEGameBase();
+		virtual ~CGEGameBase();
 
 		virtual void Tick(float timeDelta);
 

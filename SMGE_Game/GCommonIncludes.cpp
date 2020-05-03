@@ -1,4 +1,4 @@
-#include "CGAsset.h"
+#include "GCommonIncludes.h"
 
 namespace MonoMaxGraphics
 {

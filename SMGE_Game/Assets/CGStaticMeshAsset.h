@@ -4,19 +4,19 @@
 
 namespace MonoMaxGraphics
 {
-	class CGStaticMeshAsset;
+	//class CGStaticMeshAsset;
 
-	struct SGRefl_StaticMeshAsset : public SGRefl_Asset
-	{
-		SGRefl_StaticMeshAsset(const CGStaticMeshAsset& asset);
-	};
+	//struct SGRefl_StaticMeshAsset : public SGRefl_Asset
+	//{
+	//	SGRefl_StaticMeshAsset(CGStaticMeshAsset& asset);
+	//};
 
-	class CGStaticMeshAsset : public CGAsset
-	{
-		using ReflectionStruct = SGRefl_StaticMeshAsset;
-		friend struct ReflectionStruct;
+	//class CGStaticMeshAsset : public CGAsset
+	//{
+	//	using ReflectionStruct = SGRefl_StaticMeshAsset;
+	//	friend struct ReflectionStruct;
 
-	public:
-		virtual SGReflection& getReflection() override;
-	};
+	//public:
+	//	virtual SGReflection& getReflection() override;
+	//};
 };

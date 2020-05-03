@@ -11,6 +11,6 @@ namespace MonoMaxGraphics
 	public:
 		CGStaticMeshComponent();
 
-		CSharPtr<CGStaticMeshAsset> asset_;
+		//CSharPtr<CGStaticMeshAsset> asset_;
 	};
 };

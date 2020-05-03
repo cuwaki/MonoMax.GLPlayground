@@ -6,26 +6,68 @@
 
 namespace MonoMaxGraphics
 {
-	class CGAsset;
+	template<typename C> class CGAsset;
 
-	struct SGRefl_Asset : public SGReflection
+	struct SGRefl_AssetBase : public SGReflection
 	{
-		SGRefl_Asset(const CGAsset& asset);
-
-		CWString& filePath_;
+		SGRefl_AssetBase(CGObject& obj) :
+			SGReflection(obj)
+		{
+		}
 	};
 
-	class CGAsset : public CGObject, public CGInterf_Reflection
+	template<typename C>
+	struct SGRefl_Asset : public SGRefl_AssetBase
 	{
-		using ReflectionStruct = SGRefl_Asset;
+		using CR = typename C::ReflectionStruct;
+
+		SGRefl_Asset(CGAsset<C>& asset) :
+			childRefl_(SCast<CR&>(asset.getContentClass()->getReflection())),
+			SGRefl_AssetBase(asset)
+		{
+		}
+
+		CR& childRefl_;
+	};
+
+	class CGAssetBase : public CGObject, public CGInterf_Reflection
+	{
+	public:
+		CGAssetBase() : CGObject() {}
+	};
+
+	template<typename C>
+	class CGAsset : public CGAssetBase
+	{
+	public:
+		using ReflectionStruct = SGRefl_Asset<C>;
+
 		friend struct ReflectionStruct;
 
+		using CR = typename C::ReflectionStruct;
+		friend CR;
+
 	public:
-		virtual SGReflection& getReflection() = 0;
+		CGAsset(C* contentClass = nullptr) :
+			contentClass_(contentClass),
+			CGAssetBase()
+		{
+			reflClassName_ = wtext("CGAsset<") + (getContentClass() ? getContentClass()->getReflClassName() : wtext("nullptr")) + wtext(">");
+		}
+
+		C* getContentClass() const { return contentClass_; }
+
+		virtual SGReflection& getReflection() override
+		{
+			if (reflAsset_ == false)
+				reflAsset_ = MakeUniqPtr<ReflectionStruct>(*this);
+			return *reflAsset_.get();
+		}
 
 	protected:
-		CWString& filePath_;
+		C* contentClass_;
+		CWString filePath_;
 
-		CUniqPtr<SGRefl_Asset> reflAsset_;
+		CUniqPtr<ReflectionStruct> reflAsset_;
 	};
 };

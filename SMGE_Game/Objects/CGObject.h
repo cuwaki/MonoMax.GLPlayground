@@ -11,6 +11,8 @@ namespace MonoMaxGraphics
 	public:
 		CGObject();
 
+		CWString getReflClassName() { return reflClassName_; }
+
 		virtual void MakeDefault();
 
 	protected:

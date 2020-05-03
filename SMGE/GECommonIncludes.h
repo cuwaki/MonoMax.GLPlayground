@@ -10,10 +10,21 @@
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
+#include <type_traits>
+#include <typeinfo>
+#include <variant>
+#include <any>
 
 #include "glfw/glfw3.h"
+#include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/string_cast.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/glm.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/ext.hpp"
+
+#define etoi(_E_) SCast<int32>(_E_)
+#define etos(_E_) SCast<size_t>(_E_)
+
+#define text(_STR_) _STR_
+#define wtext(_STR_) L##_STR_
 
 namespace MonoMaxGraphics
 {
@@ -38,26 +49,59 @@ namespace MonoMaxGraphics
     {
         return dynamic_cast<T>(u);
     }
+}
 
+#include "CGEContainers.h"
+
+namespace MonoMaxGraphics
+{
     template<typename T>
-    T& ToLower(T& str)
+    extern T& ToLower(T& str)
     {
         std::transform(str.begin(), str.end(), str.begin(), std::tolower);
         return str;
     }
 
     template<typename T>
-    T& ToUpper(T& str)
+    extern T& ToUpper(T& str)
     {
         std::transform(str.begin(), str.end(), str.begin(), std::toupper);
         return str;
     }
+
+    template<typename T>
+    extern CWString ToTCHAR(const T& val)
+    {
+        if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
+            return val;
+        else if constexpr (std::is_same_v<T, CString> || std::is_same_v<T, std::string>)
+            return ToTCHAR(val);
+        else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
+            return ToTCHAR(std::to_string(val));
+        else
+        {	// glm::vec or mat ...
+            return ToTCHAR(glm::to_string(val));
+        }
+
+        return L"error - not support type!";
+    }
+
+    CWString ToTCHAR(const CString& astr);
+    CString ToASCII(const CWString& wstr);
+
+    template<typename T>
+    CVector<T> SplitStringToVector(const T& str, const T& delim)
+    {
+        CVector<T> tokens;
+        size_t prev = 0, pos = 0;
+        do
+        {
+            pos = str.find(delim, prev);
+            if (pos == T::npos) pos = str.length();
+            T token = str.substr(prev, pos - prev);
+            if (!token.empty()) tokens.push_back(token);
+            prev = pos + delim.length();
+        } while (pos < str.length() && prev < str.length());
+        return tokens;
+    }
 }
-
-#define etoi(_E_) SCast<int32>(_E_)
-#define etos(_E_) SCast<size_t>(_E_)
-
-#define text(_STR_) _STR_
-#define wtext(_STR_) L##_STR_
-
-#include "CGEContainers.h"

@@ -1,16 +1,20 @@
 #pragma once
 
-#include "../SMGE/CGEGameMain.h"
+#include "../SMGE/CGEGameBase.h"
 
 namespace MonoMaxGraphics
 {
-	class CGGameDev : public CGEGameMain
+	class CGGameDev : public CGEGameBase
 	{
-		using Super = CGEGameMain;
+		using Super = CGEGameBase;
 
 	public:
-		CGGameDev() {}
+		CGGameDev();
+		virtual ~CGGameDev();
 
 		virtual void Tick(float) override;
+
+	public:
+		class CGEEngineBase* engine_;
 	};
 };
