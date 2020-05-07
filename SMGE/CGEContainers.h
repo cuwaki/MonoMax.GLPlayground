@@ -72,4 +72,23 @@ namespace MonoMaxGraphics
 
     template<typename T>
     using CWeakPtr = std::weak_ptr<T>;
+
+    // 유틸리티 함수들
+    template<typename Container, typename T>
+    auto FindIt(const Container& container, const T& val)
+    {
+        return std::find(container.begin(), container.end(), val);
+    }
+
+    template<typename Container, typename Iter>
+    bool IsFound(const Container& container, const Iter& it)
+    {
+        return it != container.end();
+    }
+
+    template<typename Container, typename T>
+    bool Find(const Container& container, const T& val)
+    {
+        return IsFound(std::find(container.begin(), container.end(), val));
+    }
 };

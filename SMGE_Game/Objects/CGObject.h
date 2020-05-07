@@ -13,7 +13,8 @@ namespace MonoMaxGraphics
 
 		CWString getReflClassName() { return reflClassName_; }
 
-		virtual void MakeDefault();
+		virtual void CGCtor();
+		virtual void CopyFromTemplate(const CGObject& templateObj);
 
 	protected:
 		CWString reflClassName_;

@@ -52,7 +52,7 @@ namespace MonoMaxGraphics
 			contentClass_(contentClass),
 			CGAssetBase()
 		{
-			reflClassName_ = wtext("CGAsset<") + (getContentClass() ? getContentClass()->getReflClassName() : wtext("nullptr")) + wtext(">");
+			reflClassName_ = wtext("SMGE_Game::CGAsset<") + (getContentClass() ? getContentClass()->getReflClassName() : wtext("nullptr")) + wtext(">");
 		}
 
 		C* getContentClass() const { return contentClass_; }

@@ -23,14 +23,23 @@ namespace MonoMaxGraphics
 		clearAndAssign(actorLayers_[EActorLayer::Game], map.actorLayers_[EActorLayer::Game]);
 	}
 
-	void CGMap::MakeDefault()
+	CGMap::CGMap()
 	{
-		Super::MakeDefault();
+		reflClassName_ = wtext("SMGE_Game::CGMap");
+	}
+
+	void CGMap::CGCtor()
+	{
+		Super::CGCtor();
 
 		actorLayers_.resize(etoi(EActorLayer::Max) - 1);
-
 		actorLayers_[EActorLayer::System].reserve(20);
 		actorLayers_[EActorLayer::Game].reserve(100);
+	}
+
+	void CGMap::CopyFromTemplate(const CGObject& templateObj)
+	{
+		Super::CopyFromTemplate(templateObj);
 	}
 
 	SGReflection& CGMap::getReflection()
@@ -38,37 +47,46 @@ namespace MonoMaxGraphics
 		if (reflMap_ == false)
 			reflMap_ = MakeUniqPtr<ReflectionStruct>(*this);
 		else
-		{	// this->actorLayers_ 에 변경이 있는 경우 바뀌어야한다
-			clearAndAssign(reflMap_->actorLayers_[EActorLayer::System], this->actorLayers_[EActorLayer::System]);
-			clearAndAssign(reflMap_->actorLayers_[EActorLayer::Game], this->actorLayers_[EActorLayer::Game]);
+		{	// 차후 this->actorLayers_ 에 변경이 있는 경우에만 바뀌어야한다
+			reflMap_->SGRefl_Map::SGRefl_Map(*this);
 		}
 
 		return *reflMap_.get();
 	}
 
-	void CGMap::ArrangeActor(const CGActor& templateActor)
+	CGActor& CGMap::ArrangeActor(const CGActor& templateActor)
 	{
-		/**
-			new actor class
-			MakeDefault
-			LoadFrom Actor Template Asset
+		auto newActor = MakeSharPtr<CGActor>();
+		newActor->CGCtor();
+		newActor->CopyFromTemplate(templateActor);
 
-			이렇게 해서 기본값을 가진 액터를 맵에 배치한다
+		// ActorKeyGenerator
+		static TActorKey ActorKeyGenerator = 0;
+		newActor->actorKey_ = ++ActorKeyGenerator;
 
-			상속된 액터를 배치할 수 있어한다 - reflClassName_ 활용
-		*/
-		//auto newActor = MakeSharPtr<CGActor>(templateActor);
-		//newActor->MakeDefault();
-		////newActor->getReflection() = 
-
-		//auto added = actorLayers_[EActorLayer::Game].emplace_back();
-		//added->MakeDefault();
+		auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
+		return *rb;
 	}
 
-	void CGMap::OverrideActor(CGActor& arrangedActor)
+	CGActor& CGMap::OverrideActor(CGActor& arrangedActor)
 	{
-		/**
-			맵에 배치된 액터에 에디터에서 편집했던 값을 적용한다
-		*/
+		// 맵에 배치된 액터에 에디터에서 편집했던 값을 적용한다
+		ReflectionStruct& mapReflStruct = SCast<ReflectionStruct&>(this->getReflection());
+
+		const auto& cont = mapReflStruct.actorLayers_[EActorLayer::Game];
+		auto act = FindIt(cont, arrangedActor.actorKey_);
+		if (IsFound(cont, act))
+		{
+			SGStringStreamIn strIn;
+			strIn.in_ = *act;
+			strIn >> arrangedActor.getReflection();
+		}
+		return arrangedActor;
+	}
+
+	void CGMap::Activate()
+	{
+		// actorLayers_ 로부터 액터들을 인스턴싱한다
+		// ArrangeActor, OverrideActor
 	}
 };

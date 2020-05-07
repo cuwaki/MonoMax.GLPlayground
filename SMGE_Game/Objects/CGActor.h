@@ -39,7 +39,8 @@ namespace MonoMaxGraphics
 	public:
 		CGActor();
 
-		virtual void MakeDefault() override;
+		virtual void CGCtor() override;
+		virtual void CopyFromTemplate(const CGObject& templateObj) override;
 
 		glm::mat4& getWorldTransform();
 		glm::vec3& getWorldLocation();
@@ -63,5 +64,8 @@ namespace MonoMaxGraphics
 		ComponentVector components_;
 
 		TActorKey actorKey_ = InvalidActorKey;
+
+		// ActorKeyGenerator
+		friend class CGMap;
 	};
 };

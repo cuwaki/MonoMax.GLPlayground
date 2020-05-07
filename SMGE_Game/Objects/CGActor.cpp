@@ -49,7 +49,7 @@ namespace MonoMaxGraphics
 
 	CGActor::CGActor()
 	{
-		reflClassName_ = wtext("CGActor");
+		reflClassName_ = wtext("SMGE_Game::CGActor");
 	}
 
 	SGReflection& CGActor::getReflection()
@@ -64,12 +64,17 @@ namespace MonoMaxGraphics
 		return components_;
 	}
 
-	void CGActor::MakeDefault()
+	void CGActor::CGCtor()
 	{
-		Super::MakeDefault();
+		Super::CGCtor();
 
 		getComponentList().emplace_back(MakeUniqPtr<CGStaticMeshComponent>());
 		cachedMainDrawCompo_ = SCast<CGStaticMeshComponent*>(getComponentList().rbegin()->get());
+	}
+
+	void CGActor::CopyFromTemplate(const CGObject& templateObj)
+	{
+		Super::CopyFromTemplate(templateObj);
 	}
 
 	glm::mat4& CGActor::getWorldTransform()

@@ -8,7 +8,7 @@ namespace MonoMaxGraphics
 {
 	enum class EActorLayer : uint8
 	{
-		System = 0,
+		System = 0,	// 카메라, 매니저 ...
 		Game,
 		Max,
 	};
@@ -34,10 +34,15 @@ namespace MonoMaxGraphics
 		friend struct ReflectionStruct;
 
 	public:
-		virtual void MakeDefault() override;
+		CGMap();
 
-		void ArrangeActor(const CGActor& templateActor);
-		void OverrideActor(CGActor& arrangedActor);
+		virtual void CGCtor() override;
+		virtual void CopyFromTemplate(const CGObject& templateObj) override;
+
+		void Activate();
+
+		CGActor& ArrangeActor(const CGActor& templateActor);
+		CGActor& OverrideActor(CGActor& arrangedActor);
 
 	public:
 		virtual SGReflection& getReflection();

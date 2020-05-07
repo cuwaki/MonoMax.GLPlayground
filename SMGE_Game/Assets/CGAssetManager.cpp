@@ -2,5 +2,5 @@
 
 namespace MonoMaxGraphics
 {
-	CMap<CWString, CSharPtr<CGAssetBase>> CGAssetManager::allAssetMap_;
+	CMap<CWString, CSharPtr<CGAssetBase>> CGAssetManager::cachedAssets_;
 };

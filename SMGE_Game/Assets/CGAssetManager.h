@@ -13,8 +13,8 @@ namespace MonoMaxGraphics
 		{
 			ToLower(filePath);
 
-			auto res = allAssetMap_.find(filePath);
-			if (res != allAssetMap_.end())
+			auto res = cachedAssets_.find(filePath);
+			if (res != cachedAssets_.end())
 				return std::static_pointer_cast<CGAsset<C>>(res->second);
 
 			return nullptr;
@@ -27,8 +27,8 @@ namespace MonoMaxGraphics
 			if (res)
 				return res;
 
-			allAssetMap_[filePath] = std::move(MakeSharPtr<CGAsset<C>>());
-			return std::static_pointer_cast<CGAsset<C>>(allAssetMap_[filePath]);
+			cachedAssets_[filePath] = std::move(MakeSharPtr<CGAsset<C>>());
+			return std::static_pointer_cast<CGAsset<C>>(cachedAssets_[filePath]);
 		}
 
 		template<typename C>
@@ -41,6 +41,6 @@ namespace MonoMaxGraphics
 			return LoadAsset<C>(filePath);
 		}
 
-		static CMap<CWString, CSharPtr<CGAssetBase>> allAssetMap_;
+		static CMap<CWString, CSharPtr<CGAssetBase>> cachedAssets_;
 	};
 }
