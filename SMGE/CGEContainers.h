@@ -73,22 +73,41 @@ namespace MonoMaxGraphics
     template<typename T>
     using CWeakPtr = std::weak_ptr<T>;
 
-    // 유틸리티 함수들
-    template<typename Container, typename T>
-    auto FindIt(const Container& container, const T& val)
+    // 전역 유틸리티 함수들
+    namespace GlobalUtils
     {
-        return std::find(container.begin(), container.end(), val);
-    }
+        template<typename Container, typename T>
+        auto FindIt(const Container& container, const T& val)
+        {
+            return std::find(container.begin(), container.end(), val);
+        }
 
-    template<typename Container, typename Iter>
-    bool IsFound(const Container& container, const Iter& it)
-    {
-        return it != container.end();
-    }
+        template<typename Container, typename Iter>
+        bool IsFound(const Container& container, const Iter& it)
+        {
+            return it != container.end();
+        }
 
-    template<typename Container, typename T>
-    bool Find(const Container& container, const T& val)
-    {
-        return IsFound(std::find(container.begin(), container.end(), val));
+        template<typename Container, typename T>
+        bool Find(const Container& container, const T& val)
+        {
+            return IsFound(std::find(container.begin(), container.end(), val));
+        }
+
+        template<typename T>
+        CVector<T> SplitStringToVector(const T& str, const T& delim)
+        {
+            CVector<T> tokens;
+            size_t prev = 0, pos = 0;
+            do
+            {
+                pos = str.find(delim, prev);
+                if (pos == T::npos) pos = str.length();
+                T token = str.substr(prev, pos - prev);
+                if (!token.empty()) tokens.push_back(token);
+                prev = pos + delim.length();
+            } while (pos < str.length() && prev < str.length());
+            return tokens;
+        }
     }
 };

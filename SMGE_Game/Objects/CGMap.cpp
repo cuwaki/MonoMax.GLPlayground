@@ -74,8 +74,8 @@ namespace MonoMaxGraphics
 		ReflectionStruct& mapReflStruct = SCast<ReflectionStruct&>(this->getReflection());
 
 		const auto& cont = mapReflStruct.actorLayers_[EActorLayer::Game];
-		auto act = FindIt(cont, arrangedActor.actorKey_);
-		if (IsFound(cont, act))
+		auto act = GlobalUtils::FindIt(cont, arrangedActor.actorKey_);
+		if (GlobalUtils::IsFound(cont, act))
 		{
 			SGStringStreamIn strIn;
 			strIn.in_ = *act;

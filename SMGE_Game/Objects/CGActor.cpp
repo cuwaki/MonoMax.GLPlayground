@@ -4,7 +4,9 @@
 namespace MonoMaxGraphics
 {
 	SGRefl_Actor::SGRefl_Actor(CGActor& actor) :
-		worldTransform_(actor.worldTransform_), actorKey_(actor.actorKey_),
+		actorKey_(actor.actorKey_),
+		worldTransform_(actor.worldTransform_),
+		actorStaticTag_(actor.actorStaticTag_),
 		SGReflection(actor)
 	{
 	}
@@ -15,6 +17,7 @@ namespace MonoMaxGraphics
 
 		_ADD_REFL_VARIABLE(actorKey_);
 		_ADD_REFL_VARIABLE(worldTransform_);
+		_ADD_REFL_VARIABLE(actorStaticTag_);
 	}
 
 	SGRefl_Actor::operator CWString() const
@@ -23,6 +26,8 @@ namespace MonoMaxGraphics
 
 		ret += _TO_REFL(TActorKey, actorKey_);
 		ret += _TO_REFL(glm::mat4, worldTransform_);
+		ret += _TO_REFL(CString, actorStaticTag_);
+		
 		return ret;
 	}
 
@@ -32,6 +37,7 @@ namespace MonoMaxGraphics
 
 		_FROM_REFL(actorKey_, variableSplitted);
 		_FROM_REFL(worldTransform_, variableSplitted);
+		_FROM_REFL(actorStaticTag_, variableSplitted);
 
 		return *this;
 	}
@@ -43,6 +49,7 @@ namespace MonoMaxGraphics
 		// from fast
 		_FROM_REFL(actorKey_, variableSplitted);
 		_FROM_REFL(worldTransform_, variableSplitted);
+		_FROM_REFL(actorStaticTag_, variableSplitted);
 
 		return *this;
 	}

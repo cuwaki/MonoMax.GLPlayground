@@ -100,9 +100,9 @@ namespace MonoMaxGraphics
 		extern void FromREFL(L& left, const CWString& right)
 		{
 			if constexpr (std::numeric_limits<L>::is_integer)
-				left = std::atoll(ToASCII(right).c_str());
+				left = SCast<L>(std::atoll(ToASCII(right).c_str()));
 			else if constexpr (std::is_floating_point_v<L>)
-				left = std::atof(ToASCII(right).c_str());
+				left = SCast<L>(std::atof(ToASCII(right).c_str()));
 			else if constexpr (std::is_same_v<L, CWString> || std::is_same_v<L, std::wstring>)
 				left = right;	// 추가 할 일 - 딜리미터들을 원래의 값으로 변경해서 넣기
 			else if constexpr (std::is_same_v<L, CString> || std::is_same_v<L, std::string>)

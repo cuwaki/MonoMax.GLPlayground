@@ -19,12 +19,22 @@ namespace MonoMaxGraphics
 
 		virtual operator CWString() const override;
 
+		bool operator==(const SGRefl_Actor& right) const noexcept
+		{
+			return this->actorKey_ == right.actorKey_;
+		}
+		bool operator==(const TActorKey& ak) const noexcept
+		{
+			return this->actorKey_ == ak;
+		}
+
 	protected:
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value> &in) override;
 		virtual SGReflection& operator=(CVector<CWString>& in) override;
 
 		TActorKey& actorKey_;
 		glm::mat4& worldTransform_;
+		CString& actorStaticTag_;
 	};
 
 	class CGActor : public CGObject,
@@ -56,6 +66,9 @@ namespace MonoMaxGraphics
 		glm::vec3 worldLocation_;
 		glm::vec3 worldDirection_;
 		glm::vec3 worldScale_;
+
+		CString actorStaticTag_;
+		CString actorTag_;
 
 		class CGDrawComponent* cachedMainDrawCompo_;
 

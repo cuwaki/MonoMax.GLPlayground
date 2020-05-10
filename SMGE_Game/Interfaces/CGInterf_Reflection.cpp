@@ -24,7 +24,7 @@ namespace MonoMaxGraphics
 		template<>
 		extern void FromREFL(glm::mat4& gv, const CWString& valuesStr)
 		{
-			auto spl = SplitStringToVector(valuesStr, VALUE_DELIM);
+			auto spl = GlobalUtils::SplitStringToVector(valuesStr, VALUE_DELIM);
 			for (int r = 0; r < 4; ++r)
 			{
 				for (int c = 0; c < 4; ++c)
@@ -59,7 +59,7 @@ namespace MonoMaxGraphics
 
 	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
 	{
-		CVector<CWString> variableSplitted = SplitStringToVector(fullReflectedStr, VARIABLE_DELIM);
+		CVector<CWString> variableSplitted = GlobalUtils::SplitStringToVector(fullReflectedStr, VARIABLE_DELIM);
 
 		if (isFast_ == false)
 		{
@@ -69,7 +69,7 @@ namespace MonoMaxGraphics
 			CVector<CWString> temp;
 			for (int i = 0; i < variableSplitted.size(); ++i)
 			{
-				temp = SplitStringToVector(variableSplitted[i], META_DELIM);
+				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));
 			}	
 

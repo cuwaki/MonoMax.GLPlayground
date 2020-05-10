@@ -88,20 +88,4 @@ namespace MonoMaxGraphics
 
     CWString ToTCHAR(const CString& astr);
     CString ToASCII(const CWString& wstr);
-
-    template<typename T>
-    CVector<T> SplitStringToVector(const T& str, const T& delim)
-    {
-        CVector<T> tokens;
-        size_t prev = 0, pos = 0;
-        do
-        {
-            pos = str.find(delim, prev);
-            if (pos == T::npos) pos = str.length();
-            T token = str.substr(prev, pos - prev);
-            if (!token.empty()) tokens.push_back(token);
-            prev = pos + delim.length();
-        } while (pos < str.length() && prev < str.length());
-        return tokens;
-    }
 }
