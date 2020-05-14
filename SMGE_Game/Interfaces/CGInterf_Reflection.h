@@ -144,9 +144,9 @@ namespace MonoMaxGraphics
 	{
 	public:
 		virtual SGReflection& getReflection() = 0;
-		const SGReflection& getConstReflection() const
-		{
-			return const_cast<CGInterf_Reflection *>(this)->getReflection();
-		}
+		//const SGReflection& getReflection()
+		//{
+		//	return getReflection();
+		//}
 	};
 };

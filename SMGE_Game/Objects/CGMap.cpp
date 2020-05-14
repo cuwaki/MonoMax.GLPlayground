@@ -44,7 +44,19 @@ namespace MonoMaxGraphics
 
 	SGReflection& CGMap::getReflection()
 	{
-		if (reflMap_ == false)
+		if (reflMap_.get() == nullptr)
+			reflMap_ = MakeUniqPtr<ReflectionStruct>(*this);
+		else
+		{	// 차후 this->actorLayers_ 에 변경이 있는 경우에만 바뀌어야한다
+			reflMap_->SGRefl_Map::SGRefl_Map(*this);
+		}
+
+		return *reflMap_.get();
+	}
+
+	SGReflection& CGMap::getReflection2()
+	{
+		if (reflMap_.get() == nullptr)
 			reflMap_ = MakeUniqPtr<ReflectionStruct>(*this);
 		else
 		{	// 차후 this->actorLayers_ 에 변경이 있는 경우에만 바뀌어야한다

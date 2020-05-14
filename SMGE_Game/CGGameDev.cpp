@@ -24,7 +24,7 @@ namespace MonoMaxGraphics
 		gameSettings_ = new SGEGameSettings();
 
 		gameSettings_->gameProjectName_ = wtext("dev_project");
-		gameSettings_->gameProjectRootPath_ = wtext("c:/");
+		gameSettings_->gameProjectRootPath_ = wtext("e:/");
 	}
 
 	void CGGameDev::Tick(float dt)
@@ -33,6 +33,7 @@ namespace MonoMaxGraphics
 
 		CGActor actor;
 		actor.CGCtor();
+		actor.setActorStaticTag("empty");
 
 		// 기본 리플렉션 테스트 코드
 		// {
@@ -66,7 +67,10 @@ namespace MonoMaxGraphics
 		CGActor& actorB = tempMap.ArrangeActor(actorTemplate);
 
 		actorA.getWorldTransform()[0][1] = 345;	// 편집
+		actorA.setActorStaticTag("AAA");
+
 		actorB.getWorldTransform()[1][3] = 987;
+		actorB.setActorStaticTag("BBB");
 
 		CGAsset<CGMap> mapAsset(&tempMap);
 		CGAssetManager::SaveAsset(assetRoot + wtext("/map/testMap.asset"), mapAsset);	// 여기 할 차례

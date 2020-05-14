@@ -57,9 +57,14 @@ namespace MonoMaxGraphics
 		glm::vec3& getWorldDirection();
 		glm::vec3& getWorldScale();
 
+		void setActorStaticTag(const CString& st) { actorStaticTag_ = st; }
+		CString getActorStaticTag() { return actorStaticTag_; }
+
 	public:
 		virtual SGReflection& getReflection() override;
 		virtual ComponentVector& getComponentList() override;
+
+		SGReflection& getReflection2();
 
 	protected:
 		glm::mat4 worldTransform_;

@@ -32,7 +32,7 @@ namespace MonoMaxGraphics
 
 	CWString CGEGameBase::PathProjectRoot()
 	{
-		return gameSettings_->gameProjectRootPath_;
+		return gameSettings_->gameProjectRootPath_ + wtext("/") + gameSettings_->gameProjectName_ + wtext("/");
 	}
 
 	CWString CGEGameBase::PathAssetRoot()

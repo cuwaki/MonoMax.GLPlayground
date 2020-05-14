@@ -45,7 +45,8 @@ namespace MonoMaxGraphics
 		CGActor& OverrideActor(CGActor& arrangedActor);
 
 	public:
-		virtual SGReflection& getReflection();
+		virtual SGReflection& getReflection() override;
+		SGReflection& getReflection2();
 
 	protected:
 		CUniqPtr<ReflectionStruct> reflMap_;

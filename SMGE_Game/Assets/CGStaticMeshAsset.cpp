@@ -8,7 +8,7 @@ namespace MonoMaxGraphics
 
 	//SGReflection& CGStaticMeshAsset::getReflection()
 	//{
-	//	if (reflAsset_ == false)
+	//	if (reflAsset_.get() == nullptr)
 	//		reflAsset_ = MakeUniqPtr<ReflectionStruct>(*this);
 	//	return *reflAsset_.get();
 	//}

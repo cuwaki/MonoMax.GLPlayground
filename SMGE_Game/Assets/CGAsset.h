@@ -22,9 +22,16 @@ namespace MonoMaxGraphics
 		using CR = typename C::ReflectionStruct;
 
 		SGRefl_Asset(CGAsset<C>& asset) :
-			childRefl_(SCast<CR&>(asset.getContentClass()->getReflection())),
+			childRefl_(SCast<CR&>(asset.getContentClass()->getReflection2())),
 			SGRefl_AssetBase(asset)
 		{
+		}
+
+		virtual operator CWString() const override
+		{
+			CWString ret = SGRefl_AssetBase::operator CWString();
+			ret += childRefl_;
+			return ret;
 		}
 
 		CR& childRefl_;
@@ -35,6 +42,18 @@ namespace MonoMaxGraphics
 	public:
 		CGAssetBase() : CGObject() {}
 	};
+
+	/*
+		여기 할 차례
+
+		CGAsset 이 템플릿 클래스인데 virtual getReflection 이 존재하는 CGAssetBase 를 상속받으니까
+		제대로 버철 함수의 호출 처리가 안된다 - 는 것 같다!! 계속 이상한 포인터를 접근하여 쓰레기값을 받아온다!
+
+		CGAsset 은 CGObject 가 아니게 하고, CGInterf_Reflection 을 감싸서 버철 함수가 아닌 걸로 파일에 읽고 쓰기를 처리하는 걸로 하자
+		즉 CGAsset 은 Reflection 처리를 하드코딩으로 해야겠다
+
+		getReflection2 없애기
+	*/
 
 	template<typename C>
 	class CGAsset : public CGAssetBase
@@ -59,7 +78,13 @@ namespace MonoMaxGraphics
 
 		virtual SGReflection& getReflection() override
 		{
-			if (reflAsset_ == false)
+			if (reflAsset_.get() == nullptr)
+				reflAsset_ = MakeUniqPtr<ReflectionStruct>(*this);
+			return *reflAsset_.get();
+		}
+		SGReflection& getReflection2()
+		{
+			if (reflAsset_.get() == nullptr)
 				reflAsset_ = MakeUniqPtr<ReflectionStruct>(*this);
 			return *reflAsset_.get();
 		}

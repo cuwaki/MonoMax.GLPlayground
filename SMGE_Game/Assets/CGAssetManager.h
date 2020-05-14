@@ -32,11 +32,11 @@ namespace MonoMaxGraphics
 		}
 
 		template<typename C>
-		static CSharPtr<CGAsset<C>> SaveAsset(CWString filePath, const CGAsset<C>& target)
+		static CSharPtr<CGAsset<C>> SaveAsset(CWString filePath, CGAsset<C>& target)
 		{
-			CWString strToFile = target.getConstReflection();
+			CWString strToFile = target.getReflection2();
 
-			// save to file
+			CuwakiDevUtils::SaveToTextFile(filePath, strToFile);
 
 			return LoadAsset<C>(filePath);
 		}

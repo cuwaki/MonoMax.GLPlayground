@@ -61,7 +61,14 @@ namespace MonoMaxGraphics
 
 	SGReflection& CGActor::getReflection()
 	{
-		if (reflActor_ == false)
+		if (reflActor_.get() == nullptr)
+			reflActor_ = MakeUniqPtr<ReflectionStruct>(*this);
+		return *reflActor_.get();
+	}
+
+	SGReflection& CGActor::getReflection2()
+	{
+		if (reflActor_.get() == nullptr)
 			reflActor_ = MakeUniqPtr<ReflectionStruct>(*this);
 		return *reflActor_.get();
 	}
