@@ -57,14 +57,14 @@ namespace MonoMaxGraphics
 namespace MonoMaxGraphics
 {
     template<typename T>
-    extern T& ToLower(T& str)
+    extern T& ToLowerInline(T& str)
     {
         std::transform(str.begin(), str.end(), str.begin(), std::tolower);
         return str;
     }
 
     template<typename T>
-    extern T& ToUpper(T& str)
+    extern T& ToUpperInline(T& str)
     {
         std::transform(str.begin(), str.end(), str.begin(), std::toupper);
         return str;
@@ -211,9 +211,10 @@ namespace MonoMaxGraphics
         template<typename T>
         T LoadFromTextFile(const T& filePath)
         {
-            T ret;
+            static_assert(std::is_same_v<T, CWString>, "only support CWString!!!");
 
-            auto in = std::ifstream(filePath, std::ifstream::binary | std::ifstream::ate);
+            T ret;
+            auto in = std::wifstream(filePath, std::ifstream::binary | std::ifstream::ate);
             if (in.good())
             {
                 auto size = in.tellg();
@@ -223,6 +224,9 @@ namespace MonoMaxGraphics
                 in.read(&ret[0], size);
 
                 in.close();
+
+                // 로드할 때 \r\n 로 읽어진다 - Windows 에서...
+                CuwakiDevUtils::ReplaceInline(ret, L"\r\n", L"\n"); // 그러므로 여기서 정규화한다! 아오....
                 return ret;
             }
 
@@ -232,11 +236,15 @@ namespace MonoMaxGraphics
         template<typename T>
         bool SaveToTextFile(const T& filePath, const T& text)
         {
-            std::ofstream out(filePath);
+            static_assert(std::is_same_v<T, CWString>, "only support CWString!!!");
+
+            std::wofstream out(filePath);
             if (out.good())
             {
-                out << text.c_str() << std::feof;
+                out << text.c_str();
                 out.close();
+
+                // 세이브할 때 \n 으로 쓰더라도
                 return true;
             }
 

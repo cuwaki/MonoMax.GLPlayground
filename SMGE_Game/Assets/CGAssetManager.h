@@ -5,13 +5,20 @@
 
 namespace MonoMaxGraphics
 {
+	CWString FindAssetFilePathByClassName(CWString className);
+
 	class CGAssetManager
 	{
 	public:
+		static CWString FindAssetFilePathByClassName(CWString className)
+		{
+			return MonoMaxGraphics::FindAssetFilePathByClassName(className);
+		}
+
 		template<typename C>
 		static CSharPtr<CGAsset<C>> FindAsset(CWString filePath)
 		{
-			ToLower(filePath);
+			ToLowerInline(filePath);
 
 			auto res = cachedAssets_.find(filePath);
 			if (res != cachedAssets_.end())
@@ -23,22 +30,22 @@ namespace MonoMaxGraphics
 		template<typename C>
 		static CSharPtr<CGAsset<C>> LoadAsset(CWString filePath)
 		{
+			ToLowerInline(filePath);
+
 			auto res = FindAsset<C>(filePath);
 			if (res)
 				return res;
 
-			cachedAssets_[filePath] = std::move(MakeSharPtr<CGAsset<C>>());
-			return std::static_pointer_cast<CGAsset<C>>(cachedAssets_[filePath]);
+			cachedAssets_[filePath] = std::move(MakeSharPtr<CGAsset<C>>(filePath));
+			return SPtrCast<CGAsset<C>>(cachedAssets_[filePath]);
 		}
 
 		template<typename C>
-		static CSharPtr<CGAsset<C>> SaveAsset(CWString filePath, CGAsset<C>& target)
+		static bool SaveAsset(CWString filePath, CGAsset<C>& target)
 		{
-			CWString strToFile = target.getReflection2();
+			SGStringStreamOut strOut(target.getContentClass()->getReflection());
 
-			CuwakiDevUtils::SaveToTextFile(filePath, strToFile);
-
-			return LoadAsset<C>(filePath);
+			return CuwakiDevUtils::SaveToTextFile(filePath, strOut.out_);
 		}
 
 		static CMap<CWString, CSharPtr<CGAssetBase>> cachedAssets_;

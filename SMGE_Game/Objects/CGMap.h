@@ -20,36 +20,48 @@ namespace MonoMaxGraphics
 
 	struct SGRefl_Map : public SGReflection
 	{
+		using Super = SGReflection;
+
 		SGRefl_Map(CGMap& map);
 
-		TActorLayers<SGRefl_Actor> actorLayers_;
+		TActorLayers<SGRefl_Actor> actorReflLayers_;
+
+		virtual operator CWString() const;
+		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted) override;
+
+	protected:
+		void linkActorReferences();
+
+	public :
+		CGMap* outerMap_;
 	};
 
 	class CGMap : public CGObject, public CGInterf_Reflection
 	{
 	public:
-		using ReflectionStruct = SGRefl_Map;
+		using TReflectionStruct = SGRefl_Map;
 
 		using Super = CGObject;
-		friend struct ReflectionStruct;
+		friend struct TReflectionStruct;
 
 	public:
 		CGMap();
+		CGMap(const CGMap& templateInst);
 
 		virtual void CGCtor() override;
-		virtual void CopyFromTemplate(const CGObject& templateObj) override;
 
 		void Activate();
 
-		CGActor& ArrangeActor(const CGActor& templateActor);
-		CGActor& OverrideActor(CGActor& arrangedActor);
+		CGActor& SpawnDefaultActor(const CGActor& templateActor, bool isDynamic);
+
+		// ¿œ¥‹ æ»æ∏
+		//CGActor& OverrideActor(CGActor& arrangedActor);
 
 	public:
 		virtual SGReflection& getReflection() override;
-		SGReflection& getReflection2();
 
 	protected:
-		CUniqPtr<ReflectionStruct> reflMap_;
+		CUniqPtr<TReflectionStruct> reflMap_;
 		TActorLayers<CSharPtr<CGActor>> actorLayers_;
 	};
 };

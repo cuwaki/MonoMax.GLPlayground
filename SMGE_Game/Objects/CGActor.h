@@ -28,7 +28,6 @@ namespace MonoMaxGraphics
 			return this->actorKey_ == ak;
 		}
 
-	protected:
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value> &in) override;
 		virtual SGReflection& operator=(CVector<CWString>& in) override;
 
@@ -42,15 +41,15 @@ namespace MonoMaxGraphics
 	{
 	public:
 		using Super = CGObject;
-		using ReflectionStruct = SGRefl_Actor;
+		using TReflectionStruct = SGRefl_Actor;
 
-		friend struct ReflectionStruct;
+		friend struct TReflectionStruct;
 
 	public:
 		CGActor();
+		CGActor(const CGActor& templateInst);
 
 		virtual void CGCtor() override;
-		virtual void CopyFromTemplate(const CGObject& templateObj) override;
 
 		glm::mat4& getWorldTransform();
 		glm::vec3& getWorldLocation();
@@ -64,8 +63,6 @@ namespace MonoMaxGraphics
 		virtual SGReflection& getReflection() override;
 		virtual ComponentVector& getComponentList() override;
 
-		SGReflection& getReflection2();
-
 	protected:
 		glm::mat4 worldTransform_;
 		glm::vec3 worldLocation_;
@@ -78,7 +75,7 @@ namespace MonoMaxGraphics
 		class CGDrawComponent* cachedMainDrawCompo_;
 
 	protected:
-		CUniqPtr<ReflectionStruct> reflActor_;
+		CUniqPtr<TReflectionStruct> reflActor_;
 		ComponentVector components_;
 
 		TActorKey actorKey_ = InvalidActorKey;

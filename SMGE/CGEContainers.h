@@ -22,6 +22,7 @@ namespace MonoMaxGraphics
         typename ParentVectorT::iterator cursorBegin() { cursor_ = this->begin(); return cursor();   }
         typename ParentVectorT::iterator cursorNext() { cursor_++; return cursor(); }
         typename ParentVectorT::iterator cursor() {  return cursor_; }
+        void setCursor(typename ParentVectorT::iterator newCursor) { cursor_ = newCursor; }
 
         bool isCursorEnd() { return cursor_ == this->end(); }
 
@@ -46,6 +47,7 @@ namespace MonoMaxGraphics
 
 #define CSharPtr std::shared_ptr
 #define MakeSharPtr std::make_shared
+#define SPtrCast std::static_pointer_cast
 
     /* 아래와 같이 하면 상속된 클래스의 스마트포인터를 베이스 클래스의 스마트 포인터에 넣을 때 컴파일 오류가 난다 - 어려워서 그냥 매크로로 처리한다
     // std::unique_ptr wapper

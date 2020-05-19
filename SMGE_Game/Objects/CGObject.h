@@ -11,12 +11,11 @@ namespace MonoMaxGraphics
 	public:
 		CGObject();
 
-		CWString getReflClassName() { return reflClassName_; }
+		CWString getClassName() { return className_; }
 
 		virtual void CGCtor();
-		virtual void CopyFromTemplate(const CGObject& templateObj);
 
 	protected:
-		CWString reflClassName_;
+		CWString className_;
 	};
 };

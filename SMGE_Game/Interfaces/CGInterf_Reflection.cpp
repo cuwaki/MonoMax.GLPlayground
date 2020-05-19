@@ -2,10 +2,12 @@
 
 namespace MonoMaxGraphics
 {
+	const CWString SGReflection::META_DELIM = L"$";
+	const CWString SGReflection::VARIABLE_DELIM = L"\n";
+	const CWString SGReflection::VALUE_DELIM = L"\t";
+
 	namespace ReflectionUtils
 	{
-		const CWString VALUE_DELIM = L"\t";
-
 		template<>
 		extern CWString ToREFL(const glm::mat4& gv)
 		{
@@ -15,7 +17,7 @@ namespace MonoMaxGraphics
 				for (int c = 0; c < 4; ++c)
 				{
 					ret += ToTCHAR(gv[r][c]);
-					ret += VALUE_DELIM;
+					ret += SGReflection::VALUE_DELIM;
 				}
 			}
 			return ret;
@@ -24,7 +26,7 @@ namespace MonoMaxGraphics
 		template<>
 		extern void FromREFL(glm::mat4& gv, const CWString& valuesStr)
 		{
-			auto spl = GlobalUtils::SplitStringToVector(valuesStr, VALUE_DELIM);
+			auto spl = GlobalUtils::SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
 			for (int r = 0; r < 4; ++r)
 			{
 				for (int c = 0; c < 4; ++c)
@@ -43,18 +45,18 @@ namespace MonoMaxGraphics
 		using TAllReflTypeVariant = std::variant<TActorKey*, CWString*, glm::mat4*>;
 
 		CMap<CWString, TAllReflTypeVariant> variables;
-		variables[L"reflClassName_"] = &reflClassName_;
+		variables[L"className_"] = &className_;
 		variables[L"actorKey_"] = &actorKey_;
 		variables[L"worldTransform_"] = &worldTransform_;
 
 		worldTransform_ = *std::get<decltype(&worldTransform_)>(variables[L"worldTransform_"]);*/
 
-		_ADD_REFL_VARIABLE(reflClassName_);
+		_ADD_REFL_VARIABLE(className_);
 	}
 
 	SGReflection::operator CWString() const
 	{
-		return _TO_REFL(CWString, reflClassName_);
+		return _TO_REFL(CWString, className_);
 	}
 
 	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
@@ -86,13 +88,13 @@ namespace MonoMaxGraphics
 	SGReflection& SGReflection::operator=(CVector<CWString>& variableSplitted)
 	{
 		// from fast
-		_FROM_REFL(reflClassName_, variableSplitted);
+		_FROM_REFL(className_, variableSplitted);
 		return *this;
 	}
 
 	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
 	{
-		_FROM_REFL(reflClassName_, metaSplitted);
+		_FROM_REFL(className_, metaSplitted);
 		return *this;
 	}
 };
