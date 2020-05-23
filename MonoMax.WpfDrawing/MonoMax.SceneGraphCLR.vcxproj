@@ -76,8 +76,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\DEV\source\MonoMax.GLPlayground\Dependencies\libs;$(LibraryPath);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\libs</LibraryPath>
-    <IncludePath>C:\Users\cuwak\source\repos\MonoMax.GLPlayground\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>..\libs;$(LibraryPath);../x64/debug</LibraryPath>
+    <IncludePath>..\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -101,7 +101,8 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>smge.lib;smge_game.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\DEV\source\MonoMax.GLPlayground\packages\libs;%(AdditionalLibraryDirectories);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\libs;%(AdditionalLibraryDirectories);..\x64\Debug</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <Lib>
       <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>

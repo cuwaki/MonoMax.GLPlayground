@@ -25,6 +25,7 @@
     <RootNamespace>MonoMaxGLPlayground</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>MonoMax.Engine</ProjectName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,6 +46,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -76,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\includes\</IncludePath>
-    <LibraryPath>C:\DEV\source\MonoMax.GLPlayground\Dependencies\libs;$(LibraryPath);C:\Users\cuwak\source\repos\MonoMax.GLPlayground\libs\</LibraryPath>
+    <IncludePath>$(IncludePath);..\includes\</IncludePath>
+    <LibraryPath>..\libs\;$(LibraryPath);../x64/debug;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -123,7 +125,7 @@
     <Lib>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>smge.lib;smge_game.lib;superpompoko.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
