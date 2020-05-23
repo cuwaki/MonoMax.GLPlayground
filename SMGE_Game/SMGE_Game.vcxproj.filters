@@ -33,9 +33,6 @@
     <ClCompile Include="Components\CGWorldMoveComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="CGGameDev.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Components\CGDrawComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -79,9 +76,6 @@
     </ClInclude>
     <ClInclude Include="Components\CGWorldMoveComponent.h">
       <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="CGGameDev.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Interfaces\CGInterf_Component.h">
       <Filter>Interfaces</Filter>

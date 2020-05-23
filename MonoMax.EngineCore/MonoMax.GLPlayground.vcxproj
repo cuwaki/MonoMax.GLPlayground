@@ -122,7 +122,7 @@
     </Link>
     <Lib>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>
+      <AdditionalDependencies>smge.lib;smge_game.lib;superpompoko.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>

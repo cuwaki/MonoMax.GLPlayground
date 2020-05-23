@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <direct.h>
 #include <cstdint>
 #include <cinttypes>
 #include <tuple>
@@ -15,6 +19,7 @@
 #include <typeinfo>
 #include <variant>
 #include <any>
+#include <optional>
 
 #include "glfw/glfw3.h"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/string_cast.hpp"
@@ -38,6 +43,8 @@ namespace MonoMaxGraphics
     using uint16 = std::uint16_t;
     using uint32 = std::uint32_t;
     using uint64 = std::uint64_t;
+
+    using wchar = wchar_t;
 
     template<typename T, typename U>
     inline T SCast(U u)
@@ -137,6 +144,19 @@ namespace MonoMaxGraphics
         std::vector<typename LIST::value_type> SortList(const LIST& list, const T_CF& T_Comparer)
         {
             return PartialSortList(list.begin(), list.end(), list.size(), T_Comparer);
+        }
+
+        template<typename T>
+        T Replace(T source, const T& finding, const T& replacing)
+        {
+            ReplaceInline(source, finding, replacing);
+            return source;
+        }
+        template<typename T>
+        T Replace(T source, const typename T::value_type* finding, const typename T::value_type* replacing)
+        {
+            ReplaceInline(source, T{ finding }, T{ replacing });
+            return source;
         }
 
         template<typename T>
@@ -250,5 +270,13 @@ namespace MonoMaxGraphics
 
             return false;
         }
+    }
+
+    namespace SMGEGlobal
+    {
+        CWString GetNormalizedPath(const CWString& path);
+        bool IsValidPath(const CWString& path);
+        CWString GetDirectoryFullPath(const CWString& dir);
+        CWString GetDirectoryCurrent();
     }
 }

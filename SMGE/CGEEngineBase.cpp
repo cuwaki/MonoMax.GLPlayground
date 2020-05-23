@@ -16,6 +16,7 @@ namespace MonoMaxGraphics
 	}
 }
 
+// 차후 할 일
 #include <locale>
 #include <codecvt>
 #include <string>
@@ -41,5 +42,32 @@ namespace MonoMaxGraphics
 		CString ret(wstr.begin(), wstr.end());
 		//ret.assign;
 		return ret;
+	}
+
+	namespace SMGEGlobal
+	{
+		CWString GetNormalizedPath(const CWString& path)
+		{
+			return CuwakiDevUtils::Replace(path, L"\\", L"/");
+		}
+
+		bool IsValidPath(const CWString& path)
+		{
+			return path.length() > 0 && (path.find(L'/') != CWString::npos || path.find(L'\\') != CWString::npos);
+		}
+
+		CWString GetDirectoryFullPath(const CWString& dir)
+		{
+			wchar full[_MAX_PATH];
+			if (_wfullpath(full, dir.c_str(), _MAX_PATH) != nullptr)
+				return GetNormalizedPath(full);
+
+			return wtext("error_path");
+		}
+
+		CWString GetDirectoryCurrent()
+		{
+			return GetDirectoryFullPath(wtext("./"));
+		}
 	}
 }

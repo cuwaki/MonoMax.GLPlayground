@@ -1,4 +1,6 @@
 #include "CGAssetManager.h"
+#include "../SMGE/CGEGameBase.h"
+#include "../SMGE/GECommonIncludes.h"
 
 namespace MonoMaxGraphics
 {
@@ -8,10 +10,11 @@ namespace MonoMaxGraphics
 	{
 		static CMap<CWString, CWString> pathes;
 
+		const auto pathAssetRoot = CGEGameBase::Instance->PathAssetRoot();
 		if (pathes.size() == 0)
 		{
-			pathes[wtext("SMGE_Game::CGActor")] = wtext("testActorTemplate.asset");
-			pathes[wtext("SMGE_Game::CGMap")] = wtext("/map/testMapTemplate.asset");
+			pathes[wtext("SMGE_Game::CGActor")] = SMGEGlobal::GetNormalizedPath(pathAssetRoot + wtext("testActorTemplate.asset"));
+			pathes[wtext("SMGE_Game::CGMap")] = SMGEGlobal::GetNormalizedPath(pathAssetRoot + wtext("/map/testMapTemplate.asset"));
 		}
 
 		return pathes[className];

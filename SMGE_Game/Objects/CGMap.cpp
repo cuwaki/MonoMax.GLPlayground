@@ -1,7 +1,6 @@
 #include "CGmap.h"
+#include "../../SMGE/GECommonIncludes.h"
 #include "../Assets/CGAssetManager.h"
-
-#include <optional>
 
 namespace MonoMaxGraphics
 {
@@ -141,22 +140,23 @@ namespace MonoMaxGraphics
 			auto backupCursor = variableSplitted.cursor();
 			loader.getReflection() = variableSplitted;
 
-			CWString assetRoot = wtext("e:/dev_project/Assets/");
 			CWString actorAssetPath = CGAssetManager::FindAssetFilePathByClassName(loader.getClassName());
+			if (SMGEGlobal::IsValidPath(actorAssetPath) == true)
+			{
+				// 1. 애셋을 이용하여 맵에 액터 스폰하기
+				CSharPtr<CGAsset<CGActor>>& actorTemplate = CGAssetManager::LoadAsset<CGActor>(actorAssetPath);
 
-			// 1. 애셋을 이용하여 맵에 액터 스폰하기
-			CSharPtr<CGAsset<CGActor>>& actorTemplate = CGAssetManager::LoadAsset<CGActor>(assetRoot + actorAssetPath);
+				// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
+				// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??
 
-			// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
-			// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??
+				CGActor& actorA = outerMap_->SpawnDefaultActor(*actorTemplate->getContentClass(), false);	// 배치
 
-			CGActor& actorA = outerMap_->SpawnDefaultActor(*actorTemplate->getContentClass(), false);	// 배치
+				// 2 단계 - 맵에 저장된 값으로 오버라이드시킨다
+				variableSplitted.setCursor(backupCursor);
+				actorA.getReflection() = variableSplitted;
 
-			// 2 단계 - 맵에 저장된 값으로 오버라이드시킨다
-			variableSplitted.setCursor(backupCursor);
-			actorA.getReflection() = variableSplitted;
-
-			// 여기선 아직 this->actorLayers_ 에는 등록이 안되었다, 저 밑에 3단계에서 처리한다
+				// 여기선 아직 this->actorLayers_ 에는 등록이 안되었다, 저 밑에 3단계에서 처리한다
+			}
 		};
 
 		FromCWString(actorReflLayers_[0], variableSplitted, FuncSpawnActor);

@@ -19,7 +19,7 @@ namespace MonoMaxGraphics
 
 		if (!isInitialized)
 		{
-			double updateRate = 0.1;
+			double wantFPS = (1.0 / 45.0) * 1000;
 
 			Grid^ mainGrid = gcnew Grid();
 			m_fpsCounter = gcnew TextBlock();
@@ -31,7 +31,7 @@ namespace MonoMaxGraphics
 
 
 			m_renderTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
-			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(updateRate);
+			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS);
 			m_renderTimer->Tick += gcnew System::EventHandler(this, &MonoMaxGraphics::GLControl::OnTick);
 			m_renderTimer->Start();
 
@@ -43,7 +43,7 @@ namespace MonoMaxGraphics
 			mainGrid->Children->Add(m_fpsCounter);
 
 			AddChild(mainGrid);
-
+			
 			System::Windows::Controls::Panel::SetZIndex(m_ImageControl, -1);
 
 			m_graphicsEngine = new MonoMaxGraphics::GraphicsEngine();
@@ -52,7 +52,14 @@ namespace MonoMaxGraphics
 		}
 
 		m_graphicsEngine->Resize(_w, _h);
-		m_writeableImg = gcnew WriteableBitmap(_w, _h, 96, 96, PixelFormats::Pbgra32, nullptr);
+
+		double dpiX, dpiY;
+		int colorDepth;
+		m_graphicsEngine->getWriteableBitmapInfo(dpiX, dpiY, colorDepth);
+		
+		// colorDepth == 4 이어야하고 그래서 PixelFormats::Pbgra32 를 쓴다
+		m_writeableImg = gcnew WriteableBitmap(_w, _h, dpiX, dpiY, PixelFormats::Pbgra32, nullptr);
+
 		m_WriteableBuffer = (char*)m_writeableImg->BackBuffer.ToPointer();
 		m_ImageControl->Source = m_writeableImg;
 	}
@@ -64,7 +71,9 @@ namespace MonoMaxGraphics
 
 	void GLControl::Destroy(void)
 	{
+		m_graphicsEngine->DeInit();
 		delete m_graphicsEngine;
+		m_graphicsEngine = nullptr;
 	}
 
 	void GLControl::UpdateImageData(void)
@@ -90,6 +99,3 @@ namespace MonoMaxGraphics
 		fpsCounter++;
 	}
 }
-
-
-
