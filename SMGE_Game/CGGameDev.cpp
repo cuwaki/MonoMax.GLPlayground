@@ -34,7 +34,6 @@ namespace MonoMaxGraphics
 
 		CWString assetRoot = PathAssetRoot();
 
-
 		//CGActor actor;
 		//actor.setActorStaticTag("empty");
 
@@ -58,9 +57,6 @@ namespace MonoMaxGraphics
 		//CGAsset<CGActor> actorAssetWriter(&actor);
 		//CGAssetManager::SaveAsset(assetRoot + wtext("testActorTemplate.asset"), actorAssetWriter);
 
-
-
-		
 		// 맵 템플릿 애셋 테스트 코드 - CGActor 를 맵에 저장하기 - 맵에 배치한 후 수정한 값으로, 맵이 로드된 후 액터가 배치된 후 이 값으로 덮어씌우게 된다
 		//CSharPtr<CGAsset<CGActor>> testActorTemplate = CGAssetManager::LoadAsset<CGActor>(assetRoot + wtext("testActorTemplate.asset"));
 		//const auto& actorTemplate = *testActorTemplate->getContentClass();
