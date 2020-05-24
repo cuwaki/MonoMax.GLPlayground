@@ -2,6 +2,8 @@
 
 #include "GECommonIncludes.h"
 
+#define IS_EDITOR 1
+
 namespace MonoMaxGraphics
 {
 	struct SGEGameSettings
@@ -16,11 +18,20 @@ namespace MonoMaxGraphics
 		CGEGameBase();
 		virtual ~CGEGameBase();
 
-		virtual void Initialize();
-		virtual void Tick(float timeDelta);
+#if IS_EDITOR
+		void EditorTick(float timeDelta);
+		void EditorRender(float timeDelta);
+#else
+		int32 GameMain();
+#endif
 
 		CWString PathProjectRoot();
 		CWString PathAssetRoot();
+
+	protected:
+		virtual void Initialize();
+		virtual void Tick(float);
+		virtual void Render(float);
 
 	protected:
 		class CGEEngineBase* engine_;

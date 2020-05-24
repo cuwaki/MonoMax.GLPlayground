@@ -5,6 +5,8 @@ namespace MonoMaxGraphics
 	const CWString SGReflection::META_DELIM = L"$";
 	const CWString SGReflection::VARIABLE_DELIM = L"\n";
 	const CWString SGReflection::VALUE_DELIM = L"\t";
+	const CWString::value_type SGReflection::VARIABLE_DELIM_CHAR = L'\n';
+	const CWString::value_type SGReflection::VALUE_DELIM_CHAR = L'\t';
 
 	namespace ReflectionUtils
 	{
@@ -65,7 +67,7 @@ namespace MonoMaxGraphics
 
 		if (isFast_ == false)
 		{
-			CVector<TupleVarName_VarType_Value> metaSplitted;
+			CVector<TupleVarName_VarType_Value> metaSplitted;	// ##CVector<float> 리플렉션 데이터 최적화
 			metaSplitted.reserve(variableSplitted.size());
 
 			CVector<CWString> temp;

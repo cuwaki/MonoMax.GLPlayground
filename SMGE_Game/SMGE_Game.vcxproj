@@ -156,9 +156,10 @@
   <ItemGroup>
     <ClCompile Include="Assets\CGAsset.cpp" />
     <ClCompile Include="Assets\CGAssetManager.cpp" />
-    <ClCompile Include="Assets\CGStaticMeshAsset.cpp" />
+    <ClCompile Include="Assets\CGModelData.cpp" />
     <ClCompile Include="Components\CGComponent.cpp" />
     <ClCompile Include="Components\CGDrawComponent.cpp" />
+    <ClCompile Include="Components\CGMeshComponent.cpp" />
     <ClCompile Include="Components\CGStaticMeshComponent.cpp" />
     <ClCompile Include="Components\CGWorldMoveComponent.cpp" />
     <ClCompile Include="GCommonIncludes.cpp" />
@@ -170,9 +171,10 @@
   <ItemGroup>
     <ClInclude Include="Assets\CGAsset.h" />
     <ClInclude Include="Assets\CGAssetManager.h" />
-    <ClInclude Include="Assets\CGStaticMeshAsset.h" />
+    <ClInclude Include="Assets\CGModelData.h" />
     <ClInclude Include="Components\CGComponent.h" />
     <ClInclude Include="Components\CGDrawComponent.h" />
+    <ClInclude Include="Components\CGMeshComponent.h" />
     <ClInclude Include="Components\CGStaticMeshComponent.h" />
     <ClInclude Include="Components\CGWorldMoveComponent.h" />
     <ClInclude Include="GCommonIncludes.h" />

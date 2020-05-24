@@ -36,8 +36,7 @@ namespace MonoMaxGraphics
 		CString& actorStaticTag_;
 	};
 
-	class CGActor : public CGObject,
-		public CGInterf_Reflection, public CGInterf_Component
+	class CGActor : public CGObject, public CGInterf_Reflection, public CGInterf_Component
 	{
 	public:
 		using Super = CGObject;
@@ -48,6 +47,7 @@ namespace MonoMaxGraphics
 	public:
 		CGActor();
 		CGActor(const CGActor& templateInst);
+		~CGActor() noexcept;
 
 		virtual void CGCtor() override;
 
@@ -58,6 +58,10 @@ namespace MonoMaxGraphics
 
 		void setActorStaticTag(const CString& st) { actorStaticTag_ = st; }
 		CString getActorStaticTag() { return actorStaticTag_; }
+
+		virtual void OnAfterSpawned(class CGMap* map, bool isDynamic);
+		virtual void OnAfterArranged(class CGMap* map);
+		virtual void BeginPlay();
 
 	public:
 		virtual SGReflection& getReflection() override;

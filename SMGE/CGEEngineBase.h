@@ -16,7 +16,8 @@ namespace MonoMaxGraphics
 		CGEEngineBase();
 		virtual ~CGEEngineBase();
 
-		std::int32_t main();
+		virtual void Tick(float);
+		virtual void Render(float);
 
 	protected:
 		CGEGameBase* gameBase_ = nullptr;

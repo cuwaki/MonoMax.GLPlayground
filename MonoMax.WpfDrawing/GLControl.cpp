@@ -29,10 +29,14 @@ namespace MonoMaxGraphics
 
 			m_lastUpdate = System::DateTime::Now;
 
+			m_tickTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
+			m_tickTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS * 0.95);	// ·»´õº¸´Ù ¾à°£ »¡¸® µ¹°Ô
+			m_tickTimer->Tick += gcnew System::EventHandler(this, &MonoMaxGraphics::GLControl::Tick);
+			m_tickTimer->Start();
 
 			m_renderTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
 			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS);
-			m_renderTimer->Tick += gcnew System::EventHandler(this, &MonoMaxGraphics::GLControl::OnTick);
+			m_renderTimer->Tick += gcnew System::EventHandler(this, &MonoMaxGraphics::GLControl::Render);
 			m_renderTimer->Start();
 
 			m_ImageControl = gcnew Image();
@@ -83,7 +87,12 @@ namespace MonoMaxGraphics
 		m_writeableImg->Unlock();
 	}
 
-	void GLControl::OnTick(System::Object^ sender, System::EventArgs^ e)
+	void GLControl::Tick(System::Object^ sender, System::EventArgs^ e)
+	{
+		m_graphicsEngine->Tick();
+	}
+
+	void GLControl::Render(System::Object^ sender, System::EventArgs^ e)
 	{
 		System::TimeSpan elapsed = (System::DateTime::Now - m_lastUpdate);
 		if (elapsed.TotalMilliseconds >= 1000)

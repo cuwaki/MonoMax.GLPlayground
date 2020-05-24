@@ -13,8 +13,10 @@ namespace MonoMaxGraphics
 		const auto pathAssetRoot = CGEGameBase::Instance->PathAssetRoot();
 		if (pathes.size() == 0)
 		{
+			// 테스트 코드
 			pathes[wtext("SMGE_Game::CGActor")] = SMGEGlobal::GetNormalizedPath(pathAssetRoot + wtext("testActorTemplate.asset"));
 			pathes[wtext("SMGE_Game::CGMap")] = SMGEGlobal::GetNormalizedPath(pathAssetRoot + wtext("/map/testMapTemplate.asset"));
+			pathes[wtext("SMGE_Game::CGModelData")] = SMGEGlobal::GetNormalizedPath(pathAssetRoot + wtext("/mesh/testTriangle.asset"));
 		}
 
 		return pathes[className];

@@ -6,6 +6,12 @@
 
 namespace MonoMaxGraphics
 {
+	struct SMGEException : public std::exception
+	{
+		SMGEException(const CWString& exceptionMsg) : exceptionMsg_(exceptionMsg) {}
+		CWString exceptionMsg_;
+	};
+
 	enum class EActorLayer : uint8
 	{
 		System = 0,	// 카메라, 매니저 ...
@@ -50,18 +56,21 @@ namespace MonoMaxGraphics
 
 		virtual void CGCtor() override;
 
-		void Activate();
-
 		CGActor& SpawnDefaultActor(const CGActor& templateActor, bool isDynamic);
+		CGActor& ArrangeActor(CGActor& arrangedActor);
 
-		// 일단 안씀
-		//CGActor& OverrideActor(CGActor& arrangedActor);
+		void StartToPlay();
+		bool IsStarted() { return isStarted_; }
 
 	public:
 		virtual SGReflection& getReflection() override;
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflMap_;
+
+	protected:
+		// runtime
 		TActorLayers<CSharPtr<CGActor>> actorLayers_;
+		bool isStarted_ = false;
 	};
 };

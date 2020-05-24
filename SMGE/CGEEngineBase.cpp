@@ -10,9 +10,12 @@ namespace MonoMaxGraphics
 	{
 	}
 
-	std::int32_t CGEEngineBase::main()
+	void CGEEngineBase::Tick(float)
 	{
-		return 0;
+	}
+
+	void CGEEngineBase::Render(float)
+	{
 	}
 }
 

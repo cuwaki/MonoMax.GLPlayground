@@ -3,61 +3,89 @@
 
 namespace MonoMaxGraphics
 {
-	void testSMGE()
-	{
-		static SPPKGame game;
-		game.Tick(0.01f);
-	}
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	TestTriangle::TestTriangle(GraphicsEngine* ge) : Model(ge)
+	ModelAsset::ModelAsset(GraphicsEngine* ge) : ge_(ge)
 	{
+		instances_.push_back(this);
+
+		initShaders();
 	}
 
-	void TestTriangle::initRenderData()
+	ModelAsset::~ModelAsset()
+	{
+		destroyBufferObjects();
+
+		auto found = std::find(instances_.begin(), instances_.end(), this);
+		instances_.erase(found);
+	}
+
+	void ModelAsset::OnScreenResize()
+	{
+		createBufferObject();
+	}
+
+	std::vector<ModelAsset*> ModelAsset::instances_;
+	void ModelAsset::OnScreenResize_Master()
+	{
+		for (auto inst : instances_)
+		{
+			inst->OnScreenResize();
+		}
+	}
+
+	void ModelAsset::initRenderData()
 	{
 		glGenVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);
 
-		vertices = {
+		//getShaderCode("../../../../simple_color_vs.glsl"),
+		//getShaderCode("../../../../simple_color_fs.glsl")
+		vertShaderPath_ = "simple_color_vs.glsl";
+		fragShaderPath_ = "simple_color_fs.glsl";
+
+		vertices_ = {
 		0.0f, 0.5f, 0.0f,
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		};
-		vertexAttribNumber = 3;
-
-		modelMat = glm::mat4(1.0f);
+		vertexAttribNumber_ = 3;
 	}
 
-	void TestTriangle::initShaders()
+	void ModelAsset::initShaders()
 	{
-		std::string shaders[] =
-		{
-			//getShaderCode("../../../../simple_color_vs.glsl"),
-			//getShaderCode("../../../../simple_color_fs.glsl")
-			ge_->getShaderCode("simple_color_vs.glsl"),
-			ge_->getShaderCode("simple_color_fs.glsl")
-		};
+		initRenderData();
 
 		m_prg = glCreateProgram();
-
-		ge_->addShader(m_prg, shaders[0], GL_VERTEX_SHADER);
-		ge_->addShader(m_prg, shaders[1], GL_FRAGMENT_SHADER);
+		ge_->addShader(m_prg, vertShaderPath_, GL_VERTEX_SHADER);
+		ge_->addShader(m_prg, fragShaderPath_, GL_FRAGMENT_SHADER);
 		glLinkProgram(m_prg);
 
 		glBindVertexArray(m_vao);
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(decltype(vertices[0])), &vertices[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, vertexAttribNumber, GL_FLOAT, GL_FALSE, 0, (void*)0);
+			glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(decltype(vertices_[0])), &vertices_[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, vertexAttribNumber_, GL_FLOAT, GL_FALSE, 0, (void*)0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
 		glBindVertexArray(0);
 	}
 
-	void TestTriangle::createBufferObject()
+	void ModelAsset::draw(const glm::mat4& worldPos) const
+	{
+		glBindVertexArray(m_vao);
+		{
+			glUseProgram(m_prg);
+			glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(worldPos));
+
+			glEnableVertexAttribArray(0);
+			glDrawArrays(GL_TRIANGLES, 0, vertexAttribNumber_);
+		}
+		glBindVertexArray(0);
+	}
+
+	void ModelAsset::createBufferObject()
 	{
 		destroyBufferObjects();
 
@@ -70,7 +98,7 @@ namespace MonoMaxGraphics
 		//glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_rbo);
 	}
 
-	void TestTriangle::destroyBufferObjects()
+	void ModelAsset::destroyBufferObjects()
 	{
 		if (m_fbo > 0)
 			glDeleteFramebuffers(1, &m_fbo);
@@ -81,39 +109,19 @@ namespace MonoMaxGraphics
 		m_rbo = -1;
 	}
 
+	void ModelWorld::draw()
+	{
+		modelAsset_.draw(modelMat);
+	}
+
 	void TestTriangle::draw()
 	{
 		//modelMat = glm::rotate(glm::mat4(1.0f), rotY, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		glBindVertexArray(m_vao);
-		{
-			glUseProgram(m_prg);
-			glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(modelMat));
+		ModelWorld::draw();
 
-			glEnableVertexAttribArray(0);
-			glDrawArrays(GL_TRIANGLES, 0, vertexAttribNumber);
-		}
-		glBindVertexArray(0);
-
-		rotY += 0.05f;
+		//rotY += 0.05f;
 	}
-
-	void TestTriangle::OnAfterAdded()
-	{
-		initRenderData();
-		initShaders();
-	}
-
-	void TestTriangle::OnBeforeRemove()
-	{
-		destroyBufferObjects();
-	}
-
-	void TestTriangle::OnScreenResize()
-	{
-		createBufferObject();
-	}
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -152,25 +160,6 @@ namespace MonoMaxGraphics
 		glCompileShader(id);
 		glAttachShader(prgId, id);
 		glDeleteShader(id);
-	}
-
-	void GraphicsEngine::Render(char* imgBuffer)
-	{
-		glClearColor(0.8f, 0.8f, 0.6f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_MULTISAMPLE);
-
-		testSMGE();
-		for (auto model : m_modelList)
-		{
-			model->draw();
-		}
-
-		if(imgBuffer != nullptr)
-			glReadPixels(0, 0, m_width, m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgBuffer);
-
-		glfwSwapBuffers(m_window);
-		glfwPollEvents();
 	}
 
 	const int GraphicsEngine::GetHeight() { return m_height; }
@@ -216,10 +205,7 @@ namespace MonoMaxGraphics
 		free(GLRenderHandle);
 		GLRenderHandle = (char*)malloc(m_bufferLength);
 
-		for (auto model : m_modelList)
-		{
-			model->OnScreenResize();
-		}
+		ModelAsset::OnScreenResize_Master();
 
 		glViewport(0, 0, width, height);
 	}
@@ -236,17 +222,22 @@ namespace MonoMaxGraphics
 
 		initWindow();
 
-		// 테스트 코드
-		AddModel(new TestTriangle(this));
-		
-		auto added = DCast<TestTriangle*>( AddModel(new TestTriangle(this)) );
-		//added->modelMat = glm::translate(added->modelMat, { 0.5, 0.5, 0 });
-		auto& x = added->modelMat[3][0];
-		auto& y = added->modelMat[3][1];
-		auto& z = added->modelMat[3][2];
+		static ModelAsset testTriangle(this);
 
-		x = 0.5;
-		y = 0.5;
+		// 테스트 코드
+		AddModel(new TestTriangle(this, testTriangle));
+		
+		auto added = DCast<TestTriangle*>( AddModel(new TestTriangle(this, testTriangle)) );
+		added->modelMat = glm::translate(added->modelMat, { 0.5, 0.5, 0 });
+
+		smge_game = new SPPKGame();
+
+		// 테스트 코드
+		//auto& x = added->modelMat[3][0];
+		//auto& y = added->modelMat[3][1];
+		//auto& z = added->modelMat[3][2];
+		//x = 0.5;
+		//y = 0.5;
 		//z = 0.5;
 	}
 
@@ -257,30 +248,55 @@ namespace MonoMaxGraphics
 			RemoveModel(model);
 			delete model;
 		}
+
+		delete smge_game;
 	}
+
+	void GraphicsEngine::Tick()
+	{
+		smge_game->EditorTick(0.01f);
+	}
+
+	void GraphicsEngine::Render(char* imgBuffer)
+	{
+		glClearColor(0.8f, 0.8f, 0.6f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_MULTISAMPLE);
+
+		smge_game->EditorRender(0.01f);
+
+		for (auto model : m_modelList)
+		{
+			model->draw();
+		}
+
+		if (imgBuffer != nullptr)
+			glReadPixels(0, 0, m_width, m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgBuffer);	// m_colorDepth, PixelFormats::Pbgr32
+
+		glfwSwapBuffers(m_window);
+		glfwPollEvents();
+	}
+
 
 	void GraphicsEngine::Stop()
 	{
 		isRunning = false;
 	}
 
-	Model *GraphicsEngine::AddModel(Model* model)
+	ModelWorld *GraphicsEngine::AddModel(ModelWorld* model)
 	{
 		if (model == nullptr)
 			return nullptr;
 
 		m_modelList.push_back(model);
 
-		model->OnAfterAdded();
 		return model;
 	}
 
-	void GraphicsEngine::RemoveModel(Model* model)
+	void GraphicsEngine::RemoveModel(ModelWorld* model)
 	{
 		if (model == nullptr)
 			return;
-
-		model->OnBeforeRemove();
 
 		auto found = std::find(m_modelList.begin(), m_modelList.end(), model);
 		m_modelList.erase(found);
@@ -290,6 +306,6 @@ namespace MonoMaxGraphics
 	{
 		outDpiX = 96;
 		outDpiY = 96;
-		outColorDepth = m_colorDepth;	// for PixelFormats::Pbgr32
+		outColorDepth = m_colorDepth;	// 4 for PixelFormats::Pbgr32
 	}
 }

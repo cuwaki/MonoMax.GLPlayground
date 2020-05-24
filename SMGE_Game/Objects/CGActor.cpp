@@ -1,5 +1,7 @@
 #include "CGActor.h"
-#include "../Components/CGStaticMeshComponent.h"
+#include "CGMap.h"
+#include "../Components/CGMeshComponent.h"
+#include "../Assets/CGAssetManager.h"
 
 namespace MonoMaxGraphics
 {
@@ -65,6 +67,10 @@ namespace MonoMaxGraphics
 		CopyFromTemplate(templateInst);
 	}
 
+	CGActor::~CGActor()
+	{
+	}
+
 	SGReflection& CGActor::getReflection()
 	{
 		if (reflActor_.get() == nullptr)
@@ -81,8 +87,22 @@ namespace MonoMaxGraphics
 	{
 		Super::CGCtor();
 
-		getComponentList().emplace_back(MakeUniqPtr<CGStaticMeshComponent>());
-		cachedMainDrawCompo_ = SCast<CGStaticMeshComponent*>(getComponentList().rbegin()->get());
+		getComponentList().emplace_back(MakeUniqPtr<CGMeshComponent>());
+		cachedMainDrawCompo_ = SCast<CGMeshComponent*>(getComponentList().rbegin()->get());
+	}
+
+	void CGActor::OnAfterSpawned(CGMap* map, bool isDynamic)
+	{
+	}
+
+	void CGActor::OnAfterArranged(CGMap* map)
+	{
+	}
+
+	void CGActor::BeginPlay()
+	{
+		CWString modelAssetPath = CGAssetManager::FindAssetFilePathByClassName(wtext("SMGE_Game::CGModelData"));	// 테스트 코드
+		cachedMainDrawCompo_->ReadyToDrawing(modelAssetPath);
 	}
 
 	glm::mat4& CGActor::getWorldTransform()

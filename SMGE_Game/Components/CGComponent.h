@@ -4,5 +4,7 @@ namespace MonoMaxGraphics
 {
 	class CGComponent
 	{
+	public:
+		virtual ~CGComponent() {}
 	};
 }

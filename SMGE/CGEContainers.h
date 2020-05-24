@@ -8,6 +8,9 @@ namespace MonoMaxGraphics
         using ParentVectorT = std::vector<T>;
 
     public:
+        CVector() : std::vector<T>() {};
+        CVector(std::initializer_list<T>&& il) : std::vector<T>(std::move(il)) {}
+
         template<typename U>
         T& operator[](const U& index)   // enum class 들을 [] 로 바로 받을 수 있게 하기 위함
         {

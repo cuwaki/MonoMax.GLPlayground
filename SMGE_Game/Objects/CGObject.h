@@ -10,6 +10,7 @@ namespace MonoMaxGraphics
 
 	public:
 		CGObject();
+		virtual ~CGObject() {}
 
 		CWString getClassName() { return className_; }
 

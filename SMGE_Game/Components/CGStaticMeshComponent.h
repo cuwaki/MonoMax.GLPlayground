@@ -1,16 +1,15 @@
 #pragma once
 
 #include "../GCommonIncludes.h"
-#include "CGDrawComponent.h"
-#include "../Assets/CGStaticMeshAsset.h"
+#include "CGMeshComponent.h"
+#include "../Assets/CGModelData.h"
 
 namespace MonoMaxGraphics
 {
-	class CGStaticMeshComponent : public CGDrawComponent
+	class CGStaticMeshComponent : public CGMeshComponent
 	{
 	public:
-		CGStaticMeshComponent();
-
-		//CSharPtr<CGStaticMeshAsset> asset_;
+		//CGStaticMeshComponent();
+		//CSharPtr<CGModelData> asset_;
 	};
 };

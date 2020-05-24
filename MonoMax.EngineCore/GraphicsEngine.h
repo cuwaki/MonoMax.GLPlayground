@@ -10,44 +10,61 @@ namespace MonoMaxGraphics
 {
 	class GraphicsEngine;
 
-	class Model
+	class ModelAsset
 	{
-	public:
+	protected:
 		GraphicsEngine* ge_ = nullptr;
 
-		Model(GraphicsEngine* ge) : ge_(ge)
-		{
-		}
-
-		virtual void draw() = 0;
-		virtual void OnAfterAdded() = 0;
-		virtual void OnBeforeRemove() = 0;
-		virtual void OnScreenResize() = 0;
-	};
-
-	class TestTriangle : public Model
-	{
-	public:
 		GLuint m_vao, m_vbo;
 		GLuint m_rbo, m_fbo;
 		GLuint m_prg;
-
-		glm::mat4 modelMat;
-		float rotY;
-		int vertexAttribNumber = 3;
-		std::vector<float> vertices;
-
-		TestTriangle(GraphicsEngine* ge);
 
 		void initShaders();
 		void initRenderData();
 		void createBufferObject();
 		void destroyBufferObjects();
 
+	public:
+		std::string vertShaderPath_;
+		std::string fragShaderPath_;
+		int vertexAttribNumber_;
+		std::vector<float> vertices_;
+
+		ModelAsset(GraphicsEngine* ge);
+		~ModelAsset() noexcept;
+
+		void draw(const glm::mat4& worldPos) const;
+		void OnScreenResize();
+
+	public:
+		static void OnScreenResize_Master();
+		static std::vector<ModelAsset*> instances_;
+	};
+
+	class ModelWorld
+	{
+	public:
+		GraphicsEngine* ge_ = nullptr;		
+		const ModelAsset& modelAsset_;
+
+		glm::mat4 modelMat;
+
+		ModelWorld(GraphicsEngine* ge, const ModelAsset& ma) : ge_(ge), modelAsset_(ma)
+		{
+			modelMat = glm::mat4(1.0f);
+		}
+
+		virtual void draw();
+	};
+
+	class TestTriangle : public ModelWorld
+	{
+	public:
+		float rotY;
+
+		TestTriangle(GraphicsEngine* ge, const ModelAsset& ma) : ModelWorld(ge, ma) {}
+
 		virtual void draw() override;
-		virtual void OnAfterAdded() override;
-		virtual void OnBeforeRemove() override;
-		virtual void OnScreenResize() override;
 	};
 
 	class GraphicsEngine
@@ -55,15 +72,15 @@ namespace MonoMaxGraphics
 	private:
 		int m_bufferLength;
 		int m_width, m_height;
-		int m_colorDepth = 4;	// 32bit color
+		int m_colorDepth = 4;	// GL_BGRA, PixelFormats::Pbgr32
 		GLFWwindow* m_window = nullptr;
 		char* GLRenderHandle = nullptr;
 		bool isRunning = false;
+		std::vector<ModelWorld*> m_modelList;
 
 		void initWindow();
-		std::function<void()> m_rendercallback;
 
-		std::vector<Model*> m_modelList;
+		class CGEGameBase* smge_game;
 
 	public:
 		const int GetWidth();
@@ -73,6 +90,8 @@ namespace MonoMaxGraphics
 		void DeInit();
 		void Resize(int width, int height);
 		void Stop();
+		
+		void Tick();
 		void Render(char* imgBuffer);
 
 		std::string getShaderCode(const char* filename);
@@ -80,8 +99,8 @@ namespace MonoMaxGraphics
 
 		void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 
-		Model *AddModel(Model* model);
-		void RemoveModel(Model* model);
+		ModelWorld *AddModel(ModelWorld* model);
+		void RemoveModel(ModelWorld* model);
 	};
 }
 

@@ -2,8 +2,7 @@
 
 namespace MonoMaxGraphics
 {
-	CGStaticMeshComponent::CGStaticMeshComponent()
-	{
-
-	}
+	//CGStaticMeshComponent::CGStaticMeshComponent()
+	//{
+	//}
 };

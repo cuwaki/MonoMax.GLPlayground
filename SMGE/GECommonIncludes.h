@@ -86,10 +86,10 @@ namespace MonoMaxGraphics
             return ToTCHAR(val);
         else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
             return ToTCHAR(std::to_string(val));
+        else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value)
+			return val;
         else
-        {	// glm::vec or mat ...
-            return ToTCHAR(glm::to_string(val));
-        }
+            return ToTCHAR(glm::to_string(val));    // glm::vec or mat ...
 
         return L"error - not support type!";
     }

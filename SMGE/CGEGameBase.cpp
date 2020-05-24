@@ -26,8 +26,31 @@ namespace MonoMaxGraphics
 	{
 	}
 
+#if IS_EDITOR
+	void CGEGameBase::EditorTick(float timeDelta)
+	{
+		Tick(timeDelta);
+	}
+
+	void CGEGameBase::EditorRender(float timeDelta)
+	{
+		Render(timeDelta);
+	}
+#else
+	int32 CGEGameBase::GameMain()
+	{
+		return 0;
+	}
+#endif
+
 	void CGEGameBase::Tick(float timeDelta)
 	{
+		engine_->Tick(timeDelta);
+	}
+
+	void CGEGameBase::Render(float timeDelta)
+	{
+		engine_->Render(timeDelta);
 	}
 
 	CWString CGEGameBase::PathProjectRoot()

@@ -10,7 +10,10 @@ namespace MonoMaxGraphics
 	{
 	private:
 		MonoMaxGraphics::GraphicsEngine* m_graphicsEngine;
+
+		System::Windows::Threading::DispatcherTimer^ m_tickTimer;
 		System::Windows::Threading::DispatcherTimer^ m_renderTimer;
+
 		System::Windows::Controls::TextBlock^ m_fpsCounter;
 		System::DateTime m_lastUpdate;
 
@@ -20,7 +23,8 @@ namespace MonoMaxGraphics
 		System::Windows::Controls::Image^ m_ImageControl;
 		System::Windows::Media::Imaging::WriteableBitmap^ m_writeableImg;
 
-		void OnTick(System::Object^ sender, System::EventArgs^ e);
+		void Tick(System::Object^ sender, System::EventArgs^ e);
+		void Render(System::Object^ sender, System::EventArgs^ e);
 		void UpdateImageData();
 
 	protected:

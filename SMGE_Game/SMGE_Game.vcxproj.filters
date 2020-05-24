@@ -48,9 +48,6 @@
     <ClCompile Include="Assets\CGAsset.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
-    <ClCompile Include="Assets\CGStaticMeshAsset.cpp">
-      <Filter>Assets</Filter>
-    </ClCompile>
     <ClCompile Include="Assets\CGAssetManager.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
@@ -62,6 +59,12 @@
     </ClCompile>
     <ClCompile Include="GCommonIncludes.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CGMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Assets\CGModelData.cpp">
+      <Filter>Assets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,14 +101,17 @@
     <ClInclude Include="Assets\CGAsset.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="Assets\CGStaticMeshAsset.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
     <ClInclude Include="Assets\CGAssetManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="Objects\CGMap.h">
       <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CGMeshComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Assets\CGModelData.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
