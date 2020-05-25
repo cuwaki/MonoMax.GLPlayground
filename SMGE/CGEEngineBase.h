@@ -3,25 +3,28 @@
 #include "GECommonIncludes.h"
 #include "CGEGameBase.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
-	struct SGEEngineSettings
+	namespace nsGE
 	{
-		glm::vec2 gameScreenSize_{};
-	};
+		struct SGEEngineSettings
+		{
+			glm::vec2 gameScreenSize_{};
+		};
 
-	class CGEEngineBase
-	{
-	public:
-		CGEEngineBase();
-		virtual ~CGEEngineBase();
+		class CGEEngineBase
+		{
+		public:
+			CGEEngineBase();
+			virtual ~CGEEngineBase();
 
-		virtual void Tick(float);
-		virtual void Render(float);
+			virtual void Tick(float);
+			virtual void Render(float);
 
-	protected:
-		CGEGameBase* gameBase_ = nullptr;
+		protected:
+			CGEGameBase* gameBase_ = nullptr;
 
-		SGEEngineSettings* settings_;
-	};
+			SGEEngineSettings* settings_;
+		};
+	}
 };

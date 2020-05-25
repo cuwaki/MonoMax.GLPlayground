@@ -1,6 +1,6 @@
 #include "CGInterf_Reflection.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	const CWString SGReflection::META_DELIM = L"$";
 	const CWString SGReflection::VARIABLE_DELIM = L"\n";

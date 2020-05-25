@@ -5,7 +5,7 @@
 #include "Components/CGComponent.h"
 #include "Interfaces/CGInterface.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	using TActorKey = uint32;
 

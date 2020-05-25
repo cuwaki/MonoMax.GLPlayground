@@ -1,6 +1,6 @@
 #pragma once
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGComponent
 	{

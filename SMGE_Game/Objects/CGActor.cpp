@@ -3,7 +3,7 @@
 #include "../Components/CGMeshComponent.h"
 #include "../Assets/CGAssetManager.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	SGRefl_Actor::SGRefl_Actor(CGActor& actor) :
 		actorKey_(actor.actorKey_),
@@ -89,6 +89,16 @@ namespace MonoMaxGraphics
 
 		getComponentList().emplace_back(MakeUniqPtr<CGMeshComponent>());
 		cachedMainDrawCompo_ = SCast<CGMeshComponent*>(getComponentList().rbegin()->get());
+	}
+
+	void CGActor::Tick(float timeDelta)
+	{
+		cachedMainDrawCompo_->Tick(timeDelta);
+	}
+
+	void CGActor::Render(float timeDelta)
+	{
+		cachedMainDrawCompo_->Render(timeDelta);
 	}
 
 	void CGActor::OnAfterSpawned(CGMap* map, bool isDynamic)

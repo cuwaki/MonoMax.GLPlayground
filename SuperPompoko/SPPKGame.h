@@ -5,11 +5,11 @@
 #define IS_EDITOR 1
 #define IS_GAME !(defined IS_EDITOR)
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
-	class SPPKGame : public CGEGameBase
+	class SPPKGame : public nsGE::CGEGameBase
 	{
-		using Super = CGEGameBase;
+		using Super = nsGE::CGEGameBase;
 
 	public:
 		SPPKGame();

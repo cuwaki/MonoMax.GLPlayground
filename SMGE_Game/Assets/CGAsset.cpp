@@ -1,5 +1,5 @@
 #include "CGAsset.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 };

@@ -2,7 +2,7 @@
 #include "../SMGE/CGEGameBase.h"
 #include "../SMGE/GECommonIncludes.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CMap<CWString, CSharPtr<CGAssetBase>> CGAssetManager::cachedAssets_;
 
@@ -10,7 +10,7 @@ namespace MonoMaxGraphics
 	{
 		static CMap<CWString, CWString> pathes;
 
-		const auto pathAssetRoot = CGEGameBase::Instance->PathAssetRoot();
+		const auto pathAssetRoot = nsGE::CGEGameBase::Instance->PathAssetRoot();
 		if (pathes.size() == 0)
 		{
 			// 테스트 코드

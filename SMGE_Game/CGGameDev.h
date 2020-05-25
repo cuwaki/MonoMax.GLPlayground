@@ -5,7 +5,7 @@
 #define IS_EDITOR 1
 #define IS_GAME !(defined IS_EDITOR)
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGGameDev : public CGEGameBase
 	{

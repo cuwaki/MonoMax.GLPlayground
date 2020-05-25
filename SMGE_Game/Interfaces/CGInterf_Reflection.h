@@ -4,7 +4,7 @@
 #include "CGInterface.h"
 #include "../Objects/CGObject.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	struct SGReflection;
 

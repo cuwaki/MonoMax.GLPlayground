@@ -32,7 +32,7 @@
 #define text(_STR_) _STR_
 #define wtext(_STR_) L##_STR_
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
     using int8 = std::int8_t;
     using int16 = std::int16_t;
@@ -61,7 +61,7 @@ namespace MonoMaxGraphics
 
 #include "CGEContainers.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
     template<typename T>
     extern T& ToLowerInline(T& str)
@@ -103,7 +103,7 @@ namespace MonoMaxGraphics
 #include <sstream>
 #include <chrono>
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
     namespace CuwakiDevUtils
     {

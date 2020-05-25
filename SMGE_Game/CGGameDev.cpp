@@ -3,11 +3,11 @@
 #include "Assets/CGAsset.h"
 #include "Assets/CGAssetManager.h"
 
-// Å×½ºÆ® ÄÚµå
+// ï¿½×½ï¿½Æ® ï¿½Úµï¿½
 #include "../SMGE/CGEEngineBase.h"
 #include "../SMGE_Game/Objects/CGMap.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CGGameDev::CGGameDev() : CGEGameBase()
 	{
@@ -23,7 +23,7 @@ namespace MonoMaxGraphics
 		engine_ = new CGEEngineBase();
 		gameSettings_ = new SGEGameSettings();
 
-		// Å×½ºÆ® ÄÚµå
+		// ï¿½×½ï¿½Æ® ï¿½Úµï¿½
 		gameSettings_->gameProjectName_ = wtext("dev_project");
 		gameSettings_->gameProjectRootPath_ = wtext("e:/");
 	}
@@ -37,19 +37,19 @@ namespace MonoMaxGraphics
 		//CGActor actor;
 		//actor.setActorStaticTag("empty");
 
-		//// ±âº» ¸®ÇÃ·º¼Ç Å×½ºÆ® ÄÚµå
+		//// ï¿½âº» ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ® ï¿½Úµï¿½
 		//// {
 		//SGStringStreamOut strOut;
 		//strOut << actor.getReflection();
 
-		////const auto& aaa = actor.getConstReflection();	// const °´Ã¼ Å×½ºÆ®
+		////const auto& aaa = actor.getConstReflection();	// const ï¿½ï¿½Ã¼ ï¿½×½ï¿½Æ®
 
 		//SGStringStreamIn strIn;
 		//strIn.in_ = strOut.out_;
 		//strIn >> actor.getReflection();
 		//// }
 
-		//// ¾×ÅÍ ÅÛÇÃ¸´ ¾Ö¼Â Å×½ºÆ® ÄÚµå - CGActor ¸¦ µð½ºÅ©¿¡ ÀúÀåÇÏ±â - ¾×ÅÍ ÅÛÇÃ¸´ ¾Ö¼ÂÀÌ µÈ´Ù
+		//// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¸ï¿½ ï¿½Ö¼ï¿½ ï¿½×½ï¿½Æ® ï¿½Úµï¿½ - CGActor ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¸ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½ ï¿½È´ï¿½
 		//// {
 		//actor.getWorldTransform()[3][3] = 333;
 		//actor.setActorStaticTag("first asset test");
@@ -57,16 +57,16 @@ namespace MonoMaxGraphics
 		//CGAsset<CGActor> actorAssetWriter(&actor);
 		//CGAssetManager::SaveAsset(assetRoot + wtext("testActorTemplate.asset"), actorAssetWriter);
 
-		// ¸Ê ÅÛÇÃ¸´ ¾Ö¼Â Å×½ºÆ® ÄÚµå - CGActor ¸¦ ¸Ê¿¡ ÀúÀåÇÏ±â - ¸Ê¿¡ ¹èÄ¡ÇÑ ÈÄ ¼öÁ¤ÇÑ °ªÀ¸·Î, ¸ÊÀÌ ·ÎµåµÈ ÈÄ ¾×ÅÍ°¡ ¹èÄ¡µÈ ÈÄ ÀÌ °ªÀ¸·Î µ¤¾î¾º¿ì°Ô µÈ´Ù
+		// ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¸ï¿½ ï¿½Ö¼ï¿½ ï¿½×½ï¿½Æ® ï¿½Úµï¿½ - CGActor ï¿½ï¿½ ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ - ï¿½Ê¿ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½î¾ºï¿½ï¿½ï¿½ ï¿½È´ï¿½
 		//CSharPtr<CGAsset<CGActor>> testActorTemplate = CGAssetManager::LoadAsset<CGActor>(assetRoot + wtext("testActorTemplate.asset"));
 		//const auto& actorTemplate = *testActorTemplate->getContentClass();
 
 		//CGMap testMap;
 
-		//CGActor& actorA = testMap.SpawnDefaultActor(actorTemplate, true);	// ¹èÄ¡
+		//CGActor& actorA = testMap.SpawnDefaultActor(actorTemplate, true);	// ï¿½ï¿½Ä¡
 		//CGActor& actorB = testMap.SpawnDefaultActor(actorTemplate, true);
 
-		//actorA.getWorldTransform()[0][1] = 345;	// ÆíÁý
+		//actorA.getWorldTransform()[0][1] = 345;	// ï¿½ï¿½ï¿½ï¿½
 		//actorA.setActorStaticTag("AAA");
 
 		//actorB.getWorldTransform()[1][3] = 987;
@@ -75,7 +75,7 @@ namespace MonoMaxGraphics
 		//CGAsset<CGMap> mapAsset(&testMap);
 		//CGAssetManager::SaveAsset(assetRoot + wtext("/map/testMapTemplate.asset"), mapAsset);
 
-		// ¸Ê ·ÎµåÇÏ°í ¾×ÅÍµé ´Ù½Ã º¹±¸ÇÏ±â
+		// ï¿½ï¿½ ï¿½Îµï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½Íµï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½
 		CSharPtr<CGAsset<CGMap>> testMapTemplate = CGAssetManager::LoadAsset<CGMap>(assetRoot + wtext("/map/testMapTemplate.asset"));
 		CGMap loadedMap(*testMapTemplate->getContentClass());
 

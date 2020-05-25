@@ -2,7 +2,7 @@
 
 #include "CGComponent.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGWorldMoveComponent : public CGComponent
 	{

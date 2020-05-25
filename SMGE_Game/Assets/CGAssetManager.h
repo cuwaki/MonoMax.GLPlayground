@@ -3,7 +3,7 @@
 #include "../../SMGE/GECommonIncludes.h"
 #include "CGAsset.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CWString FindAssetFilePathByClassName(CWString className);
 
@@ -12,7 +12,7 @@ namespace MonoMaxGraphics
 	public:
 		static CWString FindAssetFilePathByClassName(CWString className)
 		{
-			return MonoMaxGraphics::FindAssetFilePathByClassName(className);
+			return SMGE::FindAssetFilePathByClassName(className);
 		}
 
 		template<typename C>

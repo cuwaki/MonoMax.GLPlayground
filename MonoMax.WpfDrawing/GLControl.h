@@ -4,12 +4,12 @@
 #include "../MonoMax.EngineCore/EngineCore.h"
 #pragma managed(pop)
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	public ref class GLControl : public System::Windows::Controls::UserControl
 	{
 	private:
-		MonoMaxGraphics::GraphicsEngine* m_graphicsEngine;
+		nsRE::CRenderingEngine* m_graphicsEngine;
 
 		System::Windows::Threading::DispatcherTimer^ m_tickTimer;
 		System::Windows::Threading::DispatcherTimer^ m_renderTimer;

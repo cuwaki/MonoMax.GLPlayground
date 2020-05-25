@@ -6,11 +6,14 @@
 
 int main()
 {
-	MonoMaxGraphics::GraphicsEngine* graphicsEngine = new MonoMaxGraphics::GraphicsEngine();
+	using namespace SMGE;
+
+	nsRE::CRenderingEngine* graphicsEngine = new nsRE::CRenderingEngine();
 	graphicsEngine->Init();
 	while (true)
 	{
-		graphicsEngine->Render(nullptr);
+		// Tick 쓰레드와 Render 쓰레드를 만들어서 돌려라
+		//graphicsEngine->Render(nullptr);
 	}
 
 	return 0;

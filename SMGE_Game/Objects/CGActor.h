@@ -4,7 +4,7 @@
 #include "../Interfaces/CGInterf_Reflection.h"
 #include "../Interfaces/CGInterf_Component.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGActor;
 
@@ -50,6 +50,9 @@ namespace MonoMaxGraphics
 		~CGActor() noexcept;
 
 		virtual void CGCtor() override;
+
+		virtual void Tick(float);	// 차후 개발 - CGInterf_Tickable 로 빼자
+		virtual void Render(float);	// 차후 개발 - CGInterf_Renderable 로 빼자???
 
 		glm::mat4& getWorldTransform();
 		glm::vec3& getWorldLocation();

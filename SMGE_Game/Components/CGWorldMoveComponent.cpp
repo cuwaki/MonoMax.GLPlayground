@@ -1,5 +1,5 @@
 #include "CGWorldMoveComponent.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 };

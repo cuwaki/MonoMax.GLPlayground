@@ -1,6 +1,6 @@
 #include "CGModelData.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	SGRefl_ModelData::SGRefl_ModelData(CGModelData& md) : SGReflection(md),
 		vertShaderPath_(md.vertShaderPath_),

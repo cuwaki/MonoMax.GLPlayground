@@ -6,11 +6,10 @@ using namespace System::Windows::Media;
 using namespace System::Windows::Media::Imaging;
 using namespace System::Windows::Controls;
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	bool isInitialized;
 	int _w, _h, fpsCounter;
-
 
 	void GLControl::OnRenderSizeChanged(System::Windows::SizeChangedInfo^ info)
 	{
@@ -31,12 +30,12 @@ namespace MonoMaxGraphics
 
 			m_tickTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
 			m_tickTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS * 0.95);	// ·»´õº¸´Ù ¾à°£ »¡¸® µ¹°Ô
-			m_tickTimer->Tick += gcnew System::EventHandler(this, &MonoMaxGraphics::GLControl::Tick);
+			m_tickTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Tick);
 			m_tickTimer->Start();
 
 			m_renderTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
 			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS);
-			m_renderTimer->Tick += gcnew System::EventHandler(this, &MonoMaxGraphics::GLControl::Render);
+			m_renderTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Render);
 			m_renderTimer->Start();
 
 			m_ImageControl = gcnew Image();
@@ -50,7 +49,7 @@ namespace MonoMaxGraphics
 			
 			System::Windows::Controls::Panel::SetZIndex(m_ImageControl, -1);
 
-			m_graphicsEngine = new MonoMaxGraphics::GraphicsEngine();
+			m_graphicsEngine = new nsRE::CRenderingEngine();
 			m_graphicsEngine->Init();
 			isInitialized = true;
 		}

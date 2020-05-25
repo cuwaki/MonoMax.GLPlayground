@@ -3,7 +3,7 @@
 #include "../GCommonIncludes.h"
 #include "CGDrawComponent.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGMeshComponent : public CGDrawComponent
 	{

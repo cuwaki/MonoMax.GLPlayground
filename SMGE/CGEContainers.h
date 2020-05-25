@@ -1,6 +1,6 @@
 #pragma once
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
     template<typename T>
     class CVector : public std::vector<T>

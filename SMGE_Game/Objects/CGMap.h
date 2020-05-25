@@ -4,7 +4,7 @@
 #include "../Interfaces/CGInterf_Reflection.h"
 #include "CGActor.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	struct SMGEException : public std::exception
 	{
@@ -55,6 +55,8 @@ namespace MonoMaxGraphics
 		CGMap(const CGMap& templateInst);
 
 		virtual void CGCtor() override;
+		virtual void Tick(float);
+		virtual void Render(float);
 
 		CGActor& SpawnDefaultActor(const CGActor& templateActor, bool isDynamic);
 		CGActor& ArrangeActor(CGActor& arrangedActor);

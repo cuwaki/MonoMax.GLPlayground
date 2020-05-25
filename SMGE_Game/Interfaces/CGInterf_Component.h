@@ -4,7 +4,7 @@
 #include "CGInterface.h"
 #include "../Components/CGComponent.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	using ComponentVector = CVector<CUniqPtr<CGComponent>>;
 

@@ -2,7 +2,7 @@
 #include "../../SMGE/GECommonIncludes.h"
 #include "../Assets/CGAssetManager.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	template<typename T, typename U>
 	CVector<T>& clearAndAssign(CVector<T>& left, const CVector<U>& right)
@@ -116,6 +116,22 @@ namespace MonoMaxGraphics
 		actorLayers_.resize(etoi(EActorLayer::Max));
 		actorLayers_[EActorLayer::System].reserve(20);
 		actorLayers_[EActorLayer::Game].reserve(100);
+	}
+
+	void CGMap::Tick(float timeDelta)
+	{
+		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		{
+			sptrActor->Tick(timeDelta);
+		}
+	}
+
+	void CGMap::Render(float timeDelta)
+	{
+		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		{
+			sptrActor->Render(timeDelta);
+		}
 	}
 
 	SGReflection& CGMap::getReflection()

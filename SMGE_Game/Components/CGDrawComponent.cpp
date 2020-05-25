@@ -1,7 +1,7 @@
 #include "CGDrawComponent.h"
 #include "../Assets/CGAssetManager.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CGDrawComponent::CGDrawComponent() : CGComponent()
 	{
@@ -16,6 +16,14 @@ namespace MonoMaxGraphics
 	{
 		drawingModelAssetPath_ = modelAssetPath;
 		drawingModelAsset_ = CGAssetManager::LoadAsset<CGModelData>(drawingModelAssetPath_);
+	}
+
+	void CGDrawComponent::Tick(float td)
+	{
+	}
+
+	void CGDrawComponent::Render(float td)
+	{
 	}
 
 	glm::mat4& CGDrawComponent::getTransform()

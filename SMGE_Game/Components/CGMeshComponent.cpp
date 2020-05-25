@@ -1,6 +1,6 @@
 #include "CGMeshComponent.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CGMeshComponent::CGMeshComponent() : CGDrawComponent()
 	{

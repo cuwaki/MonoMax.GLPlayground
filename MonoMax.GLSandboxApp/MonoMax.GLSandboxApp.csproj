@@ -149,7 +149,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MonoMax.WpfDrawing\MonoMax.SceneGraphCLR.vcxproj">
       <Project>{1bcdf537-15fb-4c65-9993-4c6874f98eaf}</Project>
-      <Name>MonoMax.MonoMaxGraphics</Name>
+      <Name>MonoMax.SMGE</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

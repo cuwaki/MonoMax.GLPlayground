@@ -4,40 +4,43 @@
 
 #define IS_EDITOR 1
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
-	struct SGEGameSettings
+	namespace nsGE
 	{
-		CWString gameProjectName_;
-		CWString gameProjectRootPath_;
-	};
+		struct SGEGameSettings
+		{
+			CWString gameProjectName_;
+			CWString gameProjectRootPath_;
+		};
 
-	class CGEGameBase
-	{
-	public:
-		CGEGameBase();
-		virtual ~CGEGameBase();
+		class CGEGameBase
+		{
+		public:
+			CGEGameBase();
+			virtual ~CGEGameBase();
 
 #if IS_EDITOR
-		void EditorTick(float timeDelta);
-		void EditorRender(float timeDelta);
+			void EditorTick(float timeDelta);
+			void EditorRender(float timeDelta);
 #else
-		int32 GameMain();
+			int32 GameMain();
 #endif
 
-		CWString PathProjectRoot();
-		CWString PathAssetRoot();
+			CWString PathProjectRoot();
+			CWString PathAssetRoot();
 
-	protected:
-		virtual void Initialize();
-		virtual void Tick(float);
-		virtual void Render(float);
+		protected:
+			virtual void Initialize();
+			virtual void Tick(float);
+			virtual void Render(float);
 
-	protected:
-		class CGEEngineBase* engine_;
-		SGEGameSettings* gameSettings_;
+		protected:
+			class CGEEngineBase* engine_;
+			SGEGameSettings* gameSettings_;
 
-	public:
-		static CGEGameBase* Instance;
-	};
+		public:
+			static CGEGameBase* Instance;
+		};
+	}
 };

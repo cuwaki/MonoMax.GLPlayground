@@ -1,21 +1,24 @@
 #include "CGEEngineBase.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
-	CGEEngineBase::CGEEngineBase()
+	namespace nsGE
 	{
-	}
+		CGEEngineBase::CGEEngineBase()
+		{
+		}
 
-	CGEEngineBase::~CGEEngineBase()
-	{
-	}
+		CGEEngineBase::~CGEEngineBase()
+		{
+		}
 
-	void CGEEngineBase::Tick(float)
-	{
-	}
+		void CGEEngineBase::Tick(float)
+		{
+		}
 
-	void CGEEngineBase::Render(float)
-	{
+		void CGEEngineBase::Render(float)
+		{
+		}
 	}
 }
 
@@ -29,7 +32,7 @@ namespace MonoMaxGraphics
 //std::string narrow = converter.to_bytes(wide_utf16_source_string);
 //std::wstring wide = converter.from_bytes(narrow_utf8_source_string);
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CWString ToTCHAR(const CString& astr)
 	{	// 추가 할 일 - 뭔가 제대로 안될 것 같다

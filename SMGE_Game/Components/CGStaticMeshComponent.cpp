@@ -1,6 +1,6 @@
 #include "CGStaticMeshComponent.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	//CGStaticMeshComponent::CGStaticMeshComponent()
 	//{

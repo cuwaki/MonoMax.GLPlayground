@@ -2,7 +2,7 @@
 
 #include "../GCommonIncludes.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGObject
 	{

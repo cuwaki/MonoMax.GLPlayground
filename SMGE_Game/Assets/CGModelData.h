@@ -4,7 +4,7 @@
 #include "CGAsset.h"
 #include "../Interfaces/CGInterf_Reflection.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGModelData;
 

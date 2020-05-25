@@ -4,11 +4,11 @@ using namespace System::Runtime::CompilerServices;
 using namespace System::Runtime::InteropServices;
 using namespace System::Security::Permissions;
 
-[assembly:AssemblyTitleAttribute(L"MonoMax.MonoMaxGraphics")];
+[assembly:AssemblyTitleAttribute(L"MonoMax.SMGE")];
 [assembly:AssemblyDescriptionAttribute(L"")];
 [assembly:AssemblyConfigurationAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(L"")];
-[assembly:AssemblyProductAttribute(L"MonoMax.MonoMaxGraphics")];
+[assembly:AssemblyProductAttribute(L"MonoMax.SMGE")];
 [assembly:AssemblyCopyrightAttribute(L"Copyright (c)  2019")];
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];

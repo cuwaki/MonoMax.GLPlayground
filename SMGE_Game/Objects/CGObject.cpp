@@ -1,6 +1,6 @@
 #include "CGObject.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	CGObject::CGObject()
 	{

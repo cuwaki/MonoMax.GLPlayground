@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{424308
 		simple_color_vs.glsl = simple_color_vs.glsl
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonoMax.MonoMaxGraphics", "MonoMax.WpfDrawing\MonoMax.SceneGraphCLR.vcxproj", "{1BCDF537-15FB-4C65-9993-4C6874F98EAF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonoMax.SMGE", "MonoMax.WpfDrawing\MonoMax.SceneGraphCLR.vcxproj", "{1BCDF537-15FB-4C65-9993-4C6874F98EAF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonoMax.Engine", "MonoMax.EngineCore\MonoMax.GLPlayground.vcxproj", "{ADEF9D59-FF68-4286-9093-69DA1D6CA7FD}"
 	ProjectSection(ProjectDependencies) = postProject

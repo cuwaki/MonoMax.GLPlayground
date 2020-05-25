@@ -5,7 +5,7 @@
 #include "../Assets/CGAsset.h"
 #include "../Assets/CGModelData.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGDrawComponent : public CGComponent
 	{
@@ -14,6 +14,9 @@ namespace MonoMaxGraphics
 		CGDrawComponent(const CWString& modelAssetPath);
 
 		virtual void ReadyToDrawing(const CWString& modelAssetPath);
+		
+		virtual void Tick(float td);
+		virtual void Render(float td);
 
 		glm::mat4& getTransform();
 		glm::vec3& getLocation();

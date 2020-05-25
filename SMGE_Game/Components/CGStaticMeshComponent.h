@@ -4,7 +4,7 @@
 #include "CGMeshComponent.h"
 #include "../Assets/CGModelData.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
 	class CGStaticMeshComponent : public CGMeshComponent
 	{

@@ -8,9 +8,9 @@
 #include "../SMGE_Game/Objects/CGMap.h"
 #include "../SMGE_Game/Assets/CGModelData.h"
 
-namespace MonoMaxGraphics
+namespace SMGE
 {
-	SPPKGame::SPPKGame() : CGEGameBase()
+	SPPKGame::SPPKGame() : nsGE::CGEGameBase()
 	{
 		Initialize();
 	}
@@ -22,8 +22,8 @@ namespace MonoMaxGraphics
 
 	void SPPKGame::Initialize()
 	{
-		engine_ = new CGEEngineBase();
-		gameSettings_ = new SGEGameSettings();
+		engine_ = new nsGE::CGEEngineBase();
+		gameSettings_ = new nsGE::SGEGameSettings();
 
 		// 테스트 코드
 		gameSettings_->gameProjectName_ = wtext("dev_project");
@@ -42,7 +42,7 @@ namespace MonoMaxGraphics
 		if(currentMap_->IsStarted() == false)
 			currentMap_->StartToPlay();
 
-		//currentMap_->Tick(dt);
+		currentMap_->Tick(dt);
 
 		//CWString assetRoot = PathAssetRoot();
 
@@ -113,5 +113,7 @@ namespace MonoMaxGraphics
 	void SPPKGame::Render(float dt)
 	{
 		Super::Render(dt);
+
+		currentMap_->Render(dt);
 	}
 };
