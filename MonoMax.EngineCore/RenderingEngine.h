@@ -10,7 +10,7 @@ namespace SMGE
 {
 	namespace nsGE
 	{
-		class CGEGameBase;
+		class CGameBase;
 	}
 
 	namespace nsRE
@@ -87,7 +87,7 @@ namespace SMGE
 
 			void initWindow();
 
-			class nsGE::CGEGameBase* smge_game;
+			class nsGE::CGameBase* smge_game;
 
 		public:
 			const int GetWidth();

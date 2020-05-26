@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../SMGE/GECommonIncludes.h"
+#include "GECommonIncludes.h"
 
-#include "Components/CGComponent.h"
-#include "Interfaces/CGInterface.h"
+#include "Components/CComponent.h"
+#include "Interfaces/CInterfaceBase.h"
 
 namespace SMGE
 {

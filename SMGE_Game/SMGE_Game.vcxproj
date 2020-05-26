@@ -74,7 +74,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\includes\;$(VC_IncludePath);$(WindowsSDK_IncludePath);../SMGE/;</IncludePath>
     <LibraryPath>..\libs\;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -154,36 +154,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Assets\CGAsset.cpp" />
-    <ClCompile Include="Assets\CGAssetManager.cpp" />
-    <ClCompile Include="Assets\CGModelData.cpp" />
-    <ClCompile Include="Components\CGComponent.cpp" />
-    <ClCompile Include="Components\CGDrawComponent.cpp" />
-    <ClCompile Include="Components\CGMeshComponent.cpp" />
-    <ClCompile Include="Components\CGStaticMeshComponent.cpp" />
-    <ClCompile Include="Components\CGWorldMoveComponent.cpp" />
+    <ClCompile Include="Components\CWorldMoveComponent.cpp" />
     <ClCompile Include="GCommonIncludes.cpp" />
-    <ClCompile Include="Interfaces\CGInterf_Reflection.cpp" />
-    <ClCompile Include="Objects\CGActor.cpp" />
-    <ClCompile Include="Objects\CGMap.cpp" />
-    <ClCompile Include="Objects\CGObject.cpp" />
+    <ClCompile Include="Objects\CActor.cpp" />
+    <ClCompile Include="Objects\CMap.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Assets\CGAsset.h" />
-    <ClInclude Include="Assets\CGAssetManager.h" />
-    <ClInclude Include="Assets\CGModelData.h" />
-    <ClInclude Include="Components\CGComponent.h" />
-    <ClInclude Include="Components\CGDrawComponent.h" />
-    <ClInclude Include="Components\CGMeshComponent.h" />
-    <ClInclude Include="Components\CGStaticMeshComponent.h" />
-    <ClInclude Include="Components\CGWorldMoveComponent.h" />
+    <ClInclude Include="Components\CWorldMoveComponent.h" />
     <ClInclude Include="GCommonIncludes.h" />
-    <ClInclude Include="Interfaces\CGInterface.h" />
-    <ClInclude Include="Interfaces\CGInterf_Component.h" />
-    <ClInclude Include="Interfaces\CGInterf_Reflection.h" />
-    <ClInclude Include="Objects\CGActor.h" />
-    <ClInclude Include="Objects\CGMap.h" />
-    <ClInclude Include="Objects\CGObject.h" />
+    <ClInclude Include="Objects\CActor.h" />
+    <ClInclude Include="Objects\CMap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

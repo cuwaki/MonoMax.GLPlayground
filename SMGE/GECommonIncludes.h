@@ -59,7 +59,7 @@ namespace SMGE
     }
 }
 
-#include "CGEContainers.h"
+#include "GEContainers.h"
 
 namespace SMGE
 {

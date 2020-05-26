@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath);..\includes\</IncludePath>
+    <IncludePath>$(IncludePath);..\includes\;../SMGE/;../SMGE_Game/;../SuperPompoko/;</IncludePath>
     <LibraryPath>..\libs\;$(LibraryPath);../x64/debug;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

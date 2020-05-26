@@ -154,14 +154,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CGEEngineBase.cpp" />
-    <ClCompile Include="CGEGameBase.cpp" />
+    <ClCompile Include="Assets\CAsset.cpp" />
+    <ClCompile Include="Assets\CAssetManager.cpp" />
+    <ClCompile Include="Assets\CModelData.cpp" />
+    <ClCompile Include="CEngineBase.cpp" />
+    <ClCompile Include="CGameBase.cpp" />
+    <ClCompile Include="Components\CComponent.cpp" />
+    <ClCompile Include="Components\CDrawComponent.cpp" />
+    <ClCompile Include="Components\CMeshComponent.cpp" />
+    <ClCompile Include="Components\CStaticMeshComponent.cpp" />
+    <ClCompile Include="Interfaces\CInt_Reflection.cpp" />
+    <ClCompile Include="Objects\CObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CGEContainers.h" />
-    <ClInclude Include="CGEGameBase.h" />
+    <ClInclude Include="Assets\CAsset.h" />
+    <ClInclude Include="Assets\CAssetManager.h" />
+    <ClInclude Include="Assets\CModelData.h" />
+    <ClInclude Include="GEContainers.h" />
+    <ClInclude Include="CGameBase.h" />
+    <ClInclude Include="Components\CComponent.h" />
+    <ClInclude Include="Components\CDrawComponent.h" />
+    <ClInclude Include="Components\CMeshComponent.h" />
+    <ClInclude Include="Components\CStaticMeshComponent.h" />
     <ClInclude Include="GECommonIncludes.h" />
-    <ClInclude Include="CGEEngineBase.h" />
+    <ClInclude Include="CEngineBase.h" />
+    <ClInclude Include="Interfaces\CInterfaceBase.h" />
+    <ClInclude Include="Interfaces\CInt_Component.h" />
+    <ClInclude Include="Interfaces\CInt_Reflection.h" />
+    <ClInclude Include="Objects\CObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

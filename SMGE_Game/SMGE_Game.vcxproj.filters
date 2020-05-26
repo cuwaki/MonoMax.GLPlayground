@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Interfaces">
       <UniqueIdentifier>{1a51f357-63e9-47c9-a999-66043df7b9ec}</UniqueIdentifier>
     </Filter>
@@ -22,96 +18,33 @@
     <Filter Include="Objects">
       <UniqueIdentifier>{3d8a1173-7ef8-4638-98a2-cee286eb9e3c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets">
-      <UniqueIdentifier>{640ac7b3-f580-41b1-b8bc-ebd849dc5193}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Components\CGComponent.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\CGWorldMoveComponent.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\CGDrawComponent.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\CGStaticMeshComponent.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\CGActor.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\CGObject.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Assets\CGAsset.cpp">
-      <Filter>Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="Assets\CGAssetManager.cpp">
-      <Filter>Assets</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\CGMap.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Interfaces\CGInterf_Reflection.cpp">
-      <Filter>Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="GCommonIncludes.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CGMeshComponent.cpp">
-      <Filter>Components</Filter>
+    <ClCompile Include="Objects\CMap.cpp">
+      <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Assets\CGModelData.cpp">
-      <Filter>Assets</Filter>
+    <ClCompile Include="Objects\CActor.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CWorldMoveComponent.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GCommonIncludes.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Interfaces\CGInterface.h">
-      <Filter>Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CGComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CGWorldMoveComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Interfaces\CGInterf_Component.h">
-      <Filter>Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CGDrawComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CGStaticMeshComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\CGActor.h">
+    <ClInclude Include="Objects\CMap.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\CGObject.h">
+    <ClInclude Include="Objects\CActor.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Interfaces\CGInterf_Reflection.h">
-      <Filter>Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="Assets\CGAsset.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="Assets\CGAssetManager.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\CGMap.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CGMeshComponent.h">
+    <ClInclude Include="Components\CWorldMoveComponent.h">
       <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Assets\CGModelData.h">
-      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

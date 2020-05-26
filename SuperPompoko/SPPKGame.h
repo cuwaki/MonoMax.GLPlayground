@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../SMGE/CGEGameBase.h"
+#include "CGameBase.h"
 
 #define IS_EDITOR 1
 #define IS_GAME !(defined IS_EDITOR)
 
 namespace SMGE
 {
-	class SPPKGame : public nsGE::CGEGameBase
+	class SPPKGame : public nsGE::CGameBase
 	{
-		using Super = nsGE::CGEGameBase;
+		using Super = nsGE::CGameBase;
 
 	public:
 		SPPKGame();
@@ -27,6 +27,6 @@ namespace SMGE
 
 	protected:
 		// 테스트 코드 - 아키텍터적으로는 맵을 감싸는 게임서버 객체가 필요하겠지만 이는 차후에 처리하자
-		class CGMap* currentMap_;
+		class CMap* currentMap_;
 	};
 };
