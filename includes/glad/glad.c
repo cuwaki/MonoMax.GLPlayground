@@ -836,7 +836,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef __gl_h_
+#else
 #include "glad.h"
+#endif
 
 static void* get_proc(const char *namez);
 

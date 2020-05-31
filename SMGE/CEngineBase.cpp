@@ -1,10 +1,14 @@
 #include "CEngineBase.h"
+#include "CGameBase.h"
+#include "../MonoMax.EngineCore/RenderingEngine.h"
+
+#define IS_EDITOR 1
 
 namespace SMGE
 {
 	namespace nsGE
 	{
-		CEngineBase::CEngineBase()
+		CEngineBase::CEngineBase(CGameBase* gameBase) : gameBase_(gameBase)
 		{
 		}
 
@@ -12,12 +16,24 @@ namespace SMGE
 		{
 		}
 
-		void CEngineBase::Tick(float)
+		void CEngineBase::Tick(float timeDelta)
 		{
+			gameBase_->Tick(timeDelta);
 		}
 
-		void CEngineBase::Render(float)
+		void CEngineBase::Render(float timeDelta)
 		{
+			gameBase_->Render(timeDelta);
+		}
+
+		void CEngineBase::SetRenderingEngine(nsRE::CRenderingEngine* re)
+		{
+			renderingEngine_ = re;
+		}
+
+		nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine()
+		{
+			return renderingEngine_;
 		}
 	}
 }
@@ -50,7 +66,7 @@ namespace SMGE
 		return ret;
 	}
 
-	namespace SMGEGlobal
+	namespace Path
 	{
 		CWString GetNormalizedPath(const CWString& path)
 		{

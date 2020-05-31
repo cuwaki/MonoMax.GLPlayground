@@ -1,5 +1,5 @@
 #include "GCommonIncludes.h"
 
-namespace SMGE
+namespace SMGE_Game
 {
 };

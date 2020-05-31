@@ -2,13 +2,35 @@
 
 namespace SMGE
 {
-	CObject::CObject()
+	CObject::CObject(CObject* outer) : outer_(outer)
 	{
-		className_ = wtext("SMGE_Game::CObject");
+		className_ = wtext("SMGE::CObject");
 	}
 
-	void CObject::CGCtor()
+	void CObject::Ctor()
 	{
-		// SMGE_Game 시스템을 위한 생성자	
+	}
+	
+	void CObject::Dtor()
+	{
+	}
+
+	CObject* CObject::GetOuter() const
+	{
+		return outer_;
+	}
+
+	CObject* CObject::GetTopOuter()
+	{
+		CObject* outer = GetOuter();
+		if (outer != nullptr)
+			return outer->GetTopOuter();
+
+		return this;
+	}
+
+	bool CObject::IsTopOuter()
+	{
+		return outer_ == nullptr;
 	}
 }

@@ -1,7 +1,7 @@
 #include "CActor.h"
 #include "CMap.h"
-#include "Components/CMeshComponent.h"
-#include "Assets/CAssetManager.h"
+#include "../Components/CMeshComponent.h"
+#include "../Assets/CAssetManager.h"
 
 namespace SMGE
 {
@@ -56,13 +56,17 @@ namespace SMGE
 		return *this;
 	}
 
-	CActor::CActor() : CObject()
+	CActor::CActor(CObject* outer) : CObject(outer)
 	{
-		className_ = wtext("SMGE_Game::CActor");
-		CGCtor();
+		className_ = wtext("SMGE::CActor");
+		worldTransform_ = glm::mat4(1.f);
+		worldLocation_ = glm::vec3(0.f);
+		worldDirection_ = glm::vec3(1.f, 0.f, 0.f);
+		worldScale_ = glm::vec3(1.f, 1.f, 1.f);
+		Ctor();
 	}
 
-	CActor::CActor(const CActor& templateInst) : CActor()
+	CActor::CActor(CObject* outer, const CActor& templateInst) : CActor(outer)
 	{
 		CopyFromTemplate(templateInst);
 	}
@@ -83,21 +87,32 @@ namespace SMGE
 		return components_;
 	}
 
-	void CActor::CGCtor()
+	void CActor::Ctor()
 	{
-		Super::CGCtor();
+		Super::Ctor();
 
-		getComponentList().emplace_back(MakeUniqPtr<CMeshComponent>());
+		auto testModelAsset = CAssetManager::FindAssetFilePathByClassName(wtext("SMGE::CModelData"));	// 테스트 코드
+		getComponentList().emplace_back(MakeUniqPtr<CMeshComponent>(this, testModelAsset));
 		cachedMainDrawCompo_ = SCast<CMeshComponent*>(getComponentList().rbegin()->get());
+	}
+
+	void CActor::Dtor()
+	{
+		getComponentList().clear();
+		cachedMainDrawCompo_ = nullptr;
+
+		Super::Dtor();
 	}
 
 	void CActor::Tick(float timeDelta)
 	{
+		//for(auto& comp : getComponentList())	Tickable 만 골라서 돌려야한다
 		cachedMainDrawCompo_->Tick(timeDelta);
 	}
 
 	void CActor::Render(float timeDelta)
 	{
+		//for(auto& comp : getComponentList())	Renderable 만 골라서 돌려야한다
 		cachedMainDrawCompo_->Render(timeDelta);
 	}
 
@@ -111,8 +126,18 @@ namespace SMGE
 
 	void CActor::BeginPlay()
 	{
-		CWString modelAssetPath = CAssetManager::FindAssetFilePathByClassName(wtext("SMGE_Game::CModelData"));	// 테스트 코드
-		cachedMainDrawCompo_->ReadyToDrawing(modelAssetPath);
+		for (auto& comp : getComponentList())
+		{
+			comp->OnBeginPlay(this);
+		}
+	}
+
+	void CActor::EndPlay()
+	{
+		for (auto& comp : getComponentList())
+		{
+			comp->OnEndPlay();
+		}
 	}
 
 	glm::mat4& CActor::getWorldTransform()

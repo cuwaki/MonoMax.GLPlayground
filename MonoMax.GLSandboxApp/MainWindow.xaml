@@ -26,12 +26,6 @@
                         <TreeViewItem Header="Node_2.3" />
                         <TreeViewItem Header="Node_2.4" />
                     </TreeViewItem>
-                    <TreeViewItem Header="Node_1">
-                        <TreeViewItem Header="Node_3.1" />
-                        <TreeViewItem Header="Node_3.2" />
-                        <TreeViewItem Header="Node_3.3" />
-                        <TreeViewItem Header="Node_3.4" />
-                    </TreeViewItem>
                 </TreeView.Items>
             </TreeView>
             <ListView VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -40,12 +34,7 @@
                 <ListView.Items>
                     <TextBlock Text="ListViewItem_1" />
                     <TextBlock Text="ListViewItem_2" />
-                    <TextBlock Text="ListViewItem_3" />
-                    <TextBlock Text="ListViewItem_4" />
-                    <TextBlock Text="ListViewItem_5" />
-                    <TextBlock Text="ListViewItem_6" />
-                    <TextBlock Text="ListViewItem_7" />
-                    <TextBlock Text="ListViewItem_8" />
+                    <Button x:Name="btnActorEditor" Content="ActorEditor" Width="100" Click="OnClicked"/>
                 </ListView.Items>
             </ListView>
         </Grid>

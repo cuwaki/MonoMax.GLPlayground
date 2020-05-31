@@ -78,12 +78,18 @@ namespace SMGE
 			}	
 
 			metaSplitted.cursorBegin();
-			return operator=(metaSplitted);
+
+			auto& ret = operator=(metaSplitted);
+			pair_.OnAfterDeserialized();
+			return ret;
 		}
 		else
 		{
 			variableSplitted.cursorBegin();
-			return operator=(variableSplitted);
+
+			auto& ret = operator=(variableSplitted);
+			pair_.OnAfterDeserialized();
+			return ret;
 		}
 	}
 

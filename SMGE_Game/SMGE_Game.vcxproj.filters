@@ -23,12 +23,6 @@
     <ClCompile Include="GCommonIncludes.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\CMap.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Objects\CActor.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
     <ClCompile Include="Components\CWorldMoveComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -36,12 +30,6 @@
   <ItemGroup>
     <ClInclude Include="GCommonIncludes.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\CMap.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Objects\CActor.h">
-      <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="Components\CWorldMoveComponent.h">
       <Filter>Components</Filter>

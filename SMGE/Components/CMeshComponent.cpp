@@ -2,11 +2,11 @@
 
 namespace SMGE
 {
-	CMeshComponent::CMeshComponent() : CDrawComponent()
+	CMeshComponent::CMeshComponent(CObject* outer) : CDrawComponent(outer)
 	{
 	}
 
-	CMeshComponent::CMeshComponent(const CWString& modelAssetPath) : CDrawComponent(modelAssetPath)
+	CMeshComponent::CMeshComponent(CObject* outer, const CWString& modelAssetPath) : CDrawComponent(outer, modelAssetPath)
 	{
 	}
 };

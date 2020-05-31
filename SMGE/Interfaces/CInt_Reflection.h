@@ -66,6 +66,29 @@ namespace SMGE
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	class CInt_Reflection : public CInterfaceBase
+	{
+	public:
+		virtual CWString getClassName() = 0;
+		virtual SGReflection& getReflection() = 0;
+		virtual const SGReflection& getConstReflection() const
+		{
+			return const_cast<CInt_Reflection*>(this)->getReflection();
+		}
+
+		virtual void CopyFromTemplate(const CInt_Reflection& templateObj)
+		{
+			SGStringStreamIn in(templateObj.getConstReflection());
+			in >> getReflection();
+		}
+
+		virtual void OnAfterDeserialized() {}
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	using TupleVarName_VarType_Value = std::tuple<CWString, CWString, CWString>;
 	const int32 Tuple_VarName = 0;
 	const int32 Tuple_VarType = 1;
@@ -79,7 +102,7 @@ namespace SMGE
 		static const CWString::value_type VARIABLE_DELIM_CHAR;
 		static const CWString::value_type VALUE_DELIM_CHAR;
 
-		SGReflection(CObject& obj) : className_(obj.className_)
+		SGReflection(CInt_Reflection& obj) : pair_(obj), className_(obj.getClassName())
 		{
 			if (isFast_ == false)
 				buildVariablesMap();
@@ -94,7 +117,9 @@ namespace SMGE
 	protected:
 		virtual void buildVariablesMap();
 
-		CWString& className_;
+		CWString className_;
+
+		CInt_Reflection& pair_;
 		bool isFast_ = false;
 		CHashMap<CWString, void*> variablesMap_;
 	};
@@ -273,21 +298,5 @@ namespace SMGE
 				cont.push_back(temp);
 			};
 		};
-	};
-
-	class CInt_Reflection : public CInterfaceBase
-	{
-	public:
-		virtual SGReflection& getReflection() = 0;
-		virtual const SGReflection& getConstReflection() const
-		{
-			return const_cast<CInt_Reflection*>(this)->getReflection();
-		}
-		
-		virtual void CopyFromTemplate(const CInt_Reflection& templateObj)
-		{
-			SGStringStreamIn in(templateObj.getConstReflection());
-			in >> getReflection();
-		}
 	};
 };

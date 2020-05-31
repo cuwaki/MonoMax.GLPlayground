@@ -5,6 +5,8 @@
 #include <fstream>
 #include <functional>
 #include <vector>
+#include "../SMGE/GECommonIncludes.h"
+#include "../SMGE/GEContainers.h"
 
 namespace SMGE
 {
@@ -20,45 +22,53 @@ namespace SMGE
 		class ModelAsset
 		{
 		protected:
-			CRenderingEngine* ge_ = nullptr;
+			CRenderingEngine* re_ = nullptr;
 
-			GLuint m_vao, m_vbo;
-			GLuint m_rbo, m_fbo;
-			GLuint m_prg;
+			GLuint m_vao = -1, m_vbo = -1;
+			GLuint m_rbo = -1, m_fbo = -1;
+			GLuint m_prg = -1;
 
-			void initShaders();
+			bool m_isInitialized();
 			void initRenderData();
-			void createBufferObject();
+			void createBufferObject(int width, int height);
 			void destroyBufferObjects();
 
 		public:
-			std::string vertShaderPath_;
-			std::string fragShaderPath_;
-			int vertexAttribNumber_;
-			std::vector<float> vertices_;
+			CWString vertShaderPath_;
+			CWString fragShaderPath_;
+			int vertexAttribNumber_ = 0;
+			CVector<float> vertices_;
 
-			ModelAsset(CRenderingEngine* ge);
+			ModelAsset();
+			ModelAsset(CRenderingEngine* re);
 			~ModelAsset() noexcept;
 
+			void initShaders();
 			void drawGL(const glm::mat4& worldPos) const;
-			void OnScreenResize();
+			void OnScreenResize(int width, int height);
 
 		public:
-			static void OnScreenResize_Master();
-			static std::vector<ModelAsset*> instances_;
+			static void OnScreenResize_Master(int width, int height);
+			static CVector<ModelAsset*> instances_;
 		};
 
 		class WorldModel
 		{
-		public:
-			CRenderingEngine* ge_ = nullptr;
+		protected:
+			CRenderingEngine* re_ = nullptr;
 			const ModelAsset& modelAsset_;
 
+		public:
 			glm::mat4 modelMat;
 
-			WorldModel(CRenderingEngine* ge, const ModelAsset& ma) : ge_(ge), modelAsset_(ma)
+			WorldModel(const ModelAsset& ma) : modelAsset_(ma)
 			{
 				modelMat = glm::mat4(1.0f);
+			}
+
+			void SetRenderingEngine(CRenderingEngine* re)
+			{
+				re_ = re;
 			}
 
 			virtual void draw();
@@ -67,12 +77,22 @@ namespace SMGE
 		class TestTriangle : public WorldModel
 		{
 		public:
-			float rotY;
+			float rotY = 0;
 
-			TestTriangle(CRenderingEngine* ge, const ModelAsset& ma) : WorldModel(ge, ma) {}
+			TestTriangle(const ModelAsset& ma) : WorldModel(ma) {}
 
 			virtual void draw() override;
 		};
+
+		namespace GLUtil
+		{
+			std::string getShaderCode(const char* filename);
+			void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype);
+			void safeDeleteVertexArray(GLuint& vao);
+			void safeDeleteBuffer(GLuint& vbo);
+			void safeDeleteProgram(GLuint& prog);
+			void safeDeleteFramebuffer(GLuint& fbo);
+		}
 
 		class CRenderingEngine
 		{
@@ -83,13 +103,16 @@ namespace SMGE
 			GLFWwindow* m_window = nullptr;
 			char* GLRenderHandle = nullptr;
 			bool isRunning = false;
-			std::vector<WorldModel*> m_worldModelList;
+			CVector<WorldModel*> m_worldModelList;
 
 			void initWindow();
 
 			class nsGE::CGameBase* smge_game;
 
 		public:
+			CRenderingEngine();
+			virtual ~CRenderingEngine();
+
 			const int GetWidth();
 			const int GetHeight();
 			const int GetBufferLenght();
@@ -101,9 +124,6 @@ namespace SMGE
 			void Tick();
 			void Render(char* imgBuffer);
 
-			std::string getShaderCode(const char* filename);
-			void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype);
-
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 
 			WorldModel* AddWorldModel(WorldModel* model);
@@ -111,4 +131,3 @@ namespace SMGE
 		};
 	}
 }
-

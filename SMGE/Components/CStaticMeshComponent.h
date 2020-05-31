@@ -8,8 +8,5 @@ namespace SMGE
 {
 	class CStaticMeshComponent : public CMeshComponent
 	{
-	public:
-		//CStaticMeshComponent();
-		//CSharPtr<CModelData> asset_;
 	};
 };

@@ -1,6 +1,6 @@
 #include "CMap.h"
-#include "GECommonIncludes.h"
-#include "Assets/CAssetManager.h"
+#include "../GECommonIncludes.h"
+#include "../Assets/CAssetManager.h"
 
 namespace SMGE
 {
@@ -37,8 +37,8 @@ namespace SMGE
 	{
 		CWString ret = Super::operator CWString();
 
-		ret += ReflectionUtils::ToCVector(actorReflLayers_[0], L"CVector<SGRefl_Actor>", L"actorLayers_[0]", std::optional<size_t>{});
-		ret += ReflectionUtils::ToCVector(actorReflLayers_[1], L"CVector<SGRefl_Actor>", L"actorLayers_[1]", std::optional<size_t>{});
+		ret += ReflectionUtils::ToCVector(actorReflLayers_[0], L"CVector<SGRefl_Actor>", L"actorReflLayers_[0]", std::optional<size_t>{});
+		ret += ReflectionUtils::ToCVector(actorReflLayers_[1], L"CVector<SGRefl_Actor>", L"actorReflLayers_[1]", std::optional<size_t>{});
 
 		return ret;
 	}
@@ -58,7 +58,7 @@ namespace SMGE
 			// 그러므로 SGRefl_Map 의 = 가 실행되려면 먼저
 			// CMap 에 CActor 들이 인스턴싱 되어있어야한다
 			// SGRefl_Map 이 CMap 에 액터 생성을 시킨 후 연결해야한다 - 일단은 이렇게 구현해보자!
-			CActor loader;
+			CActor loader(nullptr);
 
 			// 정확한 액터의 클래스명을 얻는다
 			auto backupCursor = variableSplitted.cursor();
@@ -66,7 +66,7 @@ namespace SMGE
 			loader.setActorStaticTag("ttttt");
 
 			CWString actorAssetPath = CAssetManager::FindAssetFilePathByClassName(loader.getClassName());
-			if (SMGEGlobal::IsValidPath(actorAssetPath) == true)
+			if (Path::IsValidPath(actorAssetPath) == true)
 			{
 				// 1. 애셋을 이용하여 맵에 액터 스폰하기
 				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(actorAssetPath);
@@ -98,20 +98,20 @@ namespace SMGE
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	CMap::CMap() : CObject()
+	CMap::CMap(CObject* outer) : CObject(outer)
 	{
-		className_ = wtext("SMGE_Game::CMap");
-		CGCtor();
+		className_ = wtext("SMGE::CMap");
+		Ctor();
 	}
 
-	CMap::CMap(const CMap& templateInst) : CMap()
+	CMap::CMap(CObject* outer, const CMap& templateInst) : CMap(outer)
 	{
 		CopyFromTemplate(templateInst);
 	}
 
-	void CMap::CGCtor()
+	void CMap::Ctor()
 	{
-		Super::CGCtor();
+		Super::Ctor();
 
 		actorLayers_.resize(etoi(EActorLayer::Max));
 		actorLayers_[EActorLayer::System].reserve(20);
@@ -150,7 +150,7 @@ namespace SMGE
 
 	CActor& CMap::SpawnDefaultActor(const CActor& templateActor, bool isDynamic)
 	{
-		auto newActor = MakeSharPtr<CActor>(templateActor);
+		auto newActor = MakeSharPtr<CActor>(this, templateActor);
 
 		if (isDynamic == true)
 		{	// ActorKeyGenerator
@@ -176,10 +176,20 @@ namespace SMGE
 		return targetActor;
 	}
 
+	CActor* CMap::FindActor(TActorKey ak)
+	{
+		return nullptr;
+	}
+
+	CSharPtr<CActor>&& CMap::RemoveActor(TActorKey ak)
+	{
+		return std::move(actorLayers_[EActorLayer::Game][0]);
+	}
+
 	void CMap::StartToPlay()
 	{
 		if (isStarted_ == true)
-			throw SMGEException(wtext("cgmap already activated"));
+			throw SMGEException(wtext("CMap already activated"));
 
 		isStarted_ = true;
 
@@ -187,5 +197,19 @@ namespace SMGE
 		{
 			sptrActor->BeginPlay();
 		}
+	}
+
+	void CMap::FinishPlaying()
+	{
+		if (isStarted_ == false)
+			return;
+
+		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		{
+			sptrActor->EndPlay();
+		}
+
+		actorLayers_.clear();
+		isStarted_ = false;
 	}
 };

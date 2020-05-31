@@ -12,7 +12,7 @@ namespace SMGE
 		using Super = nsGE::CGameBase;
 
 	public:
-		SPPKGame();
+		SPPKGame(CObject* outer);
 		virtual ~SPPKGame();
 
 	protected:

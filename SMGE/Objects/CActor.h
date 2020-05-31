@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Objects/CObject.h"
-#include "Interfaces/CInt_Reflection.h"
-#include "Interfaces/CInt_Component.h"
-#include "../GCommonIncludes.h"
+#include "CObject.h"
+#include "../Interfaces/CInt_Reflection.h"
+#include "../Interfaces/CInt_Component.h"
 
 namespace SMGE
 {
@@ -46,11 +45,12 @@ namespace SMGE
 		friend struct TReflectionStruct;
 
 	public:
-		CActor();
-		CActor(const CActor& templateInst);
+		CActor(CObject* outer);
+		CActor(CObject* outer, const CActor& templateInst);
 		~CActor() noexcept;
 
-		virtual void CGCtor() override;
+		virtual void Ctor() override;
+		virtual void Dtor() override;
 
 		virtual void Tick(float);	// 차후 개발 - CGInterf_Tickable 로 빼자
 		virtual void Render(float);	// 차후 개발 - CGInterf_Renderable 로 빼자???
@@ -66,8 +66,10 @@ namespace SMGE
 		virtual void OnAfterSpawned(class CMap* map, bool isDynamic);
 		virtual void OnAfterArranged(class CMap* map);
 		virtual void BeginPlay();
+		virtual void EndPlay();
 
 	public:
+		virtual CWString getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
 		virtual ComponentVector& getComponentList() override;
 

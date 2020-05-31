@@ -7,8 +7,10 @@ namespace SMGE
 	{
 		CGameBase* CGameBase::Instance;
 
-		CGameBase::CGameBase()
+		CGameBase::CGameBase(CObject* outer) : CObject(outer)
 		{
+			className_ = wtext("SMGE::nsGE::CGameBase");
+
 			CGameBase::Instance = this;
 
 			Initialize();
@@ -28,31 +30,17 @@ namespace SMGE
 		{
 		}
 
-#if IS_EDITOR
-		void CGameBase::EditorTick(float timeDelta)
+		CEngineBase* CGameBase::GetEngine() const
 		{
-			Tick(timeDelta);
+			return engine_;
 		}
-
-		void CGameBase::EditorRender(float timeDelta)
-		{
-			Render(timeDelta);
-		}
-#else
-		int32 CGameBase::GameMain()
-		{
-			return 0;
-		}
-#endif
 
 		void CGameBase::Tick(float timeDelta)
 		{
-			engine_->Tick(timeDelta);
 		}
 
 		void CGameBase::Render(float timeDelta)
 		{
-			engine_->Render(timeDelta);
 		}
 
 		CWString CGameBase::PathProjectRoot()

@@ -3,6 +3,7 @@
 #include "../Objects/CObject.h"
 #include "CAsset.h"
 #include "../Interfaces/CInt_Reflection.h"
+#include "../../MonoMax.EngineCore/RenderingEngine.h"
 
 namespace SMGE
 {
@@ -24,23 +25,21 @@ namespace SMGE
 		CVector<float>& vertices_;
 	};
 
-	class CModelData : public CObject, public CInt_Reflection
+	class CModelData : public nsRE::ModelAsset, public CInt_Reflection
 	{
 	public:
 		using TReflectionStruct = SGRefl_ModelData;
 		friend struct TReflectionStruct;
 
-		CModelData();
+		CModelData(void *outer);
 
 	public:
+		virtual CWString getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
-
-		CWString vertShaderPath_;
-		CWString fragShaderPath_;
-		int32 vertexAttribNumber_;
-		CVector<float> vertices_;
+		virtual void OnAfterDeserialized() override;
 
 	protected:
+		CWString className_;
 		CUniqPtr<TReflectionStruct> reflData_;
 	};
 };

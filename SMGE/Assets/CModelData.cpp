@@ -35,9 +35,9 @@ namespace SMGE
 		return *this;
 	}
 
-	CModelData::CModelData() : CObject()
+	CModelData::CModelData(void* outer) : nsRE::ModelAsset()
 	{
-		className_ = wtext("SMGE_Game::CModelData");
+		className_ = wtext("SMGE::CModelData");
 	}
 
 	SGReflection& CModelData::getReflection()
@@ -45,5 +45,10 @@ namespace SMGE
 		if (reflData_.get() == nullptr)
 			reflData_ = MakeUniqPtr<TReflectionStruct>(*this);
 		return *reflData_.get();
+	}
+
+	void CModelData::OnAfterDeserialized()
+	{
+		initShaders();
 	}
 };

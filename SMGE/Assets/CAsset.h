@@ -53,7 +53,7 @@ namespace SMGE
 	protected:
 		void LoadDefaultContentClass()
 		{
-			contentClass_ = new TContentClass();
+			contentClass_ = new TContentClass(nullptr);
 
 			SGStringStreamIn strIn(CuwakiDevUtils::LoadFromTextFile(assetFilePath_));
 			if (strIn.IsValid())

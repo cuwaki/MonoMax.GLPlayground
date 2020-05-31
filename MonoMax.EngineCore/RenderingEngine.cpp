@@ -1,5 +1,6 @@
 #include "RenderingEngine.h"
 #include "../SuperPompoko/SPPKGame.h"
+#include "../SMGE/CEngineBase.h"
 
 namespace SMGE
 {
@@ -8,11 +9,16 @@ namespace SMGE
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		ModelAsset::ModelAsset(CRenderingEngine* ge) : ge_(ge)
+		CVector<ModelAsset*> ModelAsset::instances_;
+
+		ModelAsset::ModelAsset()
 		{
 			instances_.push_back(this);
-
-			initShaders();
+		}
+		
+		ModelAsset::ModelAsset(CRenderingEngine* re) : ModelAsset()
+		{
+			re_ = re;
 		}
 
 		ModelAsset::~ModelAsset()
@@ -23,51 +29,64 @@ namespace SMGE
 			instances_.erase(found);
 		}
 
-		void ModelAsset::OnScreenResize()
+		void ModelAsset::OnScreenResize(int width, int height)
 		{
-			createBufferObject();
+			createBufferObject(width, height);
 		}
 
-		std::vector<ModelAsset*> ModelAsset::instances_;
-		void ModelAsset::OnScreenResize_Master()
+		void ModelAsset::OnScreenResize_Master(int width, int height)
 		{
 			for (auto inst : instances_)
 			{
-				inst->OnScreenResize();
+				inst->OnScreenResize(width, height);
 			}
+		}
+
+		bool ModelAsset::m_isInitialized()
+		{
+			return (m_vao != -1);
 		}
 
 		void ModelAsset::initRenderData()
 		{
+			if (m_isInitialized())
+				return;
+
 			glGenVertexArrays(1, &m_vao);
 			glGenBuffers(1, &m_vbo);
 
-			//getShaderCode("../../../../simple_color_vs.glsl"),
-			//getShaderCode("../../../../simple_color_fs.glsl")
-			vertShaderPath_ = "simple_color_vs.glsl";
-			fragShaderPath_ = "simple_color_fs.glsl";
+			// 테스트 코드
+			////getShaderCode("../../../../simple_color_vs.glsl"),
+			////getShaderCode("../../../../simple_color_fs.glsl")
+			//vertShaderPath_ = "simple_color_vs.glsl";
+			//fragShaderPath_ = "simple_color_fs.glsl";
 
-			vertices_ = {
-			0.0f, 0.5f, 0.0f,
-			-0.5f, -0.5f, 0.0f,
-			0.5f, -0.5f, 0.0f,
-			};
-			vertexAttribNumber_ = 3;
+			//vertices_ = {
+			//0.0f, 0.5f, 0.0f,
+			//-0.5f, -0.5f, 0.0f,
+			//0.5f, -0.5f, 0.0f,
+			//};
+			//vertexAttribNumber_ = 3;
 		}
 
 		void ModelAsset::initShaders()
 		{
+			if (m_isInitialized())
+				return;
+
 			initRenderData();
 
 			m_prg = glCreateProgram();
-			ge_->addShader(m_prg, vertShaderPath_, GL_VERTEX_SHADER);
-			ge_->addShader(m_prg, fragShaderPath_, GL_FRAGMENT_SHADER);
+			GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(vertShaderPath_).c_str()), GL_VERTEX_SHADER);
+			GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(fragShaderPath_).c_str()), GL_FRAGMENT_SHADER);
 			glLinkProgram(m_prg);
 
 			glBindVertexArray(m_vao);
 			{
+				auto dataSize = vertices_.size() * sizeof(decltype(vertices_[0]));
+
 				glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-				glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(decltype(vertices_[0])), &vertices_[0], GL_STATIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, dataSize, &vertices_[0], GL_STATIC_DRAW);
 				glVertexAttribPointer(0, vertexAttribNumber_, GL_FLOAT, GL_FALSE, 0, (void*)0);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 			}
@@ -79,7 +98,8 @@ namespace SMGE
 			glBindVertexArray(m_vao);
 			{
 				glUseProgram(m_prg);
-				glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(worldPos));
+				glUniformMatrix4fv(0, 1, GL_FALSE, &worldPos[0][0]);
+				//glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(worldPos));
 
 				glEnableVertexAttribArray(0);
 				glDrawArrays(GL_TRIANGLES, 0, vertexAttribNumber_);
@@ -87,28 +107,26 @@ namespace SMGE
 			glBindVertexArray(0);
 		}
 
-		void ModelAsset::createBufferObject()
+		void ModelAsset::createBufferObject(int width, int height)
 		{
-			destroyBufferObjects();
+			//destroyBufferObjects();
 
 			//glGenFramebuffers(1, &m_fbo);
 			//glGenRenderbuffers(1, &m_rbo);
 
 			//glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-			//glRenderbufferStorage(GL_RENDERBUFFER, GL_BGRA, m_width, m_height);
+			//glRenderbufferStorage(GL_RENDERBUFFER, GL_BGRA, width, height);
 			//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
 			//glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_rbo);
 		}
 
 		void ModelAsset::destroyBufferObjects()
 		{
-			if (m_fbo > 0)
-				glDeleteFramebuffers(1, &m_fbo);
-			m_fbo = -1;
-
-			if (m_rbo > 0)
-				glDeleteFramebuffers(1, &m_rbo);
-			m_rbo = -1;
+			GLUtil::safeDeleteVertexArray(m_vao);
+			GLUtil::safeDeleteBuffer(m_vbo);
+			GLUtil::safeDeleteProgram(m_prg);
+			GLUtil::safeDeleteFramebuffer(m_fbo);
+			GLUtil::safeDeleteFramebuffer(m_rbo);
 		}
 
 		void WorldModel::draw()
@@ -127,41 +145,12 @@ namespace SMGE
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		std::string CRenderingEngine::getShaderCode(const char* filename)
+		CRenderingEngine::CRenderingEngine()
 		{
-			std::string shaderCode;
-			std::ifstream file(filename, std::ios::in);
-
-			if (!file.good())
-			{
-				throw new std::exception();
-			}
-
-			file.seekg(0, std::ios::end);
-			shaderCode.resize((unsigned int)file.tellg());
-			file.seekg(0, std::ios::beg);
-			file.read(&shaderCode[0], shaderCode.size());
-			file.close();
-
-			return shaderCode;
 		}
-
-		void CRenderingEngine::addShader(GLuint prgId, const std::string shadercode, GLenum shadertype)
+		
+		CRenderingEngine::~CRenderingEngine()
 		{
-			if (prgId < 0)
-				throw new std::exception();
-
-			GLuint id = glCreateShader(shadertype);
-
-			if (id < 0)
-				throw new std::exception();
-
-			const char* code = shadercode.c_str();
-
-			glShaderSource(id, 1, &code, NULL);
-			glCompileShader(id);
-			glAttachShader(prgId, id);
-			glDeleteShader(id);
 		}
 
 		const int CRenderingEngine::GetHeight() { return m_height; }
@@ -207,7 +196,7 @@ namespace SMGE
 			free(GLRenderHandle);
 			GLRenderHandle = (char*)malloc(m_bufferLength);
 
-			ModelAsset::OnScreenResize_Master();
+			ModelAsset::OnScreenResize_Master(m_width, m_height);
 
 			glViewport(0, 0, width, height);
 		}
@@ -238,7 +227,8 @@ namespace SMGE
 			//y = 0.5;
 			//z = 0.5;
 
-			smge_game = new SMGE::SPPKGame();
+			smge_game = new SMGE::SPPKGame(nullptr);
+			smge_game->GetEngine()->SetRenderingEngine(this);
 		}
 
 		void CRenderingEngine::DeInit()
@@ -254,7 +244,7 @@ namespace SMGE
 
 		void CRenderingEngine::Tick()
 		{
-			smge_game->EditorTick(0.01f);
+			smge_game->GetEngine()->Tick(0.01f);
 		}
 
 		void CRenderingEngine::Render(char* imgBuffer)
@@ -263,7 +253,7 @@ namespace SMGE
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glEnable(GL_MULTISAMPLE);
 
-			smge_game->EditorRender(0.01f);
+			smge_game->GetEngine()->Render(0.01f);
 
 			for (auto model : m_worldModelList)
 			{
@@ -289,7 +279,8 @@ namespace SMGE
 				return nullptr;
 
 			m_worldModelList.push_back(model);
-
+			
+			model->SetRenderingEngine(this);
 			return model;
 		}
 
@@ -307,6 +298,77 @@ namespace SMGE
 			outDpiX = 96;
 			outDpiY = 96;
 			outColorDepth = m_colorDepth;	// 4 for PixelFormats::Pbgr32
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		namespace GLUtil
+		{
+			std::string getShaderCode(const char* filename)
+			{
+				std::string shaderCode;
+				std::ifstream file(filename, std::ios::in);
+
+				if (!file.good())
+				{
+					throw new std::exception();
+				}
+
+				file.seekg(0, std::ios::end);
+				shaderCode.resize((unsigned int)file.tellg());
+				file.seekg(0, std::ios::beg);
+				file.read(&shaderCode[0], shaderCode.size());
+				file.close();
+
+				return shaderCode;
+			}
+
+			void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype)
+			{
+				if (prgId < 0)
+					throw new std::exception();
+
+				GLuint id = glCreateShader(shadertype);
+
+				if (id < 0)
+					throw new std::exception();
+
+				const char* code = shadercode.c_str();
+
+				glShaderSource(id, 1, &code, NULL);
+				glCompileShader(id);
+				glAttachShader(prgId, id);
+				glDeleteShader(id);
+			}
+
+			void safeDeleteVertexArray(GLuint& vao)
+			{
+				if (vao > 0)
+					glDeleteVertexArrays(1, &vao);
+				vao = -1;
+			}
+
+			void safeDeleteBuffer(GLuint& vbo)
+			{
+				if (vbo > 0)
+					glDeleteBuffers(1, &vbo);
+				vbo = -1;
+			}
+
+			void safeDeleteProgram(GLuint& prog)
+			{
+				if (prog > 0)
+					glDeleteProgram(prog);
+				prog = -1;
+			}
+
+			void safeDeleteFramebuffer(GLuint& fbo)
+			{
+				if (fbo > 0)
+					glDeleteFramebuffers(1, &fbo);
+				fbo = -1;
+			}
 		}
 	}
 }

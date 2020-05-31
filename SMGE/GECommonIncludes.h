@@ -46,6 +46,14 @@ namespace SMGE
 
     using wchar = wchar_t;
 
+    using TActorKey = uint32;
+    const TActorKey InvalidActorKey = 0;
+
+    inline bool IsValidActorKey(const TActorKey& ak)
+    {
+        return ak > 0;
+    }
+
     template<typename T, typename U>
     inline T SCast(U u)
     {
@@ -60,6 +68,8 @@ namespace SMGE
 }
 
 #include "GEContainers.h"
+
+#define IsA(__cobjectInst__, _className_) (__cobjectInst__ && __cobjectInst__->getClassName() == wtext(#_className_))
 
 namespace SMGE
 {
@@ -272,11 +282,17 @@ namespace SMGE
         }
     }
 
-    namespace SMGEGlobal
+    namespace Path
     {
         CWString GetNormalizedPath(const CWString& path);
         bool IsValidPath(const CWString& path);
         CWString GetDirectoryFullPath(const CWString& dir);
         CWString GetDirectoryCurrent();
     }
+
+    struct SMGEException : public std::exception
+    {
+        SMGEException(const CWString& exceptionMsg) : exceptionMsg_(exceptionMsg) {}
+        CWString exceptionMsg_;
+    };
 }

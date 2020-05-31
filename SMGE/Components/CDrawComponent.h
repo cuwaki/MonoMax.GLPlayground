@@ -10,18 +10,25 @@ namespace SMGE
 	class CDrawComponent : public CComponent
 	{
 	public:
-		CDrawComponent();
-		CDrawComponent(const CWString& modelAssetPath);
+		CDrawComponent(CObject* outer);
+		CDrawComponent(CObject* outer, const CWString& modelAssetPath);
 
-		virtual void ReadyToDrawing(const CWString& modelAssetPath);
-		
 		virtual void Tick(float td);
 		virtual void Render(float td);
+
+		virtual void OnBeginPlay(class CActor* parent) override;
+		virtual void OnEndPlay() override;
+
+		virtual void ReadyToDrawing();
+		void SetDrawingModelAsset(const CWString& modelAssetPath);
 
 		glm::mat4& getTransform();
 		glm::vec3& getLocation();
 		glm::vec3& getDirection();
 		glm::vec3& getScale();
+
+	protected:
+		class nsRE::CRenderingEngine* GetRenderingEngine();
 
 	protected:
 		// reflection
@@ -35,5 +42,6 @@ namespace SMGE
 	protected:
 		// runtime
 		CSharPtr<CAsset<CModelData>> drawingModelAsset_;
+		nsRE::WorldModel* myWorldModel_ = nullptr;
 	};
 };

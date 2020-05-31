@@ -8,22 +8,28 @@ using namespace System::Windows::Controls;
 
 namespace SMGE
 {
-	bool isInitialized;
-	int _w, _h, fpsCounter;
+	GLControl::GLControl()
+	{
+	}
+
+	GLControl::~GLControl()
+	{
+		Destroy();
+	}
 
 	void GLControl::OnRenderSizeChanged(System::Windows::SizeChangedInfo^ info)
 	{
-		_w = (int)info->NewSize.Width;
-		_h = (int)info->NewSize.Height;
+		m_width = (int)info->NewSize.Width;
+		m_height = (int)info->NewSize.Height;
 
-		if (!isInitialized)
+		if (!m_isInitialized)
 		{
 			double wantFPS = (1.0 / 45.0) * 1000;
 
 			Grid^ mainGrid = gcnew Grid();
-			m_fpsCounter = gcnew TextBlock();
-			m_fpsCounter->Margin = Thickness(3);
-			m_fpsCounter->VerticalAlignment = System::Windows::VerticalAlignment::Bottom;
+			m_textFpsCounter = gcnew TextBlock();
+			m_textFpsCounter->Margin = Thickness(3);
+			m_textFpsCounter->VerticalAlignment = System::Windows::VerticalAlignment::Bottom;
 			
 
 			m_lastUpdate = System::DateTime::Now;
@@ -43,7 +49,7 @@ namespace SMGE
 			m_ImageControl->RenderTransform = gcnew ScaleTransform(1.0, -1.0);
 			
 			mainGrid->Children->Add(m_ImageControl);
-			mainGrid->Children->Add(m_fpsCounter);
+			mainGrid->Children->Add(m_textFpsCounter);
 
 			AddChild(mainGrid);
 			
@@ -51,17 +57,17 @@ namespace SMGE
 
 			m_graphicsEngine = new nsRE::CRenderingEngine();
 			m_graphicsEngine->Init();
-			isInitialized = true;
+			m_isInitialized = true;
 		}
 
-		m_graphicsEngine->Resize(_w, _h);
+		m_graphicsEngine->Resize(m_width, m_height);
 
 		double dpiX, dpiY;
 		int colorDepth;
 		m_graphicsEngine->getWriteableBitmapInfo(dpiX, dpiY, colorDepth);
 		
 		// colorDepth == 4 이어야하고 그래서 PixelFormats::Pbgra32 를 쓴다
-		m_writeableImg = gcnew WriteableBitmap(_w, _h, dpiX, dpiY, PixelFormats::Pbgra32, nullptr);
+		m_writeableImg = gcnew WriteableBitmap(m_width, m_height, dpiX, dpiY, PixelFormats::Pbgra32, nullptr);
 
 		m_WriteableBuffer = (char*)m_writeableImg->BackBuffer.ToPointer();
 		m_ImageControl->Source = m_writeableImg;
@@ -82,7 +88,7 @@ namespace SMGE
 	void GLControl::UpdateImageData(void)
 	{
 		m_writeableImg->Lock();
-		m_writeableImg->AddDirtyRect(Int32Rect(0, 0, _w, _h));
+		m_writeableImg->AddDirtyRect(Int32Rect(0, 0, m_width, m_height));
 		m_writeableImg->Unlock();
 	}
 
@@ -96,14 +102,14 @@ namespace SMGE
 		System::TimeSpan elapsed = (System::DateTime::Now - m_lastUpdate);
 		if (elapsed.TotalMilliseconds >= 1000)
 		{
-			m_fpsCounter->Text = "FPS= " + fpsCounter.ToString();
-			fpsCounter = 0;
+			m_textFpsCounter->Text = "FPS= " + m_fpsCounter.ToString();
+			m_fpsCounter = 0;
 			m_lastUpdate = System::DateTime::Now;
 		}
 
 		m_graphicsEngine->Render(m_WriteableBuffer);
 		m_ImageControl->Dispatcher->Invoke(gcnew System::Action(this, &GLControl::UpdateImageData));
 
-		fpsCounter++;
+		m_fpsCounter++;
 	}
 }

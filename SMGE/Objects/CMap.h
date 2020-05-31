@@ -1,17 +1,10 @@
 #pragma once
 
-#include "../GCommonIncludes.h"
-#include "Interfaces/CInt_Reflection.h"
+#include "../Interfaces/CInt_Reflection.h"
 #include "CActor.h"
 
 namespace SMGE
 {
-	struct SMGEException : public std::exception
-	{
-		SMGEException(const CWString& exceptionMsg) : exceptionMsg_(exceptionMsg) {}
-		CWString exceptionMsg_;
-	};
-
 	enum class EActorLayer : uint8
 	{
 		System = 0,	// 카메라, 매니저 ...
@@ -51,20 +44,24 @@ namespace SMGE
 		friend struct TReflectionStruct;
 
 	public:
-		CMap();
-		CMap(const CMap& templateInst);
+		CMap(CObject* outer);
+		CMap(CObject* outer, const CMap& templateInst);
 
-		virtual void CGCtor() override;
+		virtual void Ctor() override;
 		virtual void Tick(float);
 		virtual void Render(float);
 
 		CActor& SpawnDefaultActor(const CActor& templateActor, bool isDynamic);
 		CActor& ArrangeActor(CActor& arrangedActor);
+		CActor* FindActor(TActorKey ak);
+		CSharPtr<CActor>&& RemoveActor(TActorKey ak);
 
 		void StartToPlay();
+		void FinishPlaying();
 		bool IsStarted() { return isStarted_; }
 
 	public:
+		virtual CWString getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
 
 	protected:

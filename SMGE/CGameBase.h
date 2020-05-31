@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GECommonIncludes.h"
+#include "Objects/CObject.h"
 
 #define IS_EDITOR 1
 
@@ -14,26 +15,22 @@ namespace SMGE
 			CWString gameProjectRootPath_;
 		};
 
-		class CGameBase
+		class CGameBase : public CObject
 		{
 		public:
-			CGameBase();
+			CGameBase(CObject* outer);
 			virtual ~CGameBase();
 
-#if IS_EDITOR
-			void EditorTick(float timeDelta);
-			void EditorRender(float timeDelta);
-#else
-			int32 GameMain();
-#endif
+			class CEngineBase* GetEngine() const;
+
+			virtual void Tick(float);
+			virtual void Render(float);
 
 			CWString PathProjectRoot();
 			CWString PathAssetRoot();
 
 		protected:
 			virtual void Initialize();
-			virtual void Tick(float);
-			virtual void Render(float);
 
 		protected:
 			class CEngineBase* engine_;

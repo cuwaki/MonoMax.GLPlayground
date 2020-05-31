@@ -156,14 +156,10 @@
   <ItemGroup>
     <ClCompile Include="Components\CWorldMoveComponent.cpp" />
     <ClCompile Include="GCommonIncludes.cpp" />
-    <ClCompile Include="Objects\CActor.cpp" />
-    <ClCompile Include="Objects\CMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Components\CWorldMoveComponent.h" />
     <ClInclude Include="GCommonIncludes.h" />
-    <ClInclude Include="Objects\CActor.h" />
-    <ClInclude Include="Objects\CMap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,7 +8,7 @@ namespace SMGE
 	class CMeshComponent : public CDrawComponent
 	{
 	public:
-		CMeshComponent();
-		CMeshComponent(const CWString& modelAssetPath);
+		CMeshComponent(CObject* outer);
+		CMeshComponent(CObject* outer, const CWString& modelAssetPath);
 	};
 };

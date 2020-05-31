@@ -11,10 +11,13 @@ namespace SMGE
 	private:
 		nsRE::CRenderingEngine* m_graphicsEngine;
 
+		bool m_isInitialized = false;
+		int m_width, m_height, m_fpsCounter;
+
 		System::Windows::Threading::DispatcherTimer^ m_tickTimer;
 		System::Windows::Threading::DispatcherTimer^ m_renderTimer;
 
-		System::Windows::Controls::TextBlock^ m_fpsCounter;
+		System::Windows::Controls::TextBlock^ m_textFpsCounter;
 		System::DateTime m_lastUpdate;
 
 		char* m_WriteableBuffer;
@@ -30,6 +33,9 @@ namespace SMGE
 	protected:
 
 	public:
+		GLControl();
+		~GLControl();
+
 		bool GetIsRunning(void);
 		void Destroy(void);
 

@@ -11,5 +11,11 @@ namespace MonoMax.GLSandboxApp
         {
             InitializeComponent();
         }
+
+        private void OnClicked(object sender, RoutedEventArgs e)
+        {
+            var actorWindow = new ActorEditorWindow();
+            actorWindow.Show();
+        }
     }
 }
