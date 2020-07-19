@@ -124,8 +124,8 @@
     </Link>
     <Lib>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>smge.lib;smge_game.lib;superpompoko.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>smge.lib;smge_game.lib;superpompoko.lib;glew_1130.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\x64\Debug;C:\Users\cuwak\source\repos\MonoMax.GLPlayground\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -167,8 +167,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>smge.lib;smge_game.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\cuwak\source\repos\MonoMax.GLPlayground\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>smge.lib;smge_game.lib;superpompoko.lib;glew_1130_R.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\x64\Release;C:\Users\cuwak\source\repos\MonoMax.GLPlayground\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

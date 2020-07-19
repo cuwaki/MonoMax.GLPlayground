@@ -21,6 +21,7 @@
 #include <any>
 #include <optional>
 
+#include "gl/glew.h"
 #include "glfw/glfw3.h"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/string_cast.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/glm.hpp"

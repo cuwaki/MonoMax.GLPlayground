@@ -145,7 +145,7 @@ namespace SMGE
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		CRenderingEngine::CRenderingEngine()
+		CRenderingEngine::CRenderingEngine() : m_clearColor(1,1,1,0)
 		{
 		}
 		
@@ -161,15 +161,18 @@ namespace SMGE
 			if (!glfwInit())
 				throw std::exception();
 
+			//glfwWindowHint(GLFW_SAMPLES, 4);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-			//glfwWindowHint(GLFW_SAMPLES, 4);
+#if IS_EDITOR
+			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+#endif
 
 			// 윈도우 독립 시키기
-			m_window = glfwCreateWindow(640, 480, "Hidden OpenGL window", NULL, NULL);
+			m_window = glfwCreateWindow(640, 480, "Hidden OpenGL m_window", NULL, NULL);
 
 			if (!m_window)
 			{
@@ -178,11 +181,44 @@ namespace SMGE
 			}
 
 			glfwMakeContextCurrent(m_window);
-			if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-			{
+
+			// glew 때문에 막음, 서로 인클루드 빼라며 충돌남
+			//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+			//{
+			//	glfwTerminate();
+			//	throw std::exception();
+			//}
+
+			// But on MacOS X with a retina screen it'll be m_width*2 and m_windowHeight*2, so we get the actual framebuffer size:
+			glfwGetFramebufferSize(m_window, &m_framebufferWith, &m_framebufferHeight);
+
+			// Initialize GLEW
+			glewExperimental = true; // Needed for core profile
+			if (glewInit() != GLEW_OK) {
+				fprintf(stderr, "Failed to initialize GLEW\n");
+				getchar();
 				glfwTerminate();
-				throw std::exception();
+				return;
 			}
+
+#if IS_EDITOR
+#else
+			// Ensure we can capture the escape key being pressed below
+			glfwSetInputMode(m_window, GLFW_STICKY_KEYS, GL_TRUE);
+			// Hide the mouse and enable unlimited mouvement
+			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+			// Set the mouse at the center of the screen
+			glfwPollEvents();
+			glfwSetCursorPos(m_window, m_width / 2, m_height / 2);
+#endif
+
+			glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LESS);
+
+			glEnable(GL_CULL_FACE);
 		}
 
 		void CRenderingEngine::Resize(int width, int height)
@@ -191,19 +227,25 @@ namespace SMGE
 
 			m_width = width;
 			m_height = height;
-			m_bufferLength = width * height * m_colorDepth;
 
-			free(GLRenderHandle);
-			GLRenderHandle = (char*)malloc(m_bufferLength);
+			m_bufferLengthW = m_width * m_height * m_colorDepth;
+
+			// 체크 사항 - 이거 다시 체크해야하려나??
+			//glfwGetFramebufferSize(m_window, &m_framebufferWith, &m_framebufferHeight);
+			m_bufferLengthF = m_framebufferWith * m_framebufferHeight * m_colorDepth;
+
+			// 체크 사항 - 이거 없어도 되는데 왜 하는걸까?
+			//free(GLRenderHandle);
+			//GLRenderHandle = (char*)malloc(m_bufferLengthW);
 
 			ModelAsset::OnScreenResize_Master(m_width, m_height);
 
-			glViewport(0, 0, width, height);
+			glViewport(0, 0, m_width, m_height);
 		}
 
 		const int CRenderingEngine::GetBufferLenght()
 		{
-			return m_bufferLength;
+			return m_bufferLengthW;
 		}
 
 		void CRenderingEngine::Init()

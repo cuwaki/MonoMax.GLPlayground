@@ -97,9 +97,11 @@ namespace SMGE
 		class CRenderingEngine
 		{
 		private:
-			int m_bufferLength;
+			int m_bufferLengthW, m_bufferLengthF;	// window 기반 버퍼 크기와 frame 기반 버퍼 크기
 			int m_width, m_height;
+			int m_framebufferWith, m_framebufferHeight;
 			int m_colorDepth = 4;	// GL_BGRA, PixelFormats::Pbgr32
+			glm::vec4 m_clearColor;
 			GLFWwindow* m_window = nullptr;
 			char* GLRenderHandle = nullptr;
 			bool isRunning = false;
