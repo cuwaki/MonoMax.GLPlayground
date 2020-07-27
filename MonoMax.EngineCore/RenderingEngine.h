@@ -7,6 +7,7 @@
 #include <vector>
 #include "../SMGE/GECommonIncludes.h"
 #include "../SMGE/GEContainers.h"
+#include "common/controls.hpp"
 
 namespace SMGE
 {
@@ -17,9 +18,212 @@ namespace SMGE
 
 	namespace nsRE
 	{
+		namespace TransformConst
+		{
+			enum ETypeRot
+			{
+				PITCH = 0,	// x, y, z 순서로 인덱스로 활용할 수 있도록
+				YAW,
+				ROLL,
+				ETypeRot_MAX
+			};
+
+			enum ETypeAxis
+			{
+				X = 0,
+				Y,
+				Z,
+				ETypeAxis_MAX
+			};
+
+			const glm::vec3 Vec3_Zero(0);
+			const glm::vec3 Vec3_OneHalf(0.5);
+			const glm::vec3 Vec3_One(1);
+
+			const glm::mat4 Mat4_Identity(1);
+
+			const glm::vec3 WorldXAxis{ 1, 0, 0 };
+			const glm::vec3 WorldYAxis{ 0, 1, 0 };
+			const glm::vec3 WorldZAxis{ 0, 0, 1 };
+			const glm::vec3 WorldAxis[3] = { WorldXAxis, WorldYAxis, WorldZAxis };	// access with ETypeAxis
+		};
+
+		class VertFragShaderSet
+		{
+		public:
+			GLuint programID_;
+			GLuint unif_MVPMatrixID_;
+			GLuint unif_ViewMatrixID_;
+			GLuint unif_ModelMatrixID_;
+			GLuint unif_TextureSampleI_;
+			GLuint unif_LightWorldPosition_;
+
+			VertFragShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
+			~VertFragShaderSet();
+			void Destroy();
+			void Invalidate();
+
+			VertFragShaderSet(const VertFragShaderSet& c) = delete;
+			VertFragShaderSet& operator=(const VertFragShaderSet& c) = delete;
+
+			VertFragShaderSet(VertFragShaderSet&& c) noexcept;
+			VertFragShaderSet& operator=(VertFragShaderSet&& c) noexcept;
+		};
+
+		class TextureDDS
+		{
+		public:
+			GLuint textureID_;
+
+			TextureDDS(const CWString& texPath);
+			~TextureDDS();
+			void Destroy();
+			void Invalidate();
+
+			TextureDDS(const TextureDDS& c) = delete;
+			TextureDDS& operator=(const TextureDDS & c) = delete;
+			TextureDDS(TextureDDS && c) noexcept;
+			TextureDDS& operator=(TextureDDS && c) noexcept;
+		};
+
+		class MeshOBJ
+		{
+		public:
+			std::vector<glm::vec3> vertices_;
+			std::vector<glm::vec2> uvs_;
+			std::vector<glm::vec3> normals_;
+			std::vector<glm::vec3> vertexColors_;
+
+			MeshOBJ(const CWString& objPath);
+			~MeshOBJ() { Destroy(); }
+
+			bool loadFromOBJFile(const CWString& objPath);
+			bool loadFromPlainData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals);
+			bool setVertexColors(const std::vector<glm::vec3>& vertexColors);
+			void Destroy();
+			void Invalidate();
+
+			MeshOBJ(const MeshOBJ& c) = delete;
+			MeshOBJ& operator=(const MeshOBJ& c) = delete;
+			MeshOBJ(MeshOBJ&& c) noexcept;
+			MeshOBJ& operator=(MeshOBJ&& c) noexcept;
+		};
+
+		class AssetModel
+		{
+		public:
+			TextureDDS texture_;
+			VertFragShaderSet vfShaderSet_;
+			MeshOBJ mesh_;
+
+			AssetModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath);
+			~AssetModel() { Destroy(); }
+			void Destroy();
+
+			AssetModel(const AssetModel& c) = delete;
+			AssetModel& operator=(const AssetModel& c) = delete;
+			AssetModel(AssetModel&& c) = default;
+			AssetModel& operator=(AssetModel&& c) = default;
+		};
+
+		class Transform
+		{
+		private:
+			glm::vec3 translation_;
+			glm::vec3 rotationDegree_;
+			glm::vec3 scale_;
+
+		protected:
+			glm::mat4 currentTransform_;
+			Transform* transformParent_ = nullptr;
+
+			bool isDirty_ = false;
+
+		public:
+			Transform();
+			const glm::mat4& CurrentTransform() const;
+			void Translate(glm::vec3 worldPos);
+			void Rotate(glm::vec3 rotateDegrees);
+			void RotateAxis(TransformConst::ETypeRot rType, float degrees);
+			void Scale(float scale);
+			void Scale(glm::vec3 scale);
+			void ScaleAxis(TransformConst::ETypeAxis aType, float scale);
+			void OnBeforeRendering();
+			void Dirty() { isDirty_ = true; }
+			bool IsDirty() { return isDirty_; }
+
+		protected:
+			void RecalcMatrix();
+		};
+
+		class WorldModel : public Transform
+		{
+		protected:
+			const class RenderingModel& renderingModel_;
+
+		public:
+			WorldModel(const class RenderingModel& rm);
+			virtual ~WorldModel();
+
+			WorldModel(const WorldModel& c);
+			WorldModel& operator=(const WorldModel& c) = delete;
+			WorldModel(WorldModel&& c) noexcept;
+			WorldModel& operator=(WorldModel&& c) = delete;
+		};
+
+		class RenderingModel
+		{
+		public:
+			// static datas
+			const AssetModel& asset_;
+
+			// rendering datas
+			GLsizei verticesSize_ = 0;
+
+			GLuint vao_ = 0;
+			GLuint vertexBuffer_ = 0;
+			GLuint uvBuffer_ = 0;
+			GLuint normalBuffer_ = 0;
+			GLuint vertexColorBuffer_ = 0;
+			GLuint glDrawType_ = GL_STATIC_DRAW;
+
+			// shader
+			GLuint usingTextureID_ = 0;
+			GLuint usingTextureSampleI_ = 0;
+			GLuint vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
+
+#pragma region WorldModel
+			mutable std::vector<WorldModel*> ptrWorldModels_;
+			void AddWorldModel(WorldModel* wm) const;
+			void RemoveWorldModel(WorldModel* wm) const;
+			const std::vector<WorldModel*>& WorldModels() const;
+#pragma endregion
+
+			virtual ~RenderingModel();
+			void Destroy();
+			void Invalidate();
+
+			RenderingModel(const AssetModel& asset, GLuint texSamp);
+
+			RenderingModel(const RenderingModel& c) = delete;
+			RenderingModel& operator=(const RenderingModel& c) = delete;
+			RenderingModel(RenderingModel&& c) noexcept;
+			RenderingModel& operator=(RenderingModel&& c) = delete;	// asset_ 때문에 구현 불가
+
+			GLuint GetUsingProgram();
+			bool GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
+			void Render(const glm::mat4& VP);
+			void BeginRender();
+			void EndRender();
+			void SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos);
+		};
+	}
+
+	namespace nsRE
+	{
 		class CRenderingEngine;
 
-		class ModelAsset
+		class OldModelAsset
 		{
 		protected:
 			CRenderingEngine* re_ = nullptr;
@@ -39,9 +243,9 @@ namespace SMGE
 			int vertexAttribNumber_ = 0;
 			CVector<float> vertices_;
 
-			ModelAsset();
-			ModelAsset(CRenderingEngine* re);
-			~ModelAsset() noexcept;
+			OldModelAsset();
+			OldModelAsset(CRenderingEngine* re);
+			~OldModelAsset() noexcept;
 
 			void initShaders();
 			void drawGL(const glm::mat4& worldPos) const;
@@ -49,19 +253,18 @@ namespace SMGE
 
 		public:
 			static void OnScreenResize_Master(int width, int height);
-			static CVector<ModelAsset*> instances_;
+			static CVector<OldModelAsset*> instances_;
 		};
-
-		class WorldModel
+		class OldModelWorld
 		{
 		protected:
 			CRenderingEngine* re_ = nullptr;
-			const ModelAsset& modelAsset_;
+			const OldModelAsset& modelAsset_;
 
 		public:
 			glm::mat4 modelMat;
 
-			WorldModel(const ModelAsset& ma) : modelAsset_(ma)
+			OldModelWorld(const OldModelAsset& ma) : modelAsset_(ma)
 			{
 				modelMat = glm::mat4(1.0f);
 			}
@@ -72,16 +275,6 @@ namespace SMGE
 			}
 
 			virtual void draw();
-		};
-
-		class TestTriangle : public WorldModel
-		{
-		public:
-			float rotY = 0;
-
-			TestTriangle(const ModelAsset& ma) : WorldModel(ma) {}
-
-			virtual void draw() override;
 		};
 
 		namespace GLUtil
@@ -105,7 +298,12 @@ namespace SMGE
 			GLFWwindow* m_window = nullptr;
 			char* GLRenderHandle = nullptr;
 			bool isRunning = false;
-			CVector<WorldModel*> m_worldModelList;
+
+			CHashMap<CWString, AssetModel> assetModels_;
+			CHashMap<CWString, RenderingModel> renderingModels_;
+			CVector<WorldModel> worldModels_;
+			//CVector<OldModelWorld*> m_oldWorldModelList;
+			CCamera camera_;
 
 			void initWindow();
 
@@ -127,9 +325,6 @@ namespace SMGE
 			void Render(char* imgBuffer);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
-
-			WorldModel* AddWorldModel(WorldModel* model);
-			void RemoveWorldModel(WorldModel* model);
 		};
 	}
 }

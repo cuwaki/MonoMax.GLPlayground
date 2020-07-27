@@ -2,8 +2,6 @@
 #include "CGameBase.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
 
-#define IS_EDITOR 1
-
 namespace SMGE
 {
 	namespace nsGE

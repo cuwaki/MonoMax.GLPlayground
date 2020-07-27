@@ -2,9 +2,6 @@
 
 #include "GECommonIncludes.h"
 #include "Objects/CObject.h"
-
-#define IS_EDITOR 1
-
 namespace SMGE
 {
 	namespace nsGE

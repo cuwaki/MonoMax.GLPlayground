@@ -35,10 +35,11 @@ namespace SMGE
 		drawingModelAsset_ = CAssetManager::LoadAsset<CModelData>(drawingModelAssetPath_);
 		auto smgeMA = drawingModelAsset_->getContentClass();
 
+		// 여기 수정
 		// 월드 모델 생성
-		getTransform() = parentActor_->getWorldTransform();
-		myWorldModel_ = GetRenderingEngine()->AddWorldModel(new nsRE::WorldModel(*smgeMA));
-		myWorldModel_->modelMat = getTransform();
+		//getTransform() = parentActor_->getWorldTransform();
+		//myWorldModel_ = GetRenderingEngine()->AddWorldModel(new nsRE::OldModelWorld(*smgeMA));
+		//myWorldModel_->modelMat = getTransform();
 	}
 
 	class nsRE::CRenderingEngine* CDrawComponent::GetRenderingEngine()
@@ -71,11 +72,12 @@ namespace SMGE
 	{
 		CComponent::OnEndPlay();
 
-		if (myWorldModel_ != nullptr)
-		{
-			GetRenderingEngine()->RemoveWorldModel(myWorldModel_);
-			myWorldModel_ = nullptr;
-		}
+		// 여기 수정
+		//if (myWorldModel_ != nullptr)
+		//{
+		//	GetRenderingEngine()->RemoveWorldModel(myWorldModel_);
+		//	myWorldModel_ = nullptr;
+		//}
 	}
 
 	glm::mat4& CDrawComponent::getTransform()

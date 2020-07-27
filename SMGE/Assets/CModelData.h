@@ -25,7 +25,7 @@ namespace SMGE
 		CVector<float>& vertices_;
 	};
 
-	class CModelData : public nsRE::ModelAsset, public CInt_Reflection
+	class CModelData : public nsRE::OldModelAsset, public CInt_Reflection
 	{
 	public:
 		using TReflectionStruct = SGRefl_ModelData;

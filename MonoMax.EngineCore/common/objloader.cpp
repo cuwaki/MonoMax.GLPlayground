@@ -18,12 +18,12 @@
 // - Loading from memory, stream, etc
 
 bool loadOBJ(
-	const char* path,
+	const wchar_t* path,
 	std::vector<glm::vec3>& out_vertices,
 	std::vector<glm::vec2>& out_uvs,
 	std::vector<glm::vec3>& out_normals
 ) {
-	printf("Loading OBJ file %s...\n", path);
+	printf("Loading OBJ file %ws...\n", path);
 
 	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
 	std::vector<glm::vec3> temp_vertices;
@@ -32,7 +32,7 @@ bool loadOBJ(
 
 
 	FILE* file = nullptr;
-	fopen_s(&file, path, "r");
+	_wfopen_s(&file, path, L"r");
 	if (file == NULL) {
 		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
 		getchar();
@@ -43,7 +43,7 @@ bool loadOBJ(
 
 		char lineHeader[512] = { 0, };
 		// read the first word of the line
-		int res = fscanf_s(file, "%s", lineHeader, sizeof(lineHeader));
+		int res = fscanf_s(file, "%s", lineHeader, static_cast<unsigned int>(sizeof(lineHeader)));
 		if (res == EOF)
 			break; // EOF = End Of File. Quit the loop.
 

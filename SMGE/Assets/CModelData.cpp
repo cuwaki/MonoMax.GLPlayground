@@ -35,7 +35,7 @@ namespace SMGE
 		return *this;
 	}
 
-	CModelData::CModelData(void* outer) : nsRE::ModelAsset()
+	CModelData::CModelData(void* outer) : nsRE::OldModelAsset()
 	{
 		className_ = wtext("SMGE::CModelData");
 	}

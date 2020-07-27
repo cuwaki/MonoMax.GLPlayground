@@ -42,6 +42,8 @@ namespace SMGE
 	protected:
 		// runtime
 		CSharPtr<CAsset<CModelData>> drawingModelAsset_;
-		nsRE::WorldModel* myWorldModel_ = nullptr;
+
+		// 여기 수정
+		//nsRE::OldModelWorld* myWorldModel_ = nullptr;
 	};
 };

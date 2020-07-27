@@ -2,8 +2,7 @@
 
 #include "CGameBase.h"
 
-#define IS_EDITOR 1
-#define IS_GAME !(defined IS_EDITOR)
+//#define IS_GAME !(defined IS_EDITOR)
 
 namespace SMGE
 {
