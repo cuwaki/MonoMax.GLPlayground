@@ -97,12 +97,16 @@ namespace SMGE
             return ToTCHAR(val);
         else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
             return ToTCHAR(std::to_string(val));
-        else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value)
-			return val;
-        else
+
+        // 아... 어쩔 수 없이 이렇게 처리한다 - 아래의 이유로 인하여 하나하나 지정해줘야할 듯... 이거 방법이 있을 것 같은데 아직 내 C++ 실력이 부족하구나
+        else if constexpr (std::is_same_v<T, glm::vec3> || std::is_same_v<T, glm::vec2> || std::is_same_v<T, glm::mat4>)
             return ToTCHAR(glm::to_string(val));    // glm::vec or mat ...
 
-        return L"error - not support type!";
+        // 이 코드가 위로 올라가면 지원이 안되는 클래스가 T 로 들어오는 경우 컴파일 오류가 나게 된다, 이거 SFINAE 로 컴파일 오류 안나고 넘어가게 할 수 없나?
+        else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor 등의 자동 처리를 위하여
+			return val;
+        else
+            return L"error - not support type!";
     }
 
     CWString ToTCHAR(const CString& astr);

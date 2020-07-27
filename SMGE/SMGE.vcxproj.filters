@@ -56,9 +56,6 @@
     <ClInclude Include="Components\CComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Assets\CModelData.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
     <ClInclude Include="Assets\CAssetManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
@@ -73,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="Objects\CMap.h">
       <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Assets\CAssetModel.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -100,9 +100,6 @@
     <ClCompile Include="Components\CComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Assets\CModelData.cpp">
-      <Filter>Assets</Filter>
-    </ClCompile>
     <ClCompile Include="Assets\CAssetManager.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
@@ -114,6 +111,9 @@
     </ClCompile>
     <ClCompile Include="Objects\CMap.cpp">
       <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Assets\CAssetModel.cpp">
+      <Filter>Assets</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -16,7 +16,7 @@ namespace SMGE
 			// 테스트 코드
 			pathes[wtext("SMGE::CActor")] = Path::GetNormalizedPath(pathAssetRoot + wtext("testActorTemplate.asset"));
 			pathes[wtext("SMGE::CMap")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/map/testMapTemplate.asset"));
-			pathes[wtext("SMGE::CModelData")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/mesh/testTriangle.asset"));
+			pathes[wtext("SMGE::CAssetModel")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/models/suzanne/suzanne.asset"));
 		}
 
 		return pathes[className];

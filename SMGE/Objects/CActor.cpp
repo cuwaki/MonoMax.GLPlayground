@@ -91,7 +91,7 @@ namespace SMGE
 	{
 		Super::Ctor();
 
-		auto testModelAsset = CAssetManager::FindAssetFilePathByClassName(wtext("SMGE::CModelData"));	// 테스트 코드
+		auto testModelAsset = CAssetManager::FindAssetFilePathByClassName(wtext("SMGE::CAssetModel"));	// 테스트 코드
 		getComponentList().emplace_back(MakeUniqPtr<CMeshComponent>(this, testModelAsset));
 		cachedMainDrawCompo_ = SCast<CMeshComponent*>(getComponentList().rbegin()->get());
 	}

@@ -10,6 +10,12 @@ namespace SMGE
 
 	namespace ReflectionUtils
 	{
+		CWString _TO_REFL_Head(CWString _vartype_, CWString _varname_, bool isFast_)
+		{
+			return (isFast_ == false ? CWString(_varname_ + SGReflection::META_DELIM + _vartype_ + SGReflection::META_DELIM) : CWString());
+		}
+
+		// { glm::section
 		template<>
 		extern CWString ToREFL(const glm::mat4& gv)
 		{
@@ -37,6 +43,51 @@ namespace SMGE
 				}
 			}
 		}
+
+		template<>
+		extern CWString ToREFL(const glm::vec3& gv)
+		{
+			CWString ret;
+			for (int c = 0; c < 3; ++c)
+			{
+				ret += ToTCHAR(gv[c]);
+				ret += SGReflection::VALUE_DELIM;
+			}
+			return ret;
+		}
+
+		template<>
+		extern void FromREFL(glm::vec3& gv, const CWString& valuesStr)
+		{
+			auto spl = GlobalUtils::SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
+			for (int c = 0; c < 3; ++c)
+			{
+				FromREFL(gv[c], spl[c]);
+			}
+		}
+
+		template<>
+		extern CWString ToREFL(const glm::vec2& gv)
+		{
+			CWString ret;
+			for (int c = 0; c < 2; ++c)
+			{
+				ret += ToTCHAR(gv[c]);
+				ret += SGReflection::VALUE_DELIM;
+			}
+			return ret;
+		}
+
+		template<>
+		extern void FromREFL(glm::vec2& gv, const CWString& valuesStr)
+		{
+			auto spl = GlobalUtils::SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
+			for (int c = 0; c < 2; ++c)
+			{
+				FromREFL(gv[c], spl[c]);
+			}
+		}
+		// } glm::section
 	};
 
 	void SGReflection::buildVariablesMap()
@@ -75,6 +126,17 @@ namespace SMGE
 			{
 				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));
+
+				//bool isContainer = temp[Tuple_VarType].find_first_of(L'<') != CWString::npos;
+				//if (isContainer)
+				//{
+				//	size_t itemNum = std::stoi(temp[Tuple_Value].c_str());
+				//	for (int j = 1; j < (itemNum + 1); ++j)
+				//	{
+				//		metaSplitted.emplace_back(std::tie(L"", L"", variableSplitted[i + j]));
+				//	}
+				//	i += itemNum;
+				//}
 			}	
 
 			metaSplitted.cursorBegin();

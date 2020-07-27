@@ -3,11 +3,12 @@
 #include "../GECommonIncludes.h"
 #include "CComponent.h"
 #include "../Assets/CAsset.h"
-#include "../Assets/CModelData.h"
+#include "../Assets/CAssetModel.h"
+#include "../../MonoMax.EngineCore/RenderingEngine.h"
 
 namespace SMGE
 {
-	class CDrawComponent : public CComponent
+	class CDrawComponent : public CComponent, public nsRE::WorldModel
 	{
 	public:
 		CDrawComponent(CObject* outer);
@@ -22,28 +23,15 @@ namespace SMGE
 		virtual void ReadyToDrawing();
 		void SetDrawingModelAsset(const CWString& modelAssetPath);
 
-		glm::mat4& getTransform();
-		glm::vec3& getLocation();
-		glm::vec3& getDirection();
-		glm::vec3& getScale();
-
-	protected:
-		class nsRE::CRenderingEngine* GetRenderingEngine();
+	//protected:
+	//	class nsRE::CRenderingEngine* GetRenderingEngine();
 
 	protected:
 		// reflection
 		CWString drawingModelAssetPath_;
-		
-		glm::mat4 objectTransform_{ 1 };
-		glm::vec3 objectLocation_{ 0 };
-		glm::vec3 objectDirection_{ 1, 0, 0 };
-		glm::vec3 objectScale_{ 1 };
 
 	protected:
 		// runtime
-		CSharPtr<CAsset<CModelData>> drawingModelAsset_;
-
-		// 여기 수정
-		//nsRE::OldModelWorld* myWorldModel_ = nullptr;
+		CSharPtr<CAsset<CAssetModel>> drawingModelAsset_;
 	};
 };

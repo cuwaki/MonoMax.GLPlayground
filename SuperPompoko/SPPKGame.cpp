@@ -6,7 +6,7 @@
 // 테스트 코드
 #include "CEngineBase.h"
 #include "Objects/CMap.h"
-#include "Assets/CModelData.h"
+#include "Assets/CAssetModel.h"
 
 namespace SMGE
 {
@@ -53,64 +53,119 @@ namespace SMGE
 #else
 		CWString assetRoot = PathAssetRoot();
 
-		// 기본 리플렉션 테스트 코드
-		// {
-		CActor actor;
-		actor.setActorStaticTag("empty");
+		//// 기본 리플렉션 테스트 코드
+		//// {
+		//CActor actor;
+		//actor.setActorStaticTag("empty");
 
-		SGStringStreamOut strOut;
-		strOut << actor.getReflection();
+		//SGStringStreamOut strOut;
+		//strOut << actor.getReflection();
 
-		//const auto& aaa = actor.getConstReflection();	// const 객체 테스트
+		////const auto& aaa = actor.getConstReflection();	// const 객체 테스트
 
-		SGStringStreamIn strIn;
-		strIn.in_ = strOut.out_;
-		strIn >> actor.getReflection();
-		// }
+		//SGStringStreamIn strIn;
+		//strIn.in_ = strOut.out_;
+		//strIn >> actor.getReflection();
+		//// }
 
-		// 액터 템플릿 애셋 테스트 코드 - CActor 를 디스크에 저장하기 - 액터 템플릿 애셋이 된다
-		// {
-		actor.getWorldTransform()[3][3] = 333;
-		actor.setActorStaticTag("first asset test");
+		//// 액터 템플릿 애셋 테스트 코드 - CActor 를 디스크에 저장하기 - 액터 템플릿 애셋이 된다
+		//// {
+		//actor.getWorldTransform()[3][3] = 333;
+		//actor.setActorStaticTag("first asset test");
 
-		CAsset<CActor> actorAssetWriter(&actor);
-		CAssetManager::SaveAsset(assetRoot + wtext("testActorTemplate.asset"), actorAssetWriter);
+		//CAsset<CActor> actorAssetWriter(&actor);
+		//CAssetManager::SaveAsset(assetRoot + wtext("testActorTemplate.asset"), actorAssetWriter);
 
-		// 맵 템플릿 애셋 테스트 코드 - CActor 를 맵에 저장하기 - 맵에 배치한 후 수정한 값으로, 맵이 로드된 후 액터가 배치된 후 이 값으로 덮어씌우게 된다
-		CSharPtr<CAsset<CActor>> testActorTemplate = CAssetManager::LoadAsset<CActor>(assetRoot + wtext("testActorTemplate.asset"));
-		const auto& actorTemplate = *testActorTemplate->getContentClass();
+		//// 맵 템플릿 애셋 테스트 코드 - CActor 를 맵에 저장하기 - 맵에 배치한 후 수정한 값으로, 맵이 로드된 후 액터가 배치된 후 이 값으로 덮어씌우게 된다
+		//CSharPtr<CAsset<CActor>> testActorTemplate = CAssetManager::LoadAsset<CActor>(assetRoot + wtext("testActorTemplate.asset"));
+		//const auto& actorTemplate = *testActorTemplate->getContentClass();
 
-		CMap testMap;
+		//CMap testMap;
 
-		CActor& actorA = testMap.SpawnDefaultActor(actorTemplate, true);	// 배치
-		CActor& actorB = testMap.SpawnDefaultActor(actorTemplate, true);
+		//CActor& actorA = testMap.SpawnDefaultActor(actorTemplate, true);	// 배치
+		//CActor& actorB = testMap.SpawnDefaultActor(actorTemplate, true);
 
-		actorA.getWorldTransform() = glm::mat4(1);
-		actorA.getWorldTransform() = glm::translate(actorA.getWorldTransform(), glm::vec3(5, 5, 0));
-		actorA.setActorStaticTag("AAA");
+		//actorA.getWorldTransform() = glm::mat4(1);
+		//actorA.getWorldTransform() = glm::translate(actorA.getWorldTransform(), glm::vec3(5, 5, 0));
+		//actorA.setActorStaticTag("AAA");
 
-		actorB.getWorldTransform() = glm::mat4(1);
-		actorB.getWorldTransform() = glm::translate(actorB.getWorldTransform(), glm::vec3(-5, -5, 0));
-		actorB.setActorStaticTag("BBB");
+		//actorB.getWorldTransform() = glm::mat4(1);
+		//actorB.getWorldTransform() = glm::translate(actorB.getWorldTransform(), glm::vec3(-5, -5, 0));
+		//actorB.setActorStaticTag("BBB");
 
-		CAsset<CMap> mapAsset(&testMap);
-		CAssetManager::SaveAsset(assetRoot + wtext("/map/testMapTemplate.asset"), mapAsset);
+		//CAsset<CMap> mapAsset(&testMap);
+		//CAssetManager::SaveAsset(assetRoot + wtext("/map/testMapTemplate.asset"), mapAsset);
 
-		//// 모델데이터 애셋 세이브, 로드하기
-		//CModelData modelData;
-		//CAsset<CModelData> modelDataAsset(&modelData);
+		// 모델데이터 애셋 세이브, 로드하기
+		CAssetModel modelData(nullptr);
+		CAsset<CAssetModel> modelDataAsset(&modelData);
 
-		//modelData.vertShaderPath_ = wtext("simple_color_vs.glsl");
-		//modelData.fragShaderPath_ = wtext("simple_color_fs.glsl");
-		//modelData.vertices_ = std::initializer_list<float>
-		//{
-		//	0.0f, 0.5f, 0.0f,
-		//	-0.5f, -0.5f, 0.0f,
-		//	0.5f, -0.5f, 0.0f,
-		//};
-		//modelData.vertexAttribNumber_ = 3;
-		//CAssetManager::SaveAsset(assetRoot + wtext("/mesh/testTriangle.asset"), modelDataAsset);
-		//CSharPtr<CAsset<CModelData>> testTriangle = CAssetManager::LoadAsset<CModelData>(assetRoot + wtext("/mesh/testTriangle.asset"));
+		modelData.vertShaderPath_ = wtext("");
+		modelData.fragShaderPath_ = wtext("suzanne.frag");
+		modelData.objFilePath_ = wtext("suzanne.obj");
+		modelData.textureFilePath_ = wtext("");
+
+		CVector<glm::vec3> planeVertices
+		{
+			{-1.0f, 0, -1.0f},
+			{ -1.0f, 0, 1.0f},
+			{ 1.0f, 0,  -1.0f},
+
+			{ -1.0f, 0, 1.0f},
+			{ 1.0f, 0, 1.0f},
+			{ 1.0f, 0,  -1.0f},
+		};
+		CVector<glm::vec2> planeUvs{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
+		CVector<glm::vec3> planeNormals{ {0,1,0}, {0,1,0},{0,1,0},{0,1,0},{0,1,0},{0,1,0} };
+		CVector<glm::vec3> planeVertexColors{ {0,0.5,0}, {0,0.5,0},{0,0.5,0},{0,0.5,0},{0,0.5,0},{0,0.5,0} };
+
+
+		CVector<glm::vec3> cubeVertices
+		{
+			{ -1.0f,-1.0f,-1.0f,},{ -1.0f,-1.0f, 1.0f,},{ -1.0f, 1.0f, 1.0f,},
+			{  1.0f, 1.0f,-1.0f,},{ -1.0f,-1.0f,-1.0f,},{ -1.0f, 1.0f,-1.0f,},
+			{  1.0f,-1.0f, 1.0f,},{ -1.0f,-1.0f,-1.0f,},{  1.0f,-1.0f,-1.0f,},
+			{  1.0f, 1.0f,-1.0f,},{  1.0f,-1.0f,-1.0f,},{ -1.0f,-1.0f,-1.0f,},
+			{ -1.0f,-1.0f,-1.0f,},{ -1.0f, 1.0f, 1.0f,},{ -1.0f, 1.0f,-1.0f,},
+			{  1.0f,-1.0f, 1.0f,},{ -1.0f,-1.0f, 1.0f,},{ -1.0f,-1.0f,-1.0f,},
+			{ -1.0f, 1.0f, 1.0f,},{ -1.0f,-1.0f, 1.0f,},{  1.0f,-1.0f, 1.0f,},
+			{  1.0f, 1.0f, 1.0f,},{  1.0f,-1.0f,-1.0f,},{  1.0f, 1.0f,-1.0f,},
+			{  1.0f,-1.0f,-1.0f,},{  1.0f, 1.0f, 1.0f,},{  1.0f,-1.0f, 1.0f,},
+			{  1.0f, 1.0f, 1.0f,},{  1.0f, 1.0f,-1.0f,},{ -1.0f, 1.0f,-1.0f,},
+			{  1.0f, 1.0f, 1.0f,},{ -1.0f, 1.0f,-1.0f,},{ -1.0f, 1.0f, 1.0f,},
+			{  1.0f, 1.0f, 1.0f,},{ -1.0f, 1.0f, 1.0f,},{  1.0f,-1.0f, 1.0f	},
+		};
+		CVector<glm::vec2> cubeUvs;
+		cubeUvs.resize(cubeVertices.size());	// uv are all 000
+
+		CVector<glm::vec3> cubeNormals;	// 각 삼각형에 대하여 정점 normal, vertColor 만들어주기
+		CVector<glm::vec3> cubeVertexColors;
+		cubeNormals.reserve(cubeVertices.size());
+		cubeVertexColors.reserve(cubeVertices.size());
+
+		for (size_t ii = 0; ii < cubeVertices.size(); ii += 3)
+		{
+			glm::vec3 _0 = cubeVertices[ii + 0], _1 = cubeVertices[ii + 1], _2 = cubeVertices[ii + 2];
+			glm::vec3 _0_to_1 = _1 - _0, _0_to_2 = _2 - _0;
+			glm::vec3 face_normal = glm::normalize(glm::cross(_0_to_1, _0_to_2));
+
+			cubeNormals.push_back(face_normal);
+			cubeVertexColors.push_back({ 0.5,0,0 });
+
+			cubeNormals.push_back(face_normal);
+			cubeVertexColors.push_back({ 0,0.5,0 });
+
+			cubeNormals.push_back(face_normal);
+			cubeVertexColors.push_back({ 0,0,0.5 });
+		}
+
+		modelData.vertices_ = cubeVertices;
+		modelData.uvs_ = cubeUvs;
+		modelData.normals_ = cubeNormals;
+		modelData.vertexColors_ = cubeVertexColors;
+
+		CAssetManager::SaveAsset(assetRoot + wtext("/models/cube/cube.asset"), modelDataAsset);
+		CSharPtr<CAsset<CAssetModel>> testTriangle = CAssetManager::LoadAsset<CAssetModel>(assetRoot + wtext("/models/cube/cube.asset"));
 
 	//	// 맵 로드하고 액터들 다시 복구하기
 	//	CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetRoot + wtext("/map/testMapTemplate.asset"));

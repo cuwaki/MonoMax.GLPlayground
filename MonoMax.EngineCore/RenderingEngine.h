@@ -58,6 +58,7 @@ namespace SMGE
 			GLuint unif_TextureSampleI_;
 			GLuint unif_LightWorldPosition_;
 
+			VertFragShaderSet() { Invalidate(); }
 			VertFragShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
 			~VertFragShaderSet();
 			void Destroy();
@@ -75,6 +76,7 @@ namespace SMGE
 		public:
 			GLuint textureID_;
 
+			TextureDDS() { Invalidate(); }
 			TextureDDS(const CWString& texPath);
 			~TextureDDS();
 			void Destroy();
@@ -94,6 +96,7 @@ namespace SMGE
 			std::vector<glm::vec3> normals_;
 			std::vector<glm::vec3> vertexColors_;
 
+			MeshOBJ() { Invalidate(); }
 			MeshOBJ(const CWString& objPath);
 			~MeshOBJ() { Destroy(); }
 
@@ -111,19 +114,29 @@ namespace SMGE
 
 		class AssetModel
 		{
-		public:
+		protected:
+			class RenderingModel* renderingModel_ = nullptr;
+			
 			TextureDDS texture_;
 			VertFragShaderSet vfShaderSet_;
 			MeshOBJ mesh_;
 
+			friend class RenderingModel;
+
+		public:
+			AssetModel() {}
 			AssetModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath);
-			~AssetModel() { Destroy(); }
+			virtual ~AssetModel() { Destroy(); }
 			void Destroy();
+			void Invalidate();
+
+			void ReadyToRender();
+			class RenderingModel& GetRenderingModel() const;
 
 			AssetModel(const AssetModel& c) = delete;
 			AssetModel& operator=(const AssetModel& c) = delete;
-			AssetModel(AssetModel&& c) = default;
-			AssetModel& operator=(AssetModel&& c) = default;
+			AssetModel(AssetModel&& c);
+			AssetModel& operator=(AssetModel&& c);
 		};
 
 		class Transform
@@ -141,14 +154,21 @@ namespace SMGE
 
 		public:
 			Transform();
-			const glm::mat4& CurrentTransform() const;
+
+			const glm::mat4& GetTransform(bool forceRecalc = false);
+			const glm::vec3& GetLocation() const;
+			const glm::vec3& GetRotation() const;
+			const glm::vec3& GetScale() const;
+
 			void Translate(glm::vec3 worldPos);
 			void Rotate(glm::vec3 rotateDegrees);
 			void RotateAxis(TransformConst::ETypeRot rType, float degrees);
 			void Scale(float scale);
 			void Scale(glm::vec3 scale);
 			void ScaleAxis(TransformConst::ETypeAxis aType, float scale);
+
 			void OnBeforeRendering();
+
 			void Dirty() { isDirty_ = true; }
 			bool IsDirty() { return isDirty_; }
 
@@ -159,16 +179,18 @@ namespace SMGE
 		class WorldModel : public Transform
 		{
 		protected:
-			const class RenderingModel& renderingModel_;
+			const class RenderingModel* renderingModel_;
+
+			friend class RenderingModel;
 
 		public:
-			WorldModel(const class RenderingModel& rm);
+			WorldModel(const class RenderingModel* rm);
 			virtual ~WorldModel();
 
 			WorldModel(const WorldModel& c);
 			WorldModel& operator=(const WorldModel& c) = delete;
 			WorldModel(WorldModel&& c) noexcept;
-			WorldModel& operator=(WorldModel&& c) = delete;
+			WorldModel& operator=(WorldModel&& c) noexcept = delete;
 		};
 
 		class RenderingModel
@@ -223,64 +245,67 @@ namespace SMGE
 	{
 		class CRenderingEngine;
 
-		class OldModelAsset
-		{
-		protected:
-			CRenderingEngine* re_ = nullptr;
+		// deprecated
+		//class OldModelAsset
+		//{
+		//protected:
+		//	CRenderingEngine* re_ = nullptr;
 
-			GLuint m_vao = -1, m_vbo = -1;
-			GLuint m_rbo = -1, m_fbo = -1;
-			GLuint m_prg = -1;
+		//	GLuint m_vao = -1, m_vbo = -1;
+		//	GLuint m_rbo = -1, m_fbo = -1;
+		//	GLuint m_prg = -1;
 
-			bool m_isInitialized();
-			void initRenderData();
-			void createBufferObject(int width, int height);
-			void destroyBufferObjects();
+		//	bool m_isInitialized();
+		//	void initRenderData();
+		//	void createBufferObject(int width, int height);
+		//	void destroyBufferObjects();
 
-		public:
-			CWString vertShaderPath_;
-			CWString fragShaderPath_;
-			int vertexAttribNumber_ = 0;
-			CVector<float> vertices_;
+		//public:
+		//	CWString vertShaderPath_;
+		//	CWString fragShaderPath_;
+		//	int vertexAttribNumber_ = 0;
+		//	CVector<float> vertices_;
 
-			OldModelAsset();
-			OldModelAsset(CRenderingEngine* re);
-			~OldModelAsset() noexcept;
+		//	OldModelAsset();
+		//	OldModelAsset(CRenderingEngine* re);
+		//	~OldModelAsset() noexcept;
 
-			void initShaders();
-			void drawGL(const glm::mat4& worldPos) const;
-			void OnScreenResize(int width, int height);
+		//	void initShaders();
+		//	void drawGL(const glm::mat4& worldPos) const;
+		//	void OnScreenResize(int width, int height);
 
-		public:
-			static void OnScreenResize_Master(int width, int height);
-			static CVector<OldModelAsset*> instances_;
-		};
-		class OldModelWorld
-		{
-		protected:
-			CRenderingEngine* re_ = nullptr;
-			const OldModelAsset& modelAsset_;
+		//public:
+		//	static void OnScreenResize_Master(int width, int height);
+		//	static CVector<OldModelAsset*> instances_;
+		//};
+		//class OldModelWorld
+		//{
+		//protected:
+		//	CRenderingEngine* re_ = nullptr;
+		//	const OldModelAsset& modelAsset_;
 
-		public:
-			glm::mat4 modelMat;
+		//public:
+		//	glm::mat4 modelMat;
 
-			OldModelWorld(const OldModelAsset& ma) : modelAsset_(ma)
-			{
-				modelMat = glm::mat4(1.0f);
-			}
+		//	OldModelWorld(const OldModelAsset& ma) : modelAsset_(ma)
+		//	{
+		//		modelMat = glm::mat4(1.0f);
+		//	}
 
-			void SetRenderingEngine(CRenderingEngine* re)
-			{
-				re_ = re;
-			}
+		//	void SetRenderingEngine(CRenderingEngine* re)
+		//	{
+		//		re_ = re;
+		//	}
 
-			virtual void draw();
-		};
+		//	virtual void draw();
+		//};
 
 		namespace GLUtil
 		{
-			std::string getShaderCode(const char* filename);
-			void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype);
+			// deprecated
+			//std::string getShaderCode(const char* filename);
+			//void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype);
+
 			void safeDeleteVertexArray(GLuint& vao);
 			void safeDeleteBuffer(GLuint& vbo);
 			void safeDeleteProgram(GLuint& prog);
@@ -299,11 +324,13 @@ namespace SMGE
 			char* GLRenderHandle = nullptr;
 			bool isRunning = false;
 
-			CHashMap<CWString, AssetModel> assetModels_;
-			CHashMap<CWString, RenderingModel> renderingModels_;
-			CVector<WorldModel> worldModels_;
-			//CVector<OldModelWorld*> m_oldWorldModelList;
 			CCamera camera_;
+
+			// 테스트 코드
+			CHashMap<CWString, AssetModel> assetModels_;
+			//CVector<WorldModel> worldModels_;
+			// deprecated
+			//CVector<OldModelWorld*> m_oldWorldModelList;
 
 			void initWindow();
 

@@ -133,6 +133,9 @@ namespace SMGE
 		#define _ADD_REFL_VARIABLE(_varname_) variablesMap_[L""#_varname_] = &_varname_
 		#define _REF_REFL_VARIABLE(_varname_) (*SCast<decltype(&_varname_)>(variablesMap_[L""#_varname_]))
 
+		// _TO_REFL 의 헤더만 만드는 함수 버전
+		CWString _TO_REFL_Head(CWString _vartype_, CWString _varname_, bool isFast_);
+
 		template<typename T>
 		extern CWString ToREFL(const T& val)
 		{
@@ -145,12 +148,11 @@ namespace SMGE
 				return ToTCHAR(val.length() == 0 ? "\"\"" : ('"' + val + '"'));
 			else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
 				return ToTCHAR(std::to_string(val));
+			else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor 등의 자동 처리를 위하여
+				return val;
 
 			return L"error - not support type!";
 		}
-
-		template<>
-		extern CWString ToREFL(const glm::mat4& gv);
 
 		template<typename L>
 		extern void FromREFL(L& left, const CWString& right)
@@ -171,8 +173,20 @@ namespace SMGE
 			}
 		}
 
+		// { glm:: section
+		template<>
+		extern CWString ToREFL(const glm::mat4& gv);
 		template<>
 		extern void FromREFL(glm::mat4& gv, const CWString& str);
+		template<>
+		extern CWString ToREFL(const glm::vec3& gv);
+		template<>
+		extern void FromREFL(glm::vec3& gv, const CWString& str);
+		template<>
+		extern CWString ToREFL(const glm::vec2& gv);
+		template<>
+		extern void FromREFL(glm::vec2& gv, const CWString& str);
+		// } glm::section
 
 		template<typename L>
 		extern void FromREFL_SOURCEVECTOR(L& left, CVector<CWString>& rightVec)
@@ -233,23 +247,36 @@ namespace SMGE
 			}
 			else
 			{	// 마지막이다
+				size_t fB = contTypeName.find_first_of(L'<'), lB = contTypeName.find_first_of(L'>');
+				CWString TName = contTypeName.substr(fB + 1, lB - fB - 1);
+
 				for (const auto& it : cont)
 				{
-					CWString itStr = ToTCHAR(it);
-
-					if (*itStr.crbegin() == SGReflection::VARIABLE_DELIM_CHAR || *itStr.crbegin() == SGReflection::VALUE_DELIM_CHAR)
-					{	// SGRefl_Actor 이거나 glm::mat4 이거나 ...
-						ret += itStr;
+					if constexpr (std::is_base_of_v<SGReflection, CT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
+					{	// SGRefl_Actor 등
+						ret += static_cast<CWString>(it);
 					}
 					else
-					{	// *it 가 literal 타입일 경우 주르륵 써지는 경우에는 DELIM 들이 없다
-						//[0]$float$0.000000
-						// _TO_REFL 처럼 작동을 시켜야한다, 근데 여긴 함수 안쪽이라서 이게 안된다, 일단 임시로 하드코딩!
-						// 테스트 코드
-						ret += wtext("[x]$float$");
-						ret += itStr;
+					{	// float, glm::vec3...
+						ret += _TO_REFL_Head(TName, L"[x]", false);
+						ret += ReflectionUtils::ToREFL(it);
 						ret += SGReflection::VARIABLE_DELIM;
 					}
+
+					//if (*itStr.crbegin() == SGReflection::VARIABLE_DELIM_CHAR || *itStr.crbegin() == SGReflection::VALUE_DELIM_CHAR)
+					//{	// SGRefl_Actor 이거나 glm::mat4 이거나 ...
+					//	ret += itStr;
+					//}
+					//else
+					//{	// *it 가 literal 타입일 경우 주르륵 써지는 경우에는 DELIM 들이 없다
+					//	//[0]$float$0.000000
+					//	// _TO_REFL 처럼 작동을 시켜야한다, 근데 여긴 함수 안쪽이라서 이게 안된다, 일단 임시로 하드코딩!
+
+					//	ret += wtext("[x]$");
+					//	ret += TName + wtext("$");
+					//	ret += itStr;
+					//	ret += SGReflection::VARIABLE_DELIM;
+					//}
 				}
 			}
 

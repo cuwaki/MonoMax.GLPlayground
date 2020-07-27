@@ -187,14 +187,56 @@ namespace SMGE
 			return *this;
 		}
 
-		AssetModel::AssetModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath) :
-			texture_(textureFilePath), vfShaderSet_(vertShadPath, fragShadPath), mesh_(objPath)
+		AssetModel::AssetModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath)
 		{
+			texture_.TextureDDS::TextureDDS(textureFilePath);
+			vfShaderSet_.VertFragShaderSet::VertFragShaderSet(vertShadPath, fragShadPath);
+			mesh_.MeshOBJ::MeshOBJ(objPath);
+		}
+		AssetModel::AssetModel(AssetModel&& c)
+		{
+			operator=(std::move(c));
+		}
+
+		AssetModel& AssetModel::operator=(AssetModel&& c)
+		{
+			renderingModel_ = c.renderingModel_;
+			c.Invalidate();
+
+			texture_ = std::move(c.texture_);
+			vfShaderSet_ = std::move(c.vfShaderSet_);
+			mesh_ = std::move(c.mesh_);
+
+			return *this;
+		}
+
+		void AssetModel::Invalidate()
+		{
+			renderingModel_ = nullptr;
 		}
 
 		void AssetModel::Destroy()
 		{
+			if (renderingModel_ != nullptr)
+			{
+				delete renderingModel_;
+				renderingModel_ = nullptr;
+			}
 		}
+
+		void AssetModel::ReadyToRender()
+		{
+			if (renderingModel_ != nullptr)
+				return;
+
+			renderingModel_ = new RenderingModel(*this, 0);
+		}
+
+		class RenderingModel& AssetModel::GetRenderingModel() const
+		{
+			return *renderingModel_;
+		}
+
 
 		Transform::Transform()
 		{
@@ -206,8 +248,26 @@ namespace SMGE
 			RecalcMatrix();
 		}
 
-		const glm::mat4& Transform::CurrentTransform() const
+		const glm::vec3& Transform::GetLocation() const
 		{
+			return translation_;
+		}
+
+		const glm::vec3& Transform::GetRotation() const
+		{
+			return rotationDegree_;
+		}
+
+		const glm::vec3& Transform::GetScale() const
+		{
+			return scale_;
+		}
+
+		const glm::mat4& Transform::GetTransform(bool forceRecalc)
+		{
+			if(forceRecalc)
+				RecalcMatrix();
+
 			return currentTransform_;
 		}
 
@@ -257,7 +317,6 @@ namespace SMGE
 			RecalcMatrix();
 		}
 
-
 		void Transform::RecalcMatrix()
 		{
 			if (isDirty_ == false)
@@ -277,6 +336,11 @@ namespace SMGE
 		void RenderingModel::AddWorldModel(WorldModel* wm) const
 		{
 			ptrWorldModels_.push_back(wm);
+
+			assert(wm->renderingModel_ == nullptr);	// 이렇지 않으면 이전 거에서 빼주는 처리가 필요하다
+
+			if (wm->renderingModel_ == nullptr)
+				wm->renderingModel_ = this;
 		}
 		void RenderingModel::RemoveWorldModel(WorldModel* wm) const
 		{
@@ -403,12 +467,12 @@ namespace SMGE
 				//glm::mat4 ModelMatrix = glm::mat4(1);
 				//ModelMatrix = glm::translate(ModelMatrix, worldPos);
 
-				glm::mat4 MVP = VP * wmPtr->CurrentTransform();
+				glm::mat4 MVP = VP * wmPtr->GetTransform();
 
 				// Send our transformation to the currently bound shader, 
 				// in the "MVP" uniform
 				glUniformMatrix4fv(asset_.vfShaderSet_.unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);	// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
-				glUniformMatrix4fv(asset_.vfShaderSet_.unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->CurrentTransform()[0][0]);
+				glUniformMatrix4fv(asset_.vfShaderSet_.unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetTransform()[0][0]);
 
 				// Draw the triangles !
 				glDrawArrays(GL_TRIANGLES, 0, verticesSize_);
@@ -493,22 +557,26 @@ namespace SMGE
 			glUniform3f(asset_.vfShaderSet_.unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
-		WorldModel::WorldModel(const RenderingModel& rm) : renderingModel_(rm)
+		WorldModel::WorldModel(const RenderingModel* rm)
 		{
-			renderingModel_.AddWorldModel(this);
+			if(rm != nullptr)
+				rm->AddWorldModel(this);
 		}
-
 		WorldModel::~WorldModel()
 		{
-			renderingModel_.RemoveWorldModel(this);
-		}
+			if (renderingModel_ != nullptr)
+				renderingModel_->RemoveWorldModel(this);
 
-		WorldModel::WorldModel(const WorldModel& c) : WorldModel(c.renderingModel_)
-		{
+			renderingModel_ = nullptr;
 		}
-
-		WorldModel::WorldModel(WorldModel&& c) noexcept : WorldModel(c.renderingModel_)
+		WorldModel::WorldModel(const WorldModel& c)
 		{
+			this->WorldModel::WorldModel(c.renderingModel_);
+		}
+		WorldModel::WorldModel(WorldModel&& c) noexcept
+		{
+			this->WorldModel::WorldModel(c.renderingModel_);
+			c.~WorldModel();
 		}
 	}
 
@@ -517,130 +585,131 @@ namespace SMGE
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		CVector<OldModelAsset*> OldModelAsset::instances_;
+		// deprecated
+		//CVector<OldModelAsset*> OldModelAsset::instances_;
 
-		OldModelAsset::OldModelAsset()
-		{
-			instances_.push_back(this);
-		}
-		
-		OldModelAsset::OldModelAsset(CRenderingEngine* re) : OldModelAsset()
-		{
-			re_ = re;
-		}
+		//OldModelAsset::OldModelAsset()
+		//{
+		//	instances_.push_back(this);
+		//}
+		//
+		//OldModelAsset::OldModelAsset(CRenderingEngine* re) : OldModelAsset()
+		//{
+		//	re_ = re;
+		//}
 
-		OldModelAsset::~OldModelAsset()
-		{
-			destroyBufferObjects();
+		//OldModelAsset::~OldModelAsset()
+		//{
+		//	destroyBufferObjects();
 
-			auto found = std::find(instances_.begin(), instances_.end(), this);
-			instances_.erase(found);
-		}
+		//	auto found = std::find(instances_.begin(), instances_.end(), this);
+		//	instances_.erase(found);
+		//}
 
-		void OldModelAsset::OnScreenResize(int width, int height)
-		{
-			createBufferObject(width, height);
-		}
+		//void OldModelAsset::OnScreenResize(int width, int height)
+		//{
+		//	createBufferObject(width, height);
+		//}
 
-		void OldModelAsset::OnScreenResize_Master(int width, int height)
-		{
-			for (auto inst : instances_)
-			{
-				inst->OnScreenResize(width, height);
-			}
-		}
+		//void OldModelAsset::OnScreenResize_Master(int width, int height)
+		//{
+		//	for (auto inst : instances_)
+		//	{
+		//		inst->OnScreenResize(width, height);
+		//	}
+		//}
 
-		bool OldModelAsset::m_isInitialized()
-		{
-			return (m_vao != -1);
-		}
+		//bool OldModelAsset::m_isInitialized()
+		//{
+		//	return (m_vao != -1);
+		//}
 
-		void OldModelAsset::initRenderData()
-		{
-			if (m_isInitialized())
-				return;
+		//void OldModelAsset::initRenderData()
+		//{
+		//	if (m_isInitialized())
+		//		return;
 
-			glGenVertexArrays(1, &m_vao);
-			glGenBuffers(1, &m_vbo);
+		//	glGenVertexArrays(1, &m_vao);
+		//	glGenBuffers(1, &m_vbo);
 
-			// 테스트 코드
-			////getShaderCode("../../../../simple_color_vs.glsl"),
-			////getShaderCode("../../../../simple_color_fs.glsl")
-			//vertShaderPath_ = "simple_color_vs.glsl";
-			//fragShaderPath_ = "simple_color_fs.glsl";
+		//	// 테스트 코드
+		//	////getShaderCode("../../../../simple_color_vs.glsl"),
+		//	////getShaderCode("../../../../simple_color_fs.glsl")
+		//	//vertShaderPath_ = "simple_color_vs.glsl";
+		//	//fragShaderPath_ = "simple_color_fs.glsl";
 
-			//vertices_ = {
-			//0.0f, 0.5f, 0.0f,
-			//-0.5f, -0.5f, 0.0f,
-			//0.5f, -0.5f, 0.0f,
-			//};
-			//vertexAttribNumber_ = 3;
-		}
+		//	//vertices_ = {
+		//	//0.0f, 0.5f, 0.0f,
+		//	//-0.5f, -0.5f, 0.0f,
+		//	//0.5f, -0.5f, 0.0f,
+		//	//};
+		//	//vertexAttribNumber_ = 3;
+		//}
 
-		void OldModelAsset::initShaders()
-		{
-			if (m_isInitialized())
-				return;
+		//void OldModelAsset::initShaders()
+		//{
+		//	if (m_isInitialized())
+		//		return;
 
-			initRenderData();
+		//	initRenderData();
 
-			m_prg = glCreateProgram();
-			GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(vertShaderPath_).c_str()), GL_VERTEX_SHADER);
-			GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(fragShaderPath_).c_str()), GL_FRAGMENT_SHADER);
-			glLinkProgram(m_prg);
+		//	m_prg = glCreateProgram();
+		//	GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(vertShaderPath_).c_str()), GL_VERTEX_SHADER);
+		//	GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(fragShaderPath_).c_str()), GL_FRAGMENT_SHADER);
+		//	glLinkProgram(m_prg);
 
-			glBindVertexArray(m_vao);
-			{
-				auto dataSize = vertices_.size() * sizeof(decltype(vertices_[0]));
+		//	glBindVertexArray(m_vao);
+		//	{
+		//		auto dataSize = vertices_.size() * sizeof(decltype(vertices_[0]));
 
-				glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-				glBufferData(GL_ARRAY_BUFFER, dataSize, &vertices_[0], GL_STATIC_DRAW);
-				glVertexAttribPointer(0, vertexAttribNumber_, GL_FLOAT, GL_FALSE, 0, (void*)0);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-			}
-			glBindVertexArray(0);
-		}
+		//		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		//		glBufferData(GL_ARRAY_BUFFER, dataSize, &vertices_[0], GL_STATIC_DRAW);
+		//		glVertexAttribPointer(0, vertexAttribNumber_, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		//		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//	}
+		//	glBindVertexArray(0);
+		//}
 
-		void OldModelAsset::drawGL(const glm::mat4& worldPos) const
-		{
-			glBindVertexArray(m_vao);
-			{
-				glUseProgram(m_prg);
-				glUniformMatrix4fv(0, 1, GL_FALSE, &worldPos[0][0]);
-				//glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(worldPos));
+		//void OldModelAsset::drawGL(const glm::mat4& worldPos) const
+		//{
+		//	glBindVertexArray(m_vao);
+		//	{
+		//		glUseProgram(m_prg);
+		//		glUniformMatrix4fv(0, 1, GL_FALSE, &worldPos[0][0]);
+		//		//glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(worldPos));
 
-				glEnableVertexAttribArray(0);
-				glDrawArrays(GL_TRIANGLES, 0, vertexAttribNumber_);
-			}
-			glBindVertexArray(0);
-		}
+		//		glEnableVertexAttribArray(0);
+		//		glDrawArrays(GL_TRIANGLES, 0, vertexAttribNumber_);
+		//	}
+		//	glBindVertexArray(0);
+		//}
 
-		void OldModelAsset::createBufferObject(int width, int height)
-		{
-			//destroyBufferObjects();
+		//void OldModelAsset::createBufferObject(int width, int height)
+		//{
+		//	//destroyBufferObjects();
 
-			//glGenFramebuffers(1, &m_fbo);
-			//glGenRenderbuffers(1, &m_rbo);
+		//	//glGenFramebuffers(1, &m_fbo);
+		//	//glGenRenderbuffers(1, &m_rbo);
 
-			//glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-			//glRenderbufferStorage(GL_RENDERBUFFER, GL_BGRA, width, height);
-			//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-			//glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_rbo);
-		}
+		//	//glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
+		//	//glRenderbufferStorage(GL_RENDERBUFFER, GL_BGRA, width, height);
+		//	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+		//	//glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_rbo);
+		//}
 
-		void OldModelAsset::destroyBufferObjects()
-		{
-			GLUtil::safeDeleteVertexArray(m_vao);
-			GLUtil::safeDeleteBuffer(m_vbo);
-			GLUtil::safeDeleteProgram(m_prg);
-			GLUtil::safeDeleteFramebuffer(m_fbo);
-			GLUtil::safeDeleteFramebuffer(m_rbo);
-		}
+		//void OldModelAsset::destroyBufferObjects()
+		//{
+		//	GLUtil::safeDeleteVertexArray(m_vao);
+		//	GLUtil::safeDeleteBuffer(m_vbo);
+		//	GLUtil::safeDeleteProgram(m_prg);
+		//	GLUtil::safeDeleteFramebuffer(m_fbo);
+		//	GLUtil::safeDeleteFramebuffer(m_rbo);
+		//}
 
-		void OldModelWorld::draw()
-		{
-			modelAsset_.drawGL(modelMat);
-		}
+		//void OldModelWorld::draw()
+		//{
+		//	modelAsset_.drawGL(modelMat);
+		//}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -742,7 +811,8 @@ namespace SMGE
 			//free(GLRenderHandle);
 			//GLRenderHandle = (char*)malloc(m_bufferLengthW);
 
-			OldModelAsset::OnScreenResize_Master(m_width, m_height);
+			// deprecated
+			//OldModelAsset::OnScreenResize_Master(m_width, m_height);
 
 			glViewport(0, 0, m_width, m_height);
 		}
@@ -766,23 +836,26 @@ namespace SMGE
 			camera_.SetCameraPos({ cameraInitialDist/2,cameraInitialDist,cameraInitialDist });
 			camera_.SetCameraLookAt({ 0,0,0 });
 
-			/////////////////////
+			//////////////////////////////////////////////////////////////////////////////////////////
 			// 게임 처리
 			smge_game = new SMGE::SPPKGame(nullptr);
 			smge_game->GetEngine()->SetRenderingEngine(this);
 
+			//////////////////////////////////////////////////////////////////////////////////////////
 			// 테스트 코드
+			/*
 			CWString suzanAMName = L"assets/models/suzanne";
 			assetModels_.emplace(std::make_pair(suzanAMName, AssetModel(suzanAMName + L"/suzanne.DDS", suzanAMName + L"/suzanne.vert", suzanAMName + L"/suzanne.frag", suzanAMName + L"/suzanne.obj")));
-			const AssetModel& suzanAM = assetModels_.find(suzanAMName)->second;
+			AssetModel& suzanAM = assetModels_.find(suzanAMName)->second;
 
-			renderingModels_.emplace(std::make_pair(suzanAMName, RenderingModel(suzanAM, 0)));
-			const RenderingModel& suzanRM = renderingModels_.find(suzanAMName)->second;
+			suzanAM.ReadyToRender();
+			//renderingModels_.emplace(std::make_pair(suzanAMName, RenderingModel(suzanAM, 0)));
+			//const RenderingModel& suzanRM = renderingModels_.find(suzanAMName)->second;
 
 			worldModels_.reserve(30);	// 이거 안하면 난리남! 재할당될 때 기존 값들 다 날라감!
-			worldModels_.emplace_back(suzanRM).Translate({ 0, 0, 0 });
-			worldModels_.emplace_back(suzanRM).Translate({ -2, 0, 0 });
-			worldModels_.emplace_back(suzanRM).Translate({ +2, 0, 0 });
+			worldModels_.emplace_back(&suzanAM.GetRenderingModel()).Translate({ 0, 0, 0 });
+			worldModels_.emplace_back(&suzanAM.GetRenderingModel()).Translate({ -2, 0, 0 });
+			worldModels_.emplace_back(&suzanAM.GetRenderingModel()).Translate({ +2, 0, 0 });
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			std::vector<glm::vec3> planeVertices
@@ -878,6 +951,7 @@ namespace SMGE
 			worldModels_.emplace_back(cube1).Translate(glm::vec3(+cubeDist, +cubeDist, -cubeDist));
 			worldModels_.emplace_back(cube1).Translate(glm::vec3(-cubeDist, +cubeDist, +cubeDist));
 			worldModels_.emplace_back(cube1).Translate(glm::vec3(+cubeDist, +cubeDist, +cubeDist));
+			*/
 		}
 
 		void CRenderingEngine::DeInit()
@@ -917,11 +991,11 @@ namespace SMGE
 			lightRotateMat = glm::rotate(lightRotateMat, theta, glm::vec3(0, 1, 0));
 			lightPos = lightRotateMat * lightPos;
 			
-			for (auto& it : renderingModels_)
+			for (auto& it : assetModels_)
 			{
-				auto& rm = it.second;
-				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
+				auto& rm = it.second.GetRenderingModel();
 
+				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
 				rm.BeginRender();
 				rm.Render(VP);
 				rm.EndRender();
@@ -954,42 +1028,43 @@ namespace SMGE
 
 		namespace GLUtil
 		{
-			std::string getShaderCode(const char* filename)
-			{
-				std::string shaderCode;
-				std::ifstream file(filename, std::ios::in);
+			// deprecated
+			//std::string getShaderCode(const char* filename)
+			//{
+			//	std::string shaderCode;
+			//	std::ifstream file(filename, std::ios::in);
 
-				if (!file.good())
-				{
-					throw new std::exception();
-				}
+			//	if (!file.good())
+			//	{
+			//		throw new std::exception();
+			//	}
 
-				file.seekg(0, std::ios::end);
-				shaderCode.resize((unsigned int)file.tellg());
-				file.seekg(0, std::ios::beg);
-				file.read(&shaderCode[0], shaderCode.size());
-				file.close();
+			//	file.seekg(0, std::ios::end);
+			//	shaderCode.resize((unsigned int)file.tellg());
+			//	file.seekg(0, std::ios::beg);
+			//	file.read(&shaderCode[0], shaderCode.size());
+			//	file.close();
 
-				return shaderCode;
-			}
+			//	return shaderCode;
+			//}
 
-			void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype)
-			{
-				if (prgId < 0)
-					throw new std::exception();
+			//void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype)
+			//{
+			//	if (prgId < 0)
+			//		throw new std::exception();
 
-				GLuint id = glCreateShader(shadertype);
+			//	GLuint id = glCreateShader(shadertype);
 
-				if (id < 0)
-					throw new std::exception();
+			//	if (id < 0)
+			//		throw new std::exception();
 
-				const char* code = shadercode.c_str();
+			//	const char* code = shadercode.c_str();
 
-				glShaderSource(id, 1, &code, NULL);
-				glCompileShader(id);
-				glAttachShader(prgId, id);
-				glDeleteShader(id);
-			}
+			//	glShaderSource(id, 1, &code, NULL);
+			//	glCompileShader(id);
+			//	glAttachShader(prgId, id);
+			//	glDeleteShader(id);
+			//}
 
 			void safeDeleteVertexArray(GLuint& vao)
 			{

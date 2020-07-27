@@ -8,15 +8,11 @@
 
 namespace SMGE
 {
-	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer)
+	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldModel(nullptr)
 	{
-		objectTransform_ = glm::mat4(1.f);
-		objectLocation_ = glm::vec3(0.f);
-		objectDirection_ = glm::vec3(1.f, 0.f, 0.f);
-		objectScale_ = glm::vec3(1.f, 1.f, 1.f);
 	}
 
-	CDrawComponent::CDrawComponent(CObject* outer, const CWString& modelAssetPath) : CComponent(outer)
+	CDrawComponent::CDrawComponent(CObject* outer, const CWString& modelAssetPath) : CComponent(outer), nsRE::WorldModel(nullptr)
 	{
 		drawingModelAssetPath_ = modelAssetPath;
 	}
@@ -32,26 +28,29 @@ namespace SMGE
 			throw SMGEException(wtext("already ReadyToDrawing("));
 
 		// 모델 애셋 로드
-		drawingModelAsset_ = CAssetManager::LoadAsset<CModelData>(drawingModelAssetPath_);
+		drawingModelAsset_ = CAssetManager::LoadAsset<CAssetModel>(drawingModelAssetPath_);
 		auto smgeMA = drawingModelAsset_->getContentClass();
 
+		const nsRE::RenderingModel& rm = smgeMA->GetRenderingModel();
+		rm.AddWorldModel(this);
+
 		// 여기 수정
-		// 월드 모델 생성
+		// 월드모델에 부모 액터로부터의 트랜스폼 처리
 		//getTransform() = parentActor_->getWorldTransform();
 		//myWorldModel_ = GetRenderingEngine()->AddWorldModel(new nsRE::OldModelWorld(*smgeMA));
 		//myWorldModel_->modelMat = getTransform();
 	}
 
-	class nsRE::CRenderingEngine* CDrawComponent::GetRenderingEngine()
-	{
-		auto to = FindOuter<nsGE::CGameBase>(this);
-		if (to != nullptr)
-		{
-			return to->GetEngine()->GetRenderingEngine();
-		}
+	//class nsRE::CRenderingEngine* CDrawComponent::GetRenderingEngine()
+	//{
+	//	auto to = FindOuter<nsGE::CGameBase>(this);
+	//	if (to != nullptr)
+	//	{
+	//		return to->GetEngine()->GetRenderingEngine();
+	//	}
 
-		return nullptr;
-	}
+	//	return nullptr;
+	//}
 
 	void CDrawComponent::Tick(float td)
 	{
@@ -71,29 +70,5 @@ namespace SMGE
 	void CDrawComponent::OnEndPlay()
 	{
 		CComponent::OnEndPlay();
-
-		// 여기 수정
-		//if (myWorldModel_ != nullptr)
-		//{
-		//	GetRenderingEngine()->RemoveWorldModel(myWorldModel_);
-		//	myWorldModel_ = nullptr;
-		//}
-	}
-
-	glm::mat4& CDrawComponent::getTransform()
-	{
-		return objectTransform_;
-	}
-	glm::vec3& CDrawComponent::getLocation()
-	{
-		return objectLocation_;
-	}
-	glm::vec3& CDrawComponent::getDirection()
-	{
-		return objectDirection_;
-	}
-	glm::vec3& CDrawComponent::getScale()
-	{
-		return objectScale_;
 	}
 };
