@@ -24,6 +24,8 @@ namespace SMGE
 		delete engine_;
 	}
 
+#define EDITOR_WORKING
+
 	void SPPKGame::Initialize()
 	{
 		engine_ = new nsGE::CEngineBase(this);
@@ -33,12 +35,13 @@ namespace SMGE
 		gameSettings_->gameProjectName_ = wtext("dev_project");
 		gameSettings_->gameProjectRootPath_ = Path::GetDirectoryCurrent();
 
-		auto assetPath = CAssetManager::FindAssetFilePathByClassName(wtext("SMGE::CMap"));
+#ifdef EDITOR_WORKING
+		// 테스트 코드
+		auto assetPath = PathAssetRoot() + wtext("/map/testMap.asset");
 		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetPath);
 		currentMap_ = new CMap(this, *testMapTemplate->getContentClass());
+#endif
 	}
-
-#define EDITOR_WORKING
 
 	void SPPKGame::Tick(float dt)
 	{
@@ -54,27 +57,32 @@ namespace SMGE
 		CWString assetRoot = PathAssetRoot();
 
 		//// 기본 리플렉션 테스트 코드
-		//// {
-		//CActor actor;
+		//CActor actor(nullptr);
 		//actor.setActorStaticTag("empty");
-
 		//SGStringStreamOut strOut;
 		//strOut << actor.getReflection();
 
 		////const auto& aaa = actor.getConstReflection();	// const 객체 테스트
-
 		//SGStringStreamIn strIn;
 		//strIn.in_ = strOut.out_;
 		//strIn >> actor.getReflection();
 		//// }
 
-		//// 액터 템플릿 애셋 테스트 코드 - CActor 를 디스크에 저장하기 - 액터 템플릿 애셋이 된다
-		//// {
-		//actor.getWorldTransform()[3][3] = 333;
-		//actor.setActorStaticTag("first asset test");
+		// 액터 템플릿 애셋 테스트 코드 - CActor 를 디스크에 저장하기 - 액터 템플릿 애셋이 된다
+		// {
+		// 여기부터 
+			auto actorAssetPath = assetRoot + wtext("/actor/forceSaveActor.asset");
+			CActor savingActor(nullptr);
+			savingActor.setActorStaticTag("force save");
+			CAsset<CActor> actorAssetWriter(&savingActor);
+			CAssetManager::SaveAsset(actorAssetPath, actorAssetWriter);
 
-		//CAsset<CActor> actorAssetWriter(&actor);
-		//CAssetManager::SaveAsset(assetRoot + wtext("testActorTemplate.asset"), actorAssetWriter);
+			// 액터 강제 로드 테스트		
+			CSharPtr<CAsset<CActor>> loadingActorTemplate = CAssetManager::LoadAsset<CActor>(actorAssetPath);
+			auto loadedActor = new CActor(this, *loadingActorTemplate->getContentClass());
+		// 여기까지 액터 저장 및 로드
+
+
 
 		//// 맵 템플릿 애셋 테스트 코드 - CActor 를 맵에 저장하기 - 맵에 배치한 후 수정한 값으로, 맵이 로드된 후 액터가 배치된 후 이 값으로 덮어씌우게 된다
 		//CSharPtr<CAsset<CActor>> testActorTemplate = CAssetManager::LoadAsset<CActor>(assetRoot + wtext("testActorTemplate.asset"));
@@ -96,7 +104,7 @@ namespace SMGE
 		//CAsset<CMap> mapAsset(&testMap);
 		//CAssetManager::SaveAsset(assetRoot + wtext("/map/testMapTemplate.asset"), mapAsset);
 
-		// 모델데이터 애셋 세이브, 로드하기
+		/* 애셋모델 저장하기 - 모델데이터 애셋 세이브, 로드하기
 		CAssetModel modelData(nullptr);
 		CAsset<CAssetModel> modelDataAsset(&modelData);
 
@@ -165,7 +173,8 @@ namespace SMGE
 		modelData.vertexColors_ = cubeVertexColors;
 
 		CAssetManager::SaveAsset(assetRoot + wtext("/models/cube/cube.asset"), modelDataAsset);
-		CSharPtr<CAsset<CAssetModel>> testTriangle = CAssetManager::LoadAsset<CAssetModel>(assetRoot + wtext("/models/cube/cube.asset"));
+		CSharPtr<CAsset<CAssetModel>> amA = CAssetManager::LoadAsset<CAssetModel>(assetRoot + wtext("/models/cube/cube.asset"));
+		애셋모델 저장하기 */
 
 	//	// 맵 로드하고 액터들 다시 복구하기
 	//	CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetRoot + wtext("/map/testMapTemplate.asset"));

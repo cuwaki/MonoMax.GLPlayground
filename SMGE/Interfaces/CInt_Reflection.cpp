@@ -104,12 +104,18 @@ namespace SMGE
 
 		worldTransform_ = *std::get<decltype(&worldTransform_)>(variables[L"worldTransform_"]);*/
 
+		_ADD_REFL_VARIABLE(reflectionFilePath_);
 		_ADD_REFL_VARIABLE(className_);
 	}
 
 	SGReflection::operator CWString() const
 	{
-		return _TO_REFL(CWString, className_);
+		CWString ret;
+
+		ret += _TO_REFL(CWString, reflectionFilePath_);
+		ret += _TO_REFL(CWString, className_);
+
+		return ret;
 	}
 
 	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
@@ -126,17 +132,6 @@ namespace SMGE
 			{
 				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));
-
-				//bool isContainer = temp[Tuple_VarType].find_first_of(L'<') != CWString::npos;
-				//if (isContainer)
-				//{
-				//	size_t itemNum = std::stoi(temp[Tuple_Value].c_str());
-				//	for (int j = 1; j < (itemNum + 1); ++j)
-				//	{
-				//		metaSplitted.emplace_back(std::tie(L"", L"", variableSplitted[i + j]));
-				//	}
-				//	i += itemNum;
-				//}
 			}	
 
 			metaSplitted.cursorBegin();
@@ -158,12 +153,14 @@ namespace SMGE
 	SGReflection& SGReflection::operator=(CVector<CWString>& variableSplitted)
 	{
 		// from fast
+		_FROM_REFL(reflectionFilePath_, variableSplitted);
 		_FROM_REFL(className_, variableSplitted);
 		return *this;
 	}
 
 	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
 	{
+		_FROM_REFL(reflectionFilePath_, metaSplitted);
 		_FROM_REFL(className_, metaSplitted);
 		return *this;
 	}

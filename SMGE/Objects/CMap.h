@@ -23,16 +23,16 @@ namespace SMGE
 
 		SGRefl_Map(CMap& map);
 
-		TActorLayers<SGRefl_Actor> actorReflLayers_;
+		TActorLayers<SGRefl_Actor> actorLayersREFL_;
 
 		virtual operator CWString() const;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted) override;
 
 	protected:
-		void linkActorReferences();
+		void linkINST2REFL();
 
 	public :
-		CMap* outerMap_;
+		CMap& outerMap_;
 	};
 
 	class CMap : public CObject, public CInt_Reflection

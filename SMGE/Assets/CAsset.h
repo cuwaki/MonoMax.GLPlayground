@@ -16,7 +16,6 @@ namespace SMGE
 
 	protected:
 		CWString assetFilePath_;
-		CWString assetFileName_;
 	};
 
 	template<typename C>
@@ -37,32 +36,53 @@ namespace SMGE
 		CAsset(CWString filePath) : CAssetBase()
 		{	// 읽기를 위하여 내부에서 만듦
 			isReadOnly_ = true;
-			
+		
+			contentClass_ = new TContentClass(nullptr);
 			assetFilePath_ = filePath;
-			LoadDefaultContentClass();
+
+			LoadContentClass(filePath);
 		}
 
 		~CAsset()
 		{
-			if (isReadOnly_)
+			if (isReadOnly_ && contentClass_)
 				delete contentClass_;
 		}
 
 		TContentClass* getContentClass() const { return contentClass_; }
 
 	protected:
-		void LoadDefaultContentClass()
+		bool IsTopTemplateAssetPath(CWString filePath)
 		{
-			contentClass_ = new TContentClass(nullptr);
+			return filePath;
+		}
 
-			SGStringStreamIn strIn(CuwakiDevUtils::LoadFromTextFile(assetFilePath_));
+		bool IsTemplateAssetPath(CWString filePath)
+		{
+			return SMGE::GlobalUtils::IsContains(filePath, wtext("/templates/"));
+		}
+
+		void LoadContentClass(CWString filePath)
+		{
+			SGStringStreamIn strIn(CuwakiDevUtils::LoadFromTextFile(filePath));
 			if (strIn.IsValid())
 			{
+				// 부모 클래스로 계속 올라간다 - 예) slime.asset -> CAMonster -> CAPawn -> CActor
+				TContentClass temp(nullptr);
+				SGReflection parentRefl(static_cast<CInt_Reflection&>(temp));
+				strIn >> parentRefl;
+
+				auto parentAssetPath = parentRefl.getReflectionFilePath();
+				if (parentAssetPath.length() == 0)
+				{	// 더이상 부모가 없다 - 이게 탑이다, 이제부터 실제로 로드를 시작한다 - 예) CActor
+				}
+				else
+				{	// 부모 클래스의 템플릿을 로드한다
+					LoadContentClass(CAssetManager::GetTemplateAssetPath(parentRefl.getClassName()));
+				}
+
+				// 자식 클래스의 값으로 계속 덮어씌워져나갈 것이다
 				strIn >> getContentClass()->getReflection();
-			}
-			else
-			{
-				// error
 			}
 		}
 

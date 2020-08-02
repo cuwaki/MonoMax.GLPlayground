@@ -30,7 +30,7 @@ namespace SMGE
 		CVector<glm::vec3>& vertexColors_;
 	};
 
-	class CAssetModel : public nsRE::AssetModel, public CInt_Reflection
+	class CAssetModel : virtual public nsRE::AssetModel, public CInt_Reflection
 	{
 	public:
 		using TReflectionStruct = SGRefl_AssetModel;

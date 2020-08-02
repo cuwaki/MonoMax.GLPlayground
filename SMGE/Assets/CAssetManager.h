@@ -5,15 +5,10 @@
 
 namespace SMGE
 {
-	CWString FindAssetFilePathByClassName(CWString className);
-
 	class CAssetManager
 	{
 	public:
-		static CWString FindAssetFilePathByClassName(CWString className)
-		{
-			return SMGE::FindAssetFilePathByClassName(className);
-		}
+		static CWString GetTemplateAssetPath(CWString className);
 
 		template<typename C>
 		static CSharPtr<CAsset<C>> FindAsset(CWString filePath)

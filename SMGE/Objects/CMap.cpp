@@ -1,44 +1,31 @@
 #include "CMap.h"
 #include "../GECommonIncludes.h"
 #include "../Assets/CAssetManager.h"
+#include "../CGameBase.h"
 
 namespace SMGE
 {
-	template<typename T, typename U>
-	CVector<T>& clearAndAssign(CVector<T>& left, const CVector<U>& right)
-	{
-		left.clear();
-		left.reserve(right.size());
-
-		for (int i = 0; i < right.size(); ++i)
-		{
-			left.emplace_back(right[i]);
-		}
-
-		return left;
-	};
-
 	SGRefl_Map::SGRefl_Map(CMap& map) :
+		outerMap_(map),
 		SGReflection(map)
 	{
-		outerMap_ = &map;
-		linkActorReferences();
+		linkINST2REFL();
 	}
 
-	void SGRefl_Map::linkActorReferences()
+	void SGRefl_Map::linkINST2REFL()
 	{
-		actorReflLayers_.resize(outerMap_->actorLayers_.size());
+		actorLayersREFL_.resize(outerMap_.actorLayers_.size());
 
-		clearAndAssign(actorReflLayers_[EActorLayer::System], outerMap_->actorLayers_[EActorLayer::System]);
-		clearAndAssign(actorReflLayers_[EActorLayer::Game], outerMap_->actorLayers_[EActorLayer::Game]);
+		ReflectionUtils::clearAndEmplaceBackINST2REFL(actorLayersREFL_[EActorLayer::System], outerMap_.actorLayers_[EActorLayer::System]);
+		ReflectionUtils::clearAndEmplaceBackINST2REFL(actorLayersREFL_[EActorLayer::Game], outerMap_.actorLayers_[EActorLayer::Game]);
 	}
 
 	SGRefl_Map::operator CWString() const
 	{
 		CWString ret = Super::operator CWString();
 
-		ret += ReflectionUtils::ToCVector(actorReflLayers_[0], L"CVector<SGRefl_Actor>", L"actorReflLayers_[0]", std::optional<size_t>{});
-		ret += ReflectionUtils::ToCVector(actorReflLayers_[1], L"CVector<SGRefl_Actor>", L"actorReflLayers_[1]", std::optional<size_t>{});
+		ret += ReflectionUtils::ToCVector(actorLayersREFL_[0], L"CVector<SGRefl_Actor>", L"actorLayersREFL_[0]", std::optional<size_t>{});
+		ret += ReflectionUtils::ToCVector(actorLayersREFL_[1], L"CVector<SGRefl_Actor>", L"actorLayersREFL_[1]", std::optional<size_t>{});
 
 		return ret;
 	}
@@ -47,7 +34,7 @@ namespace SMGE
 	{
 		Super::operator=(variableSplitted);
 
-		actorReflLayers_.resize(2);	// 테스트 코드
+		actorLayersREFL_.resize(2);	// 테스트 코드
 
 		// 이거긴 한데 이렇게 쓰면 auto 를 못쓴다...
 		//using REFL_CVECTOR_FUNC = void(CVector<TupleVarName_VarType_Value>& variableSplitted, size_t childKey);
@@ -58,39 +45,38 @@ namespace SMGE
 			// 그러므로 SGRefl_Map 의 = 가 실행되려면 먼저
 			// CMap 에 CActor 들이 인스턴싱 되어있어야한다
 			// SGRefl_Map 이 CMap 에 액터 생성을 시킨 후 연결해야한다 - 일단은 이렇게 구현해보자!
-			CActor loader(nullptr);
 
-			// 정확한 액터의 클래스명을 얻는다
+			CActor loader(nullptr);	// 액터의 애셋 경로를 얻는다
 			auto backupCursor = variableSplitted.cursor();
 			loader.getReflection() = variableSplitted;
-			loader.setActorStaticTag("ttttt");
 
-			CWString actorAssetPath = CAssetManager::FindAssetFilePathByClassName(loader.getClassName());
+			auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
+			CWString actorAssetPath = loader.getReflection().getReflectionFilePath();
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
 				// 1. 애셋을 이용하여 맵에 액터 스폰하기
-				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(actorAssetPath);
+				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(rootAssetPath + actorAssetPath);
 
 				// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
 				// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??
 
-				CActor& actorA = outerMap_->SpawnDefaultActor(*actorTemplate->getContentClass(), false);
+				CActor& actorA = outerMap_.SpawnDefaultActor(*actorTemplate->getContentClass(), false);
 
 				// 2 단계 - 맵에 저장된 값으로 배치시킨다
 				variableSplitted.setCursor(backupCursor);
 				actorA.getReflection() = variableSplitted;
 
-				outerMap_->ArrangeActor(actorA);
+				outerMap_.ArrangeActor(actorA);
 
 				// 여기선 아직 this->actorLayers_ 에는 등록이 안되었다, 저 밑에 3단계에서 처리한다
 			}
 		};
 
-		ReflectionUtils::FromCVector(actorReflLayers_[0], variableSplitted, FuncSpawnActor);
-		ReflectionUtils::FromCVector(actorReflLayers_[1], variableSplitted, FuncSpawnActor);
+		ReflectionUtils::FromCVector(actorLayersREFL_[0], variableSplitted, FuncSpawnActor);
+		ReflectionUtils::FromCVector(actorLayersREFL_[1], variableSplitted, FuncSpawnActor);
 
 		// 3단계 - 맵과 나를 레퍼런스로 연결한다
-		linkActorReferences();
+		linkINST2REFL();
 
 		return *this;
 	}

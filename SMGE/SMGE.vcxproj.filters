@@ -21,6 +21,9 @@
     <Filter Include="Objects">
       <UniqueIdentifier>{c0d7ddc6-280a-42cf-85f8-9a0cd67b61c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{630d572b-a958-4887-8dea-cbb05cb3c2d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GECommonIncludes.h">
@@ -72,7 +75,7 @@
       <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="Assets\CAssetModel.h">
-      <Filter>Assets</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -113,7 +116,7 @@
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="Assets\CAssetModel.cpp">
-      <Filter>Assets</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

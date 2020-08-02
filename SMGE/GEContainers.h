@@ -114,5 +114,7 @@ namespace SMGE
             } while (pos < str.length() && prev < str.length());
             return tokens;
         }
+
+        bool IsContains(const CWString& str, const CWString& finding);
     }
 };

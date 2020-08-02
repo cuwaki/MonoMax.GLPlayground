@@ -114,9 +114,13 @@ namespace SMGE
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted);	// DevReflection
 		virtual SGReflection& operator=(CVector<CWString>& variableSplitted);	// ReflectionUtils
 
+		CWString getClassName() const { return className_; }
+		CWString getReflectionFilePath() const { return reflectionFilePath_; }
+
 	protected:
 		virtual void buildVariablesMap();
 
+		CWString reflectionFilePath_;
 		CWString className_;
 
 		CInt_Reflection& pair_;
@@ -324,6 +328,20 @@ namespace SMGE
 				_FROM_REFL(temp, variableSplitted);
 				cont.push_back(temp);
 			};
+		};
+
+		template<typename REFLECTION, typename INSTANCE>
+		CVector<REFLECTION>& clearAndEmplaceBackINST2REFL(CVector<REFLECTION>& refl, const CVector<INSTANCE>& instance)
+		{
+			refl.clear();
+			refl.reserve(instance.size());
+
+			for (int i = 0; i < instance.size(); ++i)
+			{
+				refl.emplace_back(instance[i]);
+			}
+
+			return refl;
 		};
 	};
 };

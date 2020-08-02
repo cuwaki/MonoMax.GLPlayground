@@ -248,7 +248,7 @@ namespace SMGE
 			RecalcMatrix();
 		}
 
-		const glm::vec3& Transform::GetLocation() const
+		const glm::vec3& Transform::GetTranslation() const
 		{
 			return translation_;
 		}
@@ -993,7 +993,7 @@ namespace SMGE
 			
 			for (auto& it : assetModels_)
 			{
-				auto& rm = it.second.GetRenderingModel();
+				auto& rm = it.second->GetRenderingModel();
 
 				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
 				rm.BeginRender();
@@ -1014,6 +1014,41 @@ namespace SMGE
 		void CRenderingEngine::Stop()
 		{
 			isRunning = false;
+		}
+
+		bool CRenderingEngine::AddAssetModel(const CWString& key, AssetModel* am)
+		{
+			auto already = GetAssetModel(key);
+			if (already == nullptr)
+			{
+				assetModels_[key] = am;
+				return true;
+			}
+
+			return false;
+		}
+
+		bool CRenderingEngine::RemoveAssetModel(AssetModel* am)
+		{
+			auto found = std::find_if(assetModels_.begin(), assetModels_.end(),
+				[am](auto&& pair)
+				{
+					return pair.second == am;
+				});
+
+			if (found == assetModels_.end())
+			{
+				return false;
+			}
+
+			assetModels_.erase(found);
+			return true;
+		}
+
+		AssetModel* CRenderingEngine::GetAssetModel(const CWString& key)
+		{
+			auto clIt = assetModels_.find(key);
+			return clIt != assetModels_.end() ? clIt->second : nullptr;
 		}
 
 		void CRenderingEngine::getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth)

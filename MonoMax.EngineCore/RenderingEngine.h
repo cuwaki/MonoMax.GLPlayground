@@ -156,7 +156,7 @@ namespace SMGE
 			Transform();
 
 			const glm::mat4& GetTransform(bool forceRecalc = false);
-			const glm::vec3& GetLocation() const;
+			const glm::vec3& GetTranslation() const;
 			const glm::vec3& GetRotation() const;
 			const glm::vec3& GetScale() const;
 
@@ -327,7 +327,7 @@ namespace SMGE
 			CCamera camera_;
 
 			// 테스트 코드
-			CHashMap<CWString, AssetModel> assetModels_;
+			CHashMap<CWString, AssetModel*> assetModels_;
 			//CVector<WorldModel> worldModels_;
 			// deprecated
 			//CVector<OldModelWorld*> m_oldWorldModelList;
@@ -350,6 +350,10 @@ namespace SMGE
 
 			void Tick();
 			void Render(char* imgBuffer);
+
+			bool AddAssetModel(const CWString& key, AssetModel* am);
+			bool RemoveAssetModel(AssetModel* am);
+			AssetModel* GetAssetModel(const CWString& key);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 		};

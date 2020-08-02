@@ -40,6 +40,7 @@ namespace SMGE
 #include <locale>
 #include <codecvt>
 #include <string>
+#include "GEContainers.h"
 
 // deprecated c++17
 //std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -88,6 +89,14 @@ namespace SMGE
 		CWString GetDirectoryCurrent()
 		{
 			return GetDirectoryFullPath(wtext("./"));
+		}
+	}
+
+	namespace GlobalUtils
+	{
+		bool IsContains(const CWString& str, const CWString& finding)
+		{
+			return str.find(finding) != CWString::npos;
 		}
 	}
 }
