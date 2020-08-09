@@ -52,14 +52,9 @@ namespace SMGE
 		TContentClass* getContentClass() const { return contentClass_; }
 
 	protected:
-		bool IsTopTemplateAssetPath(CWString filePath)
-		{
-			return filePath;
-		}
-
 		bool IsTemplateAssetPath(CWString filePath)
 		{
-			return SMGE::GlobalUtils::IsContains(filePath, wtext("/templates/"));
+			return SMGE::GlobalUtils::IsStartsWith(filePath, wtext("/templates/"));
 		}
 
 		void LoadContentClass(CWString filePath)
@@ -73,8 +68,8 @@ namespace SMGE
 				strIn >> parentRefl;
 
 				auto parentAssetPath = parentRefl.getReflectionFilePath();
-				if (parentAssetPath.length() == 0)
-				{	// 더이상 부모가 없다 - 이게 탑이다, 이제부터 실제로 로드를 시작한다 - 예) CActor
+				if (IsTemplateAssetPath(parentAssetPath) == true)
+				{	// 더이상 부모가 없다 - 이게 탑 == 템플릿이다, 이제부터 실제로 로드를 시작한다 - 예) CActor
 				}
 				else
 				{	// 부모 클래스의 템플릿을 로드한다
@@ -83,6 +78,10 @@ namespace SMGE
 
 				// 자식 클래스의 값으로 계속 덮어씌워져나갈 것이다
 				strIn >> getContentClass()->getReflection();
+			}
+			else
+			{
+				throw SMGEException(wtext("LoadContentClass : bad filepath - ") + filePath);
 			}
 		}
 

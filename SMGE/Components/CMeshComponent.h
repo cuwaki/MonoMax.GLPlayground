@@ -14,7 +14,7 @@ namespace SMGE
 		using TReflectionClass = CMeshComponent;
 
 		SGRefl_MeshComponent(TReflectionClass& meshc);
-		SGRefl_MeshComponent(const CUniqPtr<CMeshComponent>& uptr);
+		//SGRefl_MeshComponent(const CUniqPtr<CMeshComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;

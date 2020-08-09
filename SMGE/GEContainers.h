@@ -116,5 +116,6 @@ namespace SMGE
         }
 
         bool IsContains(const CWString& str, const CWString& finding);
+        bool IsStartsWith(const CWString& str, const CWString& finding);
     }
 };

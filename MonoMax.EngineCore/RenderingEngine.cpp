@@ -312,23 +312,72 @@ namespace SMGE
 			Dirty();
 		}
 
+		bool Transform::IsDirty(bool checkParent) const
+		{
+			if (isDirty_)
+				return true;
+
+			if (checkParent && GetParent())
+			{
+				return GetParent()->IsDirty(checkParent);
+			}
+
+			return false;
+		}
+
 		void Transform::OnBeforeRendering()
 		{
 			RecalcMatrix();
 		}
 
+		void Transform::ChangeParent(Transform* p)
+		{
+			parent_ = p;
+		}
+
+		Transform* Transform::GetParent() const
+		{
+			return parent_;
+		}
+
+		Transform* Transform::GetTopParent()
+		{
+			if (GetParent())
+			{
+				return GetParent()->GetTopParent();
+			}
+
+			return this;
+		}
+
+		bool Transform::HasParent() const
+		{
+			return GetParent() != nullptr;
+		}
+
+		bool Transform::IsTop() const
+		{
+			return HasParent() == false;
+		}
+
 		void Transform::RecalcMatrix()
 		{
-			if (isDirty_ == false)
+			if (GetParent())
+			{	// 탑까지 올라가서, 탑부터 자식들로 내려가면서 RecalcMatrix 를 하도록
+				GetParent()->RecalcMatrix();
+			}
+
+			if (IsDirty(false) == false)
 				return;
 
 			currentTransform_ = glm::translate(Mat4_Identity, translation_);
-
 			currentTransform_ = glm::rotate(currentTransform_, glm::radians(rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
 			currentTransform_ = glm::rotate(currentTransform_, glm::radians(rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
 			currentTransform_ = glm::rotate(currentTransform_, glm::radians(rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
-
 			currentTransform_ = glm::scale(currentTransform_, scale_);
+
+			if (IsTop() == false)
+				currentTransform_ = currentTransform_ * GetParent()->currentTransform_;
 
 			isDirty_ = false;
 		}
@@ -569,13 +618,11 @@ namespace SMGE
 
 			renderingModel_ = nullptr;
 		}
-		WorldModel::WorldModel(const WorldModel& c)
+		WorldModel::WorldModel(const WorldModel& c) : WorldModel(c.renderingModel_)
 		{
-			this->WorldModel::WorldModel(c.renderingModel_);
 		}
-		WorldModel::WorldModel(WorldModel&& c) noexcept
+		WorldModel::WorldModel(WorldModel&& c) noexcept : WorldModel(c.renderingModel_)
 		{
-			this->WorldModel::WorldModel(c.renderingModel_);
 			c.~WorldModel();
 		}
 	}
@@ -840,118 +887,6 @@ namespace SMGE
 			// 게임 처리
 			smge_game = new SMGE::SPPKGame(nullptr);
 			smge_game->GetEngine()->SetRenderingEngine(this);
-
-			//////////////////////////////////////////////////////////////////////////////////////////
-			// 테스트 코드
-			/*
-			CWString suzanAMName = L"assets/models/suzanne";
-			assetModels_.emplace(std::make_pair(suzanAMName, AssetModel(suzanAMName + L"/suzanne.DDS", suzanAMName + L"/suzanne.vert", suzanAMName + L"/suzanne.frag", suzanAMName + L"/suzanne.obj")));
-			AssetModel& suzanAM = assetModels_.find(suzanAMName)->second;
-
-			suzanAM.ReadyToRender();
-			//renderingModels_.emplace(std::make_pair(suzanAMName, RenderingModel(suzanAM, 0)));
-			//const RenderingModel& suzanRM = renderingModels_.find(suzanAMName)->second;
-
-			worldModels_.reserve(30);	// 이거 안하면 난리남! 재할당될 때 기존 값들 다 날라감!
-			worldModels_.emplace_back(&suzanAM.GetRenderingModel()).Translate({ 0, 0, 0 });
-			worldModels_.emplace_back(&suzanAM.GetRenderingModel()).Translate({ -2, 0, 0 });
-			worldModels_.emplace_back(&suzanAM.GetRenderingModel()).Translate({ +2, 0, 0 });
-
-			////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			std::vector<glm::vec3> planeVertices
-			{
-				{-1.0f, 0, -1.0f},
-				{ -1.0f, 0, 1.0f},
-				{ 1.0f, 0,  -1.0f},
-
-				{ -1.0f, 0, 1.0f},
-				{ 1.0f, 0, 1.0f},
-				{ 1.0f, 0,  -1.0f},
-			};
-			std::vector<glm::vec2> planeUvs{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
-			std::vector<glm::vec3> planeNormals{ {0,1,0}, {0,1,0},{0,1,0},{0,1,0},{0,1,0},{0,1,0} };
-			std::vector<glm::vec3> planeVertexColors{ {0,0.5,0}, {0,0.5,0},{0,0.5,0},{0,0.5,0},{0,0.5,0},{0,0.5,0} };
-
-			CWString planeAMName = L"plane";
-			assetModels_.emplace(std::make_pair(planeAMName, AssetModel(L"", suzanAMName + L"/suzanne.vert", suzanAMName + L"/suzanne.frag", L"")));
-			AssetModel &planeAsset = assetModels_.find(planeAMName)->second;
-			planeAsset.mesh_.loadFromPlainData(planeVertices, planeUvs, planeNormals);
-			planeAsset.mesh_.setVertexColors(planeVertexColors);
-
-			renderingModels_.emplace(std::make_pair(planeAMName, RenderingModel(planeAsset, 0)));
-			const RenderingModel& planeRM = renderingModels_.find(planeAMName)->second;
-
-			WorldModel& plane1 = worldModels_.emplace_back(planeRM);
-			plane1.Scale(10.f);
-			plane1.Translate(glm::vec3(0, -3, 0));
-
-			///////////////////////////////////////////////////////////////
-			std::vector<glm::vec3> cubeVertices
-			{
-				{ -1.0f,-1.0f,-1.0f,},{ -1.0f,-1.0f, 1.0f,},{ -1.0f, 1.0f, 1.0f,},
-				{  1.0f, 1.0f,-1.0f,},{ -1.0f,-1.0f,-1.0f,},{ -1.0f, 1.0f,-1.0f,},
-				{  1.0f,-1.0f, 1.0f,},{ -1.0f,-1.0f,-1.0f,},{  1.0f,-1.0f,-1.0f,},
-				{  1.0f, 1.0f,-1.0f,},{  1.0f,-1.0f,-1.0f,},{ -1.0f,-1.0f,-1.0f,},
-				{ -1.0f,-1.0f,-1.0f,},{ -1.0f, 1.0f, 1.0f,},{ -1.0f, 1.0f,-1.0f,},
-				{  1.0f,-1.0f, 1.0f,},{ -1.0f,-1.0f, 1.0f,},{ -1.0f,-1.0f,-1.0f,},
-				{ -1.0f, 1.0f, 1.0f,},{ -1.0f,-1.0f, 1.0f,},{  1.0f,-1.0f, 1.0f,},
-				{  1.0f, 1.0f, 1.0f,},{  1.0f,-1.0f,-1.0f,},{  1.0f, 1.0f,-1.0f,},
-				{  1.0f,-1.0f,-1.0f,},{  1.0f, 1.0f, 1.0f,},{  1.0f,-1.0f, 1.0f,},
-				{  1.0f, 1.0f, 1.0f,},{  1.0f, 1.0f,-1.0f,},{ -1.0f, 1.0f,-1.0f,},
-				{  1.0f, 1.0f, 1.0f,},{ -1.0f, 1.0f,-1.0f,},{ -1.0f, 1.0f, 1.0f,},
-				{  1.0f, 1.0f, 1.0f,},{ -1.0f, 1.0f, 1.0f,},{  1.0f,-1.0f, 1.0f	},
-			};
-			std::vector<glm::vec2> cubeUvs;
-			cubeUvs.resize(cubeVertices.size());	// uv are all 000
-
-			std::vector<glm::vec3> cubeNormals;	// 각 삼각형에 대하여 정점 normal, vertColor 만들어주기
-			std::vector<glm::vec3> cubeVertexColors;
-			cubeNormals.reserve(cubeVertices.size());
-			cubeVertexColors.reserve(cubeVertices.size());
-
-			for (size_t ii = 0; ii < cubeVertices.size(); ii += 3)
-			{
-				glm::vec3 _0 = cubeVertices[ii + 0], _1 = cubeVertices[ii + 1], _2 = cubeVertices[ii + 2];
-				glm::vec3 _0_to_1 = _1 - _0, _0_to_2 = _2 - _0;
-				glm::vec3 face_normal = glm::normalize(glm::cross(_0_to_1, _0_to_2));
-
-				cubeNormals.push_back(face_normal);
-				cubeVertexColors.push_back({ 0.5,0,0 });
-
-				cubeNormals.push_back(face_normal);
-				cubeVertexColors.push_back({ 0,0.5,0 });
-
-				cubeNormals.push_back(face_normal);
-				cubeVertexColors.push_back({ 0,0,0.5 });
-			}
-
-			CWString cubeAMName = L"cube";
-			assetModels_.emplace(std::make_pair(cubeAMName, AssetModel(L"", suzanAMName + L"/suzanne.vert", suzanAMName + L"/suzanne.frag", L"")));
-			AssetModel& cubeAsset = assetModels_.find(cubeAMName)->second;
-			cubeAsset.mesh_.loadFromPlainData(cubeVertices, cubeUvs, cubeNormals);
-			cubeAsset.mesh_.setVertexColors(cubeVertexColors);
-
-			renderingModels_.emplace(std::make_pair(cubeAMName, RenderingModel(cubeAsset, 0)));
-			const RenderingModel& cubeRM = renderingModels_.find(cubeAMName)->second;
-
-			WorldModel& cube1 = worldModels_.emplace_back(cubeRM);
-
-			const float cubeDist = 10.f;
-			// 윗면 4점
-			cube1.Scale(TransformConst::Vec3_OneHalf);
-			//cube1.RotateAxis(ETypeRot::ROLL, theta);
-			cube1.Translate(glm::vec3(-cubeDist, -cubeDist, -cubeDist));
-
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(+cubeDist, -cubeDist, -cubeDist));
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(-cubeDist, -cubeDist, +cubeDist));
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(+cubeDist, -cubeDist, +cubeDist));
-
-			// 아랫면 4점
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(-cubeDist, +cubeDist, -cubeDist));
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(+cubeDist, +cubeDist, -cubeDist));
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(-cubeDist, +cubeDist, +cubeDist));
-			worldModels_.emplace_back(cube1).Translate(glm::vec3(+cubeDist, +cubeDist, +cubeDist));
-			*/
 		}
 
 		void CRenderingEngine::DeInit()

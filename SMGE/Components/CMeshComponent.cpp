@@ -11,9 +11,9 @@ namespace SMGE
 		drawingModelAssetPath_(meshc.drawingModelAssetPath_)
 	{
 	}
-	SGRefl_MeshComponent::SGRefl_MeshComponent(const CUniqPtr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
-	{
-	}
+	//SGRefl_MeshComponent::SGRefl_MeshComponent(const CUniqPtr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
+	//{
+	//}
 
 	SGRefl_MeshComponent::operator CWString() const
 	{

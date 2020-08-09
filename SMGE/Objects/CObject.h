@@ -12,8 +12,8 @@ namespace SMGE
 
 		CWString getClassName() const { return className_; }
 
-		virtual void Ctor();
-		virtual void Dtor();
+		void Ctor();
+		void Dtor();
 
 		CObject* GetOuter() const;
 		CObject* GetTopOuter();

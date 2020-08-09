@@ -1,13 +1,14 @@
 #include "CDrawComponent.h"
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
+#include "../Objects/CActor.h"
 
 namespace SMGE
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SGRefl_Transform::SGRefl_Transform(CInt_Reflection& anything, nsRE::Transform& trans) : SGReflection(anything), nsre_transform_(trans)
 	{
-		className_ = wtext("SMGE::SGRefl_Transform");
+		reflectionName_ = wtext("SMGE::SGRefl_Transform");
 	}
 
 	SGRefl_Transform::operator CWString() const
@@ -41,9 +42,9 @@ namespace SMGE
 	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc.sg_drawTransform_)
 	{
 	}
-	SGRefl_DrawComponent::SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
-	{
-	}
+	//SGRefl_DrawComponent::SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
+	//{
+	//}
 
 	SGRefl_DrawComponent::operator CWString() const
 	{
@@ -94,19 +95,46 @@ namespace SMGE
 
 	void CDrawComponent::OnBeginPlay(CActor* parent)
 	{
+		assert(parent != nullptr);
+
 		CComponent::OnBeginPlay(parent);
 
 		ReadyToDrawing();
 
-		// 여기 수정
-		// 월드모델에 부모 액터로부터의 트랜스폼 처리
-		//getTransform() = parentActor_->getWorldTransform();
-		//myWorldModel_ = GetRenderingEngine()->AddWorldModel(new nsRE::OldModelWorld(*smgeMA));
-		//myWorldModel_->modelMat = getTransform();
+		// 부모 액터로의 트랜스폼 연결
+		ChangeParent(&parent->getTransform());
+
+		//this 의 트랜스폼은 부모 액터로부터의 상대 트랜스폼이다
+		//부모가 바뀌면 나도 바뀐다
+		//	내가 바뀔 때 자식들에게 영향을 미쳐야한다
+		//		이 영향의 계산이 즉시? 지연? 어떻게 되어야하나?
+
+		//트랜스폼이 더티되면 그려지기 전에 갱신된다
+		//	부모트랜스폼이 더티라면 나도 더티다
+		//
+		//자식이 그려지려면 부모가 그려져야한다
+		//	
+		//부모가 바뀌는 일이 생기기도 하므로 포인터로 해야한다 - 셰어드가 되어야겠네
 	}
 
 	void CDrawComponent::OnEndPlay()
 	{
 		CComponent::OnEndPlay();
+	}
+
+
+	ComponentVector& CDrawComponent::getPersistentComponents()
+	{
+		return persistentComponents_;
+	}
+
+	ComponentVector& CDrawComponent::getTransientComponents()
+	{
+		return transientComponents_;
+	}
+
+	ComponentVectorWeak& CDrawComponent::getAllComponents()
+	{
+		return allComponents_;
 	}
 };

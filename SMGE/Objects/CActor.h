@@ -58,8 +58,8 @@ namespace SMGE
 		CActor(CObject* outer, const CActor& templateInst);
 		~CActor() noexcept;
 
-		virtual void Ctor() override;
-		virtual void Dtor() override;
+		void Ctor();
+		void Dtor();
 
 		virtual void Tick(float);	// 차후 개발 - CGInterf_Tickable 로 빼자
 		virtual void Render(float);	// 차후 개발 - CGInterf_Renderable 로 빼자???
@@ -77,7 +77,7 @@ namespace SMGE
 
 	public:
 		// CInt_Reflection
-		virtual CWString getClassName() override { return className_; }
+		virtual const CWString& getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override;
 
@@ -96,7 +96,8 @@ namespace SMGE
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflActor_;
-		
+
+		// CInt_Component
 		ComponentVector persistentComponents_;
 		ComponentVector transientComponents_;
 		ComponentVectorWeak allComponents_;

@@ -66,11 +66,12 @@ namespace SMGE
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	class CInt_Reflection : public CInterfaceBase
 	{
 	public:
-		virtual CWString getClassName() = 0;
+		CWString& getReflectionFilePath() { return reflectionFilePath_; }
+		virtual const CWString& getClassName() = 0;
+
 		virtual SGReflection& getReflection() = 0;
 		virtual const SGReflection& getConstReflection() const
 		{
@@ -84,11 +85,13 @@ namespace SMGE
 		}
 
 		virtual void OnAfterDeserialized() {}
+
+	protected:
+		CWString reflectionFilePath_;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	using TupleVarName_VarType_Value = std::tuple<CWString, CWString, CWString>;
 	const int32 Tuple_VarName = 0;
 	const int32 Tuple_VarType = 1;
@@ -102,7 +105,10 @@ namespace SMGE
 		static const CWString::value_type VARIABLE_DELIM_CHAR;
 		static const CWString::value_type VALUE_DELIM_CHAR;
 
-		SGReflection(CInt_Reflection& obj) : pair_(obj), className_(obj.getClassName())
+		SGReflection(CInt_Reflection& obj) : 
+			pair_(obj), 
+			className_(obj.getClassName()),
+			reflectionFilePath_(obj.getReflectionFilePath()) // ##8A
 		{
 			if (isFast_ == false)
 				buildVariablesMap();
@@ -114,16 +120,24 @@ namespace SMGE
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted);	// DevReflection
 		virtual SGReflection& operator=(CVector<CWString>& variableSplitted);	// ReflectionUtils
 
-		CWString getClassName() const { return className_; }
-		CWString getReflectionFilePath() const { return reflectionFilePath_; }
+		const CWString& getClassName() const { return className_; }
+		const CWString& getReflectionFilePath() const { return reflectionFilePath_; }
 
 	protected:
 		virtual void buildVariablesMap();
 
-		CWString reflectionFilePath_;
-		CWString className_;
-
 		CInt_Reflection& pair_;
+
+
+		// 여기 수정 - 이게 2가지 성격을 가진다 - 정리가 필요하다
+		// Reflection 자체의 className 을 나타내야하는 경우가 있고 - 독립으로 사용되는 SGRefl_Transform
+		// pair_ 의 className 을 나타내야하는 경우가 있다
+		// 여기 수정 - 중첩으로 SGReflection 들이 되어있을 때 // ##8A 와 같이 레퍼런스로 연결되어있으면 나중의 값으로 덮여씌워져버리는 문제가 있다 - 예)CActor
+		const CWString& className_;	
+		CWString& reflectionFilePath_;
+
+		CWString reflectionName_;
+
 		bool isFast_ = false;
 		CHashMap<CWString, void*> variablesMap_;
 	};
@@ -144,7 +158,8 @@ namespace SMGE
 		extern CWString ToREFL(const T& val)
 		{
 			// 문자열들의 경우
-			// 추가 할 일 - " 검사 및 딜리미터들을 다른 걸로 바꿔줘야한다
+			// 추가 할 일 - " 검사 및 딜리미터들 그리고 \t을 "\\t"로 바꿔야한다
+			// 탭같은 경우엔 왜 바꾸냐면 .asset 파일의 포맷에 \t으로 들여쓰기가 들어갈 수 있기 때문이다
 
 			if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
 				return val.length() == 0 ? wtext("\"\"") : (L'"' + val + L'"');	// 

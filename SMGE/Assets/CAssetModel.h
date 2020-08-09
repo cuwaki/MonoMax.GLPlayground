@@ -39,7 +39,7 @@ namespace SMGE
 		CAssetModel(void *outer);
 
 	public:
-		virtual CWString getClassName() override { return className_; }
+		virtual const CWString& getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override;
 

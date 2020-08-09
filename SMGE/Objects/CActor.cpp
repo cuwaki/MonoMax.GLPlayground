@@ -127,6 +127,7 @@ namespace SMGE
 
 	CActor::~CActor()
 	{
+		Dtor();
 	}
 
 	SGReflection& CActor::getReflection()

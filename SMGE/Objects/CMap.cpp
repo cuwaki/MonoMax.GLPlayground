@@ -51,7 +51,8 @@ namespace SMGE
 			loader.getReflection() = variableSplitted;
 
 			auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
-			CWString actorAssetPath = loader.getReflection().getReflectionFilePath();
+			
+			CWString actorAssetPath = loader.getReflectionFilePath();
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
 				// 1. 애셋을 이용하여 맵에 액터 스폰하기
@@ -69,6 +70,10 @@ namespace SMGE
 				outerMap_.ArrangeActor(actorA);
 
 				// 여기선 아직 this->actorLayers_ 에는 등록이 안되었다, 저 밑에 3단계에서 처리한다
+			}
+			else
+			{
+				throw SMGEException(wtext("CMap : FuncSpawnActor : bad filepath - ") + actorAssetPath);
 			}
 		};
 

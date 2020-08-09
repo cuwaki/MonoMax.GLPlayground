@@ -12,7 +12,7 @@ namespace SMGE
 		using TReflectionClass = CComponent;
 
 		SGRefl_Component(TReflectionClass& rc);
-		SGRefl_Component(const CUniqPtr<CComponent>& sptr);
+		//SGRefl_Component(const CUniqPtr<CComponent>& sptr);	// { persistentComponentsREFL_ RTTI 필요 이슈
 		virtual operator CWString() const override { return Super::operator CWString(); }
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override { return Super::operator=(in); }
 	};
@@ -33,10 +33,7 @@ namespace SMGE
 		virtual void OnEndPlay();
 
 		// CInt_Reflection
-		virtual CWString getClassName() override { return className_; }
+		virtual const CWString& getClassName() override { return className_; }
 		// 일부러 CInt_Reflection의 나머지는 구현 안함
-
-	protected:
-		class CActor* parentActor_;
 	};
 }

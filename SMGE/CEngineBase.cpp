@@ -69,7 +69,8 @@ namespace SMGE
 	{
 		CWString GetNormalizedPath(const CWString& path)
 		{
-			return CuwakiDevUtils::Replace(path, L"\\", L"/");
+			CWString ret = CuwakiDevUtils::Replace(path, L"\\", L"/");
+			return CuwakiDevUtils::Replace(ret, L"//", L"/");	// 차후 - 없을 때까지 제대로 처리하자
 		}
 
 		bool IsValidPath(const CWString& path)
@@ -97,6 +98,10 @@ namespace SMGE
 		bool IsContains(const CWString& str, const CWString& finding)
 		{
 			return str.find(finding) != CWString::npos;
+		}
+		bool IsStartsWith(const CWString& str, const CWString& finding)
+		{
+			return str.find(finding) == 0;
 		}
 	}
 }

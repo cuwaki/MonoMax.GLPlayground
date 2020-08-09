@@ -2,6 +2,7 @@
 
 #include "../GECommonIncludes.h"
 #include "CComponent.h"
+#include "../Interfaces/CInt_Component.h"
 #include "../../MonoMax.EngineCore/RenderingEngine.h"
 
 namespace SMGE
@@ -29,14 +30,14 @@ namespace SMGE
 		using TReflectionClass = CDrawComponent;
 
 		SGRefl_DrawComponent(TReflectionClass& rc);
-		SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr);
+		//SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
 		SGRefl_Transform& sg_transform_;
 	};
 
-	class CDrawComponent : public CComponent, public nsRE::WorldModel
+	class CDrawComponent : public CComponent, public nsRE::WorldModel, public CInt_Component
 	{
 	public:
 		using Super = CComponent;
@@ -55,9 +56,19 @@ namespace SMGE
 
 		virtual void ReadyToDrawing();
 
+		// CInt_Component
+		virtual ComponentVector& getPersistentComponents() override;
+		virtual ComponentVector& getTransientComponents() override;
+		virtual ComponentVectorWeak& getAllComponents() override;
+
 	protected:
 		class nsRE::CRenderingEngine* GetRenderingEngine();
 
 		SGRefl_Transform sg_drawTransform_;
+
+		// CInt_Component
+		ComponentVector persistentComponents_;
+		ComponentVector transientComponents_;
+		ComponentVectorWeak allComponents_;
 	};
 };

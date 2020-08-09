@@ -148,7 +148,7 @@ namespace SMGE
 
 		protected:
 			glm::mat4 currentTransform_;
-			Transform* transformParent_ = nullptr;
+			Transform* parent_ = nullptr;
 
 			bool isDirty_ = false;
 
@@ -170,7 +170,13 @@ namespace SMGE
 			void OnBeforeRendering();
 
 			void Dirty() { isDirty_ = true; }
-			bool IsDirty() { return isDirty_; }
+			bool IsDirty(bool checkParent = true) const;
+
+			void ChangeParent(Transform* p);
+			Transform* GetParent() const;
+			Transform* GetTopParent();
+			bool HasParent() const;
+			bool IsTop() const;
 
 		protected:
 			void RecalcMatrix();

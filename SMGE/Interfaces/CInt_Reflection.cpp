@@ -104,18 +104,32 @@ namespace SMGE
 
 		worldTransform_ = *std::get<decltype(&worldTransform_)>(variables[L"worldTransform_"]);*/
 
-		_ADD_REFL_VARIABLE(reflectionFilePath_);
-		_ADD_REFL_VARIABLE(className_);
+		// 아래 변수들은 SGReflection 입장에서는 const 이므로 등록 안하는 게 맞겠다 - 20200809
+		//_ADD_REFL_VARIABLE(className_);
+		//_ADD_REFL_VARIABLE(reflectionFilePath_);
 	}
 
 	SGReflection::operator CWString() const
 	{
 		CWString ret;
 
-		ret += _TO_REFL(CWString, reflectionFilePath_);
 		ret += _TO_REFL(CWString, className_);
+		ret += _TO_REFL(CWString, reflectionFilePath_);
 
 		return ret;
+	}
+
+	void RemoveIndentForAssetFile(CWString& str)
+	{
+		// 맨 앞, 시작 부분에 있는 공백들을 제거한다, 탭이 스페이스로 대체된 에디터를 쓰는 경우 이럴 수 있다
+		for (auto it = str.begin(); it != str.end();)
+		{
+			auto c = *it;
+			if (c == L'\t' || c == L' ' || c == L'\r' || c == L'\n')
+				str.erase(it);
+			else
+				break;
+		}
 	}
 
 	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
@@ -130,6 +144,9 @@ namespace SMGE
 			CVector<CWString> temp;
 			for (int i = 0; i < variableSplitted.size(); ++i)
 			{
+				// .asset 파일의 들여쓰기를 제거한다
+				RemoveIndentForAssetFile(variableSplitted[i]);
+
 				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));
 			}	
@@ -153,15 +170,27 @@ namespace SMGE
 	SGReflection& SGReflection::operator=(CVector<CWString>& variableSplitted)
 	{
 		// from fast
+		CWString dummy;
+		_FROM_REFL(dummy, variableSplitted);
+
 		_FROM_REFL(reflectionFilePath_, variableSplitted);
-		_FROM_REFL(className_, variableSplitted);
+
 		return *this;
 	}
 
 	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
 	{
-		_FROM_REFL(reflectionFilePath_, metaSplitted);
-		_FROM_REFL(className_, metaSplitted);
+		CWString dummy;
+		_FROM_REFL(dummy, metaSplitted);
+
+		CWString reflPath;
+		_FROM_REFL(reflPath, metaSplitted);
+
+		if (reflectionFilePath_.length() == 0)
+		{	// 여기 수정 - ##8A 의 임시 수정
+			reflectionFilePath_ = std::move(reflPath);
+		}
+
 		return *this;
 	}
 };

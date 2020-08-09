@@ -47,7 +47,8 @@ namespace SMGE
 		CMap(CObject* outer);
 		CMap(CObject* outer, const CMap& templateInst);
 
-		virtual void Ctor() override;
+		void Ctor();
+
 		virtual void Tick(float);
 		virtual void Render(float);
 
@@ -61,7 +62,7 @@ namespace SMGE
 		bool IsStarted() { return isStarted_; }
 
 	public:
-		virtual CWString getClassName() override { return className_; }
+		virtual const CWString& getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
 
 	protected:
