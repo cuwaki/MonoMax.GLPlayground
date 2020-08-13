@@ -157,12 +157,15 @@
     <ClCompile Include="Assets\CAsset.cpp" />
     <ClCompile Include="Assets\CAssetManager.cpp" />
     <ClCompile Include="Assets\CAssetModel.cpp" />
+    <ClCompile Include="CCurve.cpp" />
     <ClCompile Include="CEngineBase.cpp" />
     <ClCompile Include="CGameBase.cpp" />
     <ClCompile Include="Components\CComponent.cpp" />
     <ClCompile Include="Components\CDrawComponent.cpp" />
     <ClCompile Include="Components\CMeshComponent.cpp" />
     <ClCompile Include="Components\CStaticMeshComponent.cpp" />
+    <ClCompile Include="Components\CTransformComponent.cpp" />
+    <ClCompile Include="CTimer.cpp" />
     <ClCompile Include="Interfaces\CInt_Reflection.cpp" />
     <ClCompile Include="Objects\CActor.cpp" />
     <ClCompile Include="Objects\CMap.cpp" />
@@ -172,6 +175,9 @@
     <ClInclude Include="Assets\CAsset.h" />
     <ClInclude Include="Assets\CAssetManager.h" />
     <ClInclude Include="Assets\CAssetModel.h" />
+    <ClInclude Include="CCurve.h" />
+    <ClInclude Include="Components\CTransformComponent.h" />
+    <ClInclude Include="CTimer.h" />
     <ClInclude Include="GEContainers.h" />
     <ClInclude Include="CGameBase.h" />
     <ClInclude Include="Components\CComponent.h" />

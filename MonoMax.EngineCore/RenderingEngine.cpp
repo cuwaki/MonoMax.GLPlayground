@@ -263,12 +263,12 @@ namespace SMGE
 			return scale_;
 		}
 
-		const glm::mat4& Transform::GetTransform(bool forceRecalc)
+		const glm::mat4& Transform::GetMatrix(bool forceRecalc)
 		{
 			if(forceRecalc)
 				RecalcMatrix();
 
-			return currentTransform_;
+			return transformMatrix_;
 		}
 
 		void Transform::Translate(glm::vec3 worldPos)
@@ -312,15 +312,30 @@ namespace SMGE
 			Dirty();
 		}
 
-		bool Transform::IsDirty(bool checkParent) const
+		void Transform::Dirty()
+		{
+			bool wasClean = (isDirty_ == false);
+
+			isDirty_ = true;
+
+			if (wasClean)
+			{
+				// 부모가 더티될 때 자식들도 더티가 되어야한다 - 그래야 RecalcMatrix 가 제대로 작동함
+				std::for_each(children_.begin(), children_.end(),
+					[](auto child)
+					{
+						child->Dirty();
+					}
+				);
+			}
+		}
+
+		bool Transform::IsDirty() const
 		{
 			if (isDirty_)
 				return true;
 
-			if (checkParent && GetParent())
-			{
-				return GetParent()->IsDirty(checkParent);
-			}
+			// 내 부모들 중 하나라도 더티면 나도 더티다 - 이건 부모의 Dirty( 에서 보증되므로 여기서 안해도 된다
 
 			return false;
 		}
@@ -332,7 +347,24 @@ namespace SMGE
 
 		void Transform::ChangeParent(Transform* p)
 		{
-			parent_ = p;
+			if (parent_ == p)
+				return;
+
+			auto oldParent = parent_;
+
+			parent_ = p; // this에게 부모 연결
+
+			if (parent_ != nullptr)
+			{	// 새 부모에게 this 연결
+				parent_->children_.push_front(this);
+			}
+
+			// 가능성 - 미래에는 oldParent 가 무효한 포인터가 되어있을 가능성이 있음 - 차후 케이스가 발견되겠지?!!
+			if (oldParent != nullptr)
+			{	// 옛 부모에서는 제거
+				auto found = std::find(oldParent->children_.begin(), oldParent->children_.end(), this);
+				oldParent->children_.erase_after(found);
+			}
 		}
 
 		Transform* Transform::GetParent() const
@@ -360,26 +392,40 @@ namespace SMGE
 			return HasParent() == false;
 		}
 
-		void Transform::RecalcMatrix()
+		void Transform::RecalcMatrix_Internal(const glm::mat4& parentMatrix)
 		{
-			if (GetParent())
-			{	// 탑까지 올라가서, 탑부터 자식들로 내려가면서 RecalcMatrix 를 하도록
-				GetParent()->RecalcMatrix();
+			if (IsDirty())
+			{	// 나의 트랜스폼을 계산
+				transformMatrix_ = glm::translate(Mat4_Identity, translation_);
+				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
+				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
+				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
+				transformMatrix_ = glm::scale(transformMatrix_, scale_);
+
+				// 나에게 부모 트랜스폼을 적용
+				transformMatrix_ = transformMatrix_ * parentMatrix;
+
+				isDirty_ = false;
 			}
 
-			if (IsDirty(false) == false)
-				return;
+			// 나의 자식들에게 전파
+			std::for_each(children_.begin(), children_.end(),
+				[&](auto child)
+				{
+					child->RecalcMatrix_Internal(this->transformMatrix_);
+				}
+			);
+		}
 
-			currentTransform_ = glm::translate(Mat4_Identity, translation_);
-			currentTransform_ = glm::rotate(currentTransform_, glm::radians(rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
-			currentTransform_ = glm::rotate(currentTransform_, glm::radians(rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
-			currentTransform_ = glm::rotate(currentTransform_, glm::radians(rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
-			currentTransform_ = glm::scale(currentTransform_, scale_);
-
-			if (IsTop() == false)
-				currentTransform_ = currentTransform_ * GetParent()->currentTransform_;
-
-			isDirty_ = false;
+		void Transform::RecalcMatrix()
+		{
+			// this 가 트랜스폼 부모자식 체인의 어디에 위치해있든
+			// topParent 까지 올라가서 RecalcMatrix_Internal 하여 부모->자식으로 딱 1회 전파해나가면
+			// 거의 낭비 없이 Recalc 가 처리된다
+			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회
+			
+			auto topParent = GetTopParent();
+			topParent->RecalcMatrix_Internal(Mat4_Identity);
 		}
 
 		void RenderingModel::AddWorldModel(WorldModel* wm) const
@@ -516,12 +562,12 @@ namespace SMGE
 				//glm::mat4 ModelMatrix = glm::mat4(1);
 				//ModelMatrix = glm::translate(ModelMatrix, worldPos);
 
-				glm::mat4 MVP = VP * wmPtr->GetTransform();
+				const glm::mat4 MVP = VP * wmPtr->GetMatrix(false);
 
 				// Send our transformation to the currently bound shader, 
 				// in the "MVP" uniform
 				glUniformMatrix4fv(asset_.vfShaderSet_.unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);	// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
-				glUniformMatrix4fv(asset_.vfShaderSet_.unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetTransform()[0][0]);
+				glUniformMatrix4fv(asset_.vfShaderSet_.unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
 
 				// Draw the triangles !
 				glDrawArrays(GL_TRIANGLES, 0, verticesSize_);

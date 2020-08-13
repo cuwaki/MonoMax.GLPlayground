@@ -37,6 +37,7 @@ namespace SMGE
 		SGRefl_Transform& sg_transform_;
 	};
 
+	// 자식 컴포넌트를 가질 수 있어야하므로 CInt_Component 상속
 	class CDrawComponent : public CComponent, public nsRE::WorldModel, public CInt_Component
 	{
 	public:
@@ -48,10 +49,9 @@ namespace SMGE
 	public:
 		CDrawComponent(CObject* outer);
 
-		virtual void Tick(float td);
 		virtual void Render(float td);
 
-		virtual void OnBeginPlay(class CActor* parent) override;
+		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
 
 		virtual void ReadyToDrawing();

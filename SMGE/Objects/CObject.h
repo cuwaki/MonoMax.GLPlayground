@@ -12,8 +12,8 @@ namespace SMGE
 
 		CWString getClassName() const { return className_; }
 
-		void Ctor();
-		void Dtor();
+		void Ctor();	// not virtual! 현재로서는 생성자나 파괴자에서 불릴 수 있기 때문 20200813
+		void Dtor();	// not virtual! 현재로서는 생성자나 파괴자에서 불릴 수 있기 때문 20200813
 
 		CObject* GetOuter() const;
 		CObject* GetTopOuter();

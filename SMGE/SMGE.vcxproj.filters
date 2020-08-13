@@ -24,6 +24,12 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{630d572b-a958-4887-8dea-cbb05cb3c2d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Draw">
+      <UniqueIdentifier>{1b6f77df-226c-4090-a634-c5d162f3756a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Transform">
+      <UniqueIdentifier>{d70c8826-196f-44d3-a5c3-ff1d177175b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GECommonIncludes.h">
@@ -47,15 +53,6 @@
     <ClInclude Include="Interfaces\CInt_Component.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CStaticMeshComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CMeshComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Components\CDrawComponent.h">
-      <Filter>Components</Filter>
-    </ClInclude>
     <ClInclude Include="Components\CComponent.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -77,6 +74,24 @@
     <ClInclude Include="Assets\CAssetModel.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Components\CDrawComponent.h">
+      <Filter>Components\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CMeshComponent.h">
+      <Filter>Components\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CStaticMeshComponent.h">
+      <Filter>Components\Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="CTimer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CCurve.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CTransformComponent.h">
+      <Filter>Components\Transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -90,15 +105,6 @@
     </ClCompile>
     <ClCompile Include="Interfaces\CInt_Reflection.cpp">
       <Filter>Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\CStaticMeshComponent.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\CMeshComponent.cpp">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Components\CDrawComponent.cpp">
-      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="Components\CComponent.cpp">
       <Filter>Components</Filter>
@@ -117,6 +123,24 @@
     </ClCompile>
     <ClCompile Include="Assets\CAssetModel.cpp">
       <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CDrawComponent.cpp">
+      <Filter>Components\Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CMeshComponent.cpp">
+      <Filter>Components\Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CStaticMeshComponent.cpp">
+      <Filter>Components\Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="CTimer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CCurve.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CTransformComponent.cpp">
+      <Filter>Components\Transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

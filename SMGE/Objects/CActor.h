@@ -5,6 +5,7 @@
 #include "../Interfaces/CInt_Component.h"
 #include "../Components/CDrawComponent.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
+#include "../CTimer.h"
 
 namespace SMGE
 {
@@ -75,6 +76,12 @@ namespace SMGE
 		virtual void BeginPlay();
 		virtual void EndPlay();
 
+		CTimer& getActorTimer() { return timer_; }
+
+		const glm::vec3& getLocation() const {
+			return getTransform().GetTranslation(); 
+		}
+
 	public:
 		// CInt_Reflection
 		virtual const CWString& getClassName() override { return className_; }
@@ -92,7 +99,8 @@ namespace SMGE
 		CString actorStaticTag_;
 		CString actorTag_;
 
-		class CDrawComponent* cachedMainDrawCompo_;
+		class CDrawComponent* mainDrawCompo_;
+		class CTransformComponent* movementCompo_;
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflActor_;
@@ -103,6 +111,8 @@ namespace SMGE
 		ComponentVectorWeak allComponents_;
 
 		TActorKey actorKey_ = InvalidActorKey;
+
+		CTimer timer_;
 
 		// ActorKeyGenerator
 		friend class CMap;

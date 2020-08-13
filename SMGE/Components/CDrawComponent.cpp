@@ -85,15 +85,11 @@ namespace SMGE
 		return nullptr;
 	}
 
-	void CDrawComponent::Tick(float td)
-	{
-	}
-
 	void CDrawComponent::Render(float td)
 	{
 	}
 
-	void CDrawComponent::OnBeginPlay(CActor* parent)
+	void CDrawComponent::OnBeginPlay(CObject* parent)
 	{
 		assert(parent != nullptr);
 
@@ -101,8 +97,10 @@ namespace SMGE
 
 		ReadyToDrawing();
 
+		// 수정??? 현재로써는 액터만 연결이 가능하다
 		// 부모 액터로의 트랜스폼 연결
-		ChangeParent(&parent->getTransform());
+		CActor* actorParent = static_cast<CActor*>(parent);
+		ChangeParent(&actorParent->getTransform());
 
 		//this 의 트랜스폼은 부모 액터로부터의 상대 트랜스폼이다
 		//부모가 바뀌면 나도 바뀐다

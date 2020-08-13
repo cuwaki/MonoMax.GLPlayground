@@ -14,7 +14,7 @@ namespace SMGE
 		className_ = wtext("SMGE::CComponent");
 	}
 
-	void CComponent::OnBeginPlay(class CActor* parent)
+	void CComponent::OnBeginPlay(class CObject* parent)
 	{
 	}
 

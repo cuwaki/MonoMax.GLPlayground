@@ -1,6 +1,7 @@
 #include "CActor.h"
 #include "CMap.h"
 #include "../Components/CMeshComponent.h"
+#include "../Components/CTransformComponent.h"
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"
 
@@ -160,13 +161,20 @@ namespace SMGE
 	{
 		Super::Ctor();
 
-		// 일단 빈 거 만들어서 등록
-		getPersistentComponents().emplace_back(MakeUniqPtr<CMeshComponent>(this));
+		// 메인 드로
+		auto mainDrawCompo = MakeUniqPtr<CMeshComponent>(this);
+		mainDrawCompo_ = SCast<CMeshComponent*>(mainDrawCompo.get());
+		getPersistentComponents().emplace_back(std::move(mainDrawCompo));
 
-		auto compoUniq = getPersistentComponents().rbegin();
-		cachedMainDrawCompo_ = SCast<CMeshComponent*>(compoUniq->get());
+		// 트랜스폼
+		auto transfCompo = MakeUniqPtr<CTransformComponent>(this);
+		movementCompo_ = SCast<CTransformComponent*>(transfCompo.get());
+		getPersistentComponents().emplace_back(std::move(transfCompo));
 
-		registerComponent(compoUniq->get());
+		for (auto& pc : getPersistentComponents())
+		{
+			registerComponent(pc.get());
+		}
 	}
 
 	void CActor::Dtor()
@@ -175,9 +183,8 @@ namespace SMGE
 		getTransientComponents().clear();
 		allComponents_.clear();
 
-		cachedMainDrawCompo_ = nullptr;
-
-		// 여기 수정 - 이거 불러주는 곳이 없다
+		mainDrawCompo_ = nullptr;
+		movementCompo_ = nullptr;
 
 		Super::Dtor();
 	}
@@ -185,13 +192,14 @@ namespace SMGE
 	void CActor::Tick(float timeDelta)
 	{
 		//for(auto& comp : getAllComponents())	Tickable 만 골라서 돌려야한다
-		cachedMainDrawCompo_->Tick(timeDelta);
+		mainDrawCompo_->Tick(timeDelta);
+		movementCompo_->Tick(timeDelta);
 	}
 
 	void CActor::Render(float timeDelta)
 	{
 		//for(auto& comp : getAllComponents())	Renderable 만 골라서 돌려야한다
-		cachedMainDrawCompo_->Render(timeDelta);
+		mainDrawCompo_->Render(timeDelta);
 	}
 
 	void CActor::OnAfterSpawned(CMap* map, bool isDynamic)
@@ -204,6 +212,8 @@ namespace SMGE
 
 	void CActor::BeginPlay()
 	{
+		timer_.start();
+
 		for (auto& comp : getAllComponents())
 		{
 			comp->OnBeginPlay(this);

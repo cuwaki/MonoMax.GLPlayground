@@ -5,6 +5,7 @@
 #include <fstream>
 #include <functional>
 #include <vector>
+#include <forward_list>
 #include "../SMGE/GECommonIncludes.h"
 #include "../SMGE/GEContainers.h"
 #include "common/controls.hpp"
@@ -147,15 +148,17 @@ namespace SMGE
 			glm::vec3 scale_;
 
 		protected:
-			glm::mat4 currentTransform_;
+			glm::mat4 transformMatrix_;
 			Transform* parent_ = nullptr;
+			std::forward_list<Transform*> children_;
 
 			bool isDirty_ = false;
 
 		public:
 			Transform();
 
-			const glm::mat4& GetTransform(bool forceRecalc = false);
+			const glm::mat4& GetMatrix(bool forceRecalc);
+
 			const glm::vec3& GetTranslation() const;
 			const glm::vec3& GetRotation() const;
 			const glm::vec3& GetScale() const;
@@ -169,8 +172,8 @@ namespace SMGE
 
 			void OnBeforeRendering();
 
-			void Dirty() { isDirty_ = true; }
-			bool IsDirty(bool checkParent = true) const;
+			void Dirty();
+			bool IsDirty() const;
 
 			void ChangeParent(Transform* p);
 			Transform* GetParent() const;
@@ -180,6 +183,9 @@ namespace SMGE
 
 		protected:
 			void RecalcMatrix();
+
+		private:
+			void RecalcMatrix_Internal(const glm::mat4& parentMatrix);
 		};
 
 		class WorldModel : public Transform
