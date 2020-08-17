@@ -114,6 +114,7 @@ namespace SMGE
 				buildVariablesMap();
 		}
 
+		virtual void OnBeforeSerialize() const {}
 		virtual operator CWString() const;	// operator>> 의 역할을 이게 한다
 		/* final */ SGReflection& operator=(const CWString& fullReflectedStr);	// operator<< 의 최종 역할을 이게 한다
 
@@ -273,7 +274,7 @@ namespace SMGE
 				{
 					if constexpr (std::is_base_of_v<SGReflection, CT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
 					{	// SGRefl_Actor 등
-						ret += static_cast<CWString>(it);
+						ret += SCast<CWString>(it);
 					}
 					else
 					{	// float, glm::vec3...

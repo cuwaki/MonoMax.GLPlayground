@@ -64,7 +64,7 @@ namespace SMGE
 			{
 				// 부모 클래스로 계속 올라간다 - 예) slime.asset -> CAMonster -> CAPawn -> CActor
 				TContentClass temp(nullptr);
-				SGReflection parentRefl(static_cast<CInt_Reflection&>(temp));
+				SGReflection parentRefl(static_cast<CInt_Reflection&>(temp));	// 이유를 모르겠는데 여기서 SCast 쓰면 컴파일 오류난다
 				strIn >> parentRefl;
 
 				auto parentAssetPath = parentRefl.getReflectionFilePath();

@@ -18,10 +18,12 @@ namespace SMGE
 		SGRefl_Actor(CActor& actor);
 		SGRefl_Actor(const CSharPtr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr) {}
 
+		// { persistentComponentsREFL_ RTTI 필요 이슈
 		void linkINST2REFL();
 
 		virtual void buildVariablesMap() override;
-
+		
+		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
 
 		bool operator==(const SGRefl_Actor& right) const noexcept
@@ -42,7 +44,11 @@ namespace SMGE
 
 		// { persistentComponentsREFL_ RTTI 필요 이슈
 		//CVector<SGRefl_Component> persistentComponentsREFL_;
+		
+		// { persistentComponentsREFL_ RTTI 필요 이슈 - 아래처럼 mutable 로 처리해놨다 / 이거 어떡하지?
+		mutable int32_t persistentComponentNumber_ = 0;
 
+		// for Runtime
 		CActor& outerActor_;
 	};
 
@@ -78,9 +84,9 @@ namespace SMGE
 
 		CTimer& getActorTimer() { return timer_; }
 
-		const glm::vec3& getLocation() const {
-			return getTransform().GetTranslation(); 
-		}
+		const glm::vec3& getLocation() const {	return getTransform().GetTranslation(); }
+		const glm::vec3& getRotation() const { return getTransform().GetRotation(); }
+		const glm::vec3& getScale() const { return getTransform().GetScale(); }
 
 	public:
 		// CInt_Reflection
@@ -99,7 +105,7 @@ namespace SMGE
 		CString actorStaticTag_;
 		CString actorTag_;
 
-		class CDrawComponent* mainDrawCompo_;
+		// 여기 생각 - mainDrawCompo 는 persistcomp 라서 애셋으로부터 동적으로 생성될 수 있어서 멤버 포인터를 적용할 수가 없었다, 하지만 무브먼트콤포는??? 생각해볼 것, 지금은 트랜젼트임
 		class CTransformComponent* movementCompo_;
 
 	protected:

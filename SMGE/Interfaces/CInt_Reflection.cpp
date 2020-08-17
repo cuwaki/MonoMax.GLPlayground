@@ -111,6 +111,8 @@ namespace SMGE
 
 	SGReflection::operator CWString() const
 	{
+		OnBeforeSerialize();
+
 		CWString ret;
 
 		ret += _TO_REFL(CWString, className_);
@@ -146,6 +148,9 @@ namespace SMGE
 			{
 				// .asset 파일의 들여쓰기를 제거한다
 				RemoveIndentForAssetFile(variableSplitted[i]);
+
+				if (variableSplitted[i].length() == 0 || variableSplitted[i]._Starts_with(wtext("//")) == true)
+					continue;
 
 				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));

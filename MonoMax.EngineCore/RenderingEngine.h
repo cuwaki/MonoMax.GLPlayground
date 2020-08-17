@@ -185,7 +185,7 @@ namespace SMGE
 			void RecalcMatrix();
 
 		private:
-			void RecalcMatrix_Internal(const glm::mat4& parentMatrix);
+			void RecalcMatrix_Internal(const Transform* parent);
 		};
 
 		class WorldModel : public Transform

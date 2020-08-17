@@ -9,6 +9,18 @@ namespace SMGE
 	using ComponentVector = CVector<CUniqPtr<CComponent>>;
 	using ComponentVectorWeak = CVector<CComponent*>;
 
+	/*
+		CInt_Component 상속시 해야할 일
+
+		인터페이스의 순수가상함수들을 구현한다
+		리플렉션을 구현한다
+		Tick 에서 자식 콤포넌트의 틱을 돌려준다
+		BeginPlay, EndPlay 에서 등록/해제 및 자식 콤포넌트들에게 전파한다
+		필요시 - Render 에서 자식 콤포넌트의 렌더를 돌려준다
+
+		자세한 예는 CDrawComponent 를 보면 된다
+	*/
+
 	class CInt_Component : public CInterfaceBase
 	{
 	public:

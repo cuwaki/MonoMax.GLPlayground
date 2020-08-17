@@ -157,7 +157,7 @@
     <ClCompile Include="Assets\CAsset.cpp" />
     <ClCompile Include="Assets\CAssetManager.cpp" />
     <ClCompile Include="Assets\CAssetModel.cpp" />
-    <ClCompile Include="CCurve.cpp" />
+    <ClCompile Include="CInterpolation.cpp" />
     <ClCompile Include="CEngineBase.cpp" />
     <ClCompile Include="CGameBase.cpp" />
     <ClCompile Include="Components\CComponent.cpp" />
@@ -175,7 +175,7 @@
     <ClInclude Include="Assets\CAsset.h" />
     <ClInclude Include="Assets\CAssetManager.h" />
     <ClInclude Include="Assets\CAssetModel.h" />
-    <ClInclude Include="CCurve.h" />
+    <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="Components\CTransformComponent.h" />
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="GEContainers.h" />

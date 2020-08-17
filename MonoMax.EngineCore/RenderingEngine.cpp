@@ -392,18 +392,38 @@ namespace SMGE
 			return HasParent() == false;
 		}
 
-		void Transform::RecalcMatrix_Internal(const glm::mat4& parentMatrix)
+		void Transform::RecalcMatrix_Internal(const Transform* parent)
 		{
 			if (IsDirty())
 			{	// 나의 트랜스폼을 계산
-				transformMatrix_ = glm::translate(Mat4_Identity, translation_);
+				//if (parent)
+				//{	// 자식일 경우 - 부모의 트랜스폼 먼저 반영해야 의도대로 작동한다 / 이 코드에는 부모의 부모 것이 적용안되는 버그가 있다
+				//	//transformMatrix_ = glm::rotate(Mat4_Identity, glm::radians(parent->rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
+				//	//transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
+				//	//transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
+
+				//	transformMatrix_ = glm::translate(Mat4_Identity, parent->translation_);
+				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
+				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
+				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
+				//	transformMatrix_ = glm::scale(transformMatrix_, parent->scale_);
+				//}
+				//else
+				{
+					transformMatrix_ = Mat4_Identity;
+				}
+
+				transformMatrix_ = glm::translate(transformMatrix_, translation_);
 				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
 				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
 				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
 				transformMatrix_ = glm::scale(transformMatrix_, scale_);
 
-				// 나에게 부모 트랜스폼을 적용
-				transformMatrix_ = transformMatrix_ * parentMatrix;
+				if(parent)
+					transformMatrix_ = parent->transformMatrix_ * transformMatrix_;
+
+				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
+				//transformMatrix_ = transformMatrix_ * parentMatrix;
 
 				isDirty_ = false;
 			}
@@ -412,7 +432,7 @@ namespace SMGE
 			std::for_each(children_.begin(), children_.end(),
 				[&](auto child)
 				{
-					child->RecalcMatrix_Internal(this->transformMatrix_);
+					child->RecalcMatrix_Internal(this);
 				}
 			);
 		}
@@ -425,7 +445,7 @@ namespace SMGE
 			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회
 			
 			auto topParent = GetTopParent();
-			topParent->RecalcMatrix_Internal(Mat4_Identity);
+			topParent->RecalcMatrix_Internal(nullptr);
 		}
 
 		void RenderingModel::AddWorldModel(WorldModel* wm) const
@@ -924,10 +944,11 @@ namespace SMGE
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// 초기 카메라 처리
-			camera_.ComputeMatricesFromInputs(true, m_width, m_height);
 			float cameraInitialDist = 20;
-			camera_.SetCameraPos({ cameraInitialDist/2,cameraInitialDist,cameraInitialDist });
+			//camera_.SetCameraPos({ cameraInitialDist/2,cameraInitialDist,cameraInitialDist });
+			camera_.SetCameraPos({ 5,5,cameraInitialDist });
 			camera_.SetCameraLookAt({ 0,0,0 });
+			camera_.ComputeMatricesFromInputs(true, m_width, m_height);
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// 게임 처리

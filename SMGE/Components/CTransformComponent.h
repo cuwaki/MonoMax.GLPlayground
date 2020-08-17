@@ -3,7 +3,7 @@
 #include "../GECommonIncludes.h"
 #include "CComponent.h"
 #include "../../MonoMax.EngineCore/RenderingEngine.h"
-#include "../CCurve.h"
+#include "../CInterpolation.h"
 
 namespace SMGE
 {
@@ -31,6 +31,8 @@ namespace SMGE
 		class CActor* actorParent_;
 		nsRE::Transform* targetTransform_ = nullptr;
 
-		CCurve<glm::vec3> curveTranslation_;
+		CInterpolation<glm::vec3> interpTranslation_;
+		CInterpolation<glm::vec3> interpRotation_;
+		CInterpolation<glm::vec3> interpScale_;
 	};
 }

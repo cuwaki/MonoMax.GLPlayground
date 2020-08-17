@@ -2,6 +2,7 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
+#include "CMeshComponent.h"	// 테스트 코드
 
 namespace SMGE
 {
@@ -13,7 +14,7 @@ namespace SMGE
 
 	SGRefl_Transform::operator CWString() const
 	{
-		CWString ret = Super::operator SMGE::CWString();
+		CWString ret = Super::operator CWString();
 
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetTranslation());
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetRotation());
@@ -39,18 +40,56 @@ namespace SMGE
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc.sg_drawTransform_)
+	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc.sg_drawTransform_), outerDrawCompo_(rc)
 	{
 	}
 	//SGRefl_DrawComponent::SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
 	//{
 	//}
 
+	void SGRefl_DrawComponent::OnBeforeSerialize() const
+	{
+		Super::OnBeforeSerialize();
+
+		// { persistentComponentsREFL_ RTTI 필요 이슈
+		persistentComponentNumber_ = outerDrawCompo_.getPersistentComponents().size();
+	}
+
 	SGRefl_DrawComponent::operator CWString() const
 	{
-		auto ret = Super::operator CWString();
+		/* 여기 수정 - 여기 호출하면 
+				className_$CWString$"SMGE::SGRefl_Transform"
+					reflectionFilePath_$CWString$""
 
-		ret += static_cast<CWString>(sg_transform_);
+				이 아니라
+
+			className_$CWString$"SMGE::CMeshComponent"
+				reflectionFilePath_$CWString$""
+
+				로 나가서 뻑난다
+
+				이거 왜 이렇게 될ㄲㅏ?
+
+			여기 때문인 것 같은데?? $$43
+
+			지금 여기 말고도 아래처럼 자식 클래스를 CWString 으로 캐스팅하는 부분이 있는데 다른 클래스들에서도 문제가 생기고 있다 className_ 과 reflectionName_ 의 초기화를 점검해봐야겠다!!
+			단 실행에는 현재로써는 지장이 없는 상태기는 하다 20200817
+		*/
+		auto ret = Super::operator CWString();
+		
+		ret += SCast<CWString>(sg_transform_);
+
+		// 테스트 코드 ㅡ 쓰는 부분이다
+		ret += _TO_REFL(int32_t, persistentComponentNumber_);
+
+		auto& pcomps = outerDrawCompo_.getPersistentComponents();
+
+		assert(persistentComponentNumber_ == pcomps.size());
+
+		for (int i = 0; i < pcomps.size(); ++i)
+		{
+			ret += SCast<CWString>(pcomps[i]->getReflection());
+		}
 
 		return ret;
 	}
@@ -60,6 +99,18 @@ namespace SMGE
 		Super::operator=(variableSplitted);
 
 		sg_transform_ = variableSplitted;
+
+		// 테스트 코드 ㅡ 읽어들이는 부분이다
+		_FROM_REFL(persistentComponentNumber_, variableSplitted);
+		auto& pcomps = outerDrawCompo_.getPersistentComponents();
+
+		for (int i = 0; i < persistentComponentNumber_; ++i)
+		{
+			// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
+			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerDrawCompo_);	// 여기 때문인 것 같은데?? $$43 여기서 아우터로 outerDrawCompo_ 를 주면서 생기는 일인 듯...
+			meshComp.get()->getReflection() = variableSplitted;
+			pcomps.emplace_back(std::move(meshComp));
+		}
 
 		return *this;
 	}
@@ -85,8 +136,24 @@ namespace SMGE
 		return nullptr;
 	}
 
+	void CDrawComponent::Tick(float td)
+	{
+		Super::Tick(td);
+
+		for (auto& comp : getAllComponents())
+		{
+			comp->Tick(td);
+		}
+	}
+
 	void CDrawComponent::Render(float td)
 	{
+		for (auto& comp : getAllComponents())
+		{
+			auto mc = DCast<CDrawComponent*>(comp);
+			if (mc)
+				mc->Render(td);
+		}
 	}
 
 	void CDrawComponent::OnBeginPlay(CObject* parent)
@@ -97,27 +164,51 @@ namespace SMGE
 
 		ReadyToDrawing();
 
-		// 수정??? 현재로써는 액터만 연결이 가능하다
-		// 부모 액터로의 트랜스폼 연결
-		CActor* actorParent = static_cast<CActor*>(parent);
-		ChangeParent(&actorParent->getTransform());
+		nsRE::Transform* parentTransf = nullptr;
 
-		//this 의 트랜스폼은 부모 액터로부터의 상대 트랜스폼이다
-		//부모가 바뀌면 나도 바뀐다
-		//	내가 바뀔 때 자식들에게 영향을 미쳐야한다
-		//		이 영향의 계산이 즉시? 지연? 어떻게 되어야하나?
+		// 여기 수정 - 흠.... 이거 어떻게?
+		CActor* actorParent = DCast<CActor*>(parent);
+		if(actorParent)
+			parentTransf = &actorParent->getTransform();
+		else
+			parentTransf = DCast<nsRE::Transform*>(parent);
 
-		//트랜스폼이 더티되면 그려지기 전에 갱신된다
-		//	부모트랜스폼이 더티라면 나도 더티다
-		//
-		//자식이 그려지려면 부모가 그려져야한다
-		//	
-		//부모가 바뀌는 일이 생기기도 하므로 포인터로 해야한다 - 셰어드가 되어야겠네
+		ChangeParent(parentTransf);
+
+		for (auto& pc : getPersistentComponents())
+		{
+			registerComponent(pc.get());
+		}
+
+		for (auto& pc : getTransientComponents())
+		{
+			registerComponent(pc.get());
+		}
+
+		for (auto& comp : getAllComponents())
+		{
+			comp->OnBeginPlay(this);
+		}
 	}
 
 	void CDrawComponent::OnEndPlay()
 	{
 		CComponent::OnEndPlay();
+
+		for (auto& comp : getAllComponents())
+		{
+			comp->OnEndPlay();
+		}
+
+		for (auto& pc : getPersistentComponents())
+		{
+			unregisterComponent(pc.get());
+		}
+
+		for (auto& pc : getTransientComponents())
+		{
+			unregisterComponent(pc.get());
+		}
 	}
 
 

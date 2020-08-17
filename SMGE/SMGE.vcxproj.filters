@@ -86,11 +86,11 @@
     <ClInclude Include="CTimer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CCurve.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Components\CTransformComponent.h">
       <Filter>Components\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="CInterpolation.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -136,11 +136,11 @@
     <ClCompile Include="CTimer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CCurve.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Components\CTransformComponent.cpp">
       <Filter>Components\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="CInterpolation.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

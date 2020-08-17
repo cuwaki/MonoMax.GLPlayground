@@ -31,10 +31,15 @@ namespace SMGE
 
 		SGRefl_DrawComponent(TReflectionClass& rc);
 		//SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr);// { persistentComponentsREFL_ RTTI 필요 이슈
+
+		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
 		SGRefl_Transform& sg_transform_;
+		mutable int32_t persistentComponentNumber_ = 0;
+
+		TReflectionClass& outerDrawCompo_;
 	};
 
 	// 자식 컴포넌트를 가질 수 있어야하므로 CInt_Component 상속
@@ -49,6 +54,7 @@ namespace SMGE
 	public:
 		CDrawComponent(CObject* outer);
 
+		virtual void Tick(float td) override;
 		virtual void Render(float td);
 
 		virtual void OnBeginPlay(class CObject* parent) override;

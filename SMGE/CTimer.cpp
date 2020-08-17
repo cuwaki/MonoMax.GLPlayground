@@ -20,13 +20,13 @@ namespace SMGE
 		if (isStarted_ == false)
 			return 0;
 
-		return static_cast<TimeT>((clockMS() - startedMS_) * ratio_);
+		return SCast<TimeT>((clockMS() - startedMS_) * ratio_);
 	}
 
 	TimeT CTimer::clockMS() const	// ms
 	{
 		auto c = clock() / ((float)CLOCKS_PER_SEC);
-		return static_cast<TimeT>(c * 1000.f);	// to MS
+		return SCast<TimeT>(c * 1000.f);	// to MS
 	}
 
 	void CTimer::setRatio(float ratio)

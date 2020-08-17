@@ -56,13 +56,13 @@ namespace SMGE
     }
 
     template<typename T, typename U>
-    inline T SCast(U u)
+    inline T SCast(const U& u)
     {
         return static_cast<T>(u);
     }
 
     template<typename T, typename U>
-    inline T DCast(U u)
+    inline T DCast(const U& u)
     {
         return dynamic_cast<T>(u);
     }

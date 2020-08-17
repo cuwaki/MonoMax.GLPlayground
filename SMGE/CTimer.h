@@ -5,20 +5,9 @@
 
 namespace SMGE
 {
-	using TimeT = std::clock_t;	// long - MS 단위이며, 최대치는 대략 35000분, 583시간, 24일
-
-    //선행
-    //    타이머
-    //    게임 타이머 == 현실 타이머
-    //    월드 타이머
-    //    액터 타이머
-    //    컴포넌트 타이머
-    //    기능
-    //    시작 / 끝 / 리셋
-    //    증가율
-    //    is리버서블 ?
-    //    repeat ?
-    //    알람
+	using TimeT = float;	// std::clock_t 는 long 이고 MS 단위이며, 최대치는 대략 35000분, 583시간, 24일
+    using DurationT = float;
+    using DurationRatioT = DurationT;   // 0.f ~ 1.f
 
     enum class ETimerCategory : unsigned char
     {

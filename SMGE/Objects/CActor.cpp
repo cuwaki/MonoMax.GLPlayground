@@ -34,18 +34,35 @@ namespace SMGE
 		// persistentComponents_ 처리 필요
 	}
 
+	void SGRefl_Actor::OnBeforeSerialize() const
+	{
+		Super::OnBeforeSerialize();
+
+		// { persistentComponentsREFL_ RTTI 필요 이슈
+		persistentComponentNumber_ = outerActor_.getPersistentComponents().size();
+	}
+
 	SGRefl_Actor::operator CWString() const
 	{
 		CWString ret = Super::operator CWString();
 
 		ret += _TO_REFL(TActorKey, actorKey_);
-		ret += static_cast<CWString>(sg_actorTransform_);
+		ret += SCast<CWString>(sg_actorTransform_);
 		ret += _TO_REFL(CString, actorStaticTag_);
 		// { persistentComponentsREFL_ RTTI 필요 이슈
 		//ret += ReflectionUtils::ToCVector(persistentComponentsREFL_, L"CVector<SGRefl_Component>", L"persistentComponentsREFL_", std::optional<size_t>{});
-		
+
+		// 테스트 코드 ㅡ 쓰는 부분이다 - CActor::Ctor 에서 결정되어있다
+		ret += _TO_REFL(int32_t, persistentComponentNumber_);
+
 		auto& pcomps = outerActor_.getPersistentComponents();
-		ret += static_cast<CWString>(pcomps[0]->getReflection());
+
+		assert(persistentComponentNumber_ == pcomps.size());
+
+		for (int i = 0; i < pcomps.size(); ++i)
+		{
+			ret += SCast<CWString>(pcomps[i]->getReflection());
+		}
 
 		return ret;
 	}
@@ -88,8 +105,21 @@ namespace SMGE
 			//linkINST2REFL();
 		// }
 
+		// 테스트 코드 ㅡ 읽어들이는 부분이다 - 여기서 기존에 몇개가 있었는지는 CActor::Ctor 에서 결정되어있다
+		_FROM_REFL(persistentComponentNumber_, variableSplitted);
 		auto& pcomps = outerActor_.getPersistentComponents();
-		pcomps[0]->getReflection() = variableSplitted;
+
+		// 이게 없어야하는게 애셋에서는 1개지만 클래스에서는 2개일 수 있다 - 애셋에 저장할 당시에는 1개였지만 소스를 고쳐서 2개로 만든 경우, 아직 애셋이 새로 저장되지 않았을 때 이렇게 될 수 있다
+		//assert(persistentComponentNumber_ == pcomps.size());
+		pcomps.clear();
+
+		for (int i = 0; i < persistentComponentNumber_; ++i)
+		{
+			// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
+			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
+			meshComp.get()->getReflection() = variableSplitted;
+			pcomps.emplace_back(std::move(meshComp));
+		}
 
 		return *this;
 	}
@@ -163,18 +193,17 @@ namespace SMGE
 
 		// 메인 드로
 		auto mainDrawCompo = MakeUniqPtr<CMeshComponent>(this);
-		mainDrawCompo_ = SCast<CMeshComponent*>(mainDrawCompo.get());
 		getPersistentComponents().emplace_back(std::move(mainDrawCompo));
+
+		// 테스트 코드 - 액터의 여러 자식 드로 콤포넌트 테스트용
+		//auto subDrawCompo = MakeUniqPtr<CMeshComponent>(this);
+		////auto subDrawCompo_ = SCast<CMeshComponent*>(subDrawCompo.get());
+		//getPersistentComponents().emplace_back(std::move(subDrawCompo));
 
 		// 트랜스폼
 		auto transfCompo = MakeUniqPtr<CTransformComponent>(this);
 		movementCompo_ = SCast<CTransformComponent*>(transfCompo.get());
-		getPersistentComponents().emplace_back(std::move(transfCompo));
-
-		for (auto& pc : getPersistentComponents())
-		{
-			registerComponent(pc.get());
-		}
+		getTransientComponents().emplace_back(std::move(transfCompo));
 	}
 
 	void CActor::Dtor()
@@ -183,7 +212,6 @@ namespace SMGE
 		getTransientComponents().clear();
 		allComponents_.clear();
 
-		mainDrawCompo_ = nullptr;
 		movementCompo_ = nullptr;
 
 		Super::Dtor();
@@ -191,15 +219,20 @@ namespace SMGE
 
 	void CActor::Tick(float timeDelta)
 	{
-		//for(auto& comp : getAllComponents())	Tickable 만 골라서 돌려야한다
-		mainDrawCompo_->Tick(timeDelta);
-		movementCompo_->Tick(timeDelta);
+		for (auto& comp : getAllComponents())
+		{
+			comp->Tick(timeDelta);
+		}
 	}
 
 	void CActor::Render(float timeDelta)
 	{
-		//for(auto& comp : getAllComponents())	Renderable 만 골라서 돌려야한다
-		mainDrawCompo_->Render(timeDelta);
+		for (auto& comp : getAllComponents())
+		{
+			auto mc = DCast<CDrawComponent*>(comp);
+			if(mc)
+				mc->Render(timeDelta);
+		}
 	}
 
 	void CActor::OnAfterSpawned(CMap* map, bool isDynamic)
@@ -212,6 +245,16 @@ namespace SMGE
 
 	void CActor::BeginPlay()
 	{
+		for (auto& pc : getPersistentComponents())
+		{
+			registerComponent(pc.get());
+		}
+
+		for (auto& pc : getTransientComponents())
+		{
+			registerComponent(pc.get());
+		}
+
 		timer_.start();
 
 		for (auto& comp : getAllComponents())
@@ -225,6 +268,16 @@ namespace SMGE
 		for (auto& comp : getAllComponents())
 		{
 			comp->OnEndPlay();
+		}
+
+		for (auto& pc : getPersistentComponents())
+		{
+			unregisterComponent(pc.get());
+		}
+
+		for (auto& pc : getTransientComponents())
+		{
+			unregisterComponent(pc.get());
 		}
 	}
 

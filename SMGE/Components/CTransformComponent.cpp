@@ -18,24 +18,39 @@ namespace SMGE
 		return *reflTransformCompo_.get();
 	}
 
-	static glm::vec3 moveTo(10, -10, 0);
+	static glm::vec3 moveTo(5, 0, 0), moveFrom;
+	static glm::vec3 rotateTo(0, 0, 45), rotateFrom;
+	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
+	static float TestInterpolationTime = 2000;
 
 	void CTransformComponent::OnBeginPlay(class CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
 
-		actorParent_ = static_cast<CActor*>(parent);
+		// 여기 수정 - 현재는 액터만 가능!! 콤포넌트에도 붙일 수 있게해야한다?? 아니면 오브젝트 말고 트랜스폼을 연결시키자? 이게 맞는듯!
+		actorParent_ = SCast<CActor*>(parent);
 
 		targetTransform_ = &actorParent_->getTransform();
-		curveTranslation_.setTimer(&actorParent_->getActorTimer());
+
+		interpTranslation_.setTimer(&actorParent_->getActorTimer());
+		interpRotation_.setTimer(&actorParent_->getActorTimer());
+		interpScale_.setTimer(&actorParent_->getActorTimer());
 
 		setActive(true);
 
-		if (actorParent_->getActorStaticTag() == "this is a monkey")
+		if (actorParent_->getActorStaticTag() == "this is a plane")
 		{	// 테스트 코드
-			auto loc = actorParent_->getLocation();
-			curveTranslation_.setCurveType(ECurveType::Quad);
-			curveTranslation_.start(loc, loc + moveTo, 500);
+			moveFrom = actorParent_->getLocation();
+			interpTranslation_.setCurveType(ECurveType::Quad_Out);
+			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
+
+			rotateFrom = actorParent_->getRotation();
+			interpRotation_.setCurveType(ECurveType::Cos);
+			interpRotation_.start(rotateFrom, rotateFrom + rotateTo, TestInterpolationTime);
+
+			scaleFrom = actorParent_->getScale();
+			interpScale_.setCurveType(ECurveType::Sin);
+			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 		}
 	}
 
@@ -51,19 +66,39 @@ namespace SMGE
 
 		if (isActive())
 		{
-			if (actorParent_->getActorStaticTag() == "this is a monkey")
-			{	// 테스트 코드
-				if (curveTranslation_.isRunning())
+			// 테스트 코드
+			if (actorParent_->getActorStaticTag() == "this is a plane")
+			{
+				// Translate
+				if (interpTranslation_.isRunning())
 				{
-					targetTransform_->Translate(curveTranslation_.current());
+					targetTransform_->Translate(interpTranslation_.current());
 				}
 				else
 				{
 					moveTo *= -1.f;
-
-					auto loc = actorParent_->getLocation();
-					curveTranslation_.start(loc, loc + moveTo, 500);
+					interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
 				}
+
+				//// Rotate
+				//if (interpRotation_.isRunning())
+				//{
+				//	targetTransform_->Rotate(interpRotation_.current());
+				//}
+				//else
+				//{
+				//	interpRotation_.start(rotateFrom, rotateFrom + rotateTo, TestInterpolationTime);
+				//}
+
+				//// Scale
+				//if (interpScale_.isRunning())
+				//{
+				//	targetTransform_->Scale(interpScale_.current());
+				//}
+				//else
+				//{
+				//	interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+				//}
 			}
 		}
 	}
