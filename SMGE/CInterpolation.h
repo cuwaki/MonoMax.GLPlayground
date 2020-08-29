@@ -7,7 +7,8 @@ namespace SMGE
 {
     enum class ECurveType : unsigned char
     {
-        Linear = 0, // 1차
+        Constant = 0,   // 상수
+        Linear, // 1차
         Quad_In,   // 2차
         Quad_Out,
         Quad_InOut,
@@ -24,6 +25,12 @@ namespace SMGE
 
     // 이하의 커브 함수들에 들어가는 x 는 0.f ~ 1.f 로 정규화된 값이다
     // https://www.gizma.com/easing/#cub1 - 여기 있는 것들을 옮겨나가자
+
+    template<typename T>
+    inline T FCurveConstant(const T& sv, const T& ev, DurationRatioT x)
+    {
+        return ev;
+    }
 
     template<typename T>
     inline T FCurveLinear(const T& sv, const T& ev, DurationRatioT x)
@@ -112,6 +119,7 @@ namespace SMGE
 
             switch (type_)
             {
+            case ECurveType::Constant: ret = FCurveConstant(startValue_, endValue_, cur);   break;
             case ECurveType::Linear: ret = FCurveLinear(startValue_, endValue_, cur);   break;
             case ECurveType::Quad_In: ret = FCurveQuadEaseIn(startValue_, endValue_, cur);   break;
             case ECurveType::Quad_Out: ret = FCurveQuadEaseOut(startValue_, endValue_, cur);   break;

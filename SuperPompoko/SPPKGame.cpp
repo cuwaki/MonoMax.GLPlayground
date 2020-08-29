@@ -6,7 +6,7 @@
 // 테스트 코드
 #include "CEngineBase.h"
 #include "Objects/CMap.h"
-#include "Assets/CAssetModel.h"
+#include "Assets/CResourceModel.h"
 
 namespace SMGE
 {
@@ -105,8 +105,8 @@ namespace SMGE
 		//CAssetManager::SaveAsset(assetRoot + wtext("/map/testMapTemplate.asset"), mapAsset);
 
 		/* 애셋모델 저장하기 - 모델데이터 애셋 세이브, 로드하기
-		CAssetModel modelData(nullptr);
-		CAsset<CAssetModel> modelDataAsset(&modelData);
+		CResourceModel modelData(nullptr);
+		CAsset<CResourceModel> modelDataAsset(&modelData);
 
 		modelData.vertShaderPath_ = wtext("");
 		modelData.fragShaderPath_ = wtext("suzanne.frag");
@@ -173,7 +173,7 @@ namespace SMGE
 		modelData.vertexColors_ = cubeVertexColors;
 
 		CAssetManager::SaveAsset(assetRoot + wtext("/models/cube/cube.asset"), modelDataAsset);
-		CSharPtr<CAsset<CAssetModel>> amA = CAssetManager::LoadAsset<CAssetModel>(assetRoot + wtext("/models/cube/cube.asset"));
+		CSharPtr<CAsset<CResourceModel>> amA = CAssetManager::LoadAsset<CResourceModel>(assetRoot + wtext("/models/cube/cube.asset"));
 		애셋모델 저장하기 */
 
 	//	// 맵 로드하고 액터들 다시 복구하기

@@ -23,7 +23,7 @@ namespace SMGE
 		//{
 		//	pathes[wtext("SMGE::CActor")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/templates/CActor.asset"));
 		//	pathes[wtext("SMGE::CMap")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/templates/CMap.asset"));
-		//	pathes[wtext("SMGE::CAssetModel")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/templates/CAssetModel.asset"));
+		//	pathes[wtext("SMGE::CResourceModel")] = Path::GetNormalizedPath(pathAssetRoot + wtext("/templates/CResourceModel.asset"));
 		//}
 
 		//return pathes[className];

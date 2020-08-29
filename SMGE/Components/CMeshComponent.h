@@ -2,7 +2,7 @@
 
 #include "../GECommonIncludes.h"
 #include "CDrawComponent.h"
-#include "../Assets/CAssetModel.h"
+#include "../Assets/CResourceModel.h"
 
 namespace SMGE
 {
@@ -35,6 +35,8 @@ namespace SMGE
 		CMeshComponent(CObject* outer, const CWString& modelAssetPath);
 		~CMeshComponent();
 
+		void Ctor();
+
 		virtual void ReadyToDrawing() override;
 
 		void SetDrawingModelAsset(const CWString& modelAssetPath);
@@ -47,6 +49,6 @@ namespace SMGE
 		CWString drawingModelAssetPath_;
 
 	protected:
-		CSharPtr<CAsset<CAssetModel>> drawingModelAsset_;
+		CSharPtr<CAsset<CResourceModel>> drawingModelAsset_;
 	};
 };

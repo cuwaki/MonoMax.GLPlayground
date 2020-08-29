@@ -1,7 +1,8 @@
 #include "CActor.h"
 #include "CMap.h"
 #include "../Components/CMeshComponent.h"
-#include "../Components/CTransformComponent.h"
+#include "../Components/CMovementComponent.h"
+#include "../Components/CSphereComponent.h"
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"
 
@@ -200,10 +201,15 @@ namespace SMGE
 		////auto subDrawCompo_ = SCast<CMeshComponent*>(subDrawCompo.get());
 		//getPersistentComponents().emplace_back(std::move(subDrawCompo));
 
-		// 트랜스폼
-		auto transfCompo = MakeUniqPtr<CTransformComponent>(this);
-		movementCompo_ = SCast<CTransformComponent*>(transfCompo.get());
+		// 무브먼트
+		auto transfCompo = MakeUniqPtr<CMovementComponent>(this);
+		movementCompo_ = SCast<CMovementComponent*>(transfCompo.get());
 		getTransientComponents().emplace_back(std::move(transfCompo));
+
+		// 바운드
+		auto sphereCompo = MakeUniqPtr<CSphereComponent>(this);
+		mainBoundCompo_ = SCast<CSphereComponent*>(sphereCompo.get());
+		getTransientComponents().emplace_back(std::move(sphereCompo));
 	}
 
 	void CActor::Dtor()
@@ -213,6 +219,7 @@ namespace SMGE
 		allComponents_.clear();
 
 		movementCompo_ = nullptr;
+		mainBoundCompo_ = nullptr;
 
 		Super::Dtor();
 	}

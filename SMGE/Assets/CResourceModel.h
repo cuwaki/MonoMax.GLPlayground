@@ -7,14 +7,14 @@
 
 namespace SMGE
 {
-	class CAssetModel;
+	class CResourceModel;
 
-	struct SGRefl_AssetModel : public SGReflection
+	struct SGRefl_ResourceModel : public SGReflection
 	{
 		using Super = SGReflection;
-		using ReflectionTarget = CAssetModel;
+		using ReflectionTarget = CResourceModel;
 
-		SGRefl_AssetModel(CAssetModel& md);
+		SGRefl_ResourceModel(CResourceModel& md);
 
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
@@ -30,13 +30,13 @@ namespace SMGE
 		CVector<glm::vec3>& vertexColors_;
 	};
 
-	class CAssetModel : virtual public nsRE::AssetModel, public CInt_Reflection
+	class CResourceModel : virtual public nsRE::ResourceModel, public CInt_Reflection
 	{
 	public:
-		using TReflectionStruct = SGRefl_AssetModel;
+		using TReflectionStruct = SGRefl_ResourceModel;
 		friend struct TReflectionStruct;
 
-		CAssetModel(void *outer);
+		CResourceModel(void *outer);
 
 	public:
 		virtual const CWString& getClassName() override { return className_; }

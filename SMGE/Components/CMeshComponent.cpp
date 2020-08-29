@@ -36,6 +36,8 @@ namespace SMGE
 	CMeshComponent::CMeshComponent(CObject* outer) : CDrawComponent(outer)
 	{
 		className_ = wtext("SMGE::CMeshComponent");
+
+		Ctor();
 	}
 
 	CMeshComponent::CMeshComponent(CObject* outer, const CWString& modelAssetPath) : CMeshComponent(outer)
@@ -43,12 +45,20 @@ namespace SMGE
 		drawingModelAssetPath_ = modelAssetPath;
 	}
 
+	void CMeshComponent::Ctor()
+	{
+		isGameVisible_ = true;
+#if IS_EDITOR
+		isEditorVisible_ = true;
+#endif
+	}
+
 	CMeshComponent::~CMeshComponent()
 	{
 		if (drawingModelAsset_ != nullptr)
-		{	// 여기 수정 - 이거 CAssetModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+		{	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
 			auto smgeMA = drawingModelAsset_->getContentClass();
-			GetRenderingEngine()->RemoveAssetModel(smgeMA);
+			GetRenderingEngine()->RemoveResourceModel(smgeMA);
 		}
 	}
 
@@ -64,14 +74,14 @@ namespace SMGE
 
 		// 모델 애셋 로드
 		auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
-		drawingModelAsset_ = CAssetManager::LoadAsset<CAssetModel>(rootAssetPath + drawingModelAssetPath_);
+		drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(rootAssetPath + drawingModelAssetPath_);
 		auto smgeMA = drawingModelAsset_->getContentClass();
 
-		// 여기 수정 - 이거 CAssetModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddAssetModel(drawingModelAssetPath_, smgeMA);
+		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+		GetRenderingEngine()->AddResourceModel(drawingModelAssetPath_, smgeMA);
 
-		const nsRE::RenderingModel& rm = smgeMA->GetRenderingModel();
-		rm.AddWorldModel(this);
+		const nsRE::RenderModel& rm = smgeMA->GetRenderingModel();
+		rm.AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}

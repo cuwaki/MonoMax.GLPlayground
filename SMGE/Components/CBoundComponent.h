@@ -5,39 +5,30 @@
 
 namespace SMGE
 {
-	//class CBoundComponent;
+	class CBoundComponent;
 
-	//struct SGRefl_BoundComponent : public SGRefl_Component
-	//{
-	//	using Super = SGRefl_Component;
-	//	using TReflectionClass = CBoundComponent;
+	class CBoundComponent : public CDrawComponent
+	{
+	public:
+		using Super = CDrawComponent;
+		using TReflectionStruct = typename Super::TReflectionStruct;
 
-	//	SGRefl_BoundComponent(TReflectionClass& rc);
-	//	//SGRefl_BoundComponent(const CUniqPtr<CBoundComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
+		friend struct TReflectionStruct;
 
-	//	virtual void OnBeforeSerialize() const override;
-	//	virtual operator CWString() const override;
-	//	virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+	public:
+		CBoundComponent(CObject* outer);
 
-	//	SGRefl_Transform& sg_transform_;
+		virtual void OnBeginPlay(class CObject* parent) override;
+		virtual void OnEndPlay() override;
 
-	//	TReflectionClass& outerBoundCompo_;
-	//};
+		void Ctor();
 
-	//class CBoundComponent : public CDrawComponent, public nsRE::WorldModel
-	//{
-	//public:
-	//	using Super = CDrawComponent;
-	//	using TReflectionStruct = SGRefl_BoundComponent;
+	public:
+		virtual bool IsPickingTarget() const { return isPickingTarget_; }
+		virtual bool IsCollideTarget() const { return isCollideTarget_; }
 
-	//	friend struct TReflectionStruct;
-
-	//public:
-	//	CBoundComponent(CObject* outer);
-
-	//	virtual void OnBeginPlay(class CObject* parent) override;
-	//	virtual void OnEndPlay() override;
-
-	//protected:
-	//};
+	protected:
+		bool isPickingTarget_;
+		bool isCollideTarget_;
+	};
 };

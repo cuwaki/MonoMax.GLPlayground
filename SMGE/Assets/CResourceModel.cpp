@@ -1,8 +1,8 @@
-#include "CAssetModel.h"
+#include "CResourceModel.h"
 
 namespace SMGE
 {
-	SGRefl_AssetModel::SGRefl_AssetModel(CAssetModel& md) : SGReflection(md),
+	SGRefl_ResourceModel::SGRefl_ResourceModel(CResourceModel& md) : SGReflection(md),
 		vertShaderPath_(md.vertShaderPath_),
 		fragShaderPath_(md.fragShaderPath_),
 		objFilePath_(md.objFilePath_),
@@ -14,7 +14,7 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_AssetModel::operator CWString() const
+	SGRefl_ResourceModel::operator CWString() const
 	{
 		CWString ret = Super::operator CWString();
 
@@ -31,7 +31,7 @@ namespace SMGE
 		return ret;
 	}
 
-	SGReflection& SGRefl_AssetModel::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_ResourceModel::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
 	{
 		Super::operator=(variableSplitted);
 
@@ -52,21 +52,21 @@ namespace SMGE
 		return *this;
 	}
 
-	CAssetModel::CAssetModel(void* outer) : nsRE::AssetModel()
+	CResourceModel::CResourceModel(void* outer) : nsRE::ResourceModel()
 	{
-		className_ = wtext("SMGE::CAssetModel");
+		className_ = wtext("SMGE::CResourceModel");
 	}
 
-	SGReflection& CAssetModel::getReflection()
+	SGReflection& CResourceModel::getReflection()
 	{
 		if (reflData_.get() == nullptr)
 			reflData_ = MakeUniqPtr<TReflectionStruct>(*this);
 		return *reflData_.get();
 	}
 
-	void CAssetModel::OnAfterDeserialized()
+	void CResourceModel::OnAfterDeserialized()
 	{
-		this->AssetModel::AssetModel(textureFilePath_, vertShaderPath_, fragShaderPath_, objFilePath_);
+		this->ResourceModel::ResourceModel(textureFilePath_, vertShaderPath_, fragShaderPath_, objFilePath_);
 
 		if (objFilePath_.length() == 0 && vertices_.size() > 0)
 		{	// obj파일이 아닌 직접 지정 방식이다

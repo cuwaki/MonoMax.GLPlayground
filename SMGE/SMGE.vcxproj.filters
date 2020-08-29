@@ -74,9 +74,6 @@
     <ClInclude Include="Objects\CMap.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Assets\CAssetModel.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Components\CDrawComponent.h">
       <Filter>Components\Draw</Filter>
     </ClInclude>
@@ -89,14 +86,20 @@
     <ClInclude Include="CTimer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CTransformComponent.h">
-      <Filter>Components\Transform</Filter>
-    </ClInclude>
     <ClInclude Include="CInterpolation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Components\CBoundComponent.h">
       <Filter>Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CSphereComponent.h">
+      <Filter>Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CMovementComponent.h">
+      <Filter>Components\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Assets\CResourceModel.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -127,9 +130,6 @@
     <ClCompile Include="Objects\CMap.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Assets\CAssetModel.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Components\CDrawComponent.cpp">
       <Filter>Components\Draw</Filter>
     </ClCompile>
@@ -142,14 +142,20 @@
     <ClCompile Include="CTimer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CTransformComponent.cpp">
-      <Filter>Components\Transform</Filter>
-    </ClCompile>
     <ClCompile Include="CInterpolation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Components\CBoundComponent.cpp">
       <Filter>Components\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CSphereComponent.cpp">
+      <Filter>Components\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CMovementComponent.cpp">
+      <Filter>Components\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Assets\CResourceModel.cpp">
+      <Filter>Rendering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

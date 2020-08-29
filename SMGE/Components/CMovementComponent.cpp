@@ -1,4 +1,4 @@
-#include "CTransformComponent.h"
+#include "CMovementComponent.h"
 #include "../Objects/CActor.h"
 
 // 테스트 코드
@@ -6,12 +6,12 @@
 
 namespace SMGE
 {
-	CTransformComponent::CTransformComponent(CObject* outer) : CComponent(outer)
+	CMovementComponent::CMovementComponent(CObject* outer) : CComponent(outer)
 	{
-		className_ = wtext("SMGE::CTransformComponent");
+		className_ = wtext("SMGE::CMovementComponent");
 	}
 
-	SGReflection& CTransformComponent::getReflection()
+	SGReflection& CMovementComponent::getReflection()
 	{
 		if (reflTransformCompo_.get() == nullptr)
 			reflTransformCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
@@ -23,7 +23,7 @@ namespace SMGE
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
 	static float TestInterpolationTime = 2000;
 
-	void CTransformComponent::OnBeginPlay(class CObject* parent)
+	void CMovementComponent::OnBeginPlay(class CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
 
@@ -54,13 +54,13 @@ namespace SMGE
 		}
 	}
 
-	void CTransformComponent::OnEndPlay()
+	void CMovementComponent::OnEndPlay()
 	{
 		Super::OnEndPlay();
 
 	}
 
-	void CTransformComponent::Tick(float td)
+	void CMovementComponent::Tick(float td)
 	{
 		Super::Tick(td);
 

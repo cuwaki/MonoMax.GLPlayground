@@ -113,33 +113,6 @@ namespace SMGE
 			MeshOBJ& operator=(MeshOBJ&& c) noexcept;
 		};
 
-		class AssetModel
-		{
-		protected:
-			class RenderingModel* renderingModel_ = nullptr;
-			
-			TextureDDS texture_;
-			VertFragShaderSet vfShaderSet_;
-			MeshOBJ mesh_;
-
-			friend class RenderingModel;
-
-		public:
-			AssetModel() {}
-			AssetModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath);
-			virtual ~AssetModel() { Destroy(); }
-			void Destroy();
-			void Invalidate();
-
-			void ReadyToRender();
-			class RenderingModel& GetRenderingModel() const;
-
-			AssetModel(const AssetModel& c) = delete;
-			AssetModel& operator=(const AssetModel& c) = delete;
-			AssetModel(AssetModel&& c);
-			AssetModel& operator=(AssetModel&& c);
-		};
-
 		class Transform
 		{
 		private:
@@ -188,28 +161,63 @@ namespace SMGE
 			void RecalcMatrix_Internal(const Transform* parent);
 		};
 
-		class WorldModel : public Transform
+		class WorldObject : public Transform
 		{
 		protected:
-			const class RenderingModel* renderingModel_;
+			const class RenderModel* renderModel_;
 
-			friend class RenderingModel;
+			friend class RenderModel;
 
 		public:
-			WorldModel(const class RenderingModel* rm);
-			virtual ~WorldModel();
+			WorldObject(const class RenderModel* rm);
+			virtual ~WorldObject();
 
-			WorldModel(const WorldModel& c);
-			WorldModel& operator=(const WorldModel& c) = delete;
-			WorldModel(WorldModel&& c) noexcept;
-			WorldModel& operator=(WorldModel&& c) noexcept = delete;
+			WorldObject(const WorldObject& c);
+			WorldObject& operator=(const WorldObject& c) = delete;
+			WorldObject(WorldObject&& c) noexcept;
+			WorldObject& operator=(WorldObject&& c) noexcept = delete;
+
+			void SetVisible(bool isv) { isVisible_ = isv; }
+			bool IsVisible() const { return isVisible_; }
+
+		protected:
+			bool isVisible_ = true;
 		};
 
-		class RenderingModel
+		// ResourceModel은 GLContext 종속이 아니라서 여러 GLContext에서 공용으로 쓸 수 있다.
+		class ResourceModel
+		{
+		protected:
+			class RenderModel* renderModel_ = nullptr;
+
+			TextureDDS texture_;
+			VertFragShaderSet vfShaderSet_;
+			MeshOBJ mesh_;
+
+			friend class RenderModel;
+
+		public:
+			ResourceModel() {}
+			ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath);
+			virtual ~ResourceModel() { Destroy(); }
+			void Destroy();
+			void Invalidate();
+
+			void ReadyToRender();
+			class RenderModel& GetRenderingModel() const;
+
+			ResourceModel(const ResourceModel& c) = delete;
+			ResourceModel& operator=(const ResourceModel& c) = delete;
+			ResourceModel(ResourceModel&& c);
+			ResourceModel& operator=(ResourceModel&& c);
+		};
+
+		// RenderModel은 OPENGL CONTEXT 종속이다
+		class RenderModel
 		{
 		public:
 			// static datas
-			const AssetModel& asset_;
+			const ResourceModel& asset_;
 
 			// rendering datas
 			GLsizei verticesSize_ = 0;
@@ -226,23 +234,23 @@ namespace SMGE
 			GLuint usingTextureSampleI_ = 0;
 			GLuint vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
 
-#pragma region WorldModel
-			mutable std::vector<WorldModel*> ptrWorldModels_;
-			void AddWorldModel(WorldModel* wm) const;
-			void RemoveWorldModel(WorldModel* wm) const;
-			const std::vector<WorldModel*>& WorldModels() const;
+#pragma region WorldObject
+			mutable std::vector<WorldObject*> ptrWorldObjects_;
+			void AddWorldObject(WorldObject* wm) const;
+			void RemoveWorldObject(WorldObject* wm) const;
+			const std::vector<WorldObject*>& WorldObjects() const;
 #pragma endregion
 
-			virtual ~RenderingModel();
+			virtual ~RenderModel();
 			void Destroy();
 			void Invalidate();
 
-			RenderingModel(const AssetModel& asset, GLuint texSamp);
+			RenderModel(const ResourceModel& asset, GLuint texSamp);
 
-			RenderingModel(const RenderingModel& c) = delete;
-			RenderingModel& operator=(const RenderingModel& c) = delete;
-			RenderingModel(RenderingModel&& c) noexcept;
-			RenderingModel& operator=(RenderingModel&& c) = delete;	// asset_ 때문에 구현 불가
+			RenderModel(const RenderModel& c) = delete;
+			RenderModel& operator=(const RenderModel& c) = delete;
+			RenderModel(RenderModel&& c) noexcept;
+			RenderModel& operator=(RenderModel&& c) = delete;	// asset_ 때문에 구현 불가
 
 			GLuint GetUsingProgram();
 			bool GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
@@ -339,10 +347,10 @@ namespace SMGE
 			CCamera camera_;
 
 			// 테스트 코드
-			CHashMap<CWString, AssetModel*> assetModels_;
-			//CVector<WorldModel> worldModels_;
+			CHashMap<CWString, ResourceModel*> assetModels_;
+			//CVector<WorldObject> WorldObjects_;
 			// deprecated
-			//CVector<OldModelWorld*> m_oldWorldModelList;
+			//CVector<OldModelWorld*> m_oldWorldObjectList;
 
 			void initWindow();
 
@@ -363,9 +371,9 @@ namespace SMGE
 			void Tick();
 			void Render(char* imgBuffer);
 
-			bool AddAssetModel(const CWString& key, AssetModel* am);
-			bool RemoveAssetModel(AssetModel* am);
-			AssetModel* GetAssetModel(const CWString& key);
+			bool AddResourceModel(const CWString& key, ResourceModel* am);
+			bool RemoveResourceModel(ResourceModel* am);
+			ResourceModel* GetResourceModel(const CWString& key);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 		};

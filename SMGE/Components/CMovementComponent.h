@@ -7,7 +7,7 @@
 
 namespace SMGE
 {
-	class CTransformComponent : public CComponent
+	class CMovementComponent : public CComponent
 	{
 	public:
 		using Super = CComponent;
@@ -16,7 +16,7 @@ namespace SMGE
 		friend struct TReflectionStruct;
 
 	public:
-		CTransformComponent(CObject* outer);
+		CMovementComponent(CObject* outer);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;

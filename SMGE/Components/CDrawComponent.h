@@ -43,7 +43,7 @@ namespace SMGE
 	};
 
 	// 자식 컴포넌트를 가질 수 있어야하므로 CInt_Component 상속
-	class CDrawComponent : public CComponent, public nsRE::WorldModel, public CInt_Component
+	class CDrawComponent : public CComponent, public nsRE::WorldObject, public CInt_Component
 	{
 	public:
 		using Super = CComponent;
@@ -53,6 +53,8 @@ namespace SMGE
 
 	public:
 		CDrawComponent(CObject* outer);
+
+		void Ctor();
 
 		virtual void Tick(float td) override;
 		virtual void Render(float td);
@@ -74,5 +76,10 @@ namespace SMGE
 		ComponentVector persistentComponents_;
 		ComponentVector transientComponents_;
 		ComponentVectorWeak allComponents_;
+
+		bool isGameVisible_;
+#if IS_EDITOR
+		bool isEditorVisible_;
+#endif
 	};
 };

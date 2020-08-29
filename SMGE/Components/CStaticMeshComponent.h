@@ -2,7 +2,7 @@
 
 #include "../GECommonIncludes.h"
 #include "CMeshComponent.h"
-#include "../Assets/CAssetModel.h"
+#include "../Assets/CResourceModel.h"
 
 namespace SMGE
 {

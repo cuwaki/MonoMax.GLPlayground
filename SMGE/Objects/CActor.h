@@ -106,7 +106,8 @@ namespace SMGE
 		CString actorTag_;
 
 		// 여기 생각 - mainDrawCompo 는 persistcomp 라서 애셋으로부터 동적으로 생성될 수 있어서 멤버 포인터를 적용할 수가 없었다, 하지만 무브먼트콤포는??? 생각해볼 것, 지금은 트랜젼트임
-		class CTransformComponent* movementCompo_;
+		class CMovementComponent* movementCompo_;
+		class CSphereComponent* mainBoundCompo_;
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflActor_;

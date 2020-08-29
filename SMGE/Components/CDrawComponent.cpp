@@ -116,9 +116,19 @@ namespace SMGE
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldModel(nullptr)
+	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldObject(nullptr)
 	{
 		className_ = wtext("SMGE::CDrawComponent");
+
+		Ctor();
+	}
+
+	void CDrawComponent::Ctor()
+	{
+		isGameVisible_ = false;
+#if IS_EDITOR
+		isEditorVisible_ = false;
+#endif
 	}
 
 	void CDrawComponent::ReadyToDrawing()
@@ -161,6 +171,14 @@ namespace SMGE
 		assert(parent != nullptr);
 
 		CComponent::OnBeginPlay(parent);
+
+		if (isGameVisible_)
+			SetVisible(isGameVisible_);
+
+#if IS_EDITOR
+		if (isEditorVisible_)	// 게임일 경우 에디터 비지블이 게임 비지블을 덮어써버리도록 하자
+			SetVisible(isEditorVisible_);
+#endif
 
 		ReadyToDrawing();
 

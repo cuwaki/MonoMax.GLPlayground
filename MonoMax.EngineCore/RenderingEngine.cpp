@@ -13,6 +13,7 @@ namespace SMGE
 	{
 		using namespace TransformConst;
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		VertFragShaderSet::VertFragShaderSet(const CWString& vertShadPath, const CWString& fragShadPath)
 		{
 			Invalidate();
@@ -71,6 +72,7 @@ namespace SMGE
 			return *this;
 		}
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		TextureDDS::TextureDDS(const CWString& texPath)
 		{
 			Invalidate();
@@ -111,6 +113,7 @@ namespace SMGE
 			return *this;
 		}
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		MeshOBJ::MeshOBJ(const CWString& objPath)
 		{
 			Invalidate();
@@ -187,57 +190,7 @@ namespace SMGE
 			return *this;
 		}
 
-		AssetModel::AssetModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath)
-		{
-			texture_.TextureDDS::TextureDDS(textureFilePath);
-			vfShaderSet_.VertFragShaderSet::VertFragShaderSet(vertShadPath, fragShadPath);
-			mesh_.MeshOBJ::MeshOBJ(objPath);
-		}
-		AssetModel::AssetModel(AssetModel&& c)
-		{
-			operator=(std::move(c));
-		}
-
-		AssetModel& AssetModel::operator=(AssetModel&& c)
-		{
-			renderingModel_ = c.renderingModel_;
-			c.Invalidate();
-
-			texture_ = std::move(c.texture_);
-			vfShaderSet_ = std::move(c.vfShaderSet_);
-			mesh_ = std::move(c.mesh_);
-
-			return *this;
-		}
-
-		void AssetModel::Invalidate()
-		{
-			renderingModel_ = nullptr;
-		}
-
-		void AssetModel::Destroy()
-		{
-			if (renderingModel_ != nullptr)
-			{
-				delete renderingModel_;
-				renderingModel_ = nullptr;
-			}
-		}
-
-		void AssetModel::ReadyToRender()
-		{
-			if (renderingModel_ != nullptr)
-				return;
-
-			renderingModel_ = new RenderingModel(*this, 0);
-		}
-
-		class RenderingModel& AssetModel::GetRenderingModel() const
-		{
-			return *renderingModel_;
-		}
-
-
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		Transform::Transform()
 		{
 			translation_ = Vec3_Zero;
@@ -448,32 +401,86 @@ namespace SMGE
 			topParent->RecalcMatrix_Internal(nullptr);
 		}
 
-		void RenderingModel::AddWorldModel(WorldModel* wm) const
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath)
 		{
-			ptrWorldModels_.push_back(wm);
-
-			assert(wm->renderingModel_ == nullptr);	// 이렇지 않으면 이전 거에서 빼주는 처리가 필요하다
-
-			if (wm->renderingModel_ == nullptr)
-				wm->renderingModel_ = this;
+			texture_.TextureDDS::TextureDDS(textureFilePath);
+			vfShaderSet_.VertFragShaderSet::VertFragShaderSet(vertShadPath, fragShadPath);
+			mesh_.MeshOBJ::MeshOBJ(objPath);
 		}
-		void RenderingModel::RemoveWorldModel(WorldModel* wm) const
+		ResourceModel::ResourceModel(ResourceModel&& c)
 		{
-			auto it = std::find(ptrWorldModels_.begin(), ptrWorldModels_.end(), wm);
-			if (it != ptrWorldModels_.end())
-				ptrWorldModels_.erase(it);
-		}
-		const std::vector<WorldModel*>& RenderingModel::WorldModels() const
-		{
-			return ptrWorldModels_;
+			operator=(std::move(c));
 		}
 
-		RenderingModel::~RenderingModel()
+		ResourceModel& ResourceModel::operator=(ResourceModel&& c)
+		{
+			renderModel_ = c.renderModel_;
+			c.Invalidate();
+
+			texture_ = std::move(c.texture_);
+			vfShaderSet_ = std::move(c.vfShaderSet_);
+			mesh_ = std::move(c.mesh_);
+
+			return *this;
+		}
+
+		void ResourceModel::Invalidate()
+		{
+			renderModel_ = nullptr;
+		}
+
+		void ResourceModel::Destroy()
+		{
+			if (renderModel_ != nullptr)
+			{
+				delete renderModel_;
+				renderModel_ = nullptr;
+			}
+		}
+
+		void ResourceModel::ReadyToRender()
+		{
+			if (renderModel_ != nullptr)
+				return;
+
+			renderModel_ = new RenderModel(*this, 0);
+		}
+
+		class RenderModel& ResourceModel::GetRenderingModel() const
+		{
+			return *renderModel_;
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		void RenderModel::AddWorldObject(WorldObject* wm) const
+		{
+			ptrWorldObjects_.push_back(wm);
+
+			assert(wm->renderModel_ == nullptr);	// 이렇지 않으면 이전 거에서 빼주는 처리가 필요하다
+
+			if (wm->renderModel_ == nullptr)
+				wm->renderModel_ = this;
+		}
+
+		void RenderModel::RemoveWorldObject(WorldObject* wm) const
+		{
+			auto it = std::find(ptrWorldObjects_.begin(), ptrWorldObjects_.end(), wm);
+			if (it != ptrWorldObjects_.end())
+				ptrWorldObjects_.erase(it);
+		}
+
+		const std::vector<WorldObject*>& RenderModel::WorldObjects() const
+		{
+			return ptrWorldObjects_;
+		}
+
+		RenderModel::~RenderModel()
 		{
 			Destroy();
 		}
 
-		RenderingModel::RenderingModel(const AssetModel& asset, GLuint texSamp) : asset_(asset)
+		RenderModel::RenderModel(const ResourceModel& asset, GLuint texSamp) : asset_(asset)
 		{
 			Invalidate();
 
@@ -486,10 +493,11 @@ namespace SMGE
 			normAttrArray_ = 2;
 			vertexColorAttrArray_ = 3;
 
+			// 최적화 - 게임의 경우 바인드가 끝나고 나면 asset_ 의 내용을 비워도 된다
 			GenBindData(asset_.mesh_.vertices_, asset_.mesh_.uvs_, asset_.mesh_.normals_, asset_.mesh_.vertexColors_);
 		}
 
-		RenderingModel::RenderingModel(RenderingModel&& c) noexcept : asset_(c.asset_)
+		RenderModel::RenderModel(RenderModel&& c) noexcept : asset_(c.asset_)
 		{
 			verticesSize_ = c.verticesSize_;
 
@@ -507,12 +515,12 @@ namespace SMGE
 			c.Invalidate();
 		}
 
-		GLuint RenderingModel::GetUsingProgram()
+		GLuint RenderModel::GetUsingProgram()
 		{
 			return asset_.vfShaderSet_.programID_;
 		}
 
-		bool RenderingModel::GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
+		bool RenderModel::GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
 		{
 			if (vertices.size() == 0)
 				return false;
@@ -543,7 +551,7 @@ namespace SMGE
 			return true;
 		}
 
-		void RenderingModel::Destroy()
+		void RenderModel::Destroy()
 		{
 			if (vao_ != 0)
 			{
@@ -557,7 +565,7 @@ namespace SMGE
 			}
 		}
 
-		void RenderingModel::Invalidate()
+		void RenderModel::Invalidate()
 		{
 			verticesSize_ = 0;
 
@@ -573,10 +581,13 @@ namespace SMGE
 			vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
 		}
 
-		void RenderingModel::Render(const glm::mat4& VP)
+		void RenderModel::Render(const glm::mat4& VP)
 		{
-			for (auto& wmPtr : WorldModels())
+			for (auto& wmPtr : WorldObjects())
 			{	// 나를 사용하는 모든 월드 모델을 찍는다
+				if (wmPtr->IsVisible() == false)
+					continue;
+
 				wmPtr->OnBeforeRendering();
 
 				//glm::mat4 ModelMatrix = glm::mat4(1);
@@ -594,7 +605,7 @@ namespace SMGE
 			}
 		}
 
-		void RenderingModel::BeginRender()
+		void RenderModel::BeginRender()
 		{
 			glBindVertexArray(vao_);
 
@@ -654,7 +665,7 @@ namespace SMGE
 			);
 		}
 
-		void RenderingModel::EndRender()
+		void RenderModel::EndRender()
 		{
 			glDisableVertexAttribArray(vertAttrArray_);
 			glDisableVertexAttribArray(uvAttrArray_);
@@ -664,7 +675,7 @@ namespace SMGE
 			glBindVertexArray(0);
 		}
 
-		void RenderingModel::SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos)
+		void RenderModel::SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos)
 		{
 			glUseProgram(GetUsingProgram());
 
@@ -672,24 +683,24 @@ namespace SMGE
 			glUniform3f(asset_.vfShaderSet_.unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
-		WorldModel::WorldModel(const RenderingModel* rm)
+		WorldObject::WorldObject(const RenderModel* rm)
 		{
 			if(rm != nullptr)
-				rm->AddWorldModel(this);
+				rm->AddWorldObject(this);
 		}
-		WorldModel::~WorldModel()
+		WorldObject::~WorldObject()
 		{
-			if (renderingModel_ != nullptr)
-				renderingModel_->RemoveWorldModel(this);
+			if (renderModel_ != nullptr)
+				renderModel_->RemoveWorldObject(this);
 
-			renderingModel_ = nullptr;
+			renderModel_ = nullptr;
 		}
-		WorldModel::WorldModel(const WorldModel& c) : WorldModel(c.renderingModel_)
+		WorldObject::WorldObject(const WorldObject& c) : WorldObject(c.renderModel_)
 		{
 		}
-		WorldModel::WorldModel(WorldModel&& c) noexcept : WorldModel(c.renderingModel_)
+		WorldObject::WorldObject(WorldObject&& c) noexcept : WorldObject(c.renderModel_)
 		{
-			c.~WorldModel();
+			c.~WorldObject();
 		}
 	}
 
@@ -970,7 +981,7 @@ namespace SMGE
 			//float theta = currentTime * 2.f;
 
 			//int i = 0;
-			//for (auto& wm : worldModels_)
+			//for (auto& wm : WorldObjects_)
 			//{
 			//	wm.RotateAxis(ETypeRot::YAW, glm::degrees(-theta * ((++i % 3) + 1)));
 			//}
@@ -1018,9 +1029,9 @@ namespace SMGE
 			isRunning = false;
 		}
 
-		bool CRenderingEngine::AddAssetModel(const CWString& key, AssetModel* am)
+		bool CRenderingEngine::AddResourceModel(const CWString& key, ResourceModel* am)
 		{
-			auto already = GetAssetModel(key);
+			auto already = GetResourceModel(key);
 			if (already == nullptr)
 			{
 				assetModels_[key] = am;
@@ -1030,7 +1041,7 @@ namespace SMGE
 			return false;
 		}
 
-		bool CRenderingEngine::RemoveAssetModel(AssetModel* am)
+		bool CRenderingEngine::RemoveResourceModel(ResourceModel* am)
 		{
 			auto found = std::find_if(assetModels_.begin(), assetModels_.end(),
 				[am](auto&& pair)
@@ -1047,7 +1058,7 @@ namespace SMGE
 			return true;
 		}
 
-		AssetModel* CRenderingEngine::GetAssetModel(const CWString& key)
+		ResourceModel* CRenderingEngine::GetResourceModel(const CWString& key)
 		{
 			auto clIt = assetModels_.find(key);
 			return clIt != assetModels_.end() ? clIt->second : nullptr;
