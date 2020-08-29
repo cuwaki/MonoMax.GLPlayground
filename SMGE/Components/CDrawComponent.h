@@ -36,7 +36,7 @@ namespace SMGE
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
-		SGRefl_Transform& sg_transform_;
+		SGRefl_Transform sg_transform_;
 		mutable int32_t persistentComponentNumber_ = 0;
 
 		TReflectionClass& outerDrawCompo_;
@@ -69,8 +69,6 @@ namespace SMGE
 
 	protected:
 		class nsRE::CRenderingEngine* GetRenderingEngine();
-
-		SGRefl_Transform sg_drawTransform_;
 
 		// CInt_Component
 		ComponentVector persistentComponents_;

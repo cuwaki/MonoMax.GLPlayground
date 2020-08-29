@@ -160,6 +160,7 @@
     <ClCompile Include="CInterpolation.cpp" />
     <ClCompile Include="CEngineBase.cpp" />
     <ClCompile Include="CGameBase.cpp" />
+    <ClCompile Include="Components\CBoundComponent.cpp" />
     <ClCompile Include="Components\CComponent.cpp" />
     <ClCompile Include="Components\CDrawComponent.cpp" />
     <ClCompile Include="Components\CMeshComponent.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Assets\CAssetManager.h" />
     <ClInclude Include="Assets\CAssetModel.h" />
     <ClInclude Include="CInterpolation.h" />
+    <ClInclude Include="Components\CBoundComponent.h" />
     <ClInclude Include="Components\CTransformComponent.h" />
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="GEContainers.h" />

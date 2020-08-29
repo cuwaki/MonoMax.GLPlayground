@@ -30,6 +30,9 @@
     <Filter Include="Components\Transform">
       <UniqueIdentifier>{d70c8826-196f-44d3-a5c3-ff1d177175b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Collision">
+      <UniqueIdentifier>{3c872e05-3b73-43fc-a2d2-3569f2c2992c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GECommonIncludes.h">
@@ -92,6 +95,9 @@
     <ClInclude Include="CInterpolation.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Components\CBoundComponent.h">
+      <Filter>Components\Collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -141,6 +147,9 @@
     </ClCompile>
     <ClCompile Include="CInterpolation.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CBoundComponent.cpp">
+      <Filter>Components\Collision</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

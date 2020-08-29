@@ -40,7 +40,7 @@ namespace SMGE
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc.sg_drawTransform_), outerDrawCompo_(rc)
+	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc, rc), outerDrawCompo_(rc)
 	{
 	}
 	//SGRefl_DrawComponent::SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
@@ -116,7 +116,7 @@ namespace SMGE
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldModel(nullptr), sg_drawTransform_(*this, *this)
+	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldModel(nullptr)
 	{
 		className_ = wtext("SMGE::CDrawComponent");
 	}
@@ -210,7 +210,6 @@ namespace SMGE
 			unregisterComponent(pc.get());
 		}
 	}
-
 
 	ComponentVector& CDrawComponent::getPersistentComponents()
 	{
