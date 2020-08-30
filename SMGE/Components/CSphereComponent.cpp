@@ -2,6 +2,7 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
+#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
 
 namespace SMGE
 {
@@ -69,5 +70,17 @@ namespace SMGE
 		if (reflSphereCompo_.get() == nullptr)
 			reflSphereCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
 		return *reflSphereCompo_.get();
+	}
+
+	void CSphereComponent::ReadyToDrawing()
+	{
+		nsRE::SphereRSM* sphereResource = new nsRE::SphereRSM(radius_);
+
+		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+		GetRenderingEngine()->AddResourceModel(wtext("gizmoK:sphere"), std::move(sphereResource));
+
+		sphereResource->GetRenderModel().AddWorldObject(this);
+
+		Super::ReadyToDrawing();
 	}
 };

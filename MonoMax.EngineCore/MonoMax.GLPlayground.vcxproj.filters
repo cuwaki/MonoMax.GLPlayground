@@ -51,6 +51,9 @@
     <ClCompile Include="common\vboindexer.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="RenderingEngineGizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EngineCore.h">
@@ -85,6 +88,12 @@
     </ClInclude>
     <ClInclude Include="common\vboindexer.hpp">
       <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingEngineUtils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingEngineGizmo.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

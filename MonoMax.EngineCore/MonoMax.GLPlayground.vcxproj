@@ -183,6 +183,7 @@
     <ClCompile Include="common\vboindexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderingEngine.cpp" />
+    <ClCompile Include="RenderingEngineGizmo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\controls.hpp" />
@@ -196,6 +197,8 @@
     <ClInclude Include="EngineCore.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="RenderingEngine.h" />
+    <ClInclude Include="RenderingEngineGizmo.h" />
+    <ClInclude Include="RenderingEngineUtils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

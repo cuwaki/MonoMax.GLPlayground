@@ -5,35 +5,36 @@
 
 namespace SMGE
 {
-	class CSphereComponent;
+	class CRayComponent;
 
-	struct SGRefl_SphereComponent : public SGRefl_DrawComponent
+	struct SGRefl_RayComponent : public SGRefl_DrawComponent
 	{
 		using Super = SGRefl_DrawComponent;
-		using TReflectionClass = CSphereComponent;
+		using TReflectionClass = CRayComponent;
 
-		SGRefl_SphereComponent(TReflectionClass& rc);
-		//SGRefl_SphereComponent(const CUniqPtr<CSphereComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
+		SGRefl_RayComponent(TReflectionClass& rc);
+		//SGRefl_RayComponent(const CUniqPtr<CRayComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
-		float& radius_;
+		float& size_;
+		glm::vec3& direction_;
 		SGRefl_Transform sg_transform_;
-		TReflectionClass& outerSphereCompo_;
+		TReflectionClass& outerRayCompo_;
 	};
 
-	class CSphereComponent : public CBoundComponent
+	class CRayComponent : public CBoundComponent
 	{
 	public:
 		using Super = CBoundComponent;
-		using TReflectionStruct = SGRefl_SphereComponent;
+		using TReflectionStruct = SGRefl_RayComponent;
 
 		friend struct TReflectionStruct;
 
 	public:
-		CSphereComponent(CObject* outer);
+		CRayComponent(CObject* outer, float size, const glm::vec3& direction);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
@@ -45,7 +46,8 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflSphereCompo_;
-		float radius_;
+		CUniqPtr<TReflectionStruct> reflRayCompo_;
+		float size_;
+		glm::vec3 direction_;
 	};
 };

@@ -4,8 +4,10 @@
 #include "../Interfaces/CInt_Reflection.h"
 #include "../Interfaces/CInt_Component.h"
 #include "../Components/CDrawComponent.h"
+#include "../Components/CBoundComponent.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
 #include "../CTimer.h"
+#include <functional>
 
 namespace SMGE
 {
@@ -88,6 +90,8 @@ namespace SMGE
 		const glm::vec3& getRotation() const { return getTransform().GetRotation(); }
 		const glm::vec3& getScale() const { return getTransform().GetScale(); }
 
+		const class CBoundComponent* GetMainBound() const;
+
 	public:
 		// CInt_Reflection
 		virtual const CWString& getClassName() override { return className_; }
@@ -107,7 +111,7 @@ namespace SMGE
 
 		// 여기 생각 - mainDrawCompo 는 persistcomp 라서 애셋으로부터 동적으로 생성될 수 있어서 멤버 포인터를 적용할 수가 없었다, 하지만 무브먼트콤포는??? 생각해볼 것, 지금은 트랜젼트임
 		class CMovementComponent* movementCompo_;
-		class CSphereComponent* mainBoundCompo_;
+		class CBoundComponent* mainBoundCompo_;
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflActor_;
@@ -123,5 +127,38 @@ namespace SMGE
 
 		// ActorKeyGenerator
 		friend class CMap;
+	};
+
+
+
+	class CCollideActor : public CActor
+	{
+		using Super = CActor;
+
+	public:
+		CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide);
+
+		virtual void BeginPlay() override;
+
+		virtual std::vector<CActor*> QueryCollideCheckTargets() = 0;
+		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) = 0;
+
+	protected:
+		ECheckCollideRule rule_;
+		bool isDetailCheck_;
+		const DELEGATE_OnCollide& fOnCollide_;
+	};
+
+	class CRayCollideActor : public CCollideActor
+	{
+		using Super = CCollideActor;
+
+	public:
+		CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide);
+
+		void Ctor();
+
+		virtual std::vector<CActor*> QueryCollideCheckTargets() override;
+		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) override;
 	};
 };

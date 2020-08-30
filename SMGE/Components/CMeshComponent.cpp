@@ -75,12 +75,13 @@ namespace SMGE
 		// 모델 애셋 로드
 		auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
 		drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(rootAssetPath + drawingModelAssetPath_);
-		auto smgeMA = drawingModelAsset_->getContentClass();
+
+		auto resourceModel = drawingModelAsset_->getContentClass();
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(drawingModelAssetPath_, smgeMA);
+		GetRenderingEngine()->AddResourceModel(drawingModelAssetPath_, resourceModel);
 
-		const nsRE::RenderModel& rm = smgeMA->GetRenderingModel();
+		nsRE::RenderModel& rm = resourceModel->GetRenderModel();
 		rm.AddWorldObject(this);
 
 		Super::ReadyToDrawing();

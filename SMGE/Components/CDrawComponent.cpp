@@ -2,7 +2,10 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
-#include "CMeshComponent.h"	// 테스트 코드
+
+// 테스트 코드
+#include "CMeshComponent.h"
+#include "CSphereComponent.h"
 
 namespace SMGE
 {
@@ -104,10 +107,17 @@ namespace SMGE
 		_FROM_REFL(persistentComponentNumber_, variableSplitted);
 		auto& pcomps = outerDrawCompo_.getPersistentComponents();
 
-		for (int i = 0; i < persistentComponentNumber_; ++i)
+		// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
+		//for (int i = 0; i < persistentComponentNumber_; ++i)
+		//{
+		//	auto meshComp = MakeUniqPtr<CMeshComponent>(&outerDrawCompo_);	// 여기 때문인 것 같은데?? $$43 여기서 아우터로 outerDrawCompo_ 를 주면서 생기는 일인 듯...
+		//	meshComp.get()->getReflection() = variableSplitted;
+		//	pcomps.emplace_back(std::move(meshComp));
+		//}
+
+		if (persistentComponentNumber_ == 1)
 		{
-			// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
-			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerDrawCompo_);	// 여기 때문인 것 같은데?? $$43 여기서 아우터로 outerDrawCompo_ 를 주면서 생기는 일인 듯...
+			auto meshComp = MakeUniqPtr<CSphereComponent>(&outerDrawCompo_);
 			meshComp.get()->getReflection() = variableSplitted;
 			pcomps.emplace_back(std::move(meshComp));
 		}

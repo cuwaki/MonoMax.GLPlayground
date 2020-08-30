@@ -30,7 +30,7 @@
     <Filter Include="Components\Transform">
       <UniqueIdentifier>{d70c8826-196f-44d3-a5c3-ff1d177175b5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Collision">
+    <Filter Include="Components\Bound">
       <UniqueIdentifier>{3c872e05-3b73-43fc-a2d2-3569f2c2992c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -90,16 +90,19 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Components\CBoundComponent.h">
-      <Filter>Components\Collision</Filter>
+      <Filter>Components\Bound</Filter>
     </ClInclude>
     <ClInclude Include="Components\CSphereComponent.h">
-      <Filter>Components\Collision</Filter>
+      <Filter>Components\Bound</Filter>
     </ClInclude>
     <ClInclude Include="Components\CMovementComponent.h">
       <Filter>Components\Transform</Filter>
     </ClInclude>
     <ClInclude Include="Assets\CResourceModel.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CRayComponent.h">
+      <Filter>Components\Bound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -146,16 +149,19 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Components\CBoundComponent.cpp">
-      <Filter>Components\Collision</Filter>
+      <Filter>Components\Bound</Filter>
     </ClCompile>
     <ClCompile Include="Components\CSphereComponent.cpp">
-      <Filter>Components\Collision</Filter>
+      <Filter>Components\Bound</Filter>
     </ClCompile>
     <ClCompile Include="Components\CMovementComponent.cpp">
       <Filter>Components\Transform</Filter>
     </ClCompile>
     <ClCompile Include="Assets\CResourceModel.cpp">
       <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CRayComponent.cpp">
+      <Filter>Components\Bound</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

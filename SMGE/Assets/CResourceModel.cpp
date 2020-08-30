@@ -74,6 +74,7 @@ namespace SMGE
 			this->mesh_.setVertexColors(vertexColors_);
 		}
 
-		this->ReadyToRender();
+		// 테스트 코드 ㅡ 여기서 버텍스가 하나도 없으면 함수 콜 안하는 게 맞다
+		this->CreateRenderModel();
 	}
 };

@@ -185,39 +185,60 @@ namespace SMGE
 		};
 
 		// ResourceModel은 GLContext 종속이 아니라서 여러 GLContext에서 공용으로 쓸 수 있다.
-		class ResourceModel
+		class ResourceModelBase
 		{
 		protected:
 			class RenderModel* renderModel_ = nullptr;
 
+			friend class RenderModel;
+
+		public:
+			ResourceModelBase() {}
+			virtual ~ResourceModelBase();
+			
+			virtual void Invalidate();
+			virtual void CreateRenderModel();
+			
+			virtual GLuint GetTextureID(int texSamp) const;
+			virtual const MeshOBJ& GetMesh() const;
+			virtual const VertFragShaderSet& GetShaderSet() const;
+			virtual GLuint GetShaderID() const { return 0; }
+
+			class RenderModel& GetRenderModel() const;
+
+			ResourceModelBase(const ResourceModelBase& c) = delete;
+			ResourceModelBase& operator=(const ResourceModelBase& c) = delete;
+			ResourceModelBase(ResourceModelBase&& c) noexcept;
+			ResourceModelBase& operator=(ResourceModelBase&& c) noexcept;
+		};
+
+		class ResourceModel : public ResourceModelBase
+		{
+		protected:
 			TextureDDS texture_;
 			VertFragShaderSet vfShaderSet_;
 			MeshOBJ mesh_;
 
-			friend class RenderModel;
-
 		public:
 			ResourceModel() {}
 			ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath);
-			virtual ~ResourceModel() { Destroy(); }
-			void Destroy();
-			void Invalidate();
 
-			void ReadyToRender();
-			class RenderModel& GetRenderingModel() const;
+			virtual GLuint GetTextureID(int texSamp) const override { return texture_.textureID_; }
+			virtual const MeshOBJ& GetMesh() const override { return mesh_; }
+			virtual MeshOBJ& GetMesh() { return mesh_; }
+			virtual const VertFragShaderSet& GetShaderSet() const override { return vfShaderSet_; }
+			virtual GLuint GetShaderID() const override { return vfShaderSet_.programID_; }
 
-			ResourceModel(const ResourceModel& c) = delete;
-			ResourceModel& operator=(const ResourceModel& c) = delete;
-			ResourceModel(ResourceModel&& c);
-			ResourceModel& operator=(ResourceModel&& c);
+			ResourceModel(ResourceModel&& c) noexcept;
+			ResourceModel& operator=(ResourceModel&& c) noexcept;
 		};
 
-		// RenderModel은 OPENGL CONTEXT 종속이다
+		// RenderModel은 GLContext 종속이다
 		class RenderModel
 		{
 		public:
 			// static datas
-			const ResourceModel& asset_;
+			const ResourceModelBase& resource_;
 
 			// rendering datas
 			GLsizei verticesSize_ = 0;
@@ -245,14 +266,13 @@ namespace SMGE
 			void Destroy();
 			void Invalidate();
 
-			RenderModel(const ResourceModel& asset, GLuint texSamp);
+			RenderModel(const ResourceModelBase& asset, GLuint texSamp);
 
 			RenderModel(const RenderModel& c) = delete;
 			RenderModel& operator=(const RenderModel& c) = delete;
 			RenderModel(RenderModel&& c) noexcept;
-			RenderModel& operator=(RenderModel&& c) = delete;	// asset_ 때문에 구현 불가
+			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ 때문에 구현 불가
 
-			GLuint GetUsingProgram();
 			bool GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
 			void Render(const glm::mat4& VP);
 			void BeginRender();
@@ -347,7 +367,7 @@ namespace SMGE
 			CCamera camera_;
 
 			// 테스트 코드
-			CHashMap<CWString, ResourceModel*> assetModels_;
+			CHashMap<CWString, ResourceModelBase*> resourceModels_;
 			//CVector<WorldObject> WorldObjects_;
 			// deprecated
 			//CVector<OldModelWorld*> m_oldWorldObjectList;
@@ -371,9 +391,9 @@ namespace SMGE
 			void Tick();
 			void Render(char* imgBuffer);
 
-			bool AddResourceModel(const CWString& key, ResourceModel* am);
-			bool RemoveResourceModel(ResourceModel* am);
-			ResourceModel* GetResourceModel(const CWString& key);
+			bool AddResourceModel(const CWString& key, ResourceModelBase* am);
+			bool RemoveResourceModel(ResourceModelBase* am);
+			ResourceModelBase* GetResourceModel(const CWString& key);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 		};

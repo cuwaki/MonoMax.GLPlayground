@@ -26,4 +26,9 @@ namespace SMGE
 	{
 		Super::OnEndPlay();
 	}
+
+	bool CBoundComponent::CheckCollide(const CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) const
+	{
+		return false;
+	}
 };

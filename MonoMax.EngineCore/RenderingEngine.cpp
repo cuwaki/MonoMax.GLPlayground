@@ -46,7 +46,7 @@ namespace SMGE
 		void VertFragShaderSet::Invalidate()
 		{
 			programID_ = 0;
-			unif_MVPMatrixID_ = -1;	// glGetUniform 계열에서 에러나면 -1 이 들어가길래 이렇게 한다
+			unif_MVPMatrixID_ = -1;	// glGetUniform 여기서 에러나면 여기에 -1 들어가길래 이렇게 한다
 			unif_ViewMatrixID_ = -1;
 			unif_ModelMatrixID_ = -1;
 			unif_TextureSampleI_ = -1;
@@ -143,11 +143,11 @@ namespace SMGE
 			uvs_ = uvs;
 			normals_ = normals;
 
-			vertexColors_.resize(vertices.size());	// 일단 버컬은 000 으로 채워놓자
-
-			assert(vertices_.size() == uvs_.size());
-			assert(uvs_.size() == normals_.size());
-			assert(normals_.size() == vertexColors_.size());
+			// 없으면 말고로
+			//vertexColors_.resize(vertices.size());	// 일단 버컬은 000 으로 채워놓자
+			//assert(vertices_.size() == uvs_.size());
+			//assert(uvs_.size() == normals_.size());
+			//assert(normals_.size() == vertexColors_.size());
 
 			return true;
 		}
@@ -402,35 +402,7 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath)
-		{
-			texture_.TextureDDS::TextureDDS(textureFilePath);
-			vfShaderSet_.VertFragShaderSet::VertFragShaderSet(vertShadPath, fragShadPath);
-			mesh_.MeshOBJ::MeshOBJ(objPath);
-		}
-		ResourceModel::ResourceModel(ResourceModel&& c)
-		{
-			operator=(std::move(c));
-		}
-
-		ResourceModel& ResourceModel::operator=(ResourceModel&& c)
-		{
-			renderModel_ = c.renderModel_;
-			c.Invalidate();
-
-			texture_ = std::move(c.texture_);
-			vfShaderSet_ = std::move(c.vfShaderSet_);
-			mesh_ = std::move(c.mesh_);
-
-			return *this;
-		}
-
-		void ResourceModel::Invalidate()
-		{
-			renderModel_ = nullptr;
-		}
-
-		void ResourceModel::Destroy()
+		ResourceModelBase::~ResourceModelBase()
 		{
 			if (renderModel_ != nullptr)
 			{
@@ -439,7 +411,7 @@ namespace SMGE
 			}
 		}
 
-		void ResourceModel::ReadyToRender()
+		void ResourceModelBase::CreateRenderModel()
 		{
 			if (renderModel_ != nullptr)
 				return;
@@ -447,9 +419,66 @@ namespace SMGE
 			renderModel_ = new RenderModel(*this, 0);
 		}
 
-		class RenderModel& ResourceModel::GetRenderingModel() const
+		class RenderModel& ResourceModelBase::GetRenderModel() const
 		{
 			return *renderModel_;
+		}
+
+		GLuint ResourceModelBase::GetTextureID(int texSamp) const
+		{
+			return 0;
+		}
+
+		const MeshOBJ& ResourceModelBase::GetMesh() const
+		{
+			MeshOBJ temp;
+			return temp;	// 일부러 - 여기가 호출되면 안된다
+		}
+
+		const VertFragShaderSet& ResourceModelBase::GetShaderSet() const
+		{
+			VertFragShaderSet temp;
+			return temp;	// 일부러
+		}
+
+		void ResourceModelBase::Invalidate()
+		{
+			renderModel_ = nullptr;
+		}
+
+		ResourceModelBase::ResourceModelBase(ResourceModelBase&& c) noexcept
+		{
+			operator=(std::move(c));
+		}
+
+		ResourceModelBase& ResourceModelBase::operator=(ResourceModelBase&& c) noexcept
+		{
+			renderModel_ = c.renderModel_;
+			c.Invalidate();
+
+			return *this;
+		}
+
+		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath) : ResourceModelBase()
+		{
+			texture_.TextureDDS::TextureDDS(textureFilePath);
+			vfShaderSet_.VertFragShaderSet::VertFragShaderSet(vertShadPath, fragShadPath);
+			mesh_.MeshOBJ::MeshOBJ(objPath);
+		}
+		ResourceModel::ResourceModel(ResourceModel&& c) noexcept
+		{
+			operator=(std::move(c));
+		}
+
+		ResourceModel& ResourceModel::operator=(ResourceModel&& c) noexcept
+		{
+			texture_ = std::move(c.texture_);
+			vfShaderSet_ = std::move(c.vfShaderSet_);
+			mesh_ = std::move(c.mesh_);
+
+			ResourceModelBase::operator=(std::move(c));
+
+			return *this;
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -480,12 +509,9 @@ namespace SMGE
 			Destroy();
 		}
 
-		RenderModel::RenderModel(const ResourceModel& asset, GLuint texSamp) : asset_(asset)
+		RenderModel::RenderModel(const ResourceModelBase& asset, GLuint texSamp) : resource_(asset)
 		{
 			Invalidate();
-
-			usingTextureID_ = asset_.texture_.textureID_;
-			usingTextureSampleI_ = texSamp;
 
 			// 일단 공통 셰이더 용으로 하드코딩
 			vertAttrArray_ = 0;
@@ -493,11 +519,14 @@ namespace SMGE
 			normAttrArray_ = 2;
 			vertexColorAttrArray_ = 3;
 
-			// 최적화 - 게임의 경우 바인드가 끝나고 나면 asset_ 의 내용을 비워도 된다
-			GenBindData(asset_.mesh_.vertices_, asset_.mesh_.uvs_, asset_.mesh_.normals_, asset_.mesh_.vertexColors_);
+			// 임시 코드 - 렌더모델이 메시 관련일 경우에만 아래 코드가 실행되어야한다, 고민해봐라
+			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resource_ 의 내용을 비워도 된다
+			usingTextureID_ = resource_.GetTextureID(texSamp);
+			usingTextureSampleI_ = texSamp;
+			GenBindData(resource_.GetMesh().vertices_, resource_.GetMesh().uvs_, resource_.GetMesh().normals_, resource_.GetMesh().vertexColors_);
 		}
 
-		RenderModel::RenderModel(RenderModel&& c) noexcept : asset_(c.asset_)
+		RenderModel::RenderModel(RenderModel&& c) noexcept : resource_(c.resource_)
 		{
 			verticesSize_ = c.verticesSize_;
 
@@ -515,11 +544,6 @@ namespace SMGE
 			c.Invalidate();
 		}
 
-		GLuint RenderModel::GetUsingProgram()
-		{
-			return asset_.vfShaderSet_.programID_;
-		}
-
 		bool RenderModel::GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
 		{
 			if (vertices.size() == 0)
@@ -534,17 +558,26 @@ namespace SMGE
 			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
 			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], glDrawType_);
 
-			glGenBuffers(1, &uvBuffer_);
-			glBindBuffer(GL_ARRAY_BUFFER, uvBuffer_);
-			glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], glDrawType_);
+			if (uvs.size() > 0)
+			{
+				glGenBuffers(1, &uvBuffer_);
+				glBindBuffer(GL_ARRAY_BUFFER, uvBuffer_);
+				glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], glDrawType_);
+			}
 
-			glGenBuffers(1, &normalBuffer_);
-			glBindBuffer(GL_ARRAY_BUFFER, normalBuffer_);
-			glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], glDrawType_);
+			if (normals.size() > 0)
+			{
+				glGenBuffers(1, &normalBuffer_);
+				glBindBuffer(GL_ARRAY_BUFFER, normalBuffer_);
+				glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], glDrawType_);
+			}
 
-			glGenBuffers(1, &vertexColorBuffer_);
-			glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer_);
-			glBufferData(GL_ARRAY_BUFFER, vertexColors.size() * sizeof(glm::vec3), &vertexColors[0], glDrawType_);
+			if (vertexColors.size() > 0)
+			{
+				glGenBuffers(1, &vertexColorBuffer_);
+				glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer_);
+				glBufferData(GL_ARRAY_BUFFER, vertexColors.size() * sizeof(glm::vec3), &vertexColors[0], glDrawType_);
+			}
 
 			glBindVertexArray(0);
 
@@ -584,7 +617,7 @@ namespace SMGE
 		void RenderModel::Render(const glm::mat4& VP)
 		{
 			for (auto& wmPtr : WorldObjects())
-			{	// 나를 사용하는 모든 월드 모델을 찍는다
+			{	// 나를 사용하는 모든 월드 오브젝트을 찍는다
 				if (wmPtr->IsVisible() == false)
 					continue;
 
@@ -595,13 +628,19 @@ namespace SMGE
 
 				const glm::mat4 MVP = VP * wmPtr->GetMatrix(false);
 
-				// Send our transformation to the currently bound shader, 
-				// in the "MVP" uniform
-				glUniformMatrix4fv(asset_.vfShaderSet_.unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);	// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
-				glUniformMatrix4fv(asset_.vfShaderSet_.unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
+				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
+				if(resource_.GetShaderSet().unif_MVPMatrixID_ != -1)
+					glUniformMatrix4fv(resource_.GetShaderSet().unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
+				if (resource_.GetShaderSet().unif_ModelMatrixID_ != -1)
+					glUniformMatrix4fv(resource_.GetShaderSet().unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
 
-				// Draw the triangles !
-				glDrawArrays(GL_TRIANGLES, 0, verticesSize_);
+				if(resource_.GetMesh().uvs_.size() > 0)
+					glDrawArrays(GL_TRIANGLES, 0, verticesSize_);
+				else
+				{
+					glLineWidth(2.f);
+					glDrawArrays(GL_LINES, 0, verticesSize_);
+				}
 			}
 		}
 
@@ -614,12 +653,12 @@ namespace SMGE
 				glActiveTexture(GL_TEXTURE0 + usingTextureSampleI_);
 				glBindTexture(GL_TEXTURE_2D, usingTextureID_);
 				// Set our "myTextureSampler" sampler to user Texture Unit 0
-				glUniform1i(asset_.vfShaderSet_.unif_TextureSampleI_, usingTextureSampleI_);
+				glUniform1i(resource_.GetShaderSet().unif_TextureSampleI_, usingTextureSampleI_);
 			}
 
 			// 1rst attribute buffer : vertices
-			glEnableVertexAttribArray(vertAttrArray_);
 			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
+			glEnableVertexAttribArray(vertAttrArray_);
 			glVertexAttribPointer(
 				vertAttrArray_,                  // attribute
 				3,                  // size
@@ -629,61 +668,73 @@ namespace SMGE
 				(void*)0            // array buffer offset
 			);
 
-			// 2nd attribute buffer : UVs
-			glEnableVertexAttribArray(uvAttrArray_);
-			glBindBuffer(GL_ARRAY_BUFFER, uvBuffer_);
-			glVertexAttribPointer(
-				uvAttrArray_,                                // attribute
-				2,                                // size
-				GL_FLOAT,                         // type
-				GL_FALSE,                         // normalized?
-				0,                                // stride
-				(void*)0                          // array buffer offset
-			);
+			if (uvBuffer_ != 0)
+			{	// 2nd attribute buffer : UVs
+				glBindBuffer(GL_ARRAY_BUFFER, uvBuffer_);
+				glEnableVertexAttribArray(uvAttrArray_);
+				glVertexAttribPointer(
+					uvAttrArray_,                                // attribute
+					2,                                // size
+					GL_FLOAT,                         // type
+					GL_FALSE,                         // normalized?
+					0,                                // stride
+					(void*)0                          // array buffer offset
+				);
+			}
 
-			// 3rd attribute buffer : normals
-			glEnableVertexAttribArray(normAttrArray_);
-			glBindBuffer(GL_ARRAY_BUFFER, normalBuffer_);
-			glVertexAttribPointer(
-				normAttrArray_,                                // attribute
-				3,                                // size
-				GL_FLOAT,                         // type
-				GL_FALSE,                         // normalized?
-				0,                                // stride
-				(void*)0                          // array buffer offset
-			);
+			if (normalBuffer_ != 0)
+			{	// 3rd attribute buffer : normals
+				glBindBuffer(GL_ARRAY_BUFFER, normalBuffer_);
+				glEnableVertexAttribArray(normAttrArray_);
+				glVertexAttribPointer(
+					normAttrArray_,                                // attribute
+					3,                                // size
+					GL_FLOAT,                         // type
+					GL_FALSE,                         // normalized?
+					0,                                // stride
+					(void*)0                          // array buffer offset
+				);
+			}
 
-			glEnableVertexAttribArray(vertexColorAttrArray_);
-			glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer_);
-			glVertexAttribPointer(
-				vertexColorAttrArray_,                                // attribute
-				3,                                // size
-				GL_FLOAT,                         // type
-				GL_FALSE,                         // normalized?
-				0,                                // stride
-				(void*)0                          // array buffer offset
-			);
+			if (vertexColorBuffer_ != 0)
+			{
+				glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer_);
+				glEnableVertexAttribArray(vertexColorAttrArray_);
+				glVertexAttribPointer(
+					vertexColorAttrArray_,                                // attribute
+					3,                                // size
+					GL_FLOAT,                         // type
+					GL_FALSE,                         // normalized?
+					0,                                // stride
+					(void*)0                          // array buffer offset
+				);
+			}
 		}
 
 		void RenderModel::EndRender()
 		{
 			glDisableVertexAttribArray(vertAttrArray_);
-			glDisableVertexAttribArray(uvAttrArray_);
-			glDisableVertexAttribArray(normAttrArray_);
-			glDisableVertexAttribArray(vertexColorAttrArray_);
+			if (uvBuffer_ != 0)
+				glDisableVertexAttribArray(uvAttrArray_);
+			if (normalBuffer_ != 0)
+				glDisableVertexAttribArray(normAttrArray_);
+			if (vertexColorBuffer_ != 0)
+				glDisableVertexAttribArray(vertexColorAttrArray_);
 
 			glBindVertexArray(0);
 		}
 
 		void RenderModel::SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos)
 		{
-			glUseProgram(GetUsingProgram());
+			glUseProgram(resource_.GetShaderID());
 
-			glUniformMatrix4fv(asset_.vfShaderSet_.unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
-			glUniform3f(asset_.vfShaderSet_.unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
+			if(resource_.GetShaderSet().unif_ViewMatrixID_ != -1)
+				glUniformMatrix4fv(resource_.GetShaderSet().unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
+			if(resource_.GetShaderSet().unif_LightWorldPosition_ != -1)
+				glUniform3f(resource_.GetShaderSet().unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
-		WorldObject::WorldObject(const RenderModel* rm)
+		WorldObject::WorldObject(const RenderModel* rm) : renderModel_(nullptr)
 		{
 			if(rm != nullptr)
 				rm->AddWorldObject(this);
@@ -1004,9 +1055,9 @@ namespace SMGE
 			lightRotateMat = glm::rotate(lightRotateMat, theta, glm::vec3(0, 1, 0));
 			lightPos = lightRotateMat * lightPos;
 			
-			for (auto& it : assetModels_)
+			for (auto& it : resourceModels_)
 			{
-				auto& rm = it.second->GetRenderingModel();
+				auto& rm = it.second->GetRenderModel();
 
 				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
 				rm.BeginRender();
@@ -1014,11 +1065,17 @@ namespace SMGE
 				rm.EndRender();
 			}
 
-			// smge_game->GetEngine() <- 얘가 월드모델을 상속한 액터를 갖게 된다
+			// smge_game->GetEngine() <- 얘가 월드오브젝트을 상속한 액터를 갖게 된다
 			//smge_game->GetEngine()->Render(0.01f);
-			
+
 			if (imgBuffer != nullptr)
+			{
+				glFlush();
+				glFinish();
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 				glReadPixels(0, 0, m_width, m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgBuffer);	// m_colorDepth, PixelFormats::Pbgr32
+			}
 
 			glfwSwapBuffers(m_window);
 			glfwPollEvents();
@@ -1029,39 +1086,39 @@ namespace SMGE
 			isRunning = false;
 		}
 
-		bool CRenderingEngine::AddResourceModel(const CWString& key, ResourceModel* am)
+		bool CRenderingEngine::AddResourceModel(const CWString& key, ResourceModelBase* am)
 		{
 			auto already = GetResourceModel(key);
 			if (already == nullptr)
 			{
-				assetModels_[key] = am;
+				resourceModels_[key] = am;
 				return true;
 			}
 
 			return false;
 		}
 
-		bool CRenderingEngine::RemoveResourceModel(ResourceModel* am)
+		bool CRenderingEngine::RemoveResourceModel(ResourceModelBase* am)
 		{
-			auto found = std::find_if(assetModels_.begin(), assetModels_.end(),
+			auto found = std::find_if(resourceModels_.begin(), resourceModels_.end(),
 				[am](auto&& pair)
 				{
 					return pair.second == am;
 				});
 
-			if (found == assetModels_.end())
+			if (found == resourceModels_.end())
 			{
 				return false;
 			}
 
-			assetModels_.erase(found);
+			resourceModels_.erase(found);
 			return true;
 		}
 
-		ResourceModel* CRenderingEngine::GetResourceModel(const CWString& key)
+		ResourceModelBase* CRenderingEngine::GetResourceModel(const CWString& key)
 		{
-			auto clIt = assetModels_.find(key);
-			return clIt != assetModels_.end() ? clIt->second : nullptr;
+			auto clIt = resourceModels_.find(key);
+			return clIt != resourceModels_.end() ? clIt->second : nullptr;
 		}
 
 		void CRenderingEngine::getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth)

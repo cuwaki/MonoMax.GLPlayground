@@ -3,6 +3,7 @@
 #include "../Components/CMeshComponent.h"
 #include "../Components/CMovementComponent.h"
 #include "../Components/CSphereComponent.h"
+#include "../Components/CRayComponent.h"
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"
 
@@ -114,9 +115,16 @@ namespace SMGE
 		//assert(persistentComponentNumber_ == pcomps.size());
 		pcomps.clear();
 
-		for (int i = 0; i < persistentComponentNumber_; ++i)
+		// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
+		//for (int i = 0; i < persistentComponentNumber_; ++i)
+		//{
+		//	auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
+		//	meshComp.get()->getReflection() = variableSplitted;
+		//	pcomps.emplace_back(std::move(meshComp));
+		//}
+
+		if (persistentComponentNumber_ == 1)
 		{
-			// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
 			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
 			meshComp.get()->getReflection() = variableSplitted;
 			pcomps.emplace_back(std::move(meshComp));
@@ -288,6 +296,11 @@ namespace SMGE
 		}
 	}
 
+	const class CBoundComponent* CActor::GetMainBound() const
+	{
+		return mainBoundCompo_;
+	}
+
 	nsRE::Transform& CActor::getTransform()
 	{
 		return actorTransform_;
@@ -296,5 +309,67 @@ namespace SMGE
 	const nsRE::Transform& CActor::getTransform() const
 	{
 		return actorTransform_;
+	}
+
+
+
+	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
+	{
+		rule_ = rule;
+		isDetailCheck_ = isDetailCheck;
+	}
+
+	void CCollideActor::BeginPlay()
+	{
+		Super::BeginPlay();
+
+		auto targets = QueryCollideCheckTargets();
+		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
+	}
+
+	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CCollideActor(outer, rule, isDetailCheck, fOnCollide)
+	{
+		Ctor();
+	}
+
+	void CRayCollideActor::Ctor()
+	{
+		//Super::Ctor();	// 일부러
+
+		movementCompo_ = nullptr;
+
+		// 바운드
+		auto RayCompo = MakeUniqPtr<CRayComponent>(this, 10.f, glm::vec3( 0.f, 0.f, 1.f ));
+		mainBoundCompo_ = SCast<CRayComponent*>(RayCompo.get());
+		getTransientComponents().emplace_back(std::move(RayCompo));
+	}
+
+	std::vector<CActor*> CRayCollideActor::QueryCollideCheckTargets()
+	{
+		std::vector<CActor*> ret;
+
+		// 컬링 및 기타 조건 체크를 하여야한다
+
+		return ret;
+	}
+
+	void CRayCollideActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets)
+	{
+		glm::vec3 collidingPoint;
+
+		for (auto& actor : targets)
+		{
+			if (this->GetMainBound()->CheckCollide(actor->GetMainBound(), collidingPoint) == true)
+			{
+				if (isDetailCheck == false)
+				{
+					fOnCollide(this, actor, this->GetMainBound(), actor->GetMainBound(), collidingPoint);
+				}
+				else
+				{
+					// 디테일 바운드 콤포에 대하여 체크 - 여러개의 추가 Bound 또는 디테일한 CPolygonComponent 가 있어야겠지?
+				}
+			}
+		}
 	}
 };

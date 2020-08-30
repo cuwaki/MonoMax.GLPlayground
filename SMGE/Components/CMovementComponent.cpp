@@ -38,7 +38,7 @@ namespace SMGE
 
 		setActive(true);
 
-		if (actorParent_->getActorStaticTag() == "this is a plane")
+		if (actorParent_->getActorStaticTag() == "this is a monkey")
 		{	// 테스트 코드
 			moveFrom = actorParent_->getLocation();
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
@@ -67,7 +67,7 @@ namespace SMGE
 		if (isActive())
 		{
 			// 테스트 코드
-			if (actorParent_->getActorStaticTag() == "this is a plane")
+			if (actorParent_->getActorStaticTag() == "this is a monkey")
 			{
 				// Translate
 				if (interpTranslation_.isRunning())
