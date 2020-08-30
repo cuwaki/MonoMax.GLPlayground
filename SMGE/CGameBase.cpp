@@ -3,6 +3,11 @@
 
 namespace SMGE
 {
+	namespace Globals
+	{
+		nsGE::CGameBase* GCurrentGame;
+	}
+
 	namespace nsGE
 	{
 		CGameBase* CGameBase::Instance;

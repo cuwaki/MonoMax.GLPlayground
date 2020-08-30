@@ -15,7 +15,7 @@ namespace SMGE
 			GetShaderSet().VertFragShaderSet::VertFragShaderSet(wtext("e:/dev_project/gizmo.vert"), wtext("e:/dev_project/gizmo.frag"));
 			CreateRenderModel();
 
-			GetRenderModel().GenBindData(vertices, dummy2, dummy3, dummy3);
+			GetRenderModel().GenOpenGLBuffers(vertices, dummy2, dummy3, dummy3);
 		}
 
 		SphereRSM::SphereRSM(float radius) : GizmoRSM()

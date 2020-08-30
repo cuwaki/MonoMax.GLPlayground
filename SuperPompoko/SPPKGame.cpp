@@ -13,6 +13,8 @@ namespace SMGE
 	SPPKGame::SPPKGame(CObject* outer) : nsGE::CGameBase(outer)
 	{
 		Initialize();
+
+		Globals::GCurrentGame = this;
 	}
 
 	SPPKGame::~SPPKGame()
@@ -22,6 +24,9 @@ namespace SMGE
 
 		delete gameSettings_;
 		delete engine_;
+
+		Globals::GCurrentGame = nullptr;
+		Globals::GCurrentMap = nullptr;
 	}
 
 #define EDITOR_WORKING
@@ -40,6 +45,8 @@ namespace SMGE
 		auto assetPath = PathAssetRoot() + wtext("/map/testMap.asset");
 		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetPath);
 		currentMap_ = new CMap(this, *testMapTemplate->getContentClass());
+
+		Globals::GCurrentMap = currentMap_;
 #endif
 	}
 
@@ -50,7 +57,20 @@ namespace SMGE
 #ifdef EDITOR_WORKING
 		// 테스트 코드
 		if (currentMap_->IsStarted() == false)
+		{
+			// 테스트 코드 - 동적 액터 스폰 샘플 코드 {
+			CRayCollideActor& rayActor = Globals::GCurrentMap->SpawnDefaultActor<CRayCollideActor>(true, 
+				ECheckCollideRule::NEAREST, false, 
+				[](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+				{
+					// 충돌한 객체와 이런 걸 한다!
+				},
+				10.f, glm::vec3( 0.f, 0.f, -1.f ));
+			Globals::GCurrentMap->FinishSpawnActor(rayActor);
+			// }
+
 			currentMap_->StartToPlay();
+		}
 
 		currentMap_->Tick(dt);
 #else

@@ -69,20 +69,22 @@ namespace SMGE
 
 	void CMeshComponent::ReadyToDrawing()
 	{
-		if (drawingModelAsset_ != nullptr)
-			throw SMGEException(wtext("already ReadyToDrawing("));
+		if (drawingModelAssetPath_.length() > 0)
+		{
+			if (drawingModelAsset_ != nullptr)
+				throw SMGEException(wtext("already ReadyToDrawing("));
 
-		// 모델 애셋 로드
-		auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
-		drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(rootAssetPath + drawingModelAssetPath_);
+			// 모델 애셋 로드
+			auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
+			drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(rootAssetPath + drawingModelAssetPath_);
 
-		auto resourceModel = drawingModelAsset_->getContentClass();
+			auto rsm = drawingModelAsset_->getContentClass();
 
-		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(drawingModelAssetPath_, resourceModel);
+			// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			GetRenderingEngine()->AddResourceModel(drawingModelAssetPath_, rsm);
 
-		nsRE::RenderModel& rm = resourceModel->GetRenderModel();
-		rm.AddWorldObject(this);
+			rsm->GetRenderModel().AddWorldObject(this);
+		}
 
 		Super::ReadyToDrawing();
 	}

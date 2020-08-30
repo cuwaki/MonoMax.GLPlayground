@@ -52,8 +52,8 @@ namespace SMGE
 		virtual void Tick(float);
 		virtual void Render(float);
 
-		CActor& SpawnDefaultActor(const CActor& templateActor, bool isDynamic);
-		CActor& ArrangeActor(CActor& arrangedActor);
+		//CActor& SpawnDefaultActor(const CActor& templateActor, bool isDynamic);
+		CActor& FinishSpawnActor(CActor& arrangedActor);
 		CActor* FindActor(TActorKey ak);
 		CSharPtr<CActor>&& RemoveActor(TActorKey ak);
 
@@ -72,5 +72,29 @@ namespace SMGE
 		// runtime
 		TActorLayers<CSharPtr<CActor>> actorLayers_;
 		bool isStarted_ = false;
+
+		static TActorKey DynamicActorKey;	// 테스트 코드
+
+	public:
+		template<typename ActorT, typename... Args>
+		ActorT& SpawnDefaultActor(bool isDynamic, Args&&... args)
+		{
+			auto newActor = MakeSharPtr<ActorT>(this, std::forward<Args>(args)...);
+
+			if (isDynamic == true)
+			{	// DynamicActorKey
+				newActor->actorKey_ = DynamicActorKey++;
+			}
+
+			auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
+
+			rb->OnSpawnStarted(this, isDynamic);
+			return static_cast<ActorT&>(*rb);
+		}
 	};
+
+	namespace Globals
+	{
+		extern CMap* GCurrentMap;
+	}
 };

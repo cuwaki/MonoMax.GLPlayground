@@ -5,6 +5,11 @@
 
 namespace SMGE
 {
+	namespace Globals
+	{
+		CMap* GCurrentMap;
+	}
+
 	SGRefl_Map::SGRefl_Map(CMap& map) :
 		outerMap_(map),
 		SGReflection(map)
@@ -61,13 +66,13 @@ namespace SMGE
 				// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
 				// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??
 
-				CActor& actorA = outerMap_.SpawnDefaultActor(*actorTemplate->getContentClass(), false);
+				CActor& actorA = outerMap_.SpawnDefaultActor<CActor>(false, *actorTemplate->getContentClass());
 
 				// 2 단계 - 맵에 저장된 값으로 배치시킨다
 				variableSplitted.setCursor(backupCursor);
 				actorA.getReflection() = variableSplitted;
 
-				outerMap_.ArrangeActor(actorA);
+				outerMap_.FinishSpawnActor(actorA);
 
 				// 여기선 아직 this->actorLayers_ 에는 등록이 안되었다, 저 밑에 3단계에서 처리한다
 			}
@@ -139,25 +144,26 @@ namespace SMGE
 		return *reflMap_.get();
 	}
 
-	CActor& CMap::SpawnDefaultActor(const CActor& templateActor, bool isDynamic)
+	TActorKey CMap::DynamicActorKey = 3332;	// 테스트 코드
+
+	//CActor& CMap::SpawnDefaultActor(const CActor& templateActor, bool isDynamic)
+	//{
+	//	auto newActor = MakeSharPtr<CActor>(this, templateActor);
+
+	//	if (isDynamic == true)
+	//	{	// DynamicActorKey
+	//		newActor->actorKey_ = DynamicActorKey++;
+	//	}
+
+	//	auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
+
+	//	rb->OnSpawnStarted(this, isDynamic);
+	//	return *rb;
+	//}
+
+	CActor& CMap::FinishSpawnActor(CActor& targetActor)
 	{
-		auto newActor = MakeSharPtr<CActor>(this, templateActor);
-
-		if (isDynamic == true)
-		{	// ActorKeyGenerator
-			static TActorKey ActorKeyGenerator = 0;
-			newActor->actorKey_ = ++ActorKeyGenerator;
-		}
-
-		auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
-
-		rb->OnAfterSpawned(this, isDynamic);
-		return *rb;
-	}
-
-	CActor& CMap::ArrangeActor(CActor& targetActor)
-	{
-		targetActor.OnAfterArranged(this);
+		targetActor.OnSpawnFinished(this);
 
 		if (isStarted_ == true)
 		{

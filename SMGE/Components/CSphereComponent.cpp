@@ -74,12 +74,16 @@ namespace SMGE
 
 	void CSphereComponent::ReadyToDrawing()
 	{
-		nsRE::SphereRSM* sphereResource = new nsRE::SphereRSM(radius_);
+		const auto resmKey = wtext("gizmoK:sphere");
+
+		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
+		if (rsm == nullptr)
+			rsm = new nsRE::SphereRSM(radius_);
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(wtext("gizmoK:sphere"), std::move(sphereResource));
+		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
 
-		sphereResource->GetRenderModel().AddWorldObject(this);
+		rsm->GetRenderModel().AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}

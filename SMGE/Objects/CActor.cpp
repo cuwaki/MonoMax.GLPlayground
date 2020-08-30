@@ -224,7 +224,7 @@ namespace SMGE
 	{
 		getPersistentComponents().clear();
 		getTransientComponents().clear();
-		allComponents_.clear();
+		getAllComponents().clear();
 
 		movementCompo_ = nullptr;
 		mainBoundCompo_ = nullptr;
@@ -250,11 +250,11 @@ namespace SMGE
 		}
 	}
 
-	void CActor::OnAfterSpawned(CMap* map, bool isDynamic)
+	void CActor::OnSpawnStarted(CMap* map, bool isDynamic)
 	{
 	}
 
-	void CActor::OnAfterArranged(CMap* map)
+	void CActor::OnSpawnFinished(CMap* map)
 	{
 	}
 
@@ -315,6 +315,8 @@ namespace SMGE
 
 	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
 	{
+		className_ = wtext("SMGE::CCollideActor");
+
 		rule_ = rule;
 		isDetailCheck_ = isDetailCheck;
 	}
@@ -327,19 +329,26 @@ namespace SMGE
 		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
 	}
 
-	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CCollideActor(outer, rule, isDetailCheck, fOnCollide)
+	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
+		CCollideActor(outer, rule, isDetailCheck, fOnCollide)
 	{
-		Ctor();
+		className_ = wtext("SMGE::CRayCollideActor");
+		Ctor(size, dir);
 	}
 
-	void CRayCollideActor::Ctor()
+	void CRayCollideActor::Ctor(float size, const glm::vec3& dir)
 	{
-		//Super::Ctor();	// 일부러
+		//Super::Ctor();	// 일부러 - 각 클래스들의 생성자에서 따로 불러주므로 이렇게 부르면 안된다! 현재는 그렇다 20200831
 
+		// 차후 생각할 일 - 현재 CActor 상속이라서 안쓰는 persistcompo - mainDrawCompo 등이 생겼다가 없어진다, 이 문제는 언리얼에서도 있었다
+		getPersistentComponents().clear();
+		getTransientComponents().clear();
+		getAllComponents().clear();
 		movementCompo_ = nullptr;
+		mainBoundCompo_ = nullptr;
 
 		// 바운드
-		auto RayCompo = MakeUniqPtr<CRayComponent>(this, 10.f, glm::vec3( 0.f, 0.f, 1.f ));
+		auto RayCompo = MakeUniqPtr<CRayComponent>(this, size, dir);
 		mainBoundCompo_ = SCast<CRayComponent*>(RayCompo.get());
 		getTransientComponents().emplace_back(std::move(RayCompo));
 	}

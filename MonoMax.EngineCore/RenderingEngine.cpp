@@ -523,7 +523,7 @@ namespace SMGE
 			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resource_ 의 내용을 비워도 된다
 			usingTextureID_ = resource_.GetTextureID(texSamp);
 			usingTextureSampleI_ = texSamp;
-			GenBindData(resource_.GetMesh().vertices_, resource_.GetMesh().uvs_, resource_.GetMesh().normals_, resource_.GetMesh().vertexColors_);
+			GenOpenGLBuffers(resource_.GetMesh().vertices_, resource_.GetMesh().uvs_, resource_.GetMesh().normals_, resource_.GetMesh().vertexColors_);
 		}
 
 		RenderModel::RenderModel(RenderModel&& c) noexcept : resource_(c.resource_)
@@ -544,7 +544,7 @@ namespace SMGE
 			c.Invalidate();
 		}
 
-		bool RenderModel::GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
+		bool RenderModel::GenOpenGLBuffers(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
 		{
 			if (vertices.size() == 0)
 				return false;

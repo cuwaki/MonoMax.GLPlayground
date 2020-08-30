@@ -6,6 +6,16 @@ namespace SMGE
 {
 	namespace nsGE
 	{
+		class CGameBase;
+	}
+
+	namespace Globals
+	{
+		extern nsGE::CGameBase* GCurrentGame;
+	}
+
+	namespace nsGE
+	{
 		struct SGEGameSettings
 		{
 			CWString gameProjectName_;

@@ -79,8 +79,8 @@ namespace SMGE
 		void setActorStaticTag(const CString& st) { actorStaticTag_ = st; }
 		CString getActorStaticTag() { return actorStaticTag_; }
 
-		virtual void OnAfterSpawned(class CMap* map, bool isDynamic);
-		virtual void OnAfterArranged(class CMap* map);
+		virtual void OnSpawnStarted(class CMap* map, bool isDynamic);
+		virtual void OnSpawnFinished(class CMap* map);
 		virtual void BeginPlay();
 		virtual void EndPlay();
 
@@ -125,7 +125,7 @@ namespace SMGE
 
 		CTimer timer_;
 
-		// ActorKeyGenerator
+		// DynamicActorKey
 		friend class CMap;
 	};
 
@@ -146,7 +146,7 @@ namespace SMGE
 	protected:
 		ECheckCollideRule rule_;
 		bool isDetailCheck_;
-		const DELEGATE_OnCollide& fOnCollide_;
+		DELEGATE_OnCollide fOnCollide_;
 	};
 
 	class CRayCollideActor : public CCollideActor
@@ -154,9 +154,9 @@ namespace SMGE
 		using Super = CCollideActor;
 
 	public:
-		CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide);
+		CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir);
 
-		void Ctor();
+		void Ctor(float size, const glm::vec3& dir);
 
 		virtual std::vector<CActor*> QueryCollideCheckTargets() override;
 		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) override;

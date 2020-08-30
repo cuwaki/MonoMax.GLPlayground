@@ -77,10 +77,14 @@ namespace SMGE
 
 	void CRayComponent::ReadyToDrawing()
 	{
-		nsRE::RayRSM* rsm = new nsRE::RayRSM(size_, direction_);
+		const auto resmKey = wtext("gizmoK:ray");
+
+		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
+		if(rsm == nullptr)
+			rsm = new nsRE::RayRSM(size_, direction_);
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(wtext("gizmoK:ray"), std::move(rsm));
+		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
 
 		rsm->GetRenderModel().AddWorldObject(this);
 

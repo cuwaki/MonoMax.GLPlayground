@@ -273,7 +273,7 @@ namespace SMGE
 			RenderModel(RenderModel&& c) noexcept;
 			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ 때문에 구현 불가
 
-			bool GenBindData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
+			bool GenOpenGLBuffers(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
 			void Render(const glm::mat4& VP);
 			void BeginRender();
 			void EndRender();
