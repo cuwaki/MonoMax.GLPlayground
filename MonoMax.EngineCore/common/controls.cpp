@@ -5,6 +5,8 @@ using namespace glm;
 
 CCamera::CCamera()
 {
+	moveSpeed_ = 24.0f / 1000.f;
+	angleSpeed_ = 4.f / 1000.f;
 }
 
 void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int windowHeight)
@@ -15,6 +17,8 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 
 	// Get mouse position
 	double xMovedFromCenter = 0, yMovedFromCenter = 0;
+	// Compute new orientation
+	float xzAngle = horizontalAngle_, yzAngle = verticalAngle_;
 #if IS_EDITOR
 #else
 	if (isInitialize == false)
@@ -29,15 +33,12 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 
 		currentTime = glfwGetTime();
 		deltaTime = float(currentTime - lastProcessInputTime_);
+
+		// 중점을 기준으로
+		xzAngle += angleSpeed_ * float(windowWidth / 2 - xMovedFromCenter);	// y축 기준 회전량 - 요
+		yzAngle += angleSpeed_ * float(windowHeight / 2 - yMovedFromCenter);	// x축 기준 회전량 - 피치
 	}
 #endif
-
-	// Compute new orientation
-	float xzAngle = horizontalAngle_, yzAngle = verticalAngle_;
-
-	// 중점을 기준으로
-	xzAngle += angleSpeed_ * float(windowWidth / 2 - xMovedFromCenter);	// y축 기준 회전량 - 요
-	yzAngle += angleSpeed_ * float(windowHeight / 2 - yMovedFromCenter);	// x축 기준 회전량 - 피치
 
 	//glm::mat4 rotateMat(1);
 	//rotateMat = glm::rotate(rotateMat, xzAngle, glm::vec3(0, 1, 0));
@@ -56,6 +57,8 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 		cos(yzAngle) * cos(xzAngle)
 	};
 
+	cameraDir_ = glm::normalize(cameraDir_);
+
 	// 정면 각도를 기반으로 항상 새롭게 만든다
 	// Right vector
 	cameraRight_ = glm::vec3(
@@ -70,31 +73,11 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 	// Up vector
 	cameraUp_ = glm::cross(cameraRight_, cameraDir_);
 
-#if IS_EDITOR
-
-#else
-	// Move forward
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		worldPosition_ += cameraDir_ * deltaTime * moveSpeed_;
-	}
-	// Move backward
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		worldPosition_ -= cameraDir_ * deltaTime * moveSpeed_;
-	}
-	// Strafe right
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		worldPosition_ += cameraRight_ * deltaTime * moveSpeed_;
-	}
-	// Strafe left
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		worldPosition_ -= cameraRight_ * deltaTime * moveSpeed_;
-	}
-#endif
-
 	float FoV = fov_;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 
 	// Projection matrix : 45?Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	projectionMatrix_ = glm::perspective(FoV, 4.0f / 3.0f, 0.1f, 100.0f);
+	projectionMatrix_ = glm::perspective(FoV, windowWidth / (float)windowHeight, 0.1f, 100.0f);
+
 	// Camera matrix
 	viewMatrix_ = glm::lookAt(
 		worldPosition_,           // Camera is here
@@ -111,15 +94,103 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 #endif
 }
 
+void CCamera::RotateCamera(const glm::vec2& moved)
+{
+	// 테스트 코드 - 이거 하드코딩이고 다른 데 또 있으니 검색해라
+	constexpr float deltaTime = 1000. / 60.;
+
+	// Compute new orientation
+	float xzAngle = horizontalAngle_, yzAngle = verticalAngle_;
+
+	xzAngle += angleSpeed_ * moved.x;	// y축 기준 회전량 - 요
+	yzAngle += angleSpeed_ * moved.y;	// x축 기준 회전량 - 피치
+
+	cameraDir_ = {
+		cos(yzAngle) * sin(xzAngle),
+		sin(yzAngle),
+		cos(yzAngle) * cos(xzAngle)
+	};
+
+	cameraDir_ = glm::normalize(cameraDir_);
+
+	// 정면 각도를 기반으로 항상 새롭게 만든다
+	// Right vector
+	cameraRight_ = glm::vec3(
+		sin(xzAngle - 3.14f / 2.0f),
+		0,
+		cos(xzAngle - 3.14f / 2.0f)
+	);
+
+	horizontalAngle_ = xzAngle;
+	verticalAngle_ = yzAngle;
+
+	cameraUp_ = glm::cross(cameraRight_, cameraDir_);
+
+	viewMatrix_ = glm::lookAt(
+		worldPosition_,
+		worldPosition_ + cameraDir_,
+		cameraUp_);
+}
+
+void CCamera::MoveCamera(bool isLeft, bool isRight, bool isTop, bool isDown)
+{
+	// 테스트 코드 - 이거 하드코딩이고 다른 데 또 있으니 검색해라
+	constexpr float deltaTime = 1000. / 60.;
+
+	if (isLeft)
+		worldPosition_ -= cameraRight_ * deltaTime * moveSpeed_;
+	if (isRight)
+		worldPosition_ += cameraRight_ * deltaTime * moveSpeed_;
+	if (isTop)
+		worldPosition_ += cameraDir_ * deltaTime * moveSpeed_;
+	if (isDown)
+		worldPosition_ -= cameraDir_ * deltaTime * moveSpeed_;
+
+	//// Move forward
+	//if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+	//	worldPosition_ += cameraDir_ * deltaTime * moveSpeed_;
+	//}
+	//// Move backward
+	//if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+	//	worldPosition_ -= cameraDir_ * deltaTime * moveSpeed_;
+	//}
+	//// Strafe right
+	//if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+	//	worldPosition_ += cameraRight_ * deltaTime * moveSpeed_;
+	//}
+	//// Strafe left
+	//if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+	//	worldPosition_ -= cameraRight_ * deltaTime * moveSpeed_;
+	//}
+
+	if(isLeft || isRight || isTop || isDown)
+		SetCameraPos(worldPosition_);
+}
+
+const glm::vec3& CCamera::GetCameraPos()
+{
+	return worldPosition_;
+}
+
+const glm::vec3& CCamera::GetCameraDir()
+{
+	return cameraDir_;
+}
+
 void CCamera::SetCameraPos(const glm::vec3& worldPos)
 {
 	worldPosition_ = worldPos;
+
+	viewMatrix_ = glm::lookAt(
+		worldPosition_,
+		worldPosition_ + cameraDir_,
+		cameraUp_);
 }
 
 void CCamera::SetCameraLookAt(const glm::vec3& lookAtWorldPos)
 {
 	glm::vec3 oldDir = cameraDir_;
-	cameraDir_ = lookAtWorldPos - worldPosition_;
+	cameraDir_ = glm::normalize(lookAtWorldPos - worldPosition_);
 
 	cameraRight_ = glm::normalize(glm::cross(oldDir, cameraDir_));
 	cameraUp_ = glm::normalize(glm::cross(cameraDir_, cameraRight_));

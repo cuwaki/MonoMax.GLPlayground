@@ -24,7 +24,7 @@ namespace SMGE
 
 		if (!m_isInitialized)
 		{
-			double wantFPS = (1.0 / 45.0) * 1000;
+			double wantFPS = 1000. / 60.;
 
 			Grid^ mainGrid = gcnew Grid();
 			m_textFpsCounter = gcnew TextBlock();

@@ -69,16 +69,16 @@ namespace SMGE
 			// 테스트 코드
 			if (actorParent_->getActorStaticTag() == "this is a monkey")
 			{
-				// Translate
-				if (interpTranslation_.isRunning())
-				{
-					targetTransform_->Translate(interpTranslation_.current());
-				}
-				else
-				{
-					moveTo *= -1.f;
-					interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
-				}
+				//// Translate
+				//if (interpTranslation_.isRunning())
+				//{
+				//	targetTransform_->Translate(interpTranslation_.current());
+				//}
+				//else
+				//{
+				//	moveTo *= -1.f;
+				//	interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
+				//}
 
 				//// Rotate
 				//if (interpRotation_.isRunning())

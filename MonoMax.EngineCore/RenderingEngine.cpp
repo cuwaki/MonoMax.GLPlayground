@@ -969,6 +969,7 @@ namespace SMGE
 			//glEnable(GL_MULTISAMPLE);
 		}
 
+		// 테스트 코드 ㅡ 실제 width, height 를 정확히 맞추려면 .xaml 에서 w = 16, h = 39 더 추가해줘야한다
 		void CRenderingEngine::Resize(int width, int height)
 		{
 			glfwSetWindowSize(m_window, width, height);
@@ -990,6 +991,13 @@ namespace SMGE
 			//OldModelAsset::OnScreenResize_Master(m_width, m_height);
 
 			glViewport(0, 0, m_width, m_height);
+
+			//////////////////////////////////////////////////////////////////////////////////////////
+			// 초기 카메라 처리
+			float cameraInitialDist = 20;
+			camera_.SetCameraPos({ 0,0,cameraInitialDist });
+			camera_.SetCameraLookAt({ 0,0,0 });
+			camera_.ComputeMatricesFromInputs(true, m_width, m_height);
 		}
 
 		const int CRenderingEngine::GetBufferLenght()
@@ -1003,14 +1011,6 @@ namespace SMGE
 				throw std::exception("it is trying reinit");
 
 			initWindow();
-
-			//////////////////////////////////////////////////////////////////////////////////////////
-			// 초기 카메라 처리
-			float cameraInitialDist = 20;
-			//camera_.SetCameraPos({ cameraInitialDist/2,cameraInitialDist,cameraInitialDist });
-			camera_.SetCameraPos({ 5,5,cameraInitialDist });
-			camera_.SetCameraLookAt({ 0,0,0 });
-			camera_.ComputeMatricesFromInputs(true, m_width, m_height);
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// 게임 처리
@@ -1049,7 +1049,7 @@ namespace SMGE
 			const float lightRotateRadius = 4;
 			glm::vec4 lightPos = glm::vec4(0, 8, lightRotateRadius, 1);
 			static double lastTime = glfwGetTime();
-			double currentTime = glfwGetTime();
+			float currentTime = glfwGetTime();
 			float theta = currentTime * 2.f;
 			glm::mat4 lightRotateMat(1);
 			lightRotateMat = glm::rotate(lightRotateMat, theta, glm::vec3(0, 1, 0));
@@ -1126,6 +1126,58 @@ namespace SMGE
 			outDpiX = 96;
 			outDpiY = 96;
 			outColorDepth = m_colorDepth;	// 4 for PixelFormats::Pbgr32
+		}
+
+		void CRenderingEngine::ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir)
+		{
+			auto glY = GetHeight() - mousePos.y;	// 스크린좌표를 gl좌표로 취급해야하므로 뒤집어줘야함
+
+			auto ndcX = (mousePos.x / (float)GetWidth() - 0.5f) * 2.0f; // [0,1024] -> [-1,1]
+			auto ndcY = (glY / (float)GetHeight() - 0.5f) * 2.0f; // [0, 768] -> [-1,1]
+
+			// The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
+			glm::vec4 lRayStart_NDC(
+				ndcX, ndcY,
+				-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+				1.0f
+			);
+			glm::vec4 lRayEnd_NDC(
+				ndcX, ndcY,
+				0.0,
+				1.0f
+			);
+
+			// The Projection matrix goes from Camera Space to NDC.
+			// So inverse(ProjectionMatrix) goes from NDC to Camera Space.
+			glm::mat4 toCameraSpace = glm::inverse(camera_.GetProjectionMatrix());
+
+			// The View Matrix goes from World Space to Camera Space.
+			// So inverse(ViewMatrix) goes from Camera Space to World Space.
+			glm::mat4 toWorldSpace = glm::inverse(camera_.GetViewMatrix());
+
+			glm::vec4 lRayStart_camera = toCameraSpace * lRayStart_NDC;
+			lRayStart_camera /= lRayStart_camera.w;
+
+			glm::vec4 lRayStart_world = toWorldSpace * lRayStart_camera;
+			lRayStart_world /= lRayStart_world.w;
+
+			glm::vec4 lRayEnd_camera = toCameraSpace * lRayEnd_NDC;
+			lRayEnd_camera /= lRayEnd_camera.w;
+
+			glm::vec4 lRayEnd_world = toWorldSpace * lRayEnd_camera;
+			lRayEnd_world /= lRayEnd_world.w;
+
+			// Faster way (just one inverse)
+			//glm::mat4 M = glm::inverse(ProjectionMatrix * ViewMatrix);
+			//glm::vec4 lRayStart_world = M * lRayStart_NDC; lRayStart_world/=lRayStart_world.w;
+			//glm::vec4 lRayEnd_world   = M * lRayEnd_NDC  ; lRayEnd_world  /=lRayEnd_world.w;
+
+			outWorldPos = glm::vec3(lRayStart_world);
+
+			//glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
+			//lRayDir_world = glm::normalize(lRayDir_world);
+			//outWorldDir = glm::normalize(lRayDir_world);
+			outWorldDir = GetCamera()->GetCameraDir();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

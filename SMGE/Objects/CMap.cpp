@@ -114,6 +114,28 @@ namespace SMGE
 		actorLayers_[EActorLayer::Game].reserve(100);
 	}
 
+	void CMap::ProcessPendingKills()
+	{
+		auto& actors = actorLayers_[EActorLayer::Game];
+		for (auto it = actors.begin(); it != actors.end(); ++it)
+		{
+			auto& actor = (*it);
+			if (actor->IsPendingKill())
+			{
+				actor->EndPlay();
+				actor = nullptr;
+
+				if (actors.size() > 1)
+					actors.erase(it--);
+				else
+				{
+					actors.erase(it);
+					break;
+				}
+			}
+		}
+	}
+
 	void CMap::Tick(float timeDelta)
 	{
 		for (auto& sptrActor : actorLayers_[EActorLayer::Game])

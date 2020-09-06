@@ -14,8 +14,8 @@ protected:
 	float horizontalAngle_ = 3.14f;
 	float verticalAngle_ = 0.0f;
 	float fov_ = 45.0f;
-	float moveSpeed_ = 3.0f; // 3 units / second
-	float angleSpeed_ = 0.005f;
+	float moveSpeed_ = 12.0f / 1000.f;
+	float angleSpeed_ = 2.f / 1000.f;
 
 	// runtime
 	double lastProcessInputTime_ = 0;
@@ -28,8 +28,14 @@ public:
 
 	void ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int windowHeight);
 
+	const glm::vec3& GetCameraPos();
+	const glm::vec3& GetCameraDir();
+
 	void SetCameraPos(const glm::vec3& worldPos);
 	void SetCameraLookAt(const glm::vec3& lookAtWorldPos);
+
+	void RotateCamera(const glm::vec2& moved);
+	void MoveCamera(bool isLeft, bool isRight, bool isTop, bool isDown);
 };
 
 #endif

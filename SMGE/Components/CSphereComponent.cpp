@@ -53,6 +53,8 @@ namespace SMGE
 #if IS_EDITOR
 		isEditorVisible_ = true;
 #endif
+
+		boundType_ = EBoundType::SPHERE;
 	}
 
 	void CSphereComponent::OnBeginPlay(CObject* parent)

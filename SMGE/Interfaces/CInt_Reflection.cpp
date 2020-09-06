@@ -121,14 +121,20 @@ namespace SMGE
 		return ret;
 	}
 
-	void RemoveIndentForAssetFile(CWString& str)
+	void RemoveOrCommentForAssetFiles(CWString& str)
 	{
 		// 맨 앞, 시작 부분에 있는 공백들을 제거한다, 탭이 스페이스로 대체된 에디터를 쓰는 경우 이럴 수 있다
 		for (auto it = str.begin(); it != str.end();)
 		{
 			auto c = *it;
 			if (c == L'\t' || c == L' ' || c == L'\r' || c == L'\n')
+			{	// 들여쓰기
 				str.erase(it);
+			}
+			else if (c == L'/' && (it + 1) != str.end() && *(it + 1) == L'/')
+			{	// 주석
+				str.erase(it, str.end());
+			}
 			else
 				break;
 		}
@@ -146,10 +152,9 @@ namespace SMGE
 			CVector<CWString> temp;
 			for (int i = 0; i < variableSplitted.size(); ++i)
 			{
-				// .asset 파일의 들여쓰기를 제거한다
-				RemoveIndentForAssetFile(variableSplitted[i]);
+				RemoveOrCommentForAssetFiles(variableSplitted[i]);
 
-				if (variableSplitted[i].length() == 0 || variableSplitted[i]._Starts_with(wtext("//")) == true)
+				if (variableSplitted[i].length() == 0)
 					continue;
 
 				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);

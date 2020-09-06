@@ -44,6 +44,8 @@ namespace SMGE
 		// CInt_Reflection
 		virtual SGReflection& getReflection() override;
 
+		float GetRadius() const { return radius_; }
+
 	protected:
 		CUniqPtr<TReflectionStruct> reflSphereCompo_;
 		float radius_;

@@ -9,6 +9,21 @@ namespace SMGE
 
 	using DELEGATE_OnCollide = std::function<void(class CActor *SRC, class CActor *TAR, const class CBoundComponent *SRC_BOUND, const class CBoundComponent *TAR_BOUND, const glm::vec3& COLL_POS)>;
 
+	enum class EBoundType
+	{
+		POINT,
+		RAY,
+		PLANE,
+
+		SPHERE,
+		CUBE,
+		CYLINDER,
+
+		INHERIT_START,
+
+		MAX = 255,
+	};
+
 	enum class ECheckCollideRule
 	{
 		NEAREST,
@@ -34,13 +49,17 @@ namespace SMGE
 		void Ctor();
 
 	public:
-		virtual bool CheckCollide(const CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) const;
+		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint);
 
 		virtual bool IsPickingTarget() const { return isPickingTarget_; }
 		virtual bool IsCollideTarget() const { return isCollideTarget_; }
 
+		EBoundType GetBoundType() const { return boundType_; }
+
 	protected:
 		bool isPickingTarget_;
 		bool isCollideTarget_;
+
+		EBoundType boundType_ = EBoundType::MAX;
 	};
 };

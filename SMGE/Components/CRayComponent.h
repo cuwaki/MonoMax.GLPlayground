@@ -39,6 +39,7 @@ namespace SMGE
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
+		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
 		void Ctor();
 

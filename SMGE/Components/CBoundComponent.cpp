@@ -27,7 +27,7 @@ namespace SMGE
 		Super::OnEndPlay();
 	}
 
-	bool CBoundComponent::CheckCollide(const CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) const
+	bool CBoundComponent::CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint)
 	{
 		return false;
 	}

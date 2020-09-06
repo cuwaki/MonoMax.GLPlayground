@@ -52,6 +52,8 @@ namespace SMGE
 		virtual void Tick(float);
 		virtual void Render(float);
 
+		virtual void ProcessPendingKills();
+
 		//CActor& SpawnDefaultActor(const CActor& templateActor, bool isDynamic);
 		CActor& FinishSpawnActor(CActor& arrangedActor);
 		CActor* FindActor(TActorKey ak);

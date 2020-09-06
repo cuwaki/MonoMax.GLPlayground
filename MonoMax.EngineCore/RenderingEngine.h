@@ -147,15 +147,13 @@ namespace SMGE
 
 			void Dirty();
 			bool IsDirty() const;
+			void RecalcMatrix();
 
 			void ChangeParent(Transform* p);
 			Transform* GetParent() const;
 			Transform* GetTopParent();
 			bool HasParent() const;
 			bool IsTop() const;
-
-		protected:
-			void RecalcMatrix();
 
 		private:
 			void RecalcMatrix_Internal(const Transform* parent);
@@ -396,6 +394,9 @@ namespace SMGE
 			ResourceModelBase* GetResourceModel(const CWString& key);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
+			void ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir);
+
+			CCamera* GetCamera() { return &camera_; }
 		};
 	}
 }

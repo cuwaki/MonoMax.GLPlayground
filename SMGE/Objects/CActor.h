@@ -90,7 +90,12 @@ namespace SMGE
 		const glm::vec3& getRotation() const { return getTransform().GetRotation(); }
 		const glm::vec3& getScale() const { return getTransform().GetScale(); }
 
-		const class CBoundComponent* GetMainBound() const;
+		class CBoundComponent* GetMainBound();
+
+		void SetPendingKill();
+		bool IsPendingKill() const;
+
+		void SetLifeTick(int32 t) { lifeTick_ = t; }
 
 	public:
 		// CInt_Reflection
@@ -104,6 +109,9 @@ namespace SMGE
 		virtual ComponentVectorWeak& getAllComponents() override;
 
 	protected:
+		bool isPendingKill_ = false;
+		int32 lifeTick_ = 0;
+
 		nsRE::Transform actorTransform_;
 
 		CString actorStaticTag_;

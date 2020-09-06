@@ -238,6 +238,11 @@ namespace SMGE
 		{
 			comp->Tick(timeDelta);
 		}
+
+		if (lifeTick_ > 0 && --lifeTick_ == 0)
+		{
+			SetPendingKill();
+		}
 	}
 
 	void CActor::Render(float timeDelta)
@@ -296,7 +301,7 @@ namespace SMGE
 		}
 	}
 
-	const class CBoundComponent* CActor::GetMainBound() const
+	class CBoundComponent* CActor::GetMainBound()
 	{
 		return mainBoundCompo_;
 	}
@@ -311,6 +316,14 @@ namespace SMGE
 		return actorTransform_;
 	}
 
+	void CActor::SetPendingKill()
+	{
+		isPendingKill_ = true;
+	}
+	bool CActor::IsPendingKill() const
+	{
+		return isPendingKill_;
+	}
 
 
 	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)

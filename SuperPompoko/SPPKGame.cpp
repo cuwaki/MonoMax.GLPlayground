@@ -47,6 +47,37 @@ namespace SMGE
 		currentMap_ = new CMap(this, *testMapTemplate->getContentClass());
 
 		Globals::GCurrentMap = currentMap_;
+
+		auto EditorProcessUserInput = [this](const nsGE::CUserInput& userInput)
+		{
+			if (userInput.IsJustPressed(nsGE::CUserInput::M_LBUTTON))
+			{
+				// 테스트 코드 - 동적 액터 스폰 샘플 코드 {
+					auto mouseScreenPos = userInput.GetMousePosition();
+
+					glm::vec3 ray_origin;
+					glm::vec3 ray_direction;
+					engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
+
+					CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
+						ECheckCollideRule::NEAREST, false,
+						[](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+						{
+							// 충돌한 객체와 이런 걸 한다!
+						},
+						90.f, ray_direction);	// 이제 방향 이상한 것만 잡으면 된다
+
+					currentMap_->FinishSpawnActor(*rayActor);
+
+					rayActor->getTransform().Translate(ray_origin);
+
+					rayActor->SetLifeTick(2);
+					// }
+			}
+
+			return false;
+		};
+		engine_->AddProcessUserInputs(EditorProcessUserInput);
 #endif
 	}
 
@@ -58,21 +89,11 @@ namespace SMGE
 		// 테스트 코드
 		if (currentMap_->IsStarted() == false)
 		{
-			// 테스트 코드 - 동적 액터 스폰 샘플 코드 {
-			CRayCollideActor& rayActor = Globals::GCurrentMap->SpawnDefaultActor<CRayCollideActor>(true, 
-				ECheckCollideRule::NEAREST, false, 
-				[](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
-				{
-					// 충돌한 객체와 이런 걸 한다!
-				},
-				10.f, glm::vec3( 0.f, 0.f, -1.f ));
-			Globals::GCurrentMap->FinishSpawnActor(rayActor);
-			// }
-
 			currentMap_->StartToPlay();
 		}
 
 		currentMap_->Tick(dt);
+		currentMap_->ProcessPendingKills();
 #else
 		CWString assetRoot = PathAssetRoot();
 

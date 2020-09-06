@@ -2,12 +2,120 @@
 #include "CGameBase.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
 
+// CUserInput
+#include <Windows.h>
+
 namespace SMGE
 {
 	namespace nsGE
 	{
+		CUserInput::TInputKey CUserInput::M_LBUTTON = VK_LBUTTON;
+		CUserInput::TInputKey CUserInput::M_RBUTTON = VK_RBUTTON;
+		CUserInput::TInputKey CUserInput::M_MBUTTON = VK_MBUTTON;
+
+		CUserInput::CUserInput()
+		{
+#if IS_EDITOR
+			checkMouseInputs_.insert(std::make_pair(VK_LBUTTON, VK_RELEASED));
+			checkMouseInputsOLD_.insert(std::make_pair(VK_LBUTTON, VK_RELEASED));
+			//checkMouseInputs_.insert(std::make_pair(VK_RBUTTON, VK_RELEASED));
+			//checkMouseInputs_.insert(std::make_pair(VK_MBUTTON, VK_RELEASED));
+
+			checkKeyboardInputs_.insert(std::make_pair(VK_SPACE, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair(VK_RETURN, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair(VK_ESCAPE, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair(VK_LEFT, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair(VK_RIGHT, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair(VK_UP, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair(VK_DOWN, VK_RELEASED));
+#else
+#endif
+		}
+
+		void CUserInput::Tick()
+		{
+			HWND hwnd = ::GetActiveWindow();
+			if (hwnd != nullptr)
+			{
+				POINT pos;
+				::GetCursorPos(&pos);
+				::ScreenToClient(hwnd, &pos);
+				
+				mousePos_ = { pos.x, pos.y };
+			}
+
+			for (auto& it : checkMouseInputs_)
+			{
+				checkMouseInputsOLD_.find(it.first)->second = it.second;
+				it.second = ::GetAsyncKeyState(it.first);
+			}
+			for (auto& it : checkKeyboardInputs_)
+			{
+				it.second = ::GetAsyncKeyState(it.first);
+			}
+		}
+
+		bool CUserInput::CheckInputState(TInputKey k, TInputState state) const
+		{
+			auto found = checkMouseInputs_.find(k);
+			if (found != checkMouseInputs_.end())
+			{
+				auto old = checkMouseInputsOLD_.find(k)->second, neww = checkMouseInputs_.find(k)->second;
+
+				switch (state)
+				{
+				case VK_JUST_PRESSED:
+					if ((old & 0x8000) != 0x8000 && (neww & 0x8000) == 0x8000)
+						return true;
+					else
+						return false;
+
+				case VK_PRESSED:
+					if ((old & 0x8000) == 0x8000 && (neww & 0x8000) == 0x8000)
+						return true;
+					else
+						return false;
+
+				case VK_JUST_RELEASED:
+					break;
+				}
+			}
+
+			found = checkKeyboardInputs_.find(k);
+			if (found != checkKeyboardInputs_.end())
+				return ((*found).second & state) == state;
+
+			return false;
+		}
+	}
+
+	namespace nsGE
+	{
 		CEngineBase::CEngineBase(CGameBase* gameBase) : gameBase_(gameBase)
 		{
+			auto EditorProcessCameraMove = [this](const nsGE::CUserInput& userInput)
+			{
+				GetRenderingEngine()->GetCamera()->MoveCamera(
+					userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT),
+					userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
+
+				static glm::vec2 lPressedPos;
+				bool isJustLPress = userInput.IsJustPressed(VK_LBUTTON);
+				if (isJustLPress)
+					lPressedPos = userInput.GetMousePosition();
+
+				bool isLPress = userInput.IsPressed(VK_LBUTTON);
+				if (isJustLPress == false && isLPress == true)
+				{
+					auto moved = lPressedPos - userInput.GetMousePosition();
+					GetRenderingEngine()->GetCamera()->RotateCamera(moved);
+
+					lPressedPos = userInput.GetMousePosition();
+				}
+
+				return false;
+			};
+			AddProcessUserInputs(EditorProcessCameraMove);
 		}
 
 		CEngineBase::~CEngineBase()
@@ -16,6 +124,13 @@ namespace SMGE
 
 		void CEngineBase::Tick(float timeDelta)
 		{
+			userInput_.Tick();
+			for (auto& pui : delegateUserInputs_)
+			{
+				if (pui(userInput_) == true)
+					break;
+			}
+
 			gameBase_->Tick(timeDelta);
 		}
 
@@ -32,6 +147,11 @@ namespace SMGE
 		nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine()
 		{
 			return renderingEngine_;
+		}
+
+		void CEngineBase::AddProcessUserInputs(const DELEGATE_ProcessUserInput& delegPUI)
+		{
+			delegateUserInputs_.push_back(delegPUI);
 		}
 	}
 }

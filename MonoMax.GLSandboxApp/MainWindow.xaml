@@ -5,14 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:gl="clr-namespace:SMGE;assembly=MonoMax.SMGE"
         mc:Ignorable="d"
-        Title="MainWindow" Height="480" Width="640">
+        Title="MainWindow"
+        Height="539" Width="516"
+        KeyDown="OnKeyDown" KeyUp="OnKeyUp" MouseLeftButtonDown="OnLButtonDown" MouseLeftButtonUp="OnLButtonUp" MouseRightButtonUp="OnMouseWheel" WindowStyle="ToolWindow" >
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="317*"/>
-            <ColumnDefinition Width="315*"/>
+            <ColumnDefinition Width="250*"/>
+            <ColumnDefinition Width="250*"/>
         </Grid.ColumnDefinitions>
         <Grid Panel.ZIndex="1" Grid.ColumnSpan="2">
-            <TreeView Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="233*"/>
+                <ColumnDefinition Width="275*"/>
+            </Grid.ColumnDefinitions>
+            <TreeView Background="Transparent" Grid.ColumnSpan="2">
                 <TreeView.Items>
                     <TreeViewItem Header="Node_1">
                         <TreeViewItem Header="Node_1.1" />
@@ -30,7 +36,7 @@
             </TreeView>
             <ListView VerticalAlignment="Center" HorizontalAlignment="Center"
                       Background="Transparent"
-                      MaxHeight="100" Margin="511,10,10,339">
+                      MaxHeight="100" Margin="142.939,30,18,410" Grid.Column="1">
                 <ListView.Items>
                     <TextBlock Text="ListViewItem_1" />
                     <TextBlock Text="ListViewItem_2" />
@@ -38,7 +44,7 @@
                 </ListView.Items>
             </ListView>
         </Grid>
-        <gl:GLControl Grid.Column="0" Grid.ColumnSpan="2" />
+        <gl:GLControl Grid.Column="0" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>
  
