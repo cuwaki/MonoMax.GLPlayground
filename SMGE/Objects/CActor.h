@@ -166,7 +166,9 @@ namespace SMGE
 
 		void Ctor(float size, const glm::vec3& dir);
 
-		virtual std::vector<CActor*> QueryCollideCheckTargets() override;
+		virtual std::vector<CActor*> QueryCollideCheckTargets() override;		
 		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) override;
+
+		void ProcessCollide(std::vector<CActor*>& targets);
 	};
 };

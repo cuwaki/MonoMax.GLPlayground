@@ -38,16 +38,17 @@ namespace SMGE
 		public:
 			// 리맵핑 가능하도록 static 이다
 #if IS_EDITOR
-			static TInputKey M_LBUTTON;
-			static TInputKey M_RBUTTON;
-			static TInputKey M_MBUTTON;
+			static TInputKey LBUTTON;
+			static TInputKey RBUTTON;
+			static TInputKey MBUTTON;
 #else
 #endif
 
 		public:
 			CUserInput();
 
-			virtual void Tick();
+			virtual void QueryState();
+			bool HasInputFocus();
 
 			bool IsPressed(TInputKey k) const
 			{
@@ -68,7 +69,7 @@ namespace SMGE
 			const glm::vec2& GetMousePosition() const
 			{
 				return mousePos_;
-			}
+			}			
 
 		protected:
 			bool CheckInputState(TInputKey k, TInputState state) const;

@@ -9,17 +9,16 @@ namespace SMGE
 {
 	namespace nsGE
 	{
-		CUserInput::TInputKey CUserInput::M_LBUTTON = VK_LBUTTON;
-		CUserInput::TInputKey CUserInput::M_RBUTTON = VK_RBUTTON;
-		CUserInput::TInputKey CUserInput::M_MBUTTON = VK_MBUTTON;
+		CUserInput::TInputKey CUserInput::LBUTTON = VK_LBUTTON;
+		CUserInput::TInputKey CUserInput::RBUTTON = VK_RBUTTON;
+		CUserInput::TInputKey CUserInput::MBUTTON = VK_MBUTTON;
 
 		CUserInput::CUserInput()
 		{
 #if IS_EDITOR
 			checkMouseInputs_.insert(std::make_pair(VK_LBUTTON, VK_RELEASED));
-			checkMouseInputsOLD_.insert(std::make_pair(VK_LBUTTON, VK_RELEASED));
-			//checkMouseInputs_.insert(std::make_pair(VK_RBUTTON, VK_RELEASED));
-			//checkMouseInputs_.insert(std::make_pair(VK_MBUTTON, VK_RELEASED));
+			checkMouseInputs_.insert(std::make_pair(VK_RBUTTON, VK_RELEASED));
+			checkMouseInputs_.insert(std::make_pair(VK_MBUTTON, VK_RELEASED));
 
 			checkKeyboardInputs_.insert(std::make_pair(VK_SPACE, VK_RELEASED));
 			checkKeyboardInputs_.insert(std::make_pair(VK_RETURN, VK_RELEASED));
@@ -32,58 +31,85 @@ namespace SMGE
 #endif
 		}
 
-		void CUserInput::Tick()
+		bool CUserInput::HasInputFocus()
 		{
 			HWND hwnd = ::GetActiveWindow();
-			if (hwnd != nullptr)
+			if (hwnd == nullptr || ::GetFocus() != hwnd)
+				return false;
+
+			return true;
+		}
+
+		void CUserInput::QueryState()
+		{
+#if IS_EDITOR
+			HWND hwnd = ::GetActiveWindow();
+			if (hwnd != nullptr && ::GetFocus() == hwnd)
 			{
 				POINT pos;
 				::GetCursorPos(&pos);
 				::ScreenToClient(hwnd, &pos);
-				
+
 				mousePos_ = { pos.x, pos.y };
 			}
 
+			// 포커스 없어도 해야한다
 			for (auto& it : checkMouseInputs_)
 			{
-				checkMouseInputsOLD_.find(it.first)->second = it.second;
+				checkMouseInputsOLD_[it.first] = it.second;
 				it.second = ::GetAsyncKeyState(it.first);
 			}
 			for (auto& it : checkKeyboardInputs_)
 			{
+				checkKeyboardInputsOLD_[it.first] = it.second;
 				it.second = ::GetAsyncKeyState(it.first);
 			}
+#endif
 		}
 
 		bool CUserInput::CheckInputState(TInputKey k, TInputState state) const
 		{
-			auto found = checkMouseInputs_.find(k);
-			if (found != checkMouseInputs_.end())
+			const TInputMap* checkInputs[4] = { &checkMouseInputs_, &checkMouseInputsOLD_,
+												&checkKeyboardInputs_, &checkKeyboardInputsOLD_ };
+
+			for (int i = 0; i < 4; i += 2)
 			{
-				auto old = checkMouseInputsOLD_.find(k)->second, neww = checkMouseInputs_.find(k)->second;
+				auto& neww = checkInputs[i + 0];
 
-				switch (state)
+				auto found = neww->find(k);
+				if (found != neww->end())
 				{
-				case VK_JUST_PRESSED:
-					if ((old & 0x8000) != 0x8000 && (neww & 0x8000) == 0x8000)
-						return true;
-					else
-						return false;
+					auto& old = checkInputs[i + 1];
 
-				case VK_PRESSED:
-					if ((old & 0x8000) == 0x8000 && (neww & 0x8000) == 0x8000)
-						return true;
-					else
-						return false;
+					auto oldState = old->find(k)->second, newState = neww->find(k)->second;
+					switch (state)
+					{
+					case VK_JUST_PRESSED:
+						if ((oldState & 0x8000) == 0 && (newState & 0x8000) == 0x8000)
+							return true;
+						else
+							return false;
 
-				case VK_JUST_RELEASED:
-					break;
+					case VK_PRESSED:
+						if ((oldState & 0x8000) == 0x8000 && (newState & 0x8000) == 0x8000)
+							return true;
+						else
+							return false;
+
+					case VK_JUST_RELEASED:
+						if ((oldState & 0x8000) == 0x8000 && (newState & 0x8000) == 0)
+							return true;
+						else
+							return false;
+
+					case VK_RELEASED:
+						if ((oldState & 0x8000) == 0 && (newState & 0x8000) == 0)
+							return true;
+						else
+							return false;
+					}
 				}
 			}
-
-			found = checkKeyboardInputs_.find(k);
-			if (found != checkKeyboardInputs_.end())
-				return ((*found).second & state) == state;
 
 			return false;
 		}
@@ -124,11 +150,14 @@ namespace SMGE
 
 		void CEngineBase::Tick(float timeDelta)
 		{
-			userInput_.Tick();
-			for (auto& pui : delegateUserInputs_)
+			userInput_.QueryState();
+			if (userInput_.HasInputFocus())
 			{
-				if (pui(userInput_) == true)
-					break;
+				for (auto& pui : delegateUserInputs_)
+				{
+					if (pui(userInput_) == true)
+						break;
+				}
 			}
 
 			gameBase_->Tick(timeDelta);

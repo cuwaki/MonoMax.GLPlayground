@@ -50,29 +50,32 @@ namespace SMGE
 
 		auto EditorProcessUserInput = [this](const nsGE::CUserInput& userInput)
 		{
-			if (userInput.IsJustPressed(nsGE::CUserInput::M_LBUTTON))
+			if (userInput.IsJustPressed(nsGE::CUserInput::LBUTTON))
 			{
 				// 테스트 코드 - 동적 액터 스폰 샘플 코드 {
-					auto mouseScreenPos = userInput.GetMousePosition();
+				auto mouseScreenPos = userInput.GetMousePosition();
 
-					glm::vec3 ray_origin;
-					glm::vec3 ray_direction;
-					engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
+				glm::vec3 ray_origin;
+				glm::vec3 ray_direction;
+				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
-					CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
-						ECheckCollideRule::NEAREST, false,
-						[](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
-						{
-							// 충돌한 객체와 이런 걸 한다!
-						},
-						90.f, ray_direction);	// 이제 방향 이상한 것만 잡으면 된다
+				CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
+					ECheckCollideRule::NEAREST, false,
+					[](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+					{
+						volatile int xxx = 0;
+						// 충돌한 객체와 이런 걸 한다!
+					},
+					engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);	// 이제 방향 이상한 것만 잡으면 된다
+				
+				currentMap_->FinishSpawnActor(*rayActor);
+				rayActor->getTransform().Translate(ray_origin);
 
-					currentMap_->FinishSpawnActor(*rayActor);
+				auto targets = rayActor->QueryCollideCheckTargets();
+				rayActor->ProcessCollide(targets);
 
-					rayActor->getTransform().Translate(ray_origin);
-
-					rayActor->SetLifeTick(2);
-					// }
+				rayActor->SetLifeTick(2);
+				// }
 			}
 
 			return false;

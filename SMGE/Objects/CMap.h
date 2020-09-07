@@ -58,6 +58,7 @@ namespace SMGE
 		CActor& FinishSpawnActor(CActor& arrangedActor);
 		CActor* FindActor(TActorKey ak);
 		CSharPtr<CActor>&& RemoveActor(TActorKey ak);
+		const CVector<CSharPtr<CActor>>& GetActors(EActorLayer layer) const;
 
 		void StartToPlay();
 		void FinishPlaying();

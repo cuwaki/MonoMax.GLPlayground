@@ -224,6 +224,12 @@ namespace SMGE
 			return transformMatrix_;
 		}
 
+		glm::vec3 Transform::GetWorldPosition()
+		{
+			const auto& mat = GetMatrix(false);
+			return { mat[3][0], mat[3][1], mat[3][2] };
+		}
+
 		void Transform::Translate(glm::vec3 worldPos)
 		{
 			translation_ = worldPos;
@@ -639,7 +645,7 @@ namespace SMGE
 				else
 				{
 					glLineWidth(2.f);
-					glDrawArrays(GL_LINES, 0, verticesSize_);
+					glDrawArrays(GL_LINES, 0, verticesSize_);	// 테스트 코드 ㅡ 스티치로 나오는 버그 있다
 				}
 			}
 		}
@@ -1143,7 +1149,7 @@ namespace SMGE
 			);
 			glm::vec4 lRayEnd_NDC(
 				ndcX, ndcY,
-				0.0,
+				1.0f,
 				1.0f
 			);
 
@@ -1177,7 +1183,8 @@ namespace SMGE
 			//glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
 			//lRayDir_world = glm::normalize(lRayDir_world);
 			//outWorldDir = glm::normalize(lRayDir_world);
-			outWorldDir = GetCamera()->GetCameraDir();
+			//outWorldDir = GetCamera()->GetCameraDir();
+			outWorldDir = glm::normalize(outWorldPos - GetCamera()->GetCameraPos());
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

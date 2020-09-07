@@ -205,6 +205,11 @@ namespace SMGE
 		return std::move(actorLayers_[EActorLayer::Game][0]);
 	}
 
+	const CVector<CSharPtr<CActor>>& CMap::GetActors(EActorLayer layer) const
+	{
+		return actorLayers_[layer];
+	}
+
 	void CMap::StartToPlay()
 	{
 		if (isStarted_ == true)

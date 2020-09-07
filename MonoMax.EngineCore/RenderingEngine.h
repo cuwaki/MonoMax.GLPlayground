@@ -136,6 +136,8 @@ namespace SMGE
 			const glm::vec3& GetRotation() const;
 			const glm::vec3& GetScale() const;
 
+			glm::vec3 GetWorldPosition();
+
 			void Translate(glm::vec3 worldPos);
 			void Rotate(glm::vec3 rotateDegrees);
 			void RotateAxis(TransformConst::ETypeRot rType, float degrees);

@@ -102,10 +102,10 @@ namespace SMGE
 			this->RecalcMatrix();
 			sphere->RecalcMatrix();
 
-			auto rayLoc = this->GetTranslation(), sphereLoc = sphere->GetTranslation();
+			auto rayLoc = this->GetWorldPosition(), sphereLoc = sphere->GetWorldPosition();
 			
 			auto ray2sphere = sphereLoc - rayLoc;
-			float r2sLen = ray2sphere.length();
+			float r2sLen = glm::distance(sphereLoc, rayLoc);
 
 			// https://m.blog.naver.com/PostView.nhn?blogId=hermet&logNo=68084286&proxyReferer=https:%2F%2Fwww.google.com%2F
 			// 내용을 기준으로 조금 변형 하였다
@@ -121,12 +121,16 @@ namespace SMGE
 				return true;
 			}
 
+			//auto normR2S = glm::normalize(ray2sphere);
+
 			float cosTheta = glm::dot(ray2sphere, this->direction_) / r2sLen;	// 이거랑
+			//float cosTheta = glm::dot(normR2S, this->direction_);	// 이거랑
 			if (cosTheta <= 0.f)	// 레이의 방향이 원쪽과 반대방향 또는 직각임
 				return false;
 
 			float hypo = r2sLen;
-			float base = glm::dot(this->direction_, ray2sphere);	// 이거를 똑같이 써도 cosTheta 논리가 동일하지 않을까? 그러면 dot 한번 줄일 수 있다.
+			//float base = glm::dot(this->direction_, ray2sphere);	// 이거를 똑같이 써도 cosTheta 논리가 동일하지 않을까? 그러면 dot 한번 줄일 수 있다.
+			float base = cosTheta * r2sLen;
 
 			float radiusSQ = sphere->GetRadius() * sphere->GetRadius();
 			float heightSQ = hypo * hypo - base * base;

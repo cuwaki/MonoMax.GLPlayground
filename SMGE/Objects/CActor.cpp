@@ -7,6 +7,8 @@
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"
 
+#include <algorithm>
+
 namespace SMGE
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +56,7 @@ namespace SMGE
 		// { persistentComponentsREFL_ RTTI 필요 이슈
 		//ret += ReflectionUtils::ToCVector(persistentComponentsREFL_, L"CVector<SGRefl_Component>", L"persistentComponentsREFL_", std::optional<size_t>{});
 
+		// 테스트 코드 ㅡ 몽키 컬링 스피어 콤포
 		// 테스트 코드 ㅡ 쓰는 부분이다 - CActor::Ctor 에서 결정되어있다
 		ret += _TO_REFL(int32_t, persistentComponentNumber_);
 
@@ -123,7 +126,18 @@ namespace SMGE
 		//	pcomps.emplace_back(std::move(meshComp));
 		//}
 
-		if (persistentComponentNumber_ == 1)
+		// 테스트 코드 ㅡ 몽키 컬링 스피어 콤포
+		if (persistentComponentNumber_ == 2)
+		{
+			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
+			meshComp.get()->getReflection() = variableSplitted;
+			pcomps.emplace_back(std::move(meshComp));
+
+			auto sphereComp = MakeUniqPtr<CSphereComponent>(&outerActor_);
+			sphereComp.get()->getReflection() = variableSplitted;
+			pcomps.emplace_back(std::move(sphereComp));
+		}
+		else if (persistentComponentNumber_ == 1)
 		{
 			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
 			meshComp.get()->getReflection() = variableSplitted;
@@ -214,10 +228,10 @@ namespace SMGE
 		movementCompo_ = SCast<CMovementComponent*>(transfCompo.get());
 		getTransientComponents().emplace_back(std::move(transfCompo));
 
-		// 바운드
-		auto sphereCompo = MakeUniqPtr<CSphereComponent>(this);
-		mainBoundCompo_ = SCast<CSphereComponent*>(sphereCompo.get());
-		getTransientComponents().emplace_back(std::move(sphereCompo));
+		// 삭제해도 됨 - 트랜젼트 바운드 테스트 바운드
+		//auto sphereCompo = MakeUniqPtr<CSphereComponent>(this);
+		//mainBoundCompo_ = SCast<CSphereComponent*>(sphereCompo.get());
+		//getTransientComponents().emplace_back(std::move(sphereCompo));
 	}
 
 	void CActor::Dtor()
@@ -265,6 +279,10 @@ namespace SMGE
 
 	void CActor::BeginPlay()
 	{
+		// 테스트 코드 ㅡ 몽키 컬링 스피어 콤포
+		if(getActorStaticTag() == "this is a monkey")
+			mainBoundCompo_ = DCast<CBoundComponent*>(getPersistentComponents()[1].get());
+		
 		for (auto& pc : getPersistentComponents())
 		{
 			registerComponent(pc.get());
@@ -337,9 +355,6 @@ namespace SMGE
 	void CCollideActor::BeginPlay()
 	{
 		Super::BeginPlay();
-
-		auto targets = QueryCollideCheckTargets();
-		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
 	}
 
 	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
@@ -368,11 +383,17 @@ namespace SMGE
 
 	std::vector<CActor*> CRayCollideActor::QueryCollideCheckTargets()
 	{
-		std::vector<CActor*> ret;
+		const auto& actors = Globals::GCurrentMap->GetActors(EActorLayer::Game);
 
-		// 컬링 및 기타 조건 체크를 하여야한다
+		std::vector<CActor*> ret(actors.size());
+		std::transform(actors.begin(), actors.end(), ret.begin(), [](const CSharPtr<CActor>& sptrActor) { return sptrActor.get(); });
 
 		return ret;
+	}
+
+	void CRayCollideActor::ProcessCollide(std::vector<CActor*>& targets)
+	{
+		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
 	}
 
 	void CRayCollideActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets)
