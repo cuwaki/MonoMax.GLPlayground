@@ -204,6 +204,8 @@ namespace SMGE
 			virtual const VertFragShaderSet& GetShaderSet() const;
 			virtual GLuint GetShaderID() const { return 0; }
 
+			bool IsGizmo() const;
+
 			class RenderModel& GetRenderModel() const;
 
 			ResourceModelBase(const ResourceModelBase& c) = delete;

@@ -171,4 +171,13 @@ namespace SMGE
 
 		void ProcessCollide(std::vector<CActor*>& targets);
 	};
+
+	class CPointActor : public CActor
+	{
+		using Super = CActor;
+
+	public:
+		CPointActor(CObject* outer);
+		void Ctor();
+	};
 };

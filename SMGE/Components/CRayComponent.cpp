@@ -142,7 +142,7 @@ namespace SMGE
 
 				if (distToCollidePoint <= size_)
 				{	//  충돌한 지점과의 거리가 크기보다 작으면 충돌
-					outCollidingPoint = rayLoc + distToCollidePoint;
+					outCollidingPoint = rayLoc + (direction_ * distToCollidePoint);
 					return true;
 				}
 			}

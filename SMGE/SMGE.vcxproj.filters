@@ -104,6 +104,9 @@
     <ClInclude Include="Components\CRayComponent.h">
       <Filter>Components\Bound</Filter>
     </ClInclude>
+    <ClInclude Include="Components\CPointComponent.h">
+      <Filter>Components\Bound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -161,6 +164,9 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Components\CRayComponent.cpp">
+      <Filter>Components\Bound</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CPointComponent.cpp">
       <Filter>Components\Bound</Filter>
     </ClCompile>
   </ItemGroup>

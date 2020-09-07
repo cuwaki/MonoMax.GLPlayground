@@ -4,6 +4,7 @@
 #include "../Components/CMovementComponent.h"
 #include "../Components/CSphereComponent.h"
 #include "../Components/CRayComponent.h"
+#include "../Components/CPointComponent.h"
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"
 
@@ -229,9 +230,8 @@ namespace SMGE
 		getTransientComponents().emplace_back(std::move(transfCompo));
 
 		// 삭제해도 됨 - 트랜젼트 바운드 테스트 바운드
-		//auto sphereCompo = MakeUniqPtr<CSphereComponent>(this);
-		//mainBoundCompo_ = SCast<CSphereComponent*>(sphereCompo.get());
-		//getTransientComponents().emplace_back(std::move(sphereCompo));
+		auto sphereCompo = MakeUniqPtr<CPointComponent>(this);
+		getTransientComponents().emplace_back(std::move(sphereCompo));
 	}
 
 	void CActor::Dtor()
@@ -357,6 +357,27 @@ namespace SMGE
 		Super::BeginPlay();
 	}
 
+	CPointActor::CPointActor(CObject* outer) : CActor(outer)
+	{
+		className_ = wtext("SMGE::CPointActor");
+		Ctor();
+	}
+
+	void CPointActor::Ctor()
+	{
+		//Super::Ctor();	// 일부러 - 각 클래스들의 생성자에서 따로 불러주므로 이렇게 부르면 안된다! 현재는 그렇다 20200831
+
+		// 차후 생각할 일 - 현재 CActor 상속이라서 안쓰는 persistcompo - mainDrawCompo 등이 생겼다가 없어진다, 이 문제는 언리얼에서도 있었다
+		getPersistentComponents().clear();
+		getTransientComponents().clear();
+		getAllComponents().clear();
+		movementCompo_ = nullptr;
+		mainBoundCompo_ = nullptr;
+
+		auto pointCompo = MakeUniqPtr<CPointComponent>(this);
+		getTransientComponents().emplace_back(std::move(pointCompo));
+	}
+
 	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
 		CCollideActor(outer, rule, isDetailCheck, fOnCollide)
 	{
@@ -386,7 +407,19 @@ namespace SMGE
 		const auto& actors = Globals::GCurrentMap->GetActors(EActorLayer::Game);
 
 		std::vector<CActor*> ret(actors.size());
-		std::transform(actors.begin(), actors.end(), ret.begin(), [](const CSharPtr<CActor>& sptrActor) { return sptrActor.get(); });
+		std::transform(actors.begin(), actors.end(), ret.begin(), [this](const CSharPtr<CActor>& sptrActor)
+			{
+				auto ret = sptrActor.get();
+				if (ret != nullptr && ret->GetMainBound() != nullptr && ret != this)
+					return ret;
+				else
+					ret = nullptr;
+
+				return ret;
+			});
+
+		auto nullStart = std::remove_if(ret.begin(), ret.end(), [](auto& v) { return v == nullptr; });
+		ret.erase(nullStart, ret.end());
 
 		return ret;
 	}

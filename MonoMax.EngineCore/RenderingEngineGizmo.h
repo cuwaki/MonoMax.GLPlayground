@@ -25,5 +25,11 @@ namespace SMGE
 		public:
 			RayRSM(float size, const glm::vec3& direction);
 		};
+
+		class PointRSM : public GizmoRSM
+		{
+		public:
+			PointRSM();
+		};
 	}
 }

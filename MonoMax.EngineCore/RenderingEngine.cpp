@@ -447,6 +447,11 @@ namespace SMGE
 			return temp;	// 일부러
 		}
 
+		bool ResourceModelBase::IsGizmo() const
+		{
+			return GetMesh().uvs_.size() == 0;
+		}
+
 		void ResourceModelBase::Invalidate()
 		{
 			renderModel_ = nullptr;
@@ -640,12 +645,21 @@ namespace SMGE
 				if (resource_.GetShaderSet().unif_ModelMatrixID_ != -1)
 					glUniformMatrix4fv(resource_.GetShaderSet().unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
 
-				if(resource_.GetMesh().uvs_.size() > 0)
+				if (resource_.IsGizmo() == false)
+				{
 					glDrawArrays(GL_TRIANGLES, 0, verticesSize_);
+					//glDrawArrays(GL_LINES, 0, verticesSize_);	// 이걸로 그리면 와이어프레임으로 그려진다 - 아마 수잔느 몽키만 그럴지도?!
+				}
 				else
 				{
-					glLineWidth(2.f);
-					glDrawArrays(GL_LINES, 0, verticesSize_);	// 테스트 코드 ㅡ 스티치로 나오는 버그 있다
+					if (verticesSize_ > 1)
+					{
+						glDrawArrays(GL_LINES, 0, verticesSize_);	// 테스트 코드 ㅡ 스티치로 나오는 버그 있다
+					}
+					else
+					{
+						glDrawArrays(GL_POINT, 0, verticesSize_);	// 문제 - 점이 제대로 안그려진다
+					}
 				}
 			}
 		}
@@ -664,6 +678,13 @@ namespace SMGE
 
 			// 1rst attribute buffer : vertices
 			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
+
+			//if (resource_.IsGizmo())
+			//{
+			//	glLineWidth(4.f);
+			//	glPointSize(4.f);
+			//}			
+
 			glEnableVertexAttribArray(vertAttrArray_);
 			glVertexAttribPointer(
 				vertAttrArray_,                  // attribute
@@ -971,6 +992,11 @@ namespace SMGE
 			glFrontFace(GL_CCW);
 			glCullFace(GL_BACK);
 			glEnable(GL_CULL_FACE);
+
+			//glEnable(GL_LINE_SMOOTH);
+			//GLfloat lineWidthRange[2] = { 0.0f, 0.0f };
+			//glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
+			//glEnable(GL_PROGRAM_POINT_SIZE);
 
 			//glEnable(GL_MULTISAMPLE);
 		}

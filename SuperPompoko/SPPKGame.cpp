@@ -7,6 +7,7 @@
 #include "CEngineBase.h"
 #include "Objects/CMap.h"
 #include "Assets/CResourceModel.h"
+#include "Components/CPointComponent.h"
 
 namespace SMGE
 {
@@ -61,19 +62,21 @@ namespace SMGE
 
 				CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
 					ECheckCollideRule::NEAREST, false,
-					[](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
 					{
-						volatile int xxx = 0;
-						// 충돌한 객체와 이런 걸 한다!
-					},
-					engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);	// 이제 방향 이상한 것만 잡으면 된다
-				
-				currentMap_->FinishSpawnActor(*rayActor);
-				rayActor->getTransform().Translate(ray_origin);
+						CPointActor* pointActor = &currentMap_->SpawnDefaultActor<CPointActor>(true);
+						currentMap_->FinishSpawnActor(*pointActor);
 
+						pointActor->getTransform().Translate(COLL_POS);
+						pointActor->SetLifeTick(100);
+					},
+					engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);
+				currentMap_->FinishSpawnActor(*rayActor);
+
+				// 생각 - 이걸 비긴 플레이로 넣고 싶은데 / 애프터 비긴 플레이 말고 그냥 비긴 플레이에 넣을 수는 없을까?
+				rayActor->getTransform().Translate(ray_origin);
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->ProcessCollide(targets);
-
 				rayActor->SetLifeTick(2);
 				// }
 			}

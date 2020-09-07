@@ -117,21 +117,15 @@ namespace SMGE
 	void CMap::ProcessPendingKills()
 	{
 		auto& actors = actorLayers_[EActorLayer::Game];
-		for (auto it = actors.begin(); it != actors.end(); ++it)
+		for (int i = actors.size() - 1; i >= 0; --i)
 		{
-			auto& actor = (*it);
+			auto& actor = actors[i];
 			if (actor->IsPendingKill())
 			{
 				actor->EndPlay();
 				actor = nullptr;
 
-				if (actors.size() > 1)
-					actors.erase(it--);
-				else
-				{
-					actors.erase(it);
-					break;
-				}
+				actors.erase(actors.begin() + i);
 			}
 		}
 	}
