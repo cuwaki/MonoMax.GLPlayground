@@ -11,6 +11,22 @@
 
 namespace SMGE
 {
+	namespace Globals
+	{
+		CWString GetGameProjectName()
+		{
+			return wtext("SPPK");
+		}
+		CWString GetGameAssetPath()
+		{
+#if DEBUG || _DEBUG
+			return wtext("..\\RunningResources\\") + GetGameProjectName() + wtext("\\");
+#else
+			return wtext("e:\\") + GetGameProjectName() + wtext("\\");
+#endif
+		}
+	}
+
 	SPPKGame::SPPKGame(CObject* outer) : nsGE::CGameBase(outer)
 	{
 		Initialize();
@@ -38,7 +54,7 @@ namespace SMGE
 		gameSettings_ = new nsGE::SGEGameSettings();
 
 		// 테스트 코드
-		gameSettings_->gameProjectName_ = wtext("dev_project");
+		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
 		gameSettings_->gameProjectRootPath_ = Path::GetDirectoryCurrent();
 
 #ifdef EDITOR_WORKING

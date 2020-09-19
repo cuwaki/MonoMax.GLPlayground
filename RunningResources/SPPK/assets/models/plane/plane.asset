@@ -1,0 +1,34 @@
+className_$CWString$"SMGE::CResourceModel"
+    reflectionFilePath_$CWString$"/models/plane/plane.asset"
+    vertShaderPath_$CWString$"e:/dev_project//assets/models/suzanne/suzanne.vert"
+    fragShaderPath_$CWString$"e:/dev_project//assets/models/suzanne/suzanne.frag"
+    objFilePath_$CWString$""
+    textureFilePath_$CWString$""
+    vertices_$CVector<glm::vec3>$6
+    [x]$glm::vec3$-1.000000	0.000000	-1.000000	
+    [x]$glm::vec3$-1.000000	0.000000	1.000000	
+    [x]$glm::vec3$1.000000	0.000000	-1.000000	
+    [x]$glm::vec3$-1.000000	0.000000	1.000000	
+    [x]$glm::vec3$1.000000	0.000000	1.000000	
+    [x]$glm::vec3$1.000000	0.000000	-1.000000	
+    uvs_$CVector<glm::vec2>$6
+    [x]$glm::vec2$0.000000	0.000000	
+    [x]$glm::vec2$0.000000	0.000000	
+    [x]$glm::vec2$0.000000	0.000000	
+    [x]$glm::vec2$0.000000	0.000000	
+    [x]$glm::vec2$0.000000	0.000000	
+    [x]$glm::vec2$0.000000	0.000000	
+    normals_$CVector<glm::vec3>$6
+    [x]$glm::vec3$0.000000	1.000000	0.000000	
+    [x]$glm::vec3$0.000000	1.000000	0.000000	
+    [x]$glm::vec3$0.000000	1.000000	0.000000	
+    [x]$glm::vec3$0.000000	1.000000	0.000000	
+    [x]$glm::vec3$0.000000	1.000000	0.000000	
+    [x]$glm::vec3$0.000000	1.000000	0.000000	
+    vertexColors_$CVector<glm::vec3>$6
+    [x]$glm::vec3$0.000000	0.500000	0.000000	
+    [x]$glm::vec3$0.000000	0.500000	0.000000	
+    [x]$glm::vec3$0.000000	0.500000	0.000000	
+    [x]$glm::vec3$0.000000	0.500000	0.000000	
+    [x]$glm::vec3$0.000000	0.500000	0.000000	
+    [x]$glm::vec3$0.000000	0.500000	0.000000	

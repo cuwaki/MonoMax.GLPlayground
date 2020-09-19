@@ -12,6 +12,10 @@ namespace SMGE
 	namespace Globals
 	{
 		extern nsGE::CGameBase* GCurrentGame;
+		
+		CWString GetGameProjectName();
+		CWString GetGameAssetPath();
+		CWString GetFullAssetPath(const CWString& assetFilePath);
 	}
 
 	namespace nsGE

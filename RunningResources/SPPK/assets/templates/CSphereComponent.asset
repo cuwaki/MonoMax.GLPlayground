@@ -1,0 +1,9 @@
+className_$CWString$"SMGE::CSphereComponent"
+    reflectionFilePath_$CWString$"/templates/CSphereComponent.asset"
+    className_$CWString$"SMGE::SGRefl_Transform"
+        reflectionFilePath_$CWString$""
+        nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
+        persistentComponentNumber_$int32_t$0
+    radius_$float$1.0

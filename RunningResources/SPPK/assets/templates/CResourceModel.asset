@@ -1,0 +1,10 @@
+className_$CWString$"SMGE::CResourceModel"
+    reflectionFilePath_$CWString$"/templates/CResourceModel.asset"
+    vertShaderPath_$CWString$""
+    fragShaderPath_$CWString$""
+    objFilePath_$CWString$""
+    textureFilePath_$CWString$""
+    vertices_$CVector<glm::vec3>$0
+    uvs_$CVector<glm::vec2>$0
+    normals_$CVector<glm::vec3>$0
+    vertexColors_$CVector<glm::vec3>$0

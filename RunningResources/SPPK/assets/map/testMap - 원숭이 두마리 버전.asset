@@ -1,0 +1,109 @@
+className_$CWString$"SMGE::CMap"
+    reflectionFilePath_$CWString$"/map/testMap.asset"
+	actorReflLayers_[0]$CVector<SGRefl_Actor>$0
+	actorReflLayers_[1]$CVector<SGRefl_Actor>$5
+	className_$CWString$"SMGE::CActor"
+		reflectionFilePath_$CWString$"/actor/monkey.asset"
+		actorKey_$TActorKey$164
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$0.000000	3.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		actorStaticTag_$CString$"this is a monkey"
+		persistentComponentNumber_$int32_t$1
+		className_$CWString$"SMGE::CMeshComponent"
+			reflectionFilePath_$CWString$""
+			className_$CWString$"SMGE::SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			persistentComponentNumber_$int32_t$1
+			className_$CWString$"SMGE::CMeshComponent"
+				reflectionFilePath_$CWString$""
+				className_$CWString$"SMGE::SGRefl_Transform"
+					reflectionFilePath_$CWString$""
+					nsre_transform_.GetTranslation()$glm::vec3$3.000000	3.000000	0.000000	
+					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetScale()$glm::vec3$1.0000	1.000	1.000	
+					persistentComponentNumber_$int32_t$0
+				drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
+		drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
+className_$CWString$"SMGE::CActor"
+		reflectionFilePath_$CWString$"/actor/mapFloor.asset"
+		actorKey_$TActorKey$165
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$5.000000	0.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$5.000000	1.000000	5.000000	
+		actorStaticTag_$CString$"this is a plane"
+		persistentComponentNumber_$int32_t$1
+		className_$CWString$"SMGE::CMeshComponent"
+			reflectionFilePath_$CWString$""
+			className_$CWString$"SMGE::SGRefl_Transform"
+				reflectionFilePath_$CWString$""
+				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+				persistentComponentNumber_$int32_t$0
+			drawingModelAssetPath_$CWString$"/models/plane/plane.asset"
+
+	className_$CWString$"SMGE::CActor"
+		reflectionFilePath_$CWString$"/actor/cubeActor.asset"
+		actorKey_$TActorKey$166
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$7.000000	0.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		actorStaticTag_$CString$"this is a cube"
+		persistentComponentNumber_$int32_t$1
+		className_$CWString$"SMGE::CMeshComponent"
+		reflectionFilePath_$CWString$""
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	.000000	
+		persistentComponentNumber_$int32_t$0
+		drawingModelAssetPath_$CWString$"/models/cube/cube.asset"
+	className_$CWString$"SMGE::CActor"
+		reflectionFilePath_$CWString$"/actor/cubeActor.asset"
+		actorKey_$TActorKey$167
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$0.000000	7.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		actorStaticTag_$CString$"this is a cube"
+		persistentComponentNumber_$int32_t$1
+		className_$CWString$"SMGE::CMeshComponent"
+		reflectionFilePath_$CWString$""
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	.000000	
+		persistentComponentNumber_$int32_t$0
+		drawingModelAssetPath_$CWString$"/models/cube/cube.asset"
+	className_$CWString$"SMGE::CActor"
+		reflectionFilePath_$CWString$"/actor/cubeActor.asset"
+		actorKey_$TActorKey$168
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	7.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		actorStaticTag_$CString$"this is a cube"
+		persistentComponentNumber_$int32_t$1
+		className_$CWString$"SMGE::CMeshComponent"
+		reflectionFilePath_$CWString$""
+		className_$CWString$"SMGE::SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	.000000	
+		persistentComponentNumber_$int32_t$0
+		drawingModelAssetPath_$CWString$"/models/cube/cube.asset"

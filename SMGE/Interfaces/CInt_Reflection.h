@@ -225,7 +225,7 @@ namespace SMGE
 			CWString& value = std::get<Tuple_Value>(*tup);
 
 			FromREFL(left, value);
-#if _DEBUG
+#if DEBUG || _DEBUG
 			//varName = wtext("used - ") + varName;	// 사용됨 표시
 #endif
 			rightVec.cursorNext();	// 다음으로!

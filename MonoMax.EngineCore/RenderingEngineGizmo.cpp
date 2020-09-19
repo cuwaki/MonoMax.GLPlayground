@@ -1,5 +1,6 @@
 #include "RenderingEngineGizmo.h"
 #include "RenderingEngineUtils.hpp"
+#include "../SMGE/CGameBase.h"
 #include <vector>
 
 namespace SMGE
@@ -12,7 +13,11 @@ namespace SMGE
 			std::vector<glm::vec3> dummy3(0);
 
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
-			GetShaderSet().VertFragShaderSet::VertFragShaderSet(wtext("e:/dev_project/gizmo.vert"), wtext("e:/dev_project/gizmo.frag"));
+
+			auto gizmoVert = SMGE::Globals::GetFullAssetPath(wtext("gizmo.vert")),
+				gizmoFrag = SMGE::Globals::GetFullAssetPath(wtext("gizmo.frag"));
+
+			GetShaderSet().VertFragShaderSet::VertFragShaderSet(gizmoVert, gizmoFrag);
 			CreateRenderModel();
 
 			GetRenderModel().GenOpenGLBuffers(vertices, dummy2, dummy3, dummy3);
