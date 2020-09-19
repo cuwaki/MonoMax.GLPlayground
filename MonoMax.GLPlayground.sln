@@ -7,12 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoMax.GLSandboxApp", "Mon
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{4243089A-1705-4C60-87E5-55BB47A863F9}"
 	ProjectSection(SolutionItems) = preProject
-		E:\dev_project\default.frag = E:\dev_project\default.frag
-		E:\dev_project\default.vert = E:\dev_project\default.vert
-		E:\dev_project\gizmo.frag = E:\dev_project\gizmo.frag
-		E:\dev_project\gizmo.vert = E:\dev_project\gizmo.vert
-		simple_color_fs.glsl = simple_color_fs.glsl
-		simple_color_vs.glsl = simple_color_vs.glsl
+		RunningResources\default.frag = RunningResources\default.frag
+		RunningResources\default.vert = RunningResources\default.vert
+		RunningResources\gizmo.frag = RunningResources\gizmo.frag
+		RunningResources\gizmo.vert = RunningResources\gizmo.vert
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonoMax.SMGE", "MonoMax.WpfDrawing\MonoMax.SceneGraphCLR.vcxproj", "{1BCDF537-15FB-4C65-9993-4C6874F98EAF}"

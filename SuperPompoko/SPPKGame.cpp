@@ -17,14 +17,37 @@ namespace SMGE
 		{
 			return wtext("SPPK");
 		}
-		CWString GetGameAssetPath()
+		CWString GetEngineAssetPath(const CWString& assetFilePath)
 		{
 #if DEBUG || _DEBUG
-			return wtext("..\\RunningResources\\") + GetGameProjectName() + wtext("\\");
+			return wtext("./RunningResources/") + assetFilePath;
 #else
-			return wtext("e:\\") + GetGameProjectName() + wtext("\\");
 #endif
 		}
+		CWString GetGameAssetRoot()
+		{
+#if DEBUG || _DEBUG
+			// 개발중에는 실행 dir 을 프로젝트 루트로 맞춰라 - .sln 이 있는 곳 말이다!
+			return wtext("./RunningResources/") + GetGameProjectName() + wtext("/assets/");
+#else
+#endif
+		}
+
+#if IS_EDITOR
+		CWString GetGameProjectRoot()
+		{
+			auto ret = Path::GetNormalizedPath(Path::GetDirectoryCurrent());
+			CuwakiDevUtils::ReplaceInline(ret, wtext("/Debug"), wtext(""));
+			CuwakiDevUtils::ReplaceInline(ret, wtext("/Release"), wtext(""));
+			CuwakiDevUtils::ReplaceInline(ret, wtext("/Shipping"), wtext(""));
+			return ret;
+		}
+#else
+		CWString GetGameProjectRoot()
+		{
+			return Path::GetNormalizedPath(Path::GetDirectoryCurrent());
+		}
+#endif
 	}
 
 	SPPKGame::SPPKGame(CObject* outer) : nsGE::CGameBase(outer)
@@ -55,12 +78,11 @@ namespace SMGE
 
 		// 테스트 코드
 		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
-		gameSettings_->gameProjectRootPath_ = Path::GetDirectoryCurrent();
+		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
 
 #ifdef EDITOR_WORKING
 		// 테스트 코드
-		auto assetPath = PathAssetRoot() + wtext("/map/testMap.asset");
-		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetPath);
+		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
 		currentMap_ = new CMap(this, *testMapTemplate->getContentClass());
 
 		Globals::GCurrentMap = currentMap_;

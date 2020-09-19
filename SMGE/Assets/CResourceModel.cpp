@@ -1,4 +1,5 @@
 #include "CResourceModel.h"
+#include "../CGameBase.h"
 
 namespace SMGE
 {
@@ -66,7 +67,11 @@ namespace SMGE
 
 	void CResourceModel::OnAfterDeserialized()
 	{
-		this->ResourceModel::ResourceModel(textureFilePath_, vertShaderPath_, fragShaderPath_, objFilePath_);
+		this->ResourceModel::ResourceModel(
+			Globals::GetGameAssetPath(textureFilePath_),
+			Globals::GetGameAssetPath(vertShaderPath_),
+			Globals::GetGameAssetPath(fragShaderPath_),
+			Globals::GetGameAssetPath(objFilePath_));
 
 		if (objFilePath_.length() == 0 && vertices_.size() > 0)
 		{	// obj파일이 아닌 직접 지정 방식이다

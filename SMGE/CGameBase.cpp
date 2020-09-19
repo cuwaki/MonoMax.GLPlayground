@@ -7,9 +7,9 @@ namespace SMGE
 	{
 		nsGE::CGameBase* GCurrentGame;
 
-		CWString GetFullAssetPath(const CWString& assetFilePath)
+		CWString GetGameAssetPath(const CWString& assetFilePath)
 		{
-			return GetGameAssetPath() + assetFilePath;
+			return GetGameAssetRoot() + assetFilePath;
 		}
 	}
 
@@ -51,16 +51,6 @@ namespace SMGE
 
 		void CGameBase::Render(float timeDelta)
 		{
-		}
-
-		CWString CGameBase::PathProjectRoot()
-		{
-			return gameSettings_->gameProjectRootPath_ + wtext("/");
-		}
-
-		CWString CGameBase::PathAssetRoot()
-		{
-			return PathProjectRoot() + wtext("/Assets/");
 		}
 	}
 };

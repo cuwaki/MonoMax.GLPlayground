@@ -55,13 +55,11 @@ namespace SMGE
 			auto backupCursor = variableSplitted.cursor();
 			loader.getReflection() = variableSplitted;
 
-			auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
-			
 			CWString actorAssetPath = loader.getReflectionFilePath();
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
 				// 1. 애셋을 이용하여 맵에 액터 스폰하기 - RTTI
-				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(rootAssetPath + actorAssetPath);
+				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
 
 				// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
 				// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??

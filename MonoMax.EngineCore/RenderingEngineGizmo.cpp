@@ -14,8 +14,8 @@ namespace SMGE
 
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
 
-			auto gizmoVert = SMGE::Globals::GetFullAssetPath(wtext("gizmo.vert")),
-				gizmoFrag = SMGE::Globals::GetFullAssetPath(wtext("gizmo.frag"));
+			auto gizmoVert = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.vert")),
+				gizmoFrag = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
 
 			GetShaderSet().VertFragShaderSet::VertFragShaderSet(gizmoVert, gizmoFrag);
 			CreateRenderModel();

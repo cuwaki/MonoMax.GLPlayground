@@ -14,8 +14,15 @@ namespace SMGE
 		extern nsGE::CGameBase* GCurrentGame;
 		
 		CWString GetGameProjectName();
-		CWString GetGameAssetPath();
-		CWString GetFullAssetPath(const CWString& assetFilePath);
+		
+		CWString GetGameAssetRoot();
+\
+		CWString GetGameAssetPath(const CWString& assetFilePath);
+		CWString GetEngineAssetPath(const CWString& assetFilePath);		
+
+#if IS_EDITOR
+		CWString GetGameProjectRoot();
+#endif
 	}
 
 	namespace nsGE
@@ -36,9 +43,6 @@ namespace SMGE
 
 			virtual void Tick(float);
 			virtual void Render(float);
-
-			CWString PathProjectRoot();
-			CWString PathAssetRoot();
 
 		protected:
 			virtual void Initialize();

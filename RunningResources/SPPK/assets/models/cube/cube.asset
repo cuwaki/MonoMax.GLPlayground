@@ -1,7 +1,7 @@
 className_$CWString$"SMGE::CResourceModel"
     reflectionFilePath_$CWString$"/models/cube/cube.asset"
-    vertShaderPath_$CWString$"e:/dev_project//assets/models/suzanne/suzanne.vert"
-    fragShaderPath_$CWString$"e:/dev_project//assets/models/suzanne/suzanne.frag"
+    vertShaderPath_$CWString$"models/suzanne/suzanne.vert"
+    fragShaderPath_$CWString$"models/suzanne/suzanne.frag"
     objFilePath_$CWString$""
     textureFilePath_$CWString$""
     vertices_$CVector<glm::vec3>$36

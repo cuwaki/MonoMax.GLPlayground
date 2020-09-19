@@ -75,8 +75,7 @@ namespace SMGE
 				throw SMGEException(wtext("already ReadyToDrawing("));
 
 			// 모델 애셋 로드
-			auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
-			drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(rootAssetPath + drawingModelAssetPath_);
+			drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(Globals::GetGameAssetPath(drawingModelAssetPath_));
 
 			auto rsm = drawingModelAsset_->getContentClass();
 
