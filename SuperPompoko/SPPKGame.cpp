@@ -146,13 +146,9 @@ namespace SMGE
 					volatile int xxx = 0;
 				}
 
-				// 여기 - 아 이상하다 균등이든 비균등이든 4번을 큐브로 컬링하면 안나온다
 				glm::vec3 _4Loc(tcactors[tcaI].x, tcactors[tcaI].y, tcactors[tcaI].z);
 				auto _4LB = _4Loc - tcactors[tcaI].xS / 2.f;
 				auto _4RT = _4Loc + tcactors[tcaI].xS / 2.f;
-				//glm::vec3 _4Loc(-5000.f + 4.f, -5000.f + 4.f, -5000.f + 4.f), _4Size(2.f, 2.f, 2.f);
-				//auto _4LB = _4Loc - _4Size / 2.f;
-				//auto _4RT = _4Loc + _4Size / 2.f;
 				foundVec = octreeActor.QueryValuesByCube(_4LB.x, _4LB.y, _4LB.z, _4RT.x, _4RT.y, _4RT.z);
 				if (foundVec.size() > 0)
 				{

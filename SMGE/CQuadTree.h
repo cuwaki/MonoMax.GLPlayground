@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <string>
+#include <forward_list>
 
 namespace SMGE
 {
@@ -119,6 +120,9 @@ namespace SMGE
 		TChild& GetChild(size_t i) { AllocChildren(); return (*children_)[i]; }
 		const TChild& GetChild(size_t i) const { AllocChildren(); return (*children_)[i]; }
 
+		auto& GetRect() { return rect_; }
+		const auto& GetRect() const { return rect_; }
+
 		bool operator==(const CQuadTreeNode& r)
 		{
 			return rect_ == r.rect_;
@@ -154,10 +158,13 @@ namespace SMGE
 		using TValue = typename ContainerT::value_type;
 
 		using TNode = CQuadTreeNode<ContainerT, SizeType>;
+		using TNodes = std::forward_list<TNode*>;
 
 	public:
 		CQuadTree(const std::string& treeName, SizeType width, SizeType height, SizeType leafNodeWidth, SizeType leafNodeHeight)
 		{
+			assert(xWidth == yWidth);	// 현재 비균등은 제대로 작동하지 않는 듯 하다, 필요시 나중에 고치자;;
+
 			treeName_ = treeName;
 
 			width_ = width;
@@ -168,13 +175,6 @@ namespace SMGE
 			// GL 사분면에 맞도록 -1 ~ 0 ~ 1 사분면 좌표계로 바꿔서 넣어준다
 			// 이 쿼드트리의 중심이 GL 월드좌표 0,0에 위치하게 되는 것이다
 			BuildQuadTree(rootNode_, width_/-2, height_/-2, width_, height_);
-
-			// 정보 정리
-			treeDepth_ = CalculateDepth(rootNode_);
-			widthGap_ = width_ / std::pow(2, treeDepth_);
-			heightGap_ = height_ / std::pow(2, treeDepth_);
-			halfWidth_ = width_ / 2;
-			halfHeight_ = height_ / 2;
 
 			// 리프노드들을 시작위치를 가지고 2차원 테이블로 만든다
 			const auto vSize = tempUVNodes_.size();
@@ -194,6 +194,13 @@ namespace SMGE
 				}
 			}
 			tempUVNodes_.clear();
+
+			// 정보 정리
+			treeDepth_ = CalculateDepth(rootNode_);
+			halfWidth_ = width_ / 2;
+			halfHeight_ = height_ / 2;
+			widthGap_ = uvNodeTable_[0][1]->GetRect().l_ - uvNodeTable_[0][0]->GetRect().l_;
+			heightGap_ = uvNodeTable_[1][0]->GetRect().b_ - uvNodeTable_[0][0]->GetRect().b_;
 		}
 
 		TNode* QueryNodeByPoint(SizeType w, SizeType h)
@@ -205,7 +212,7 @@ namespace SMGE
 			h += halfHeight_;	// -5000 ~ 0 ~ 5000 -> 0 ~ 10000
 			w += halfWidth_;
 
-			auto v = h / heightGap_;	// 10000 / 1250	// 여기 - 나누기 안쓰는 방법이 있을 것 같다!
+			auto v = h / heightGap_;	// 10000 / 1250
 			auto u = w / widthGap_;
 
 			// 범위 넘어가면 터진다!
@@ -213,12 +220,12 @@ namespace SMGE
 			return uvNodeTable_[v][u];
 		}
 		
-		auto QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax)
+		TNodes QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax)
 		{
 			assert(uMin <= uMax);
 			assert(vMin <= vMax);	// 이래야 정상 작동함!!
 
-			std::forward_list<TNode*> ret;
+			TNodes ret;
 
 			// vector 인덱스로 쓰기 위하여 -1 ~ 0 ~ +1 좌표계를 0 ~ 2 좌표계로 바꾼다
 			vMin += halfHeight_; vMax += halfHeight_;
@@ -228,14 +235,11 @@ namespace SMGE
 			auto su = uMin / widthGap_, eu = uMax / widthGap_;
 
 			// 점과는 다르게 넘어갈 수 있으므로 클램프 쳐줘야한다
-			sv = std::max(0, sv); ev = std::min(height_ / heightGap_, ev);
-			su = std::max(0, su); eu = std::min(width_ / widthGap_, eu);
+			sv = std::max(0, sv); ev = std::min(height_ / heightGap_ - 1, ev);
+			su = std::max(0, su); eu = std::min(width_ / widthGap_ - 1, eu);
 
-			if (sv == ev) ev++;
-			if (su == eu) eu++;
-
-			for (auto vv = sv; vv < ev; ++vv)
-				for (auto uu = su; uu < eu; ++uu)
+			for (auto vv = sv; vv <= ev; ++vv)
+				for (auto uu = su; uu <= eu; ++uu)
 					ret.emplace_front(uvNodeTable_[vv][uu]);
 
 			return ret;
@@ -334,6 +338,7 @@ namespace SMGE
 			zxQTree_("zx", zWidth, xWidth, leafNodeWidth, leafNodeWidth)
 		{
 			assert(xWidth == zWidth);	// 이 두 값이 같지 않으면 테이블을 통한 판별이 어려워진다 - QueryValuesByCube( 여기의 Pred 함수 구현을 봐라, x 가 같은 것을 가지고 교차 여부 체크를 하기 때문이다
+			assert(xWidth == yWidth);	// 현재 비균등은 제대로 작동하지 않는 듯 하다, 필요시 나중에 고치자;;
 
 			treeName_ = treeName;
 		}
