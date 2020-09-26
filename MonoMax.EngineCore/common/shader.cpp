@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+
 using namespace std;
 
 #include <stdlib.h>
@@ -15,6 +16,8 @@ using namespace std;
 
 GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file_path)
 {
+	// 중복된 셰이더를 만들지 않도록 잘 관리할 것!
+
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -107,5 +110,3 @@ GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file
 
 	return ProgramID;
 }
-
-

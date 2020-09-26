@@ -27,6 +27,12 @@ namespace SMGE
 			unif_LightWorldPosition_ = glGetUniformLocation(programID_, "LightPosition_worldspace");
 
 			unif_TextureSampleI_ = glGetUniformLocation(programID_, "myTextureSampler");
+
+			// 일단 공통 셰이더 용으로 하드코딩
+			vertAttrArray_ = 0;
+			uvAttrArray_ = 1;
+			normAttrArray_ = 2;
+			vertexColorAttrArray_ = 3;
 		}
 
 		VertFragShaderSet::~VertFragShaderSet()
@@ -51,6 +57,26 @@ namespace SMGE
 			unif_ModelMatrixID_ = -1;
 			unif_TextureSampleI_ = -1;
 			unif_LightWorldPosition_ = -1;
+			vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
+		}
+
+		std::map<CWString, VertFragShaderSet> VertFragShaderSet::Cache;
+		VertFragShaderSet& VertFragShaderSet::FindOrLoadShaderSet(const CWString& vertex_file_path, const CWString& fragment_file_path)
+		{
+			std::wstring vsfsKey(vertex_file_path);
+			vsfsKey += fragment_file_path;
+			SMGE::ToLowerInline(vsfsKey);
+
+			auto cachedVFSet = Cache.find(vsfsKey);
+			if (cachedVFSet != Cache.end())
+			{
+				return (*cachedVFSet).second;
+			}
+
+			VertFragShaderSet newOne(vertex_file_path.c_str(), fragment_file_path.c_str());
+			Cache[vsfsKey] = std::move(newOne);
+
+			return Cache[vsfsKey];
 		}
 
 		VertFragShaderSet::VertFragShaderSet(VertFragShaderSet&& c) noexcept
@@ -66,6 +92,10 @@ namespace SMGE
 			unif_ModelMatrixID_ = c.unif_ModelMatrixID_;
 			unif_TextureSampleI_ = c.unif_TextureSampleI_;
 			unif_LightWorldPosition_ = c.unif_LightWorldPosition_;
+			vertAttrArray_ = c.vertAttrArray_;
+			uvAttrArray_ = c.uvAttrArray_;
+			normAttrArray_ = c.normAttrArray_;
+			vertexColorAttrArray_ = c.vertexColorAttrArray_;
 
 			c.Invalidate();
 
@@ -441,10 +471,9 @@ namespace SMGE
 			return temp;	// 일부러 - 여기가 호출되면 안된다
 		}
 
-		const VertFragShaderSet& ResourceModelBase::GetShaderSet() const
+		const VertFragShaderSet* ResourceModelBase::GetShaderSet() const
 		{
-			VertFragShaderSet temp;
-			return temp;	// 일부러
+			return nullptr;
 		}
 
 		bool ResourceModelBase::IsGizmo() const
@@ -473,7 +502,7 @@ namespace SMGE
 		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath) : ResourceModelBase()
 		{
 			texture_.TextureDDS::TextureDDS(textureFilePath);
-			vfShaderSet_.VertFragShaderSet::VertFragShaderSet(vertShadPath, fragShadPath);
+			vfShaderSet_ = &VertFragShaderSet::FindOrLoadShaderSet(vertShadPath, fragShadPath);
 			mesh_.MeshOBJ::MeshOBJ(objPath);
 		}
 		ResourceModel::ResourceModel(ResourceModel&& c) noexcept
@@ -524,12 +553,6 @@ namespace SMGE
 		{
 			Invalidate();
 
-			// 일단 공통 셰이더 용으로 하드코딩
-			vertAttrArray_ = 0;
-			uvAttrArray_ = 1;
-			normAttrArray_ = 2;
-			vertexColorAttrArray_ = 3;
-
 			// 임시 코드 - 렌더모델이 메시 관련일 경우에만 아래 코드가 실행되어야한다, 고민해봐라
 			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resource_ 의 내용을 비워도 된다
 			usingTextureID_ = resource_.GetTextureID(texSamp);
@@ -550,7 +573,6 @@ namespace SMGE
 
 			usingTextureID_ = c.usingTextureID_;
 			usingTextureSampleI_ = c.usingTextureSampleI_;
-			vertAttrArray_ = c.vertAttrArray_, uvAttrArray_ = c.uvAttrArray_, normAttrArray_ = c.normAttrArray_, vertexColorAttrArray_ = c.vertexColorAttrArray_;
 
 			c.Invalidate();
 		}
@@ -622,7 +644,6 @@ namespace SMGE
 
 			usingTextureID_ = 0;
 			usingTextureSampleI_ = 0;
-			vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
 		}
 
 		void RenderModel::Render(const glm::mat4& VP)
@@ -640,10 +661,10 @@ namespace SMGE
 				const glm::mat4 MVP = VP * wmPtr->GetMatrix(false);
 
 				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
-				if(resource_.GetShaderSet().unif_MVPMatrixID_ != -1)
-					glUniformMatrix4fv(resource_.GetShaderSet().unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
-				if (resource_.GetShaderSet().unif_ModelMatrixID_ != -1)
-					glUniformMatrix4fv(resource_.GetShaderSet().unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
+				if(resource_.GetShaderSet()->unif_MVPMatrixID_ != -1)
+					glUniformMatrix4fv(resource_.GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
+				if (resource_.GetShaderSet()->unif_ModelMatrixID_ != -1)
+					glUniformMatrix4fv(resource_.GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
 
 				if (resource_.IsGizmo() == false)
 				{
@@ -673,7 +694,7 @@ namespace SMGE
 				glActiveTexture(GL_TEXTURE0 + usingTextureSampleI_);
 				glBindTexture(GL_TEXTURE_2D, usingTextureID_);
 				// Set our "myTextureSampler" sampler to user Texture Unit 0
-				glUniform1i(resource_.GetShaderSet().unif_TextureSampleI_, usingTextureSampleI_);
+				glUniform1i(resource_.GetShaderSet()->unif_TextureSampleI_, usingTextureSampleI_);
 			}
 
 			// 1rst attribute buffer : vertices
@@ -685,9 +706,9 @@ namespace SMGE
 			//	glPointSize(4.f);
 			//}			
 
-			glEnableVertexAttribArray(vertAttrArray_);
+			glEnableVertexAttribArray(resource_.GetShaderSet()->vertAttrArray_);
 			glVertexAttribPointer(
-				vertAttrArray_,                  // attribute
+				resource_.GetShaderSet()->vertAttrArray_,                  // attribute
 				3,                  // size
 				GL_FLOAT,           // type
 				GL_FALSE,           // normalized?
@@ -698,9 +719,9 @@ namespace SMGE
 			if (uvBuffer_ != 0)
 			{	// 2nd attribute buffer : UVs
 				glBindBuffer(GL_ARRAY_BUFFER, uvBuffer_);
-				glEnableVertexAttribArray(uvAttrArray_);
+				glEnableVertexAttribArray(resource_.GetShaderSet()->uvAttrArray_);
 				glVertexAttribPointer(
-					uvAttrArray_,                                // attribute
+					resource_.GetShaderSet()->uvAttrArray_,                                // attribute
 					2,                                // size
 					GL_FLOAT,                         // type
 					GL_FALSE,                         // normalized?
@@ -712,9 +733,9 @@ namespace SMGE
 			if (normalBuffer_ != 0)
 			{	// 3rd attribute buffer : normals
 				glBindBuffer(GL_ARRAY_BUFFER, normalBuffer_);
-				glEnableVertexAttribArray(normAttrArray_);
+				glEnableVertexAttribArray(resource_.GetShaderSet()->normAttrArray_);
 				glVertexAttribPointer(
-					normAttrArray_,                                // attribute
+					resource_.GetShaderSet()->normAttrArray_,                                // attribute
 					3,                                // size
 					GL_FLOAT,                         // type
 					GL_FALSE,                         // normalized?
@@ -726,9 +747,9 @@ namespace SMGE
 			if (vertexColorBuffer_ != 0)
 			{
 				glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer_);
-				glEnableVertexAttribArray(vertexColorAttrArray_);
+				glEnableVertexAttribArray(resource_.GetShaderSet()->vertexColorAttrArray_);
 				glVertexAttribPointer(
-					vertexColorAttrArray_,                                // attribute
+					resource_.GetShaderSet()->vertexColorAttrArray_,                                // attribute
 					3,                                // size
 					GL_FLOAT,                         // type
 					GL_FALSE,                         // normalized?
@@ -740,13 +761,13 @@ namespace SMGE
 
 		void RenderModel::EndRender()
 		{
-			glDisableVertexAttribArray(vertAttrArray_);
+			glDisableVertexAttribArray(resource_.GetShaderSet()->vertAttrArray_);
 			if (uvBuffer_ != 0)
-				glDisableVertexAttribArray(uvAttrArray_);
+				glDisableVertexAttribArray(resource_.GetShaderSet()->uvAttrArray_);
 			if (normalBuffer_ != 0)
-				glDisableVertexAttribArray(normAttrArray_);
+				glDisableVertexAttribArray(resource_.GetShaderSet()->normAttrArray_);
 			if (vertexColorBuffer_ != 0)
-				glDisableVertexAttribArray(vertexColorAttrArray_);
+				glDisableVertexAttribArray(resource_.GetShaderSet()->vertexColorAttrArray_);
 
 			glBindVertexArray(0);
 		}
@@ -755,10 +776,10 @@ namespace SMGE
 		{
 			glUseProgram(resource_.GetShaderID());
 
-			if(resource_.GetShaderSet().unif_ViewMatrixID_ != -1)
-				glUniformMatrix4fv(resource_.GetShaderSet().unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
-			if(resource_.GetShaderSet().unif_LightWorldPosition_ != -1)
-				glUniform3f(resource_.GetShaderSet().unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
+			if(resource_.GetShaderSet()->unif_ViewMatrixID_ != -1)
+				glUniformMatrix4fv(resource_.GetShaderSet()->unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
+			if(resource_.GetShaderSet()->unif_LightWorldPosition_ != -1)
+				glUniform3f(resource_.GetShaderSet()->unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
 		WorldObject::WorldObject(const RenderModel* rm) : renderModel_(nullptr)

@@ -163,6 +163,7 @@
     <ClCompile Include="CGameBase.cpp" />
     <ClCompile Include="Components\CBoundComponent.cpp" />
     <ClCompile Include="Components\CComponent.cpp" />
+    <ClCompile Include="Components\CCubeComponent.cpp" />
     <ClCompile Include="Components\CDrawComponent.cpp" />
     <ClCompile Include="Components\CMeshComponent.cpp" />
     <ClCompile Include="Components\CPointComponent.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="Assets\CResourceModel.h" />
     <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="Components\CBoundComponent.h" />
+    <ClInclude Include="Components\CCubeComponent.h" />
     <ClInclude Include="Components\CPointComponent.h" />
     <ClInclude Include="Components\CRayComponent.h" />
     <ClInclude Include="Components\CSphereComponent.h" />

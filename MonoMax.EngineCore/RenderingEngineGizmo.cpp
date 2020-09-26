@@ -14,10 +14,9 @@ namespace SMGE
 
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
 
-			auto gizmoVert = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.vert")),
-				gizmoFrag = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
+			auto gizmoVert = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.vert")), gizmoFrag = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
+			vfShaderSet_ = &VertFragShaderSet::FindOrLoadShaderSet(gizmoVert, gizmoFrag);
 
-			GetShaderSet().VertFragShaderSet::VertFragShaderSet(gizmoVert, gizmoFrag);
 			CreateRenderModel();
 
 			GetRenderModel().GenOpenGLBuffers(vertices, dummy2, dummy3, dummy3);
@@ -31,6 +30,14 @@ namespace SMGE
 			vertices.reserve(divides);
 
 			vertices = nsRE::makeSimpleSphere3D_Line<glm::vec3>(divides, radius);
+
+			CreateFrom(vertices);
+		}
+
+		CubeRSM::CubeRSM(const glm::vec3& centerPos, const glm::vec3& size)
+		{
+			std::vector<glm::vec3> vertices;
+			vertices = nsRE::makeSimpleCube3D_Line<glm::vec3>(centerPos, size);
 
 			CreateFrom(vertices);
 		}

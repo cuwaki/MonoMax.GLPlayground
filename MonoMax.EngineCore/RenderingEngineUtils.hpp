@@ -8,7 +8,7 @@ namespace SMGE
 	{
 		// 2차원 평면 써클이다 - 삼각형으로 이뤄지지 않아서 색깔을 채울 수는 없다
 		template<typename T>
-		std::vector<T> makeCircle2D_Line(int vertexNumber, float radius)
+		std::vector<T> makeCircle2DXY_Line(int vertexNumber, float radius)
 		{
 			std::vector<T> circle;
 			circle.reserve(vertexNumber);
@@ -35,7 +35,7 @@ namespace SMGE
 		template<typename T>
 		std::vector<T> makeSphere3D_Line(int vertexNumber, float radius)
 		{
-			std::vector<T> circle = makeCircle2D_Line<T>(vertexNumber, radius);
+			std::vector<T> circle = makeCircle2DXY_Line<T>(vertexNumber, radius);
 
 			const int latitCount = vertexNumber;
 
@@ -64,7 +64,7 @@ namespace SMGE
 		template<typename T>
 		std::vector<T> makeSimpleSphere3D_Line(int vertexNumber, float radius)
 		{
-			std::vector<T> circle = makeCircle2D_Line<T>(vertexNumber, radius);	// XY평면의 2D 써클
+			std::vector<T> circle = makeCircle2DXY_Line<T>(vertexNumber, radius);	// XY평면의 2D 써클
 
 			float perpAngle = 3.141592f / 2.f;
 
@@ -82,6 +82,70 @@ namespace SMGE
 				circle.push_back(pitchPerp * glm::vec4(circle[i], 1.f));	// circle[0] ~ circle[i] 까지는 2차원 써클이다
 
 			return circle;
+		}
+
+		template<typename T>
+		std::vector<T> makeSimpleRect2DXY_Line(const T& leftBottom, const T& rightTop, float z)
+		{
+			std::vector<T> vertices(4);
+
+			// 반시계 방향으로, xy 평면에다가 만드는데 z는 지정이다
+
+			vertices[0].x = leftBottom.x;	// 좌하
+			vertices[0].y = leftBottom.y;
+			vertices[0].z = z;
+
+			vertices[1].x = rightTop.x;	// 우하
+			vertices[1].y = leftBottom.y;
+			vertices[1].z = z;
+
+			vertices[2].x = rightTop.x;	// 우상
+			vertices[2].y = rightTop.y;
+			vertices[2].z = z;
+
+			vertices[3].x = leftBottom.x;	// 좌상
+			vertices[3].y = rightTop.y;
+			vertices[3].z = z;
+
+			return vertices;
+		}
+
+		template<typename T>
+		std::vector<T> makeSimpleCube3D_Line(const T& centerPos, const T& size)
+		{
+			std::vector<T> vertices;
+
+			const auto halfSize = size / 2.f;
+
+			// 6면을 만들자
+			auto xyzLeftBottom = centerPos - halfSize;
+			auto xyzRightTop = centerPos + halfSize;
+
+			// xyz 평면에서의 사각형 2개 - maxZ, minZ
+			auto xyMZRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzLeftBottom.z);	// M == maxZ
+			auto xymZRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzRightTop.z);	// m == minZ
+
+			// yzx 평면에서의 사각형 2개 - 이 평면에서는 z가 x역할, y가 y역할, x가 Z역할을 한다 - 오른손 좌표계에서 생각해라
+			glm::vec3 yzxLeftBottom(xyzLeftBottom.z, xyzLeftBottom.y, xyzLeftBottom.x);
+			glm::vec3 yzxRightTop(xyzRightTop.z, xyzRightTop.y, xyzRightTop.x);
+			auto yzMXRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzLeftBottom.x);
+			auto yzmXRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzRightTop.x);
+
+			// zxy 평면에서의 사각형 2개 - 이 평면에서는 x가 x역할, z가 y역할, y가 Z역할을 한다 - 오른손 좌표계에서 생각해라
+			glm::vec3 zxyLeftBottom(xyzLeftBottom.x, xyzLeftBottom.z, xyzLeftBottom.y);
+			glm::vec3 zxyRightTop(xyzRightTop.x, xyzRightTop.z, xyzRightTop.y);
+			auto zxMYRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzLeftBottom.y);
+			auto zxmYRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzRightTop.y);
+
+			std::copy(xyMZRect.begin(), xyMZRect.end(), std::back_inserter(vertices));
+			std::copy(xymZRect.begin(), xymZRect.end(), std::back_inserter(vertices));
+			std::copy(yzMXRect.begin(), yzMXRect.end(), std::back_inserter(vertices));
+			std::copy(yzmXRect.begin(), yzmXRect.end(), std::back_inserter(vertices));
+			std::copy(zxMYRect.begin(), zxMYRect.end(), std::back_inserter(vertices));
+			std::copy(zxmYRect.begin(), zxmYRect.end(), std::back_inserter(vertices));
+			vertices.shrink_to_fit();
+
+			return vertices;
 		}
 	}
 }

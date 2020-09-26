@@ -20,6 +20,12 @@ namespace SMGE
 			SphereRSM(float radius);
 		};
 
+		class CubeRSM : public GizmoRSM
+		{
+		public:
+			CubeRSM(const glm::vec3& centerPos, const glm::vec3& size);
+		};
+
 		class RayRSM : public GizmoRSM
 		{
 		public:

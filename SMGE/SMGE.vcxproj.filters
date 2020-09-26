@@ -110,6 +110,9 @@
     <ClInclude Include="CQuadTree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Components\CCubeComponent.h">
+      <Filter>Components\Bound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -174,6 +177,9 @@
     </ClCompile>
     <ClCompile Include="CQuadTree.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CCubeComponent.cpp">
+      <Filter>Components\Bound</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

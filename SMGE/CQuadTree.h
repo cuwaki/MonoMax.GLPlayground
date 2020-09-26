@@ -163,7 +163,7 @@ namespace SMGE
 	public:
 		CQuadTree(const std::string& treeName, SizeType width, SizeType height, SizeType leafNodeWidth, SizeType leafNodeHeight)
 		{
-			assert(xWidth == yWidth);	// 현재 비균등은 제대로 작동하지 않는 듯 하다, 필요시 나중에 고치자;;
+			assert(width == height);	// 현재 비균등은 제대로 작동하지 않는 듯 하다, 필요시 나중에 고치자;;
 
 			treeName_ = treeName;
 

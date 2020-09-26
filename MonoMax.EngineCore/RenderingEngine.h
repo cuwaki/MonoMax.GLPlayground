@@ -5,6 +5,7 @@
 #include <fstream>
 #include <functional>
 #include <vector>
+#include <map>
 #include <forward_list>
 #include "../SMGE/GECommonIncludes.h"
 #include "../SMGE/GEContainers.h"
@@ -51,6 +52,20 @@ namespace SMGE
 
 		class VertFragShaderSet
 		{
+			static std::map<CWString, VertFragShaderSet> Cache;
+
+		public:
+			static VertFragShaderSet& FindOrLoadShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
+
+		protected:
+			VertFragShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
+
+			VertFragShaderSet(const VertFragShaderSet& c) = delete;
+			VertFragShaderSet& operator=(const VertFragShaderSet& c) = delete;
+
+			VertFragShaderSet(VertFragShaderSet&& c) noexcept;
+			VertFragShaderSet& operator=(VertFragShaderSet&& c) noexcept;
+
 		public:
 			GLuint programID_;
 			GLuint unif_MVPMatrixID_;
@@ -58,18 +73,12 @@ namespace SMGE
 			GLuint unif_ModelMatrixID_;
 			GLuint unif_TextureSampleI_;
 			GLuint unif_LightWorldPosition_;
+			GLuint vertAttrArray_, uvAttrArray_, normAttrArray_, vertexColorAttrArray_;
 
 			VertFragShaderSet() { Invalidate(); }
-			VertFragShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
 			~VertFragShaderSet();
 			void Destroy();
 			void Invalidate();
-
-			VertFragShaderSet(const VertFragShaderSet& c) = delete;
-			VertFragShaderSet& operator=(const VertFragShaderSet& c) = delete;
-
-			VertFragShaderSet(VertFragShaderSet&& c) noexcept;
-			VertFragShaderSet& operator=(VertFragShaderSet&& c) noexcept;
 		};
 
 		class TextureDDS
@@ -201,7 +210,7 @@ namespace SMGE
 			
 			virtual GLuint GetTextureID(int texSamp) const;
 			virtual const MeshOBJ& GetMesh() const;
-			virtual const VertFragShaderSet& GetShaderSet() const;
+			virtual const VertFragShaderSet* GetShaderSet() const;
 			virtual GLuint GetShaderID() const { return 0; }
 
 			bool IsGizmo() const;
@@ -218,7 +227,7 @@ namespace SMGE
 		{
 		protected:
 			TextureDDS texture_;
-			VertFragShaderSet vfShaderSet_;
+			VertFragShaderSet* vfShaderSet_ = nullptr;
 			MeshOBJ mesh_;
 
 		public:
@@ -228,8 +237,8 @@ namespace SMGE
 			virtual GLuint GetTextureID(int texSamp) const override { return texture_.textureID_; }
 			virtual const MeshOBJ& GetMesh() const override { return mesh_; }
 			virtual MeshOBJ& GetMesh() { return mesh_; }
-			virtual const VertFragShaderSet& GetShaderSet() const override { return vfShaderSet_; }
-			virtual GLuint GetShaderID() const override { return vfShaderSet_.programID_; }
+			virtual const VertFragShaderSet* GetShaderSet() const override { return vfShaderSet_; }
+			virtual GLuint GetShaderID() const override { return vfShaderSet_->programID_; }
 
 			ResourceModel(ResourceModel&& c) noexcept;
 			ResourceModel& operator=(ResourceModel&& c) noexcept;
@@ -255,7 +264,6 @@ namespace SMGE
 			// shader
 			GLuint usingTextureID_ = 0;
 			GLuint usingTextureSampleI_ = 0;
-			GLuint vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
 
 #pragma region WorldObject
 			mutable std::vector<WorldObject*> ptrWorldObjects_;
