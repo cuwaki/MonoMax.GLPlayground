@@ -177,6 +177,7 @@
     <ClCompile Include="Objects\CActor.cpp" />
     <ClCompile Include="Objects\CMap.cpp" />
     <ClCompile Include="Objects\CObject.cpp" />
+    <ClCompile Include="RTTI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assets\CAsset.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="Objects\CActor.h" />
     <ClInclude Include="Objects\CMap.h" />
     <ClInclude Include="Objects\CObject.h" />
+    <ClInclude Include="RTTI.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

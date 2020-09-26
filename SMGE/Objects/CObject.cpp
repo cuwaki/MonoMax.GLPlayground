@@ -2,6 +2,11 @@
 
 namespace SMGE
 {
+	// CObject RTTI 
+	RTTI_CObject::TFactory RTTI_CObject::NewClassFactory;
+	REGISTER_RTTI_CObject(CObject);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CObject::CObject(CObject* outer) : outer_(outer)
 	{
 		className_ = wtext("SMGE::CObject");

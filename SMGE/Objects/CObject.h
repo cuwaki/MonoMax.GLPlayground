@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GECommonIncludes.h"
+#include "../RTTI.hpp"
 
 namespace SMGE
 {
@@ -47,4 +48,9 @@ namespace SMGE
 			return ret;
 		}
 	};
+
+	// CObject RTTI
+	using RTTI_CObject = CRtti<CObject, CObject * (CObject*)>;
+
+#define REGISTER_RTTI_CObject(className) RTTI_CObject _staticRTTI##className(""#className, [](CObject* outer) {return new className(outer); })
 };
