@@ -48,7 +48,7 @@ namespace SMGE
 		//CVector<SGRefl_Component> persistentComponentsREFL_;
 		
 		// { persistentComponentsREFL_ RTTI 필요 이슈 - 아래처럼 mutable 로 처리해놨다 / 이거 어떡하지?
-		mutable int32_t persistentComponentNumber_ = 0;
+		mutable size_t persistentComponentNumber_ = 0;
 
 		// for Runtime
 		CActor& outerActor_;
@@ -56,6 +56,8 @@ namespace SMGE
 
 	class CActor : public CObject, public CInt_Reflection, public CInt_Component
 	{
+		DECLARE_RTTI_CObject(CActorComponent)
+
 	public:
 		using Super = CObject;
 		using TReflectionStruct = SGRefl_Actor;
@@ -98,6 +100,9 @@ namespace SMGE
 		void SetLifeTick(int32 t) { lifeTick_ = t; }
 
 	public:
+		// RTTI
+		virtual const char* getClassRTTIName() { return "CActor"; }
+
 		// CInt_Reflection
 		virtual const CWString& getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
@@ -144,6 +149,7 @@ namespace SMGE
 		using Super = CActor;
 
 	public:
+		CCollideActor(CObject* outer) : Super(outer) {}
 		CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide);
 
 		virtual void BeginPlay() override;
@@ -159,9 +165,12 @@ namespace SMGE
 
 	class CRayCollideActor : public CCollideActor
 	{
+		DECLARE_RTTI_CObject(CRayCollideActor)
+
 		using Super = CCollideActor;
 
 	public:
+		CRayCollideActor(CObject* outer) : Super(outer) {}
 		CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir);
 
 		void Ctor(float size, const glm::vec3& dir);
@@ -174,6 +183,8 @@ namespace SMGE
 
 	class CPointActor : public CActor
 	{
+		DECLARE_RTTI_CObject(CPointActor)
+
 		using Super = CActor;
 
 	public:

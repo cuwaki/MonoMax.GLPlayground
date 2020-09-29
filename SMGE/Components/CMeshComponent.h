@@ -24,6 +24,8 @@ namespace SMGE
 
 	class CMeshComponent : public CDrawComponent
 	{
+		DECLARE_RTTI_CObject(CMeshComponent)
+
 	public:
 		using Super = CDrawComponent;
 		using TReflectionStruct = SGRefl_MeshComponent;

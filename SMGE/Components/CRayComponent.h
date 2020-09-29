@@ -27,6 +27,8 @@ namespace SMGE
 
 	class CRayComponent : public CBoundComponent
 	{
+		DECLARE_RTTI_CObject(CRayComponent)
+
 	public:
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_RayComponent;
@@ -34,6 +36,7 @@ namespace SMGE
 		friend struct TReflectionStruct;
 
 	public:
+		CRayComponent(CObject* outer) : Super(outer) {}
 		CRayComponent(CObject* outer, float size, const glm::vec3& direction);
 
 		virtual void OnBeginPlay(class CObject* parent) override;

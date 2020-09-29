@@ -37,6 +37,7 @@ namespace SMGE
 		return *this;
 	}
 
+	DEFINE_RTTI_CObject_DEFAULT(CSphereComponent);
 
 	CSphereComponent::CSphereComponent(CObject* outer) : CBoundComponent(outer)
 	{

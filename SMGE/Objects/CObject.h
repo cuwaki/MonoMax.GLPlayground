@@ -24,6 +24,9 @@ namespace SMGE
 		CObject* outer_ = nullptr;
 		CWString className_;
 
+	public:
+		static CString ClassRTTIName;	// DECLARE_RTTI_CObject
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Template functions
@@ -52,5 +55,8 @@ namespace SMGE
 	// CObject RTTI
 	using RTTI_CObject = CRtti<CObject, CObject * (CObject*)>;
 
-#define REGISTER_RTTI_CObject(className) RTTI_CObject _staticRTTI##className(""#className, [](CObject* outer) {return new className(outer); })
+#define DECLARE_RTTI_CObject(classRTTIName) public : static CString ClassRTTIName; private:
+
+#define DEFINE_RTTI_CObject_DEFAULT(classRTTIName) CString classRTTIName::ClassRTTIName = ""#classRTTIName; RTTI_CObject _staticRTTI_DEFAULT_##classRTTIName(""#classRTTIName, [](CObject* outer) {return new classRTTIName(outer); }); 
+#define DEFINE_RTTI_CObject_VARIETY(classRTTIName, ...) RTTI_CObject _staticRTTI_VARIETY_##classRTTIName(""#classRTTIName, CRttiNewFunctorVariety<CObject, classRTTIName, __VA_ARGS__>{});
 };

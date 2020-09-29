@@ -3,8 +3,10 @@
 namespace SMGE
 {
 	// CObject RTTI 
-	RTTI_CObject::TFactory RTTI_CObject::NewClassFactory;
-	REGISTER_RTTI_CObject(CObject);
+	RTTI_CObject::NewFunctorDefaultT RTTI_CObject::NewClassDefaults_;
+	RTTI_CObject::NewFunctorVarietyT RTTI_CObject::NewClassVarieties_;
+
+	DEFINE_RTTI_CObject_DEFAULT(CObject);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CObject::CObject(CObject* outer) : outer_(outer)

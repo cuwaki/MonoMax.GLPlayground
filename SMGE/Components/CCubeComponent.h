@@ -27,6 +27,8 @@ namespace SMGE
 
 	class CCubeComponent : public CBoundComponent
 	{
+		DECLARE_RTTI_CObject(CCubeComponent)
+
 	public:
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_CubeComponent;
@@ -34,6 +36,7 @@ namespace SMGE
 		friend struct TReflectionStruct;
 
 	public:
+		CCubeComponent(CObject* outer) : Super(outer) {}
 		CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop);
 
 		virtual void OnBeginPlay(class CObject* parent) override;

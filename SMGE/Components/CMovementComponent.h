@@ -9,6 +9,8 @@ namespace SMGE
 {
 	class CMovementComponent : public CComponent
 	{
+		DECLARE_RTTI_CObject(CMovementComponent)
+
 	public:
 		using Super = CComponent;
 		using TReflectionStruct = SGRefl_Component;

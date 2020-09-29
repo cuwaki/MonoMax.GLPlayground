@@ -52,7 +52,8 @@ namespace SMGE
 			// SGRefl_Map 이 CMap 에 액터 생성을 시킨 후 연결해야한다 - 일단은 이렇게 구현해보자!
 
 			CActor loader(nullptr);	// 액터의 애셋 경로를 얻는다
-			auto backupCursor = variableSplitted.cursor();
+
+			variableSplitted.pushCursor();
 			loader.getReflection() = variableSplitted;
 
 			CWString actorAssetPath = loader.getReflectionFilePath();
@@ -64,10 +65,10 @@ namespace SMGE
 				// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
 				// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??
 
-				CActor& actorA = outerMap_.SpawnDefaultActor<CActor>(false, *actorTemplate->getContentClass());
+				CActor& actorA = outerMap_.SpawnDefaultActor(loader.getClassRTTIName(), false, actorTemplate->getContentClass());
 
 				// 2 단계 - 맵에 저장된 값으로 배치시킨다
-				variableSplitted.setCursor(backupCursor);
+				variableSplitted.popCursor();
 				actorA.getReflection() = variableSplitted;
 
 				outerMap_.FinishSpawnActor(actorA);
@@ -91,6 +92,8 @@ namespace SMGE
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	DEFINE_RTTI_CObject_DEFAULT(CMap);
+	DEFINE_RTTI_CObject_VARIETY(CMap, const CMap&);
 
 	CMap::CMap(CObject* outer) : CObject(outer)
 	{
@@ -115,7 +118,7 @@ namespace SMGE
 	void CMap::ProcessPendingKills()
 	{
 		auto& actors = actorLayers_[EActorLayer::Game];
-		for (int i = actors.size() - 1; i >= 0; --i)
+		for (size_t i = actors.size() - 1; i >= 0; --i)
 		{
 			auto& actor = actors[i];
 			if (actor->IsPendingKill())

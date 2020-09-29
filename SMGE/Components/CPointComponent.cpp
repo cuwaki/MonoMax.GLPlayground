@@ -34,6 +34,7 @@ namespace SMGE
 		return *this;
 	}
 
+	DEFINE_RTTI_CObject_DEFAULT(CPointComponent);
 
 	CPointComponent::CPointComponent(CObject* outer) : CBoundComponent(outer)
 	{

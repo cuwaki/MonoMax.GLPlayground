@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stack>
+
 namespace SMGE
 {
     template<typename T>
@@ -25,12 +27,16 @@ namespace SMGE
         typename ParentVectorT::iterator cursorBegin() { cursor_ = this->begin(); return cursor();   }
         typename ParentVectorT::iterator cursorNext() { cursor_++; return cursor(); }
         typename ParentVectorT::iterator cursor() {  return cursor_; }
+
         void setCursor(typename ParentVectorT::iterator newCursor) { cursor_ = newCursor; }
+        void pushCursor() { stack_.push(cursor_); }
+        void popCursor() { cursor_ = stack_.top(); stack_.pop(); }
 
         bool isCursorEnd() { return cursor_ == this->end(); }
 
     protected:
         typename ParentVectorT::iterator cursor_;
+        std::stack<typename ParentVectorT::iterator> stack_;
     };
 
     template<typename T>

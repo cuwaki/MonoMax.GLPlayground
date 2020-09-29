@@ -32,6 +32,8 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	DEFINE_RTTI_CObject_DEFAULT(CMeshComponent);
+	DEFINE_RTTI_CObject_VARIETY(CMeshComponent, CObject*, const CWString&)
 
 	CMeshComponent::CMeshComponent(CObject* outer) : CDrawComponent(outer)
 	{

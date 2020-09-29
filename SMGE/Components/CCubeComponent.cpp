@@ -39,6 +39,8 @@ namespace SMGE
 		return *this;
 	}
 
+	DEFINE_RTTI_CObject_DEFAULT(CCubeComponent);
+	DEFINE_RTTI_CObject_VARIETY(CCubeComponent, CObject*, const glm::vec3&, const glm::vec3&)
 
 	CCubeComponent::CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop) : CBoundComponent(outer)
 	{

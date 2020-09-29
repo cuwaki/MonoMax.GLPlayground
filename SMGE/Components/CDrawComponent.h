@@ -37,7 +37,7 @@ namespace SMGE
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
 		SGRefl_Transform sg_transform_;
-		mutable int32_t persistentComponentNumber_ = 0;
+		mutable size_t persistentComponentNumber_ = 0;
 
 		TReflectionClass& outerDrawCompo_;
 	};

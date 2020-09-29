@@ -25,6 +25,8 @@ namespace SMGE
 
 	class CPointComponent : public CBoundComponent
 	{
+		DECLARE_RTTI_CObject(CPointComponent)
+
 	public:
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_PointComponent;

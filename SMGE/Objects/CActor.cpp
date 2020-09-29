@@ -169,6 +169,9 @@ namespace SMGE
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	DEFINE_RTTI_CObject_DEFAULT(CActor);
+	DEFINE_RTTI_CObject_VARIETY(CActor, CObject*, const CActor&)
+
 	CActor::CActor(CObject* outer) : CObject(outer)
 	{
 		className_ = wtext("SMGE::CActor");
@@ -343,7 +346,6 @@ namespace SMGE
 		return isPendingKill_;
 	}
 
-
 	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
 	{
 		className_ = wtext("SMGE::CCollideActor");
@@ -357,6 +359,8 @@ namespace SMGE
 		Super::BeginPlay();
 	}
 
+	DEFINE_RTTI_CObject_DEFAULT(CPointActor);
+	
 	CPointActor::CPointActor(CObject* outer) : CActor(outer)
 	{
 		className_ = wtext("SMGE::CPointActor");
@@ -377,6 +381,9 @@ namespace SMGE
 		auto pointCompo = MakeUniqPtr<CPointComponent>(this);
 		getTransientComponents().emplace_back(std::move(pointCompo));
 	}
+
+	DEFINE_RTTI_CObject_DEFAULT(CRayCollideActor);
+	DEFINE_RTTI_CObject_VARIETY(CRayCollideActor, CObject*, ECheckCollideRule, bool, const DELEGATE_OnCollide&, float, const glm::vec3&);
 
 	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
 		CCollideActor(outer, rule, isDetailCheck, fOnCollide)

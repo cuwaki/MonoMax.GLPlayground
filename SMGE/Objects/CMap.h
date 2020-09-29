@@ -2,6 +2,7 @@
 
 #include "../Interfaces/CInt_Reflection.h"
 #include "CActor.h"
+#include "../RTTI.hpp"
 
 namespace SMGE
 {
@@ -37,6 +38,8 @@ namespace SMGE
 
 	class CMap : public CObject, public CInt_Reflection
 	{
+		DECLARE_RTTI_CObject(CMapComponent)
+
 	public:
 		using TReflectionStruct = SGRefl_Map;
 
@@ -64,6 +67,22 @@ namespace SMGE
 		void FinishPlaying();
 		bool IsStarted() { return isStarted_; }
 
+	protected:
+		CActor& SpawnDefaultActorINTERNAL(CObject* newObj, bool isDynamic)
+		{
+			CSharPtr<CActor> newActor = MakeSharPtr<CActor>(DCast<CActor*>(newObj));
+
+			if (isDynamic == true)
+			{	// DynamicActorKey
+				newActor->actorKey_ = DynamicActorKey++;
+			}
+
+			auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
+			rb->OnSpawnStarted(this, isDynamic);
+
+			return static_cast<CActor&>(*rb);
+		}
+
 	public:
 		virtual const CWString& getClassName() override { return className_; }
 		virtual SGReflection& getReflection() override;
@@ -79,20 +98,20 @@ namespace SMGE
 		static TActorKey DynamicActorKey;	// 테스트 코드
 
 	public:
+		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용
+		template<typename... Args>
+		CActor& SpawnDefaultActor(const std::string& classRTTIName, bool isDynamic, Args&&... args)
+		{
+			auto newObj = RTTI_CObject::NewDefault(classRTTIName, std::forward<Args>(args)...);
+			return static_cast<CActor&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
+		}
+
+		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
 		template<typename ActorT, typename... Args>
 		ActorT& SpawnDefaultActor(bool isDynamic, Args&&... args)
 		{
-			auto newActor = MakeSharPtr<ActorT>(this, std::forward<Args>(args)...);
-
-			if (isDynamic == true)
-			{	// DynamicActorKey
-				newActor->actorKey_ = DynamicActorKey++;
-			}
-
-			auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
-
-			rb->OnSpawnStarted(this, isDynamic);
-			return static_cast<ActorT&>(*rb);
+			auto newObj = RTTI_CObject::NewVariety<ActorT>(ActorT::ClassRTTIName, std::forward<Args>(args)...);
+			return static_cast<ActorT&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
 		}
 	};
 

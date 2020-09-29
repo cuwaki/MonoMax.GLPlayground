@@ -26,6 +26,8 @@ namespace SMGE
 
 	class CSphereComponent : public CBoundComponent
 	{
+		DECLARE_RTTI_CObject(CSphereComponent)
+
 	public:
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_SphereComponent;

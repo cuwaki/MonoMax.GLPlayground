@@ -40,6 +40,8 @@ namespace SMGE
 		return *this;
 	}
 
+	DEFINE_RTTI_CObject_DEFAULT(CRayComponent);
+	DEFINE_RTTI_CObject_VARIETY(CRayComponent, CObject* , float , const glm::vec3& )
 
 	CRayComponent::CRayComponent(CObject* outer, float size, const glm::vec3& direction) : CBoundComponent(outer)
 	{

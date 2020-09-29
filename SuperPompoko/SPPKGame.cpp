@@ -72,7 +72,7 @@ namespace SMGE
 
 		Globals::GCurrentGame = this;
 
-		// 테스트 코드 ㅡ 쿼드트리
+		// 테스트 코드 ㅡ 옥트리, 쿼드트리
 		{
 			auto maxX = 10000, maxY = 10000, maxZ = 10000;
 			auto screenW = 1024, screenH = 768;
@@ -273,10 +273,11 @@ namespace SMGE
 				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
 				CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
+					nullptr,
 					ECheckCollideRule::NEAREST, false,
 					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
 					{
-						CPointActor* pointActor = &currentMap_->SpawnDefaultActor<CPointActor>(true);
+						CPointActor* pointActor = &currentMap_->SpawnDefaultActor<CPointActor>(true, nullptr);
 						currentMap_->FinishSpawnActor(*pointActor);
 
 						pointActor->getTransform().Translate(COLL_POS);
