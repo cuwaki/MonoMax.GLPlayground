@@ -19,7 +19,7 @@ namespace SMGE
 
 		CGameBase::CGameBase(CObject* outer) : CObject(outer)
 		{
-			className_ = wtext("SMGE::nsGE::CGameBase");
+			//classRTTIName_ = "SMGE::nsGE::CGameBase";
 
 			CGameBase::Instance = this;
 

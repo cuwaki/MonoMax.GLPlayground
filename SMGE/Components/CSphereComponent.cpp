@@ -37,11 +37,9 @@ namespace SMGE
 		return *this;
 	}
 
-	DEFINE_RTTI_CObject_DEFAULT(CSphereComponent);
-
 	CSphereComponent::CSphereComponent(CObject* outer) : CBoundComponent(outer)
 	{
-		className_ = wtext("SMGE::CSphereComponent");
+		//classRTTIName_ = "SMGE::CSphereComponent";
 
 		Ctor();
 	}
@@ -77,7 +75,7 @@ namespace SMGE
 
 	void CSphereComponent::ReadyToDrawing()
 	{
-		const auto resmKey = wtext("gizmoK:sphere");
+		const auto resmKey = "gizmoK:sphere";
 
 		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (rsm == nullptr)

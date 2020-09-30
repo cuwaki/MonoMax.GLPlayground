@@ -377,7 +377,7 @@ namespace SMGE
 			CCamera camera_;
 
 			// 테스트 코드
-			CHashMap<CWString, ResourceModelBase*> resourceModels_;
+			CHashMap<CString, ResourceModelBase*> resourceModels_;
 			//CVector<WorldObject> WorldObjects_;
 			// deprecated
 			//CVector<OldModelWorld*> m_oldWorldObjectList;
@@ -401,9 +401,9 @@ namespace SMGE
 			void Tick();
 			void Render(char* imgBuffer);
 
-			bool AddResourceModel(const CWString& key, ResourceModelBase* am);
+			bool AddResourceModel(const CString& key, ResourceModelBase* am);
 			bool RemoveResourceModel(ResourceModelBase* am);
-			ResourceModelBase* GetResourceModel(const CWString& key);
+			ResourceModelBase* GetResourceModel(const CString& key);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 			void ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir);

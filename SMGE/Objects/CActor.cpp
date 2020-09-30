@@ -19,14 +19,6 @@ namespace SMGE
 		actorStaticTag_(actor.actorStaticTag_),	
 		outerActor_(actor), SGReflection(actor)
 	{
-		linkINST2REFL();
-	}
-
-	void SGRefl_Actor::linkINST2REFL()
-	{
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-		//persistentComponentsREFL_.resize(outerActor_.getPersistentComponents().size());
-		//ReflectionUtils::clearAndEmplaceBackINST2REFL(persistentComponentsREFL_, outerActor_.getPersistentComponents());
 	}
 
 	void SGRefl_Actor::buildVariablesMap()
@@ -42,9 +34,6 @@ namespace SMGE
 	void SGRefl_Actor::OnBeforeSerialize() const
 	{
 		Super::OnBeforeSerialize();
-
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-		persistentComponentNumber_ = outerActor_.getPersistentComponents().size();
 	}
 
 	SGRefl_Actor::operator CWString() const
@@ -54,18 +43,12 @@ namespace SMGE
 		ret += _TO_REFL(TActorKey, actorKey_);
 		ret += SCast<CWString>(sg_actorTransform_);
 		ret += _TO_REFL(CString, actorStaticTag_);
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-		//ret += ReflectionUtils::ToCVector(persistentComponentsREFL_, L"CVector<SGRefl_Component>", L"persistentComponentsREFL_", std::optional<size_t>{});
 
-		// 테스트 코드 ㅡ 몽키 컬링 스피어 콤포
-		// 테스트 코드 ㅡ 쓰는 부분이다 - CActor::Ctor 에서 결정되어있다
-		ret += _TO_REFL(int32_t, persistentComponentNumber_);
+		auto persistCompoSize = outerActor_.getPersistentComponents().size();
+		ret += _TO_REFL(size_t, persistCompoSize);
 
 		auto& pcomps = outerActor_.getPersistentComponents();
-
-		assert(persistentComponentNumber_ == pcomps.size());
-
-		for (int i = 0; i < pcomps.size(); ++i)
+		for (size_t i = 0; i < pcomps.size(); ++i)
 		{
 			ret += SCast<CWString>(pcomps[i]->getReflection());
 		}
@@ -89,60 +72,18 @@ namespace SMGE
 			_FROM_REFL(dummy, variableSplitted);
 		}
 
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-			//auto FuncLoadComponent = [this](auto& variableSplitted, size_t childKey)
-			//{
-			//	CMeshComponent loader(nullptr);
-			//	auto backupCursor = variableSplitted.cursor();
-			//	loader.getReflection() = variableSplitted;
+		size_t persistCompoSize = 0;
+		_FROM_REFL(persistCompoSize, variableSplitted);
 
-			//	auto rootAssetPath = nsGE::CGameBase::Instance->PathAssetRoot();
-			//	CWString assetPath = loader.getReflection().getReflectionFilePath();
-			//	if (Path::IsValidPath(assetPath) == true)
-			//	{
-			//		CSharPtr<CAsset<CComponent>>& componentAsset = CAssetManager::LoadAsset<CComponent>(rootAssetPath + assetPath);
-
-			//		//variableSplitted.setCursor(backupCursor);
-			//		//component->getReflection() = variableSplitted;
-			//	}
-			//};
-
-			//ReflectionUtils::FromCVector(persistentComponentsREFL_, variableSplitted, FuncLoadComponent);
-			//linkINST2REFL();
-		// }
-
-		// 테스트 코드 ㅡ 읽어들이는 부분이다 - 여기서 기존에 몇개가 있었는지는 CActor::Ctor 에서 결정되어있다
-		_FROM_REFL(persistentComponentNumber_, variableSplitted);
 		auto& pcomps = outerActor_.getPersistentComponents();
-
-		// 이게 없어야하는게 애셋에서는 1개지만 클래스에서는 2개일 수 있다 - 애셋에 저장할 당시에는 1개였지만 소스를 고쳐서 2개로 만든 경우, 아직 애셋이 새로 저장되지 않았을 때 이렇게 될 수 있다
-		//assert(persistentComponentNumber_ == pcomps.size());
 		pcomps.clear();
+		pcomps.reserve(persistCompoSize);
 
-		// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
-		//for (int i = 0; i < persistentComponentNumber_; ++i)
-		//{
-		//	auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
-		//	meshComp.get()->getReflection() = variableSplitted;
-		//	pcomps.emplace_back(std::move(meshComp));
-		//}
-
-		// 테스트 코드 ㅡ 몽키 컬링 스피어 콤포
-		if (persistentComponentNumber_ == 2)
+		for (size_t i = 0; i < persistCompoSize; ++i)
 		{
-			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
-			meshComp.get()->getReflection() = variableSplitted;
-			pcomps.emplace_back(std::move(meshComp));
-
-			auto sphereComp = MakeUniqPtr<CSphereComponent>(&outerActor_);
-			sphereComp.get()->getReflection() = variableSplitted;
-			pcomps.emplace_back(std::move(sphereComp));
-		}
-		else if (persistentComponentNumber_ == 1)
-		{
-			auto meshComp = MakeUniqPtr<CMeshComponent>(&outerActor_);
-			meshComp.get()->getReflection() = variableSplitted;
-			pcomps.emplace_back(std::move(meshComp));
+			auto compo = ReflectionUtils::FuncLoadClass<CComponent>(&outerActor_, variableSplitted);
+			if(compo != nullptr)
+				pcomps.emplace_back(std::move(compo));
 		}
 
 		return *this;
@@ -169,12 +110,9 @@ namespace SMGE
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	DEFINE_RTTI_CObject_DEFAULT(CActor);
-	DEFINE_RTTI_CObject_VARIETY(CActor, CObject*, const CActor&)
-
 	CActor::CActor(CObject* outer) : CObject(outer)
 	{
-		className_ = wtext("SMGE::CActor");
+		//classRTTIName_ = "SMGE::CActor";
 		Ctor();
 	}
 
@@ -218,23 +156,10 @@ namespace SMGE
 	{
 		Super::Ctor();
 
-		// 메인 드로
-		auto mainDrawCompo = MakeUniqPtr<CMeshComponent>(this);
-		getPersistentComponents().emplace_back(std::move(mainDrawCompo));
-
-		// 테스트 코드 - 액터의 여러 자식 드로 콤포넌트 테스트용
-		//auto subDrawCompo = MakeUniqPtr<CMeshComponent>(this);
-		////auto subDrawCompo_ = SCast<CMeshComponent*>(subDrawCompo.get());
-		//getPersistentComponents().emplace_back(std::move(subDrawCompo));
-
 		// 무브먼트
 		auto transfCompo = MakeUniqPtr<CMovementComponent>(this);
 		movementCompo_ = SCast<CMovementComponent*>(transfCompo.get());
 		getTransientComponents().emplace_back(std::move(transfCompo));
-
-		// 삭제해도 됨 - 트랜젼트 바운드 테스트 바운드
-		auto sphereCompo = MakeUniqPtr<CPointComponent>(this);
-		getTransientComponents().emplace_back(std::move(sphereCompo));
 	}
 
 	void CActor::Dtor()
@@ -282,19 +207,16 @@ namespace SMGE
 
 	void CActor::BeginPlay()
 	{
-		// 테스트 코드 ㅡ 몽키 컬링 스피어 콤포
-		if(getActorStaticTag() == "this is a monkey")
-			mainBoundCompo_ = DCast<CBoundComponent*>(getPersistentComponents()[1].get());
-		
 		for (auto& pc : getPersistentComponents())
 		{
 			registerComponent(pc.get());
 		}
-
 		for (auto& pc : getTransientComponents())
 		{
 			registerComponent(pc.get());
 		}
+
+		mainBoundCompo_ = findComponent<CBoundComponent>();	// 처음 만나는 바운드를 메인 바운드로 삼는다
 
 		timer_.start();
 
@@ -348,7 +270,7 @@ namespace SMGE
 
 	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
 	{
-		className_ = wtext("SMGE::CCollideActor");
+		//classRTTIName_ = "SMGE::CCollideActor";
 
 		rule_ = rule;
 		isDetailCheck_ = isDetailCheck;
@@ -359,11 +281,9 @@ namespace SMGE
 		Super::BeginPlay();
 	}
 
-	DEFINE_RTTI_CObject_DEFAULT(CPointActor);
-	
-	CPointActor::CPointActor(CObject* outer) : CActor(outer)
+	CPointActor::CPointActor(CObject* outer) : CCollideActor(outer)
 	{
-		className_ = wtext("SMGE::CPointActor");
+		//classRTTIName_ = "SMGE::CPointActor";
 		Ctor();
 	}
 
@@ -382,13 +302,10 @@ namespace SMGE
 		getTransientComponents().emplace_back(std::move(pointCompo));
 	}
 
-	DEFINE_RTTI_CObject_DEFAULT(CRayCollideActor);
-	DEFINE_RTTI_CObject_VARIETY(CRayCollideActor, CObject*, ECheckCollideRule, bool, const DELEGATE_OnCollide&, float, const glm::vec3&);
-
 	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
 		CCollideActor(outer, rule, isDetailCheck, fOnCollide)
 	{
-		className_ = wtext("SMGE::CRayCollideActor");
+		//classRTTIName_ = "SMGE::CRayCollideActor";
 		Ctor(size, dir);
 	}
 
@@ -454,5 +371,14 @@ namespace SMGE
 				}
 			}
 		}
+	}
+
+	std::vector<CActor*> CPointActor::QueryCollideCheckTargets()
+	{
+		return std::vector<CActor*>();
+	}
+
+	void CPointActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets)
+	{
 	}
 };

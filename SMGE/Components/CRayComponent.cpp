@@ -40,12 +40,9 @@ namespace SMGE
 		return *this;
 	}
 
-	DEFINE_RTTI_CObject_DEFAULT(CRayComponent);
-	DEFINE_RTTI_CObject_VARIETY(CRayComponent, CObject* , float , const glm::vec3& )
-
 	CRayComponent::CRayComponent(CObject* outer, float size, const glm::vec3& direction) : CBoundComponent(outer)
 	{
-		className_ = wtext("SMGE::CRayComponent");
+		//classRTTIName_ = "SMGE::CRayComponent";
 
 		size_ = size;
 		direction_ = glm::normalize(direction);
@@ -81,7 +78,7 @@ namespace SMGE
 
 	void CRayComponent::ReadyToDrawing()
 	{
-		const auto resmKey = wtext("gizmoK:ray");
+		const auto resmKey = "gizmoK:ray";
 
 		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if(rsm == nullptr)

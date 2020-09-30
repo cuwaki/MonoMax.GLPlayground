@@ -11,8 +11,6 @@ namespace SMGE
 		CObject(CObject *outer);
 		virtual ~CObject() noexcept {}
 
-		CWString getClassName() const { return className_; }
-
 		void Ctor();	// not virtual! 현재로서는 생성자나 파괴자에서 불릴 수 있기 때문 20200813
 		void Dtor();	// not virtual! 현재로서는 생성자나 파괴자에서 불릴 수 있기 때문 20200813
 
@@ -22,10 +20,6 @@ namespace SMGE
 
 	protected:
 		CObject* outer_ = nullptr;
-		CWString className_;
-
-	public:
-		static CString ClassRTTIName;	// DECLARE_RTTI_CObject
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +38,7 @@ namespace SMGE
 				CObject* outer = cur->GetOuter();
 				if (outer != nullptr)
 				{
-					ret = SCast<T*>(FindOuter<T>(outer));
+					ret = FindOuter<T>(outer);
 				}
 			}
 
@@ -55,8 +49,19 @@ namespace SMGE
 	// CObject RTTI
 	using RTTI_CObject = CRtti<CObject, CObject * (CObject*)>;
 
-#define DECLARE_RTTI_CObject(classRTTIName) public : static CString ClassRTTIName; private:
+#define DECLARE_RTTI_CObject(CRN)\
+public :\
+	/* 클래스 인스턴스용 */const std::string& GetClassRTTIName() const { return ClassRTTIName; }\
+private:\
+	/* private 이어야한다 - 자식들도 함부로 바꾸면 안됨 */static CString ClassRTTIName;
 
-#define DEFINE_RTTI_CObject_DEFAULT(classRTTIName) CString classRTTIName::ClassRTTIName = ""#classRTTIName; RTTI_CObject _staticRTTI_DEFAULT_##classRTTIName(""#classRTTIName, [](CObject* outer) {return new classRTTIName(outer); }); 
-#define DEFINE_RTTI_CObject_VARIETY(classRTTIName, ...) RTTI_CObject _staticRTTI_VARIETY_##classRTTIName(""#classRTTIName, CRttiNewFunctorVariety<CObject, classRTTIName, __VA_ARGS__>{});
+#define DEFINE_RTTI_CObject_DEFAULT(CRN) CString CRN::ClassRTTIName = ""#CRN; RTTI_CObject _staticRTTI_DEFAULT_##CRN(""#CRN, [](CObject* outer) {return new CRN(outer); }); 
+#define DEFINE_RTTI_CObject_VARIETY(CRN, ...) RTTI_CObject _staticRTTI_VARIETY_##CRN(""#CRN, CRttiNewFunctorVariety<CObject, CRN, __VA_ARGS__>{});
+
+	/* static 클래스용 */
+	template<class T>
+	const std::string& GetClassRTTIName()
+	{
+		return T(nullptr).GetClassRTTIName();
+	}
 };

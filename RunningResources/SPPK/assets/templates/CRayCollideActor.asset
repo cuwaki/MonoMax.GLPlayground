@@ -1,20 +1,20 @@
-className_$CWString$"SMGE::CRayCollideActor"
+classRTTIName_$CString$"CRayCollideActor"
     reflectionFilePath_$CWString$"/templates/CRayCollideActor.asset"
     actorKey_$TActorKey$0
-    className_$CWString$"SMGE::SGRefl_Transform"
+    classRTTIName_$CString$"SGRefl_Transform"
         reflectionFilePath_$CWString$""
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
     actorStaticTag_$CString$""
-    persistentComponentNumber_$int32_t$1
-    className_$CWString$"SMGE::CRayComponent"
+    persistCompoSize$size_t$1
+    classRTTIName_$CString$"CRayComponent"
         reflectionFilePath_$CWString$""
-        className_$CWString$"SMGE::SGRefl_Transform"
+        classRTTIName_$CString$"SGRefl_Transform"
             reflectionFilePath_$CWString$""
             nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
             nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
             nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
-            persistentComponentNumber_$int32_t$0
+            persistCompoSize$size_t$0
         size_$float$10.0
         direction_$glm::vec3$1.000000	0.000000	0.000000	

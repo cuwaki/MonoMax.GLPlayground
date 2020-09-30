@@ -30,15 +30,12 @@ namespace SMGE
 		using TReflectionClass = CDrawComponent;
 
 		SGRefl_DrawComponent(TReflectionClass& rc);
-		//SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
 		SGRefl_Transform sg_transform_;
-		mutable size_t persistentComponentNumber_ = 0;
-
 		TReflectionClass& outerDrawCompo_;
 	};
 

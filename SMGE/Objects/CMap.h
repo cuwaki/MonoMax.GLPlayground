@@ -70,7 +70,7 @@ namespace SMGE
 	protected:
 		CActor& SpawnDefaultActorINTERNAL(CObject* newObj, bool isDynamic)
 		{
-			CSharPtr<CActor> newActor = MakeSharPtr<CActor>(DCast<CActor*>(newObj));
+			CSharPtr<CActor> newActor(DCast<CActor*>(newObj));
 
 			if (isDynamic == true)
 			{	// DynamicActorKey
@@ -80,11 +80,11 @@ namespace SMGE
 			auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
 			rb->OnSpawnStarted(this, isDynamic);
 
-			return static_cast<CActor&>(*rb);
+			return *std::static_pointer_cast<CActor>(rb);
 		}
 
 	public:
-		virtual const CWString& getClassName() override { return className_; }
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:
@@ -102,7 +102,7 @@ namespace SMGE
 		template<typename... Args>
 		CActor& SpawnDefaultActor(const std::string& classRTTIName, bool isDynamic, Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewDefault(classRTTIName, std::forward<Args>(args)...);
+			auto newObj = RTTI_CObject::NewVariety<CActor>(classRTTIName, std::forward<Args>(args)...);
 			return static_cast<CActor&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
 		}
 
@@ -110,7 +110,7 @@ namespace SMGE
 		template<typename ActorT, typename... Args>
 		ActorT& SpawnDefaultActor(bool isDynamic, Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewVariety<ActorT>(ActorT::ClassRTTIName, std::forward<Args>(args)...);
+			auto newObj = RTTI_CObject::NewVariety<ActorT>(SMGE::GetClassRTTIName<ActorT>(), std::forward<Args>(args)...);
 			return static_cast<ActorT&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
 		}
 	};

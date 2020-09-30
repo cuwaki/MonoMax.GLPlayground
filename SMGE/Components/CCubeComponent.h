@@ -13,7 +13,6 @@ namespace SMGE
 		using TReflectionClass = CCubeComponent;
 
 		SGRefl_CubeComponent(TReflectionClass& rc);
-		//SGRefl_CubeComponent(const CUniqPtr<CCubeComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
@@ -47,6 +46,7 @@ namespace SMGE
 		void Ctor();
 
 		// CInt_Reflection
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

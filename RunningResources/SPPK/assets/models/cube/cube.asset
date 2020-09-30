@@ -1,4 +1,4 @@
-className_$CWString$"SMGE::CResourceModel"
+classRTTIName_$CString$"CResourceModel"
     reflectionFilePath_$CWString$"/models/cube/cube.asset"
     vertShaderPath_$CWString$"models/suzanne/suzanne.vert"
     fragShaderPath_$CWString$"models/suzanne/suzanne.frag"

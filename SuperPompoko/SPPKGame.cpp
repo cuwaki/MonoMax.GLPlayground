@@ -9,10 +9,6 @@
 #include "Assets/CResourceModel.h"
 #include "Components/CPointComponent.h"
 
-// 테스트 코드 ㅡ 쿼트트리
-#include "CQuadTree.h"
-#include <set>
-
 class TCActor
 {
 public:
@@ -71,164 +67,6 @@ namespace SMGE
 		Initialize();
 
 		Globals::GCurrentGame = this;
-
-		// 테스트 코드 ㅡ 옥트리, 쿼드트리
-		{
-			auto maxX = 10000, maxY = 10000, maxZ = 10000;
-			auto screenW = 1024, screenH = 768;
-
-			std::vector<TCActor> tcactors;
-			tcactors.reserve(100);
-			for (int k = 0; k < 100; ++k)
-			{
-				tcactors.push_back(
-					{
-						k,
-						std::rand() % maxX - (maxX / 2),
-						std::rand() % maxY - (maxY / 2),
-						std::rand() % maxZ - (maxZ / 2),
-					});
-			}
-
-			using TTCActorOT = COcTree<std::set<TCActor*>, int32_t>;
-			using OTNode = TTCActorOT::TNode;
-			using OTNodeData = TTCActorOT::TNode::TValue;
-
-			TTCActorOT octreeActor("xyz", maxX, maxY, maxZ, screenW);
-
-			// 최초 TCActor 들을 배치한다
-			for (auto& tca : tcactors)
-			{
-				OTNode* xyNode = octreeActor.QueryNodeByXY(tca.x, tca.y);
-				OTNode* zxNode = octreeActor.QueryNodeByZX(tca.z, tca.x);
-
-				if (xyNode && zxNode)
-				{
-					xyNode->GetContainer().insert(&tca);
-					zxNode->GetContainer().insert(&tca);
-				}
-			}
-
-			// 업데이트한다
-			for (auto& tca : tcactors)
-			{
-				OTNode* OxyNode = octreeActor.QueryNodeByXY(tca.x, tca.y);
-				OTNode* OzxNode = octreeActor.QueryNodeByZX(tca.z, tca.x);
-
-				tca.TCActor::TCActor({
-						tca.index,
-						std::rand() % maxX - (maxX / 2),
-						std::rand() % maxY - (maxY / 2),
-						std::rand() % maxZ - (maxZ / 2),
-					});	// 위치 변경
-
-				OTNode* NxyNode = octreeActor.QueryNodeByXY(tca.x, tca.y);
-				OTNode* NzxNode = octreeActor.QueryNodeByZX(tca.z, tca.x);
-
-				if (OxyNode != NxyNode)
-				{
-					NxyNode->GetContainer().insert(&tca);
-					OxyNode->GetContainer().erase(&tca);
-				}
-				if (OzxNode != NzxNode)
-				{
-					NzxNode->GetContainer().insert(&tca);
-					OzxNode->GetContainer().erase(&tca);
-				}
-			}
-
-			// 찾기
-			for (int tcaI = 0; tcaI < tcactors.size(); ++tcaI)
-			{
-				auto foundVec = octreeActor.QueryValuesByPoint(tcactors[tcaI].x, tcactors[tcaI].y, tcactors[tcaI].z);
-				if (foundVec.size() > 0)
-				{	// 점쿼리는 이상 없이 잘 되고
-					volatile int xxx = 0;
-				}
-
-				glm::vec3 _4Loc(tcactors[tcaI].x, tcactors[tcaI].y, tcactors[tcaI].z);
-				auto _4LB = _4Loc - tcactors[tcaI].xS / 2.f;
-				auto _4RT = _4Loc + tcactors[tcaI].xS / 2.f;
-				foundVec = octreeActor.QueryValuesByCube(_4LB.x, _4LB.y, _4LB.z, _4RT.x, _4RT.y, _4RT.z);
-				if (foundVec.size() > 0)
-				{
-					volatile int xxx = 0;
-				}
-			}
-
-			// 삭제한다
-			for (auto& tca : tcactors)
-			{
-				OTNode* OxyNode = octreeActor.QueryNodeByXY(tca.x, tca.y);
-				OTNode* OzxNode = octreeActor.QueryNodeByZX(tca.z, tca.x);
-				OxyNode->GetContainer().erase(&tca);
-				OzxNode->GetContainer().erase(&tca);
-			}
-
-			/*  쿼드 트리 테스트
-			using TTCActorQT = CQuadTree<std::set<TCActor*>>;
-			TTCActorQT qtActorXY("xy", 10000, 10000, 1024, 768);
-			TTCActorQT qtActorZX("zx", 10000, 10000, 1024, 768);
-
-			using QTNode = TTCActorQT::TNode;
-			using QTNodeData = TTCActorQT::TNode::TValue;
-
-			// 최초 TCActor 들을 qt에 배치한다
-			for (auto& tca : tcactors)
-			{
-				QTNode* node = qtActorXY.QueryNodeByPoint(tca.x, tca.y);
-				node->GetContainer().insert(&tca);
-
-				node = qtActorZX.QueryNodeByPoint(tca.z, tca.x);
-				node->GetContainer().insert(&tca);
-
-				volatile int xxx = 0;
-			}
-
-			// 업데이트한다
-			for (auto& tca : tcactors)
-			{
-				QTNode* oldNodeXY = qtActorXY.QueryNodeByPoint(tca.x, tca.y);
-				QTNode* oldNodeZX = qtActorZX.QueryNodeByPoint(tca.z, tca.x);
-
-				tca.TCActor::TCActor({
-						tca.index,
-						std::rand() % maxX - (maxX / 2),
-						std::rand() % maxY - (maxY / 2),
-						std::rand() % maxZ - (maxZ / 2),
-					});	// 위치 변경
-
-				QTNode* newNodeXY = qtActorXY.QueryNodeByPoint(tca.x, tca.y);
-				QTNode* newNodeZX = qtActorZX.QueryNodeByPoint(tca.z, tca.x);
-
-				if (oldNodeXY != newNodeXY)
-				{
-					newNodeXY->GetContainer().insert(&tca);
-					oldNodeXY->GetContainer().erase(&tca);
-				}
-				if (oldNodeZX != newNodeZX)
-				{
-					newNodeZX->GetContainer().insert(&tca);
-					oldNodeZX->GetContainer().erase(&tca);
-				}
-			}
-
-			// 옥트리로써 찾아본다
-			glm::vec3 findingLoc(tcactors[4].x, tcactors[4].y, tcactors[4].z);
-			QTNodeData& dataXY = qtActorXY.QueryNodeByPoint(findingLoc.x, findingLoc.y)->GetContainer();
-			QTNodeData& dataZX = qtActorZX.QueryNodeByPoint(findingLoc.z, findingLoc.x)->GetContainer();
-
-			std::set<QTNodeData::value_type> intersect;
-			std::set_intersection(dataXY.begin(), dataXY.end(), dataZX.begin(), dataZX.end(), std::inserter(intersect, intersect.begin()));
-
-			// 삭제한다
-			for (auto& tca : tcactors)
-			{
-				QTNode* oldNode = qtActorXY.QueryNodeByPoint(tca.x, tca.y);
-				oldNode->GetContainer().erase(&tca);
-			}
-			*/
-		}
 	}
 
 	SPPKGame::~SPPKGame()
@@ -273,11 +111,11 @@ namespace SMGE
 				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
 				CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
-					nullptr,
+					Globals::GCurrentMap,
 					ECheckCollideRule::NEAREST, false,
 					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
 					{
-						CPointActor* pointActor = &currentMap_->SpawnDefaultActor<CPointActor>(true, nullptr);
+						CPointActor* pointActor = &currentMap_->SpawnDefaultActor<CPointActor>(true, Globals::GCurrentMap);
 						currentMap_->FinishSpawnActor(*pointActor);
 
 						pointActor->getTransform().Translate(COLL_POS);

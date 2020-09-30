@@ -25,6 +25,7 @@ namespace SMGE
 		virtual void Tick(float td) override;
 
 		// CInt_Reflection
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

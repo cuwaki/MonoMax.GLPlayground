@@ -1,4 +1,4 @@
-className_$CWString$"SMGE_Game::CGMeshAsset"
+classRTTIName_$CString$"SMGE_Game::CGMeshAsset"
 actorKey_$TActorKey$0
 worldTransform_$glm::mat4$0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	0.000000	333.000000	
 actorStaticTag_$CString$"test triangle actor"

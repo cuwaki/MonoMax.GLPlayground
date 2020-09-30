@@ -53,9 +53,9 @@ namespace SMGE
 		return *this;
 	}
 
-	CResourceModel::CResourceModel(void* outer) : nsRE::ResourceModel()
+	CResourceModel::CResourceModel(CObject* outer) : nsRE::ResourceModel(), CObject(outer)
 	{
-		className_ = wtext("SMGE::CResourceModel");
+		//classRTTIName_ = "SMGE::CResourceModel";
 	}
 
 	SGReflection& CResourceModel::getReflection()

@@ -32,12 +32,9 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	DEFINE_RTTI_CObject_DEFAULT(CMeshComponent);
-	DEFINE_RTTI_CObject_VARIETY(CMeshComponent, CObject*, const CWString&)
-
 	CMeshComponent::CMeshComponent(CObject* outer) : CDrawComponent(outer)
 	{
-		className_ = wtext("SMGE::CMeshComponent");
+		//classRTTIName_ = "SMGE::CMeshComponent";
 
 		Ctor();
 	}
@@ -82,7 +79,7 @@ namespace SMGE
 			auto rsm = drawingModelAsset_->getContentClass();
 
 			// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-			GetRenderingEngine()->AddResourceModel(drawingModelAssetPath_, rsm);
+			GetRenderingEngine()->AddResourceModel(ToASCII(drawingModelAssetPath_), rsm);
 
 			rsm->GetRenderModel().AddWorldObject(this);
 		}

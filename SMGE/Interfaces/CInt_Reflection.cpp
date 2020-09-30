@@ -115,7 +115,7 @@ namespace SMGE
 
 		CWString ret;
 
-		ret += _TO_REFL(CWString, className_);
+		ret += _TO_REFL(CString, classRTTIName_);
 		ret += _TO_REFL(CWString, reflectionFilePath_);
 
 		return ret;
@@ -180,8 +180,8 @@ namespace SMGE
 	SGReflection& SGReflection::operator=(CVector<CWString>& variableSplitted)
 	{
 		// from fast
-		CWString dummy;
-		_FROM_REFL(dummy, variableSplitted);
+		CString dummy;
+		_FROM_REFL(dummy, variableSplitted);	// classRTTIName_ 버림
 
 		_FROM_REFL(reflectionFilePath_, variableSplitted);
 
@@ -190,8 +190,8 @@ namespace SMGE
 
 	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
 	{
-		CWString dummy;
-		_FROM_REFL(dummy, metaSplitted);
+		CString dummy;
+		_FROM_REFL(dummy, metaSplitted);	// classRTTIName_ 버림
 
 		CWString reflPath;
 		_FROM_REFL(reflPath, metaSplitted);
@@ -202,5 +202,14 @@ namespace SMGE
 		}
 
 		return *this;
+	}
+
+	CString SGReflection::GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted)
+	{
+		metaSplitted.pushCursor();
+		CString rttiName;
+		_FROM_REFL(rttiName, metaSplitted);	// classRTTIName_ 버림
+		metaSplitted.popCursor();
+		return rttiName;
 	}
 };

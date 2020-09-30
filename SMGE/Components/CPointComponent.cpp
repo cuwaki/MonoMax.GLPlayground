@@ -34,11 +34,9 @@ namespace SMGE
 		return *this;
 	}
 
-	DEFINE_RTTI_CObject_DEFAULT(CPointComponent);
-
 	CPointComponent::CPointComponent(CObject* outer) : CBoundComponent(outer)
 	{
-		className_ = wtext("SMGE::CPointComponent");
+		//classRTTIName_ = "SMGE::CPointComponent";
 
 		Ctor();
 	}
@@ -71,7 +69,7 @@ namespace SMGE
 
 	void CPointComponent::ReadyToDrawing()
 	{
-		const auto resmKey = wtext("gizmoK:point");
+		const auto resmKey = "gizmoK:point";
 
 		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if(rsm == nullptr)

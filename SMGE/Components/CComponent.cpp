@@ -11,7 +11,7 @@ namespace SMGE
 
 	CComponent::CComponent(CObject* outer) : CObject(outer)
 	{
-		className_ = wtext("SMGE::CComponent");
+		//classRTTIName_ = "SMGE::CComponent";
 	}
 
 	void CComponent::OnBeginPlay(class CObject* parent)
@@ -20,5 +20,12 @@ namespace SMGE
 
 	void CComponent::OnEndPlay()
 	{
+	}
+
+	SGReflection& CComponent::getReflection()
+	{
+		if (reflCompo_.get() == nullptr)
+			reflCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+		return *reflCompo_.get();
 	}
 };

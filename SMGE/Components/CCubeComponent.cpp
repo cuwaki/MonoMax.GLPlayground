@@ -39,12 +39,9 @@ namespace SMGE
 		return *this;
 	}
 
-	DEFINE_RTTI_CObject_DEFAULT(CCubeComponent);
-	DEFINE_RTTI_CObject_VARIETY(CCubeComponent, CObject*, const glm::vec3&, const glm::vec3&)
-
 	CCubeComponent::CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop) : CBoundComponent(outer)
 	{
-		className_ = wtext("SMGE::CCubeComponent");
+		//classRTTIName_ = "SMGE::CCubeComponent";
 		Ctor();
 	}
 
@@ -76,7 +73,7 @@ namespace SMGE
 
 	void CCubeComponent::ReadyToDrawing()
 	{
-		const auto resmKey = wtext("gizmoK:cube");
+		const auto resmKey = "gizmoK:cube";
 
 		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (rsm == nullptr)

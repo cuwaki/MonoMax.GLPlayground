@@ -6,7 +6,7 @@ namespace SMGE
 {
 	CBoundComponent::CBoundComponent(CObject* outer) : CDrawComponent(outer)
 	{
-		className_ = wtext("SMGE::CBoundComponent");
+		//classRTTIName_ = "SMGE::CBoundComponent";
 
 		Ctor();
 	}

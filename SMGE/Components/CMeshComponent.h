@@ -14,7 +14,6 @@ namespace SMGE
 		using TReflectionClass = CMeshComponent;
 
 		SGRefl_MeshComponent(TReflectionClass& meshc);
-		//SGRefl_MeshComponent(const CUniqPtr<CMeshComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
@@ -44,6 +43,7 @@ namespace SMGE
 		void SetDrawingModelAsset(const CWString& modelAssetPath);
 
 		// CInt_Reflection
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

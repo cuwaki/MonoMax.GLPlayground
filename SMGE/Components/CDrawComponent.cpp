@@ -3,10 +3,6 @@
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
 
-// 테스트 코드
-#include "CMeshComponent.h"
-#include "CSphereComponent.h"
-
 namespace SMGE
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,9 +49,6 @@ namespace SMGE
 	void SGRefl_DrawComponent::OnBeforeSerialize() const
 	{
 		Super::OnBeforeSerialize();
-
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-		persistentComponentNumber_ = outerDrawCompo_.getPersistentComponents().size();
 	}
 
 	SGRefl_DrawComponent::operator CWString() const
@@ -82,13 +75,10 @@ namespace SMGE
 		
 		ret += SCast<CWString>(sg_transform_);
 
-		// 테스트 코드 ㅡ 쓰는 부분이다
-		ret += _TO_REFL(int32_t, persistentComponentNumber_);
+		const auto persistCompoSize = outerDrawCompo_.getPersistentComponents().size();
+		ret += _TO_REFL(size_t, persistCompoSize);
 
 		auto& pcomps = outerDrawCompo_.getPersistentComponents();
-
-		assert(persistentComponentNumber_ == pcomps.size());
-
 		for (int i = 0; i < pcomps.size(); ++i)
 		{
 			ret += SCast<CWString>(pcomps[i]->getReflection());
@@ -103,23 +93,18 @@ namespace SMGE
 
 		sg_transform_ = variableSplitted;
 
-		// 테스트 코드 ㅡ 읽어들이는 부분이다
-		_FROM_REFL(persistentComponentNumber_, variableSplitted);
+		size_t persistCompoSize = 0;
+		_FROM_REFL(persistCompoSize, variableSplitted);
+
 		auto& pcomps = outerDrawCompo_.getPersistentComponents();
+		pcomps.clear();
+		pcomps.reserve(persistCompoSize);
 
-		// 테스트 코드 ㅡ 현재로써는 메시콤포만 지원한다 - 이거 제대로 처리하려면 RTTI 필요 이슈
-		//for (int i = 0; i < persistentComponentNumber_; ++i)
-		//{
-		//	auto meshComp = MakeUniqPtr<CMeshComponent>(&outerDrawCompo_);	// 여기 때문인 것 같은데?? $$43 여기서 아우터로 outerDrawCompo_ 를 주면서 생기는 일인 듯...
-		//	meshComp.get()->getReflection() = variableSplitted;
-		//	pcomps.emplace_back(std::move(meshComp));
-		//}
-
-		if (persistentComponentNumber_ == 1)
+		for (size_t i = 0; i < persistCompoSize; ++i)
 		{
-			auto meshComp = MakeUniqPtr<CSphereComponent>(&outerDrawCompo_);
-			meshComp.get()->getReflection() = variableSplitted;
-			pcomps.emplace_back(std::move(meshComp));
+			auto compo = ReflectionUtils::FuncLoadClass<CComponent>(&outerDrawCompo_, variableSplitted);
+			if (compo != nullptr)
+				pcomps.emplace_back(std::move(compo));
 		}
 
 		return *this;
@@ -128,7 +113,7 @@ namespace SMGE
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldObject(nullptr)
 	{
-		className_ = wtext("SMGE::CDrawComponent");
+		//classRTTIName_ = "SMGE::CDrawComponent";
 
 		Ctor();
 	}

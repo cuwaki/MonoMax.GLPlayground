@@ -30,21 +30,22 @@ namespace SMGE
 		CVector<glm::vec3>& vertexColors_;
 	};
 
-	class CResourceModel : virtual public nsRE::ResourceModel, public CInt_Reflection
+	class CResourceModel : virtual public nsRE::ResourceModel, public CObject, public CInt_Reflection
 	{
+		DECLARE_RTTI_CObject(CResourceModel)
+
 	public:
 		using TReflectionStruct = SGRefl_ResourceModel;
 		friend struct TReflectionStruct;
 
-		CResourceModel(void *outer);
+		CResourceModel(CObject* outer);
 
 	public:
-		virtual const CWString& getClassName() override { return className_; }
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override;
 
 	protected:
-		CWString className_;
 		CUniqPtr<TReflectionStruct> reflData_;
 
 	public:

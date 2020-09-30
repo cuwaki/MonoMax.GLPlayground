@@ -70,7 +70,7 @@ namespace SMGE
 
 #include "GEContainers.h"
 
-#define IsA(__cobjectInst__, _className_) (__cobjectInst__ && __cobjectInst__->getClassName() == wtext(#_className_))
+#define IsA(__cobjectInst__, classRTTIName) (__cobjectInst__ && __cobjectInst__->getClassRTTIName() == wtext(#classRTTIName))
 
 namespace SMGE
 {

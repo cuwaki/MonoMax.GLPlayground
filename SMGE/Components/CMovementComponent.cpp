@@ -8,7 +8,7 @@ namespace SMGE
 {
 	CMovementComponent::CMovementComponent(CObject* outer) : CComponent(outer)
 	{
-		className_ = wtext("SMGE::CMovementComponent");
+		//classRTTIName_ = "SMGE::CMovementComponent";
 	}
 
 	SGReflection& CMovementComponent::getReflection()
@@ -23,8 +23,6 @@ namespace SMGE
 	static glm::vec3 rotateTo(0, 0, 45), rotateFrom;
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
 	static float TestInterpolationTime = 2000;
-
-	DEFINE_RTTI_CObject_DEFAULT(CMovementComponent);
 
 	void CMovementComponent::OnBeginPlay(class CObject* parent)
 	{

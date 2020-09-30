@@ -1,4 +1,4 @@
-className_$CWString$"SMGE::CMap"
+classRTTIName_$CString$"CMap"
     reflectionFilePath_$CWString$"/templates/CMap.asset"
     actorReflLayers_[0]$CVector<SGRefl_Actor>$0
     actorReflLayers_[1]$CVector<SGRefl_Actor>$0

@@ -1139,7 +1139,7 @@ namespace SMGE
 			isRunning = false;
 		}
 
-		bool CRenderingEngine::AddResourceModel(const CWString& key, ResourceModelBase* am)
+		bool CRenderingEngine::AddResourceModel(const CString& key, ResourceModelBase* am)
 		{
 			auto already = GetResourceModel(key);
 			if (already == nullptr)
@@ -1168,7 +1168,7 @@ namespace SMGE
 			return true;
 		}
 
-		ResourceModelBase* CRenderingEngine::GetResourceModel(const CWString& key)
+		ResourceModelBase* CRenderingEngine::GetResourceModel(const CString& key)
 		{
 			auto clIt = resourceModels_.find(key);
 			return clIt != resourceModels_.end() ? clIt->second : nullptr;

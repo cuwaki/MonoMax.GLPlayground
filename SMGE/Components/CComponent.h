@@ -12,13 +12,14 @@ namespace SMGE
 		using TReflectionClass = CComponent;
 
 		SGRefl_Component(TReflectionClass& rc);
-		//SGRefl_Component(const CUniqPtr<CComponent>& sptr);	// { persistentComponentsREFL_ RTTI 필요 이슈
 		virtual operator CWString() const override { return Super::operator CWString(); }
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override { return Super::operator=(in); }
 	};
 
 	class CComponent : public CObject, public CInt_Reflection
 	{
+		DECLARE_RTTI_CObject(CComponent)
+
 	public:
 		using Super = CObject;
 		using TReflectionStruct = SGRefl_Component;
@@ -37,10 +38,12 @@ namespace SMGE
 		bool isActive() const { return isActive_; }
 
 		// CInt_Reflection
-		virtual const CWString& getClassName() override { return className_; }
-		// 일부러 CInt_Reflection의 나머지는 구현 안함
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual SGReflection& getReflection() override;
+		virtual void OnAfterDeserialized() override {}
 
 	protected:
+		CUniqPtr<TReflectionStruct> reflCompo_;
 		bool isActive_ = false;
 	};
 }

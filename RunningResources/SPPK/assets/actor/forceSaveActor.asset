@@ -1,16 +1,16 @@
 reflectionFilePath_$CWString$""
-className_$CWString$"SMGE::CActor"
+classRTTIName_$CString$"CActor"
 actorKey_$TActorKey$0
 reflectionFilePath_$CWString$""
-className_$CWString$"SMGE::SGRefl_Transform"
+classRTTIName_$CString$"SGRefl_Transform"
 nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
 nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 actorStaticTag_$CString$""
 reflectionFilePath_$CWString$""
-className_$CWString$"SMGE::CMeshComponent"
+classRTTIName_$CString$"CMeshComponent"
 reflectionFilePath_$CWString$""
-className_$CWString$"SMGE::SGRefl_Transform"
+classRTTIName_$CString$"SGRefl_Transform"
 nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
 nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	

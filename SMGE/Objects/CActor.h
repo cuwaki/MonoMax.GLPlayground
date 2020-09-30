@@ -19,10 +19,7 @@ namespace SMGE
 
 		SGRefl_Actor(CActor& actor);
 		SGRefl_Actor(const CSharPtr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr) {}
-
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-		void linkINST2REFL();
-
+		
 		virtual void buildVariablesMap() override;
 		
 		virtual void OnBeforeSerialize() const override;
@@ -43,12 +40,6 @@ namespace SMGE
 		TActorKey& actorKey_;
 		SGRefl_Transform sg_actorTransform_;
 		CString& actorStaticTag_;
-
-		// { persistentComponentsREFL_ RTTI 필요 이슈
-		//CVector<SGRefl_Component> persistentComponentsREFL_;
-		
-		// { persistentComponentsREFL_ RTTI 필요 이슈 - 아래처럼 mutable 로 처리해놨다 / 이거 어떡하지?
-		mutable size_t persistentComponentNumber_ = 0;
 
 		// for Runtime
 		CActor& outerActor_;
@@ -100,11 +91,8 @@ namespace SMGE
 		void SetLifeTick(int32 t) { lifeTick_ = t; }
 
 	public:
-		// RTTI
-		virtual const char* getClassRTTIName() { return "CActor"; }
-
 		// CInt_Reflection
-		virtual const CWString& getClassName() override { return className_; }
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override;
 
@@ -181,7 +169,7 @@ namespace SMGE
 		void ProcessCollide(std::vector<CActor*>& targets);
 	};
 
-	class CPointActor : public CActor
+	class CPointActor : public CCollideActor
 	{
 		DECLARE_RTTI_CObject(CPointActor)
 
@@ -190,5 +178,8 @@ namespace SMGE
 	public:
 		CPointActor(CObject* outer);
 		void Ctor();
+
+		virtual std::vector<CActor*> QueryCollideCheckTargets() override;
+		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) override;
 	};
 };

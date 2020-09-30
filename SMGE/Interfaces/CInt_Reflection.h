@@ -4,6 +4,26 @@
 #include "CInterfaceBase.h"
 #include "../Objects/CObject.h"
 
+
+/**
+	20200929 RTTI 및 REFLECTION 시스템 특이사항 정리
+
+	1. RTTIName 을 가져오는 함수는 비슷한 이름으로 총 4가지가 존재한다
+		
+		SGReflection::getClassRTTIName(
+		CInt_Reflection::getClassRTTIName(
+
+		클래스의 멤버함수인 GetClassRTTIName(
+		전역 템플릿함수인 GetClassRTTIName(
+
+		각 클래스별 ClassRTTIName 을 const 로 보호하고, 런타임 및 정적으로 rttiname 에 접근하기 위하여 종류가 여러가지인 것이다
+
+	2. 실제로 RTTI 로써 사용되지 않는 클래스들에는 RTTI 매크로나 함수, 변수가 없을 수 있다 - 이들은 C++의 인터페이스 클래스와 같다고 생각하면 된다
+
+	3. DEFINE_RTTI_CObject_DEFAULT 매크로 - 말그대로 인자가 outer 1개인 디폴트 생성용이다
+	3. DEFINE_RTTI_CObject_VARIETY 매크로 - 인자가 여러개인 각 클래스용 전용 생성자들을 처리하기 위해서 존재한다
+*/
+
 namespace SMGE
 {
 	struct SGReflection;
@@ -70,7 +90,7 @@ namespace SMGE
 	{
 	public:
 		CWString& getReflectionFilePath() { return reflectionFilePath_; }
-		virtual const CWString& getClassName() = 0;
+		virtual const CString& getClassRTTIName() const = 0;
 
 		virtual SGReflection& getReflection() = 0;
 		virtual const SGReflection& getConstReflection() const
@@ -107,7 +127,7 @@ namespace SMGE
 
 		SGReflection(CInt_Reflection& obj) : 
 			pair_(obj), 
-			className_(obj.getClassName()),
+			classRTTIName_(obj.getClassRTTIName()),
 			reflectionFilePath_(obj.getReflectionFilePath()) // ##8A
 		{
 			if (isFast_ == false)
@@ -121,20 +141,22 @@ namespace SMGE
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted);	// DevReflection
 		virtual SGReflection& operator=(CVector<CWString>& variableSplitted);	// ReflectionUtils
 
-		const CWString& getClassName() const { return className_; }
+		const CString& getClassRTTIName() const { return classRTTIName_; }
 		const CWString& getReflectionFilePath() const { return reflectionFilePath_; }
+
+		// Utility
+		static CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted);
 
 	protected:
 		virtual void buildVariablesMap();
 
 		CInt_Reflection& pair_;
 
-
 		// 여기 수정 - 이게 2가지 성격을 가진다 - 정리가 필요하다
 		// Reflection 자체의 className 을 나타내야하는 경우가 있고 - 독립으로 사용되는 SGRefl_Transform
 		// pair_ 의 className 을 나타내야하는 경우가 있다
 		// 여기 수정 - 중첩으로 SGReflection 들이 되어있을 때 // ##8A 와 같이 레퍼런스로 연결되어있으면 나중의 값으로 덮여씌워져버리는 문제가 있다 - 예)CActor
-		const CWString& className_;	
+		const CString& classRTTIName_;
 		CWString& reflectionFilePath_;
 
 		CWString reflectionName_;
@@ -358,6 +380,17 @@ namespace SMGE
 			}
 
 			return refl;
+		};
+
+		template<typename TargetClass, typename OuterClass>
+		auto FuncLoadClass(OuterClass* outer, CVector<TupleVarName_VarType_Value>& variableSplitted)
+		{
+			auto rttiName = SGReflection::GetClassRTTIName(variableSplitted);
+
+			auto newObj = DCast<TargetClass*>(RTTI_CObject::NewDefault(rttiName, outer));
+			newObj->getReflection() = variableSplitted;
+
+			return newObj;
 		};
 	};
 };

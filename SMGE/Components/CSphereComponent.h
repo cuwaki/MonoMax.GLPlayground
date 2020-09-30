@@ -13,7 +13,6 @@ namespace SMGE
 		using TReflectionClass = CSphereComponent;
 
 		SGRefl_SphereComponent(TReflectionClass& rc);
-		//SGRefl_SphereComponent(const CUniqPtr<CSphereComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
@@ -44,6 +43,7 @@ namespace SMGE
 		void Ctor();
 
 		// CInt_Reflection
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 		float GetRadius() const { return radius_; }

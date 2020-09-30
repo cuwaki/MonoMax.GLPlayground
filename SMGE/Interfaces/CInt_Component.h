@@ -39,12 +39,27 @@ namespace SMGE
 			auto it = SMGE::GlobalUtils::FindIt(getAllComponents(), weakCompo);
 			return getAllComponents().erase(it) != getAllComponents().end();
 		}
-
 		virtual void clearAllComponents()
 		{
 			getPersistentComponents().clear();
 			getTransientComponents().clear();
 			getAllComponents().clear();
+		}
+
+		template<class T>
+		T* findComponent()
+		{
+			auto found = std::find_if(getAllComponents().begin(), getAllComponents().end(), [](CComponent* compo)
+				{
+					if (DCast<T*>(compo))
+						return true;
+					return false;
+				});
+
+			if (found != getAllComponents().end())
+				return DCast<T*>(*found);
+
+			return nullptr;
 		}
 	};
 };

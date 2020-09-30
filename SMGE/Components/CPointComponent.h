@@ -13,7 +13,6 @@ namespace SMGE
 		using TReflectionClass = CPointComponent;
 
 		SGRefl_PointComponent(TReflectionClass& rc);
-		//SGRefl_PointComponent(const CUniqPtr<CPointComponent>& uptr);// { persistentComponentsREFL_ RTTI « ø‰ ¿ÃΩ¥
 
 		virtual void OnBeforeSerialize() const override;
 		virtual operator CWString() const override;
@@ -44,6 +43,7 @@ namespace SMGE
 		void Ctor();
 
 		// CInt_Reflection
+		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

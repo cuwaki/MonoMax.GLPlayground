@@ -73,7 +73,7 @@ namespace SMGE
 				}
 				else
 				{	// 부모 클래스의 템플릿을 로드한다
-					LoadContentClass(CAssetManager::GetTemplateAssetPath(parentRefl.getClassName()));
+					LoadContentClass(CAssetManager::GetTemplateAssetPath(ToTCHAR(parentRefl.getClassRTTIName())));
 				}
 
 				// 자식 클래스의 값으로 계속 덮어씌워져나갈 것이다

@@ -37,7 +37,7 @@ namespace SMGE
 
 		CRtti(std::string&& rttiName, CRttiNewFunctorVarietyBase&& func)
 		{
-			NewClassVarieties_[rttiName] = func;
+			NewClassVarieties_[rttiName] = std::move(func);
 		}
 
 		template<typename... Args>
