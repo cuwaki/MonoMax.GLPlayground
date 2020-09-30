@@ -7,12 +7,12 @@ namespace SMGE
 {
     enum class ECurveType : unsigned char
     {
-        Constant = 0,   // »ó¼ö
-        Linear, // 1Â÷
-        Quad_In,   // 2Â÷
+        Constant = 0,   // ìƒìˆ˜
+        Linear, // 1ì°¨
+        Quad_In,   // 2ì°¨
         Quad_Out,
         Quad_InOut,
-        Cubic_In,  // 3Â÷
+        Cubic_In,  // 3ì°¨
         Cubic_Out,
         Cubic_InOut,
         Sin,
@@ -23,8 +23,8 @@ namespace SMGE
     constexpr float fPI = 3.141592f;
     constexpr float f2PI = fPI * 2.f;
 
-    // ÀÌÇÏÀÇ Ä¿ºê ÇÔ¼öµé¿¡ µé¾î°¡´Â x ´Â 0.f ~ 1.f ·Î Á¤±ÔÈ­µÈ °ªÀÌ´Ù
-    // https://www.gizma.com/easing/#cub1 - ¿©±â ÀÖ´Â °ÍµéÀ» ¿Å°Ü³ª°¡ÀÚ
+    // ì´í•˜ì˜ ì»¤ë¸Œ í•¨ìˆ˜ë“¤ì— ë“¤ì–´ê°€ëŠ” x ëŠ” 0.f ~ 1.f ë¡œ ì •ê·œí™”ëœ ê°’ì´ë‹¤
+    // https://www.gizma.com/easing/#cub1 - ì—¬ê¸° ìˆëŠ” ê²ƒë“¤ì„ ì˜®ê²¨ë‚˜ê°€ì
 
     template<typename T>
     inline T FCurveConstant(const T& sv, const T& ev, DurationRatioT x)

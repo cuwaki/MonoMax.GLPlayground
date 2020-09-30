@@ -6,14 +6,14 @@ namespace SMGE
 {
 	namespace nsRE
 	{
-		// 2Â÷¿ø Æò¸é ½áÅ¬ÀÌ´Ù - »ï°¢ÇüÀ¸·Î ÀÌ·ïÁöÁö ¾Ê¾Æ¼­ »ö±òÀ» Ã¤¿ï ¼ö´Â ¾ø´Ù
+		// 2ì°¨ì› í‰ë©´ ì¨í´ì´ë‹¤ - ì‚¼ê°í˜•ìœ¼ë¡œ ì´ë¤„ì§€ì§€ ì•Šì•„ì„œ ìƒ‰ê¹”ì„ ì±„ìš¸ ìˆ˜ëŠ” ì—†ë‹¤
 		template<typename T>
 		std::vector<T> makeCircle2DXY_Line(int vertexNumber, float radius)
 		{
 			std::vector<T> circle;
 			circle.reserve(vertexNumber);
 
-			// xÃà ¹æÇâ º¤ÅÍÀÇ ·ÑÀ» È¸Àü½ÃÄÑ¼­ ¸¸µéÀÚ
+			// xì¶• ë°©í–¥ ë²¡í„°ì˜ ë¡¤ì„ íšŒì „ì‹œì¼œì„œ ë§Œë“¤ì
 			float angle = 0.f, angleAdd = 2.f * 3.141592f / float(vertexNumber);
 			glm::mat4 identity(1.f);
 			glm::vec4 xDir(radius, 0.f, 0.f, 1.f), zDir(0.f, 0.f, -1.f, 1.f);
@@ -31,7 +31,7 @@ namespace SMGE
 			return circle;
 		}
 
-		// ÀÌ°Ô ±¸°¡ µÇ±ä ÇÏ´Âµ¥ ¼±À¸·Î ÀÌ·ïÁø ±¸ ÀÌÁö ¸éÀ¸·Î ³ª´²Áø ±¸°¡ µÇÁö´Â ¾Ê´Â´Ù - Â÷ÈÄ °³¼±ÇØ¾ßÇÔ
+		// ì´ê²Œ êµ¬ê°€ ë˜ê¸´ í•˜ëŠ”ë° ì„ ìœ¼ë¡œ ì´ë¤„ì§„ êµ¬ ì´ì§€ ë©´ìœ¼ë¡œ ë‚˜ëˆ ì§„ êµ¬ê°€ ë˜ì§€ëŠ” ì•ŠëŠ”ë‹¤ - ì°¨í›„ ê°œì„ í•´ì•¼í•¨
 		template<typename T>
 		std::vector<T> makeSphere3D_Line(int vertexNumber, float radius)
 		{
@@ -48,38 +48,38 @@ namespace SMGE
 
 				glm::mat4 rotation = glm::rotate(identity, angle, glm::vec3(yDir));
 
-				// 2Â÷¿ø ½áÅ¬À» yÃà ¹æÇâ º¤ÅÍÀÇ ¿ä¸¦ È¸Àü½ÃÄÑ¼­ ±¸¸¦ ¸¸µéÀÚ
+				// 2ì°¨ì› ì¨í´ì„ yì¶• ë°©í–¥ ë²¡í„°ì˜ ìš”ë¥¼ íšŒì „ì‹œì¼œì„œ êµ¬ë¥¼ ë§Œë“¤ì
 				for (int i = 0; i < vertexNumber; ++i)
 				{
 					auto v = rotation * glm::vec4(circle[i], 1.f);
 					//v.z += (20.f * (latitude + 1));
-					circle.push_back(v);	// circle[0] ~ circle[i] ±îÁö´Â 2Â÷¿ø ½áÅ¬ÀÌ´Ù
+					circle.push_back(v);	// circle[0] ~ circle[i] ê¹Œì§€ëŠ” 2ì°¨ì› ì¨í´ì´ë‹¤
 				}
 			}
 
 			return circle;
 		}
 
-		// XYZÃà¿¡ ÆòÇàÇÑ 2D½áÅ¬ 3°³¸¦ ¸¸µç´Ù
+		// XYZì¶•ì— í‰í–‰í•œ 2Dì¨í´ 3ê°œë¥¼ ë§Œë“ ë‹¤
 		template<typename T>
 		std::vector<T> makeSimpleSphere3D_Line(int vertexNumber, float radius)
 		{
-			std::vector<T> circle = makeCircle2DXY_Line<T>(vertexNumber, radius);	// XYÆò¸éÀÇ 2D ½áÅ¬
+			std::vector<T> circle = makeCircle2DXY_Line<T>(vertexNumber, radius);	// XYí‰ë©´ì˜ 2D ì¨í´
 
 			float perpAngle = 3.141592f / 2.f;
 
 			glm::mat4 identity(1.f);
 			glm::vec4 yDir(0.f, 1.f, 0.f, 1.f), xDir(1.f, 0.f, 0.f, 1.f);
 
-			// 2Â÷¿ø ½áÅ¬À» ¿ä·Î 90µµ
+			// 2ì°¨ì› ì¨í´ì„ ìš”ë¡œ 90ë„
 			glm::mat4 yawPerp = glm::rotate(identity, perpAngle, glm::vec3(yDir));
 			for (int i = 0; i < vertexNumber; ++i)
-				circle.push_back(yawPerp * glm::vec4(circle[i], 1.f));	// circle[0] ~ circle[i] ±îÁö´Â 2Â÷¿ø ½áÅ¬ÀÌ´Ù
+				circle.push_back(yawPerp * glm::vec4(circle[i], 1.f));	// circle[0] ~ circle[i] ê¹Œì§€ëŠ” 2ì°¨ì› ì¨í´ì´ë‹¤
 
-			// 2Â÷¿ø ½áÅ¬À» ÇÇÄ¡·Î 90µµ
+			// 2ì°¨ì› ì¨í´ì„ í”¼ì¹˜ë¡œ 90ë„
 			glm::mat4 pitchPerp = glm::rotate(identity, perpAngle, glm::vec3(xDir));
 			for (int i = 0; i < vertexNumber; ++i)
-				circle.push_back(pitchPerp * glm::vec4(circle[i], 1.f));	// circle[0] ~ circle[i] ±îÁö´Â 2Â÷¿ø ½áÅ¬ÀÌ´Ù
+				circle.push_back(pitchPerp * glm::vec4(circle[i], 1.f));	// circle[0] ~ circle[i] ê¹Œì§€ëŠ” 2ì°¨ì› ì¨í´ì´ë‹¤
 
 			return circle;
 		}
@@ -89,21 +89,21 @@ namespace SMGE
 		{
 			std::vector<T> vertices(4);
 
-			// ¹İ½Ã°è ¹æÇâÀ¸·Î, xy Æò¸é¿¡´Ù°¡ ¸¸µå´Âµ¥ z´Â ÁöÁ¤ÀÌ´Ù
+			// ë°˜ì‹œê³„ ë°©í–¥ìœ¼ë¡œ, xy í‰ë©´ì—ë‹¤ê°€ ë§Œë“œëŠ”ë° zëŠ” ì§€ì •ì´ë‹¤
 
-			vertices[0].x = leftBottom.x;	// ÁÂÇÏ
+			vertices[0].x = leftBottom.x;	// ì¢Œí•˜
 			vertices[0].y = leftBottom.y;
 			vertices[0].z = z;
 
-			vertices[1].x = rightTop.x;	// ¿ìÇÏ
+			vertices[1].x = rightTop.x;	// ìš°í•˜
 			vertices[1].y = leftBottom.y;
 			vertices[1].z = z;
 
-			vertices[2].x = rightTop.x;	// ¿ì»ó
+			vertices[2].x = rightTop.x;	// ìš°ìƒ
 			vertices[2].y = rightTop.y;
 			vertices[2].z = z;
 
-			vertices[3].x = leftBottom.x;	// ÁÂ»ó
+			vertices[3].x = leftBottom.x;	// ì¢Œìƒ
 			vertices[3].y = rightTop.y;
 			vertices[3].z = z;
 
@@ -117,21 +117,21 @@ namespace SMGE
 
 			const auto halfSize = size / 2.f;
 
-			// 6¸éÀ» ¸¸µéÀÚ
+			// 6ë©´ì„ ë§Œë“¤ì
 			auto xyzLeftBottom = centerPos - halfSize;
 			auto xyzRightTop = centerPos + halfSize;
 
-			// xyz Æò¸é¿¡¼­ÀÇ »ç°¢Çü 2°³ - maxZ, minZ
+			// xyz í‰ë©´ì—ì„œì˜ ì‚¬ê°í˜• 2ê°œ - maxZ, minZ
 			auto xyMZRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzLeftBottom.z);	// M == maxZ
 			auto xymZRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzRightTop.z);	// m == minZ
 
-			// yzx Æò¸é¿¡¼­ÀÇ »ç°¢Çü 2°³ - ÀÌ Æò¸é¿¡¼­´Â z°¡ x¿ªÇÒ, y°¡ y¿ªÇÒ, x°¡ Z¿ªÇÒÀ» ÇÑ´Ù - ¿À¸¥¼Õ ÁÂÇ¥°è¿¡¼­ »ı°¢ÇØ¶ó
+			// yzx í‰ë©´ì—ì„œì˜ ì‚¬ê°í˜• 2ê°œ - ì´ í‰ë©´ì—ì„œëŠ” zê°€ xì—­í• , yê°€ yì—­í• , xê°€ Zì—­í• ì„ í•œë‹¤ - ì˜¤ë¥¸ì† ì¢Œí‘œê³„ì—ì„œ ìƒê°í•´ë¼
 			glm::vec3 yzxLeftBottom(xyzLeftBottom.z, xyzLeftBottom.y, xyzLeftBottom.x);
 			glm::vec3 yzxRightTop(xyzRightTop.z, xyzRightTop.y, xyzRightTop.x);
 			auto yzMXRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzLeftBottom.x);
 			auto yzmXRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzRightTop.x);
 
-			// zxy Æò¸é¿¡¼­ÀÇ »ç°¢Çü 2°³ - ÀÌ Æò¸é¿¡¼­´Â x°¡ x¿ªÇÒ, z°¡ y¿ªÇÒ, y°¡ Z¿ªÇÒÀ» ÇÑ´Ù - ¿À¸¥¼Õ ÁÂÇ¥°è¿¡¼­ »ı°¢ÇØ¶ó
+			// zxy í‰ë©´ì—ì„œì˜ ì‚¬ê°í˜• 2ê°œ - ì´ í‰ë©´ì—ì„œëŠ” xê°€ xì—­í• , zê°€ yì—­í• , yê°€ Zì—­í• ì„ í•œë‹¤ - ì˜¤ë¥¸ì† ì¢Œí‘œê³„ì—ì„œ ìƒê°í•´ë¼
 			glm::vec3 zxyLeftBottom(xyzLeftBottom.x, xyzLeftBottom.z, xyzLeftBottom.y);
 			glm::vec3 zxyRightTop(xyzRightTop.x, xyzRightTop.z, xyzRightTop.y);
 			auto zxMYRect = makeSimpleRect2DXY_Line(xyzLeftBottom, xyzRightTop, xyzLeftBottom.y);

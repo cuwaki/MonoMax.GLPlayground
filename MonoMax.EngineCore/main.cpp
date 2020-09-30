@@ -12,7 +12,7 @@ int main()
 	graphicsEngine->Init();
 	while (true)
 	{
-		// Tick ¾²·¹µå¿Í Render ¾²·¹µå¸¦ ¸¸µé¾î¼­ µ¹·Á¶ó
+		// Tick ì“°ë ˆë“œì™€ Render ì“°ë ˆë“œë¥¼ ë§Œë“¤ì–´ì„œ ëŒë ¤ë¼
 		//graphicsEngine->Render(nullptr);
 	}
 

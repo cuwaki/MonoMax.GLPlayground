@@ -8,7 +8,7 @@ namespace SMGE
 {
 	enum class EActorLayer : uint8
 	{
-		System = 0,	// Ä«¸Ş¶ó, ¸Å´ÏÀú ...
+		System = 0,	// ì¹´ë©”ë¼, ë§¤ë‹ˆì € ...
 		Game,
 		Max,
 	};
@@ -95,10 +95,10 @@ namespace SMGE
 		TActorLayers<CSharPtr<CActor>> actorLayers_;
 		bool isStarted_ = false;
 
-		static TActorKey DynamicActorKey;	// Å×½ºÆ® ÄÚµå
+		static TActorKey DynamicActorKey;	// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 
 	public:
-		// ¾Ö¼Âµî¿¡¼­ ¸®ÇÃ·º¼ÇÀ¸·Î ¾×ÅÍ¸¦ »ı¼ºÇÒ ¶§ »ç¿ë
+		// ì• ì…‹ë“±ì—ì„œ ë¦¬í”Œë ‰ì…˜ìœ¼ë¡œ ì•¡í„°ë¥¼ ìƒì„±í•  ë•Œ ì‚¬ìš©
 		template<typename... Args>
 		CActor& SpawnDefaultActor(const std::string& classRTTIName, bool isDynamic, Args&&... args)
 		{
@@ -106,7 +106,7 @@ namespace SMGE
 			return static_cast<CActor&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
 		}
 
-		// ÄÚµå¿¡¼­ ÇÏµåÄÚµùÀ¸·Î ¾×ÅÍ¸¦ ½ºÆùÇÒ ¶§ »ç¿ë
+		// ì½”ë“œì—ì„œ í•˜ë“œì½”ë”©ìœ¼ë¡œ ì•¡í„°ë¥¼ ìŠ¤í°í•  ë•Œ ì‚¬ìš©
 		template<typename ActorT, typename... Args>
 		ActorT& SpawnDefaultActor(bool isDynamic, Args&&... args)
 		{

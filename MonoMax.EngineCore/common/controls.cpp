@@ -34,9 +34,9 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 		currentTime = glfwGetTime();
 		deltaTime = float(currentTime - lastProcessInputTime_);
 
-		// ÁßÁ¡À» ±âÁØÀ¸·Î
-		xzAngle += angleSpeed_ * float(windowWidth / 2 - xMovedFromCenter);	// yÃà ±âÁØ È¸Àü·® - ¿ä
-		yzAngle += angleSpeed_ * float(windowHeight / 2 - yMovedFromCenter);	// xÃà ±âÁØ È¸Àü·® - ÇÇÄ¡
+		// ì¤‘ì ì„ ê¸°ì¤€ìœ¼ë¡œ
+		xzAngle += angleSpeed_ * float(windowWidth / 2 - xMovedFromCenter);	// yì¶• ê¸°ì¤€ íšŒì „ëŸ‰ - ìš”
+		yzAngle += angleSpeed_ * float(windowHeight / 2 - yMovedFromCenter);	// xì¶• ê¸°ì¤€ íšŒì „ëŸ‰ - í”¼ì¹˜
 	}
 #endif
 
@@ -48,7 +48,7 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 	//
 	//glm::vec3 direction = glm::vec3(rotateMat * direction4);
 	//glm::vec3 right = glm::vec3(rotateMat * right4);
-	// ÀÌ·¸°Ô ÇÏ¸é ±âº» »óÅÂ¿¡¼­´Â µÇ´Âµ¥ ÁÂ¿ì·Î ¿òÁ÷ÀÌ°í ³ª¸é ¾ÈµÈ´Ù ¤Ğ¤Ğ¤Ğ¤Ğ -> ÀÌÀ¯´Â right º¤ÅÍ°¡ È¸ÀüÀ» ¾ÈÇß±â ¶§¹®ÀÌ´Ù, rotateMat ¸¦ ´Ù½Ã »ı°¢ÇØºÁ¶ó
+	// ì´ë ‡ê²Œ í•˜ë©´ ê¸°ë³¸ ìƒíƒœì—ì„œëŠ” ë˜ëŠ”ë° ì¢Œìš°ë¡œ ì›€ì§ì´ê³  ë‚˜ë©´ ì•ˆëœë‹¤ ã… ã… ã… ã…  -> ì´ìœ ëŠ” right ë²¡í„°ê°€ íšŒì „ì„ ì•ˆí–ˆê¸° ë•Œë¬¸ì´ë‹¤, rotateMat ë¥¼ ë‹¤ì‹œ ìƒê°í•´ë´ë¼
 
 	// Direction : Spherical coordinates to Cartesian coordinates conversion
 	cameraDir_ = {
@@ -59,7 +59,7 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 
 	cameraDir_ = glm::normalize(cameraDir_);
 
-	// Á¤¸é °¢µµ¸¦ ±â¹İÀ¸·Î Ç×»ó »õ·Ó°Ô ¸¸µç´Ù
+	// ì •ë©´ ê°ë„ë¥¼ ê¸°ë°˜ìœ¼ë¡œ í•­ìƒ ìƒˆë¡­ê²Œ ë§Œë“ ë‹¤
 	// Right vector
 	cameraRight_ = glm::vec3(
 		sin(xzAngle - 3.14f / 2.0f),
@@ -99,14 +99,14 @@ void CCamera::ComputeMatricesFromInputs(bool isInitialize, int windowWidth, int 
 
 void CCamera::RotateCamera(const glm::vec2& moved)
 {
-	// Å×½ºÆ® ÄÚµå - ÀÌ°Å ÇÏµåÄÚµùÀÌ°í ´Ù¸¥ µ¥ ¶Ç ÀÖÀ¸´Ï °Ë»öÇØ¶ó
-	constexpr float deltaTime = 1000. / 60.;
+	// í…ŒìŠ¤íŠ¸ ì½”ë“œ - ì´ê±° í•˜ë“œì½”ë”©ì´ê³  ë‹¤ë¥¸ ë° ë˜ ìˆìœ¼ë‹ˆ ê²€ìƒ‰í•´ë¼
+	constexpr float deltaTime = 1000.f / 60.f;
 
 	// Compute new orientation
 	float xzAngle = horizontalAngle_, yzAngle = verticalAngle_;
 
-	xzAngle += angleSpeed_ * moved.x;	// yÃà ±âÁØ È¸Àü·® - ¿ä
-	yzAngle += angleSpeed_ * moved.y;	// xÃà ±âÁØ È¸Àü·® - ÇÇÄ¡
+	xzAngle += angleSpeed_ * moved.x;	// yì¶• ê¸°ì¤€ íšŒì „ëŸ‰ - ìš”
+	yzAngle += angleSpeed_ * moved.y;	// xì¶• ê¸°ì¤€ íšŒì „ëŸ‰ - í”¼ì¹˜
 
 	cameraDir_ = {
 		cos(yzAngle) * sin(xzAngle),
@@ -116,7 +116,7 @@ void CCamera::RotateCamera(const glm::vec2& moved)
 
 	cameraDir_ = glm::normalize(cameraDir_);
 
-	// Á¤¸é °¢µµ¸¦ ±â¹İÀ¸·Î Ç×»ó »õ·Ó°Ô ¸¸µç´Ù
+	// ì •ë©´ ê°ë„ë¥¼ ê¸°ë°˜ìœ¼ë¡œ í•­ìƒ ìƒˆë¡­ê²Œ ë§Œë“ ë‹¤
 	// Right vector
 	cameraRight_ = glm::vec3(
 		sin(xzAngle - 3.14f / 2.0f),
@@ -137,8 +137,8 @@ void CCamera::RotateCamera(const glm::vec2& moved)
 
 void CCamera::MoveCamera(bool isLeft, bool isRight, bool isTop, bool isDown)
 {
-	// Å×½ºÆ® ÄÚµå - ÀÌ°Å ÇÏµåÄÚµùÀÌ°í ´Ù¸¥ µ¥ ¶Ç ÀÖÀ¸´Ï °Ë»öÇØ¶ó
-	constexpr float deltaTime = 1000. / 60.;
+	// í…ŒìŠ¤íŠ¸ ì½”ë“œ - ì´ê±° í•˜ë“œì½”ë”©ì´ê³  ë‹¤ë¥¸ ë° ë˜ ìˆìœ¼ë‹ˆ ê²€ìƒ‰í•´ë¼
+	constexpr float deltaTime = 1000.f / 60.f;
 
 	if (isLeft)
 		worldPosition_ -= cameraRight_ * deltaTime * moveSpeed_;

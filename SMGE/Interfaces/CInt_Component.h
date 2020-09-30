@@ -10,22 +10,22 @@ namespace SMGE
 	using ComponentVectorWeak = CVector<CComponent*>;
 
 	/*
-		CInt_Component »ó¼Ó½Ã ÇØ¾ßÇÒ ÀÏ
+		CInt_Component ìƒì†ì‹œ í•´ì•¼í•  ì¼
 
-		ÀÎÅÍÆäÀÌ½ºÀÇ ¼ø¼ö°¡»óÇÔ¼öµéÀ» ±¸ÇöÇÑ´Ù
-		¸®ÇÃ·º¼ÇÀ» ±¸ÇöÇÑ´Ù
-		Tick ¿¡¼­ ÀÚ½Ä ÄŞÆ÷³ÍÆ®ÀÇ Æ½À» µ¹·ÁÁØ´Ù
-		BeginPlay, EndPlay ¿¡¼­ µî·Ï/ÇØÁ¦ ¹× ÀÚ½Ä ÄŞÆ÷³ÍÆ®µé¿¡°Ô ÀüÆÄÇÑ´Ù
-		ÇÊ¿ä½Ã - Render ¿¡¼­ ÀÚ½Ä ÄŞÆ÷³ÍÆ®ÀÇ ·»´õ¸¦ µ¹·ÁÁØ´Ù
+		ì¸í„°í˜ì´ìŠ¤ì˜ ìˆœìˆ˜ê°€ìƒí•¨ìˆ˜ë“¤ì„ êµ¬í˜„í•œë‹¤
+		ë¦¬í”Œë ‰ì…˜ì„ êµ¬í˜„í•œë‹¤
+		Tick ì—ì„œ ìì‹ ì½¤í¬ë„ŒíŠ¸ì˜ í‹±ì„ ëŒë ¤ì¤€ë‹¤
+		BeginPlay, EndPlay ì—ì„œ ë“±ë¡/í•´ì œ ë° ìì‹ ì½¤í¬ë„ŒíŠ¸ë“¤ì—ê²Œ ì „íŒŒí•œë‹¤
+		í•„ìš”ì‹œ - Render ì—ì„œ ìì‹ ì½¤í¬ë„ŒíŠ¸ì˜ ë Œë”ë¥¼ ëŒë ¤ì¤€ë‹¤
 
-		ÀÚ¼¼ÇÑ ¿¹´Â CDrawComponent ¸¦ º¸¸é µÈ´Ù
+		ìì„¸í•œ ì˜ˆëŠ” CDrawComponent ë¥¼ ë³´ë©´ ëœë‹¤
 	*/
 
 	class CInt_Component : public CInterfaceBase
 	{
 	public:
-		virtual ComponentVector& getPersistentComponents() = 0;	// ÀúÀåµÇ´Â °Íµé
-		virtual ComponentVector& getTransientComponents() = 0;	// ÀúÀåµÇÁö ¾Ê´Â °Íµé
+		virtual ComponentVector& getPersistentComponents() = 0;	// ì €ì¥ë˜ëŠ” ê²ƒë“¤
+		virtual ComponentVector& getTransientComponents() = 0;	// ì €ì¥ë˜ì§€ ì•ŠëŠ” ê²ƒë“¤
 
 		virtual ComponentVectorWeak& getAllComponents() = 0;
 		virtual const ComponentVectorWeak& getAllComponents() const { return getAllComponents(); }

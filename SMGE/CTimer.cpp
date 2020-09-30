@@ -39,11 +39,11 @@ namespace SMGE
 		float ratio = ratio_;
 
 		if (isMy == false && parent_)
-		{	// ³¡±îÁö ¿Ã¶ó°¡¸é¼­ ´©Àû
+		{	// ëê¹Œì§€ ì˜¬ë¼ê°€ë©´ì„œ ëˆ„ì 
 			ratio += parent_->getRatio(isMy);
 		}
 
-		// ´Ù ¿Ã¶ó¿Ô´Ù
+		// ë‹¤ ì˜¬ë¼ì™”ë‹¤
 		return ratio;
 	}
 
@@ -58,9 +58,9 @@ namespace SMGE
 		if (isPaused_)
 			return;
 
-		// ÀÚ½Ä Å¸ÀÌ¸Óµéµµ ´Ù ÆÛÁîÇØ¾ßÇÑ´Ù - Áï child_ ¸¦ ¾Ë¾Æ¾ßÇÔ, ¾ç¹æÇâ ¿¬°á ÇÊ¿ä
+		// ìžì‹ íƒ€ì´ë¨¸ë“¤ë„ ë‹¤ í¼ì¦ˆí•´ì•¼í•œë‹¤ - ì¦‰ child_ ë¥¼ ì•Œì•„ì•¼í•¨, ì–‘ë°©í–¥ ì—°ê²° í•„ìš”
 
-		// ÇöÀç ½Ã°£ °»½Å, ¹é¾÷ÇØ³õ°í °è¼Ó current¿¡¼­ ÀÌ °ªÀ¸·Î ¸®ÅÏÇØ¾ßÇÑ´Ù
+		// í˜„ìž¬ ì‹œê°„ ê°±ì‹ , ë°±ì—…í•´ë†“ê³  ê³„ì† currentì—ì„œ ì´ ê°’ìœ¼ë¡œ ë¦¬í„´í•´ì•¼í•œë‹¤
 	}
 
 	void CTimer::resume()

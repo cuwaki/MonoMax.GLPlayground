@@ -55,7 +55,7 @@ namespace SMGE
 
 		PointRSM::PointRSM()
 		{
-			// ¹®Á¦ - Á¡ÀÌ Á¦´ë·Î ¾È±×·ÁÁø´Ù
+			// ë¬¸ì œ - ì ì´ ì œëŒ€ë¡œ ì•ˆê·¸ë ¤ì§„ë‹¤
 			//std::vector<glm::vec3> vertices;
 			//vertices.reserve(1);
 			//vertices.emplace_back(0.f, 0.f, 0.f);

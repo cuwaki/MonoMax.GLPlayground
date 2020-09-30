@@ -56,12 +56,12 @@ void printText2D(const wchar_t* text, int x, int y, int fontSize)
 		glm::vec2 quad_down_right = glm::vec2(x + i * fontSize + fontSize, y);
 		glm::vec2 quad_down_left = glm::vec2(x + i * fontSize, y);
 
-		// ccw·Î Á¤ÀÇÇÑ´Ù - »ï°¢Çü 1
+		// ccwë¡œ ì •ì˜í•œë‹¤ - ì‚¼ê°í˜• 1
 		vertices.push_back(quad_up_left);
 		vertices.push_back(quad_down_left);
 		vertices.push_back(quad_up_right);
 
-		// ccw·Î Á¤ÀÇÇÑ´Ù - »ï°¢Çü 2
+		// ccwë¡œ ì •ì˜í•œë‹¤ - ì‚¼ê°í˜• 2
 		vertices.push_back(quad_down_right);
 		vertices.push_back(quad_up_right);
 		vertices.push_back(quad_down_left);
@@ -69,10 +69,10 @@ void printText2D(const wchar_t* text, int x, int y, int fontSize)
 		wchar_t character = text[i];
 
 		int charXIndex = (character % 16),	// 0 <= 15
-			charYIndex = (character / 16);	// 0 <= 15.9 ´Ï±î 15
+			charYIndex = (character / 16);	// 0 <= 15.9 ë‹ˆê¹Œ 15
 
-		float uv_x = charXIndex / 16.0f;	// 0 ~ 0.9~ // 16 == ÆùÆ®°¡ ÅØ½ºÃ³»ó¿¡ °¡·Î·Î ³ª¿­µÈ °³¼ö
-		float uv_y = charYIndex / 16.0f;	// 0 ~ 0.9~ // 16 == ÆùÆ®°¡ ÅØ½ºÃ³»ó¿¡ ¼¼·Î·Î ³ª¿­µÈ °³¼ö
+		float uv_x = charXIndex / 16.0f;	// 0 ~ 0.9~ // 16 == í°íŠ¸ê°€ í…ìŠ¤ì²˜ìƒì— ê°€ë¡œë¡œ ë‚˜ì—´ëœ ê°œìˆ˜
+		float uv_y = charYIndex / 16.0f;	// 0 ~ 0.9~ // 16 == í°íŠ¸ê°€ í…ìŠ¤ì²˜ìƒì— ì„¸ë¡œë¡œ ë‚˜ì—´ëœ ê°œìˆ˜
 
 		glm::vec2 uv_up_left = glm::vec2(uv_x, uv_y);
 		glm::vec2 uv_up_right = glm::vec2(uv_x + 1.0f / 16.0f, uv_y);

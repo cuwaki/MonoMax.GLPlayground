@@ -30,7 +30,7 @@ namespace SMGE
 		static NewFunctorVarietyT NewClassVarieties_;
 
 	public:
-		CRtti(std::string&& rttiName, std::function<NewFunctor>&& func)	// ÀÏºÎ·¯ Á¤ÀûÀÎ ÀÔ·Âµé¸¸ ¹Ş±âÀ§ÇÏ¿© ¿À¸¥°ªµé¸¸ ¹ŞÀ½ - Áï µ¿ÀûÀ¸·Î ÀÛ¼º ºÒ°¡!
+		CRtti(std::string&& rttiName, std::function<NewFunctor>&& func)	// ì¼ë¶€ëŸ¬ ì •ì ì¸ ì…ë ¥ë“¤ë§Œ ë°›ê¸°ìœ„í•˜ì—¬ ì˜¤ë¥¸ê°’ë“¤ë§Œ ë°›ìŒ - ì¦‰ ë™ì ìœ¼ë¡œ ì‘ì„± ë¶ˆê°€!
 		{
 			NewClassDefaults_[rttiName] = std::move(func);
 		}

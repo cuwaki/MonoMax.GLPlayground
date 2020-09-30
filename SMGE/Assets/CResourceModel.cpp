@@ -74,12 +74,12 @@ namespace SMGE
 			Globals::GetGameAssetPath(objFilePath_));
 
 		if (objFilePath_.length() == 0 && vertices_.size() > 0)
-		{	// objÆÄÀÏÀÌ ¾Æ´Ñ Á÷Á¢ ÁöÁ¤ ¹æ½ÄÀÌ´Ù
+		{	// objíŒŒì¼ì´ ì•„ë‹Œ ì§ì ‘ ì§€ì • ë°©ì‹ì´ë‹¤
 			this->mesh_.loadFromPlainData(vertices_, uvs_, normals_);
 			this->mesh_.setVertexColors(vertexColors_);
 		}
 
-		// Å×½ºÆ® ÄÚµå ¤Ñ ¿©±â¼­ ¹öÅØ½º°¡ ÇÏ³ªµµ ¾øÀ¸¸é ÇÔ¼ö ÄÝ ¾ÈÇÏ´Â °Ô ¸Â´Ù
+		// í…ŒìŠ¤íŠ¸ ì½”ë“œ ã…¡ ì—¬ê¸°ì„œ ë²„í…ìŠ¤ê°€ í•˜ë‚˜ë„ ì—†ìœ¼ë©´ í•¨ìˆ˜ ì½œ ì•ˆí•˜ëŠ” ê²Œ ë§žë‹¤
 		this->CreateRenderModel();
 	}
 };

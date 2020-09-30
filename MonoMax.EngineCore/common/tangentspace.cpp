@@ -57,11 +57,11 @@ void computeTangentBasis(
 		glm::vec3& t = tangents[i];
 		glm::vec3& b = bitangents[i];
 
-		// t ¸¦ n¿¡ ´ëÇÏ¿© Á÷°¢À¸·Î ¸¸µé°í
+		// t ë¥¼ nì— ëŒ€í•˜ì—¬ ì§ê°ìœ¼ë¡œ ë§Œë“¤ê³ 
 		// Gram-Schmidt orthogonalize
 		t = glm::normalize(t - n * glm::dot(n, t));
 
-		// ¾Æ±î °è»êÇÑ ¹ÙÅº°ú »õ·Î °è»êÇÑ ¹ÙÅºÀÇ ¹æÇâÀÌ ¹İ´ë ¹æÇâÀÌ¶ó¸é, ÅºÀÇ ¹æÇâµµ µÚÁı¾îÁ®¾ßÇÑ´Ù
+		// ì•„ê¹Œ ê³„ì‚°í•œ ë°”íƒ„ê³¼ ìƒˆë¡œ ê³„ì‚°í•œ ë°”íƒ„ì˜ ë°©í–¥ì´ ë°˜ëŒ€ ë°©í–¥ì´ë¼ë©´, íƒ„ì˜ ë°©í–¥ë„ ë’¤ì§‘ì–´ì ¸ì•¼í•œë‹¤
 		// Calculate handedness
 		glm::vec3 tempB = glm::cross(n, t);
 		if (glm::dot(tempB, b) < 0.0f)

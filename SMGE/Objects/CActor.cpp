@@ -28,7 +28,7 @@ namespace SMGE
 		_ADD_REFL_VARIABLE(actorKey_);
 		_ADD_REFL_VARIABLE(sg_actorTransform_);
 		_ADD_REFL_VARIABLE(actorStaticTag_);
-		// persistentComponents_ Ã³¸® ÇÊ¿ä
+		// persistentComponents_ ì²˜ë¦¬ í•„ìš”
 	}
 
 	void SGRefl_Actor::OnBeforeSerialize() const
@@ -63,11 +63,11 @@ namespace SMGE
 		_FROM_REFL(actorKey_, variableSplitted);
 		sg_actorTransform_ = variableSplitted;
 
-		// ¿©±â ¼öÁ¤ - µ¤¾î¾º¿öÁ®¾ßÇÏ´Â °æ¿ì°¡ ÀÖ°í ¾Æ´Ñ °æ¿ì°¡ ÀÖ´Ù
+		// ì—¬ê¸° ìˆ˜ì • - ë®ì–´ì”Œì›Œì ¸ì•¼í•˜ëŠ” ê²½ìš°ê°€ ìˆê³  ì•„ë‹Œ ê²½ìš°ê°€ ìˆë‹¤
 		if(actorStaticTag_.length() == 0)
 			_FROM_REFL(actorStaticTag_, variableSplitted);
 		else
-		{	// ¹ö¸°´Ù
+		{	// ë²„ë¦°ë‹¤
 			CString dummy;
 			_FROM_REFL(dummy, variableSplitted);
 		}
@@ -95,13 +95,13 @@ namespace SMGE
 
 		// from fast
 		_FROM_REFL(actorKey_, variableSplitted);
-		//sg_actorTransform_ = variableSplitted;	// ºü¸¥ deser Áö¿øÇØÁà¾ßÇÑ´Ù
+		//sg_actorTransform_ = variableSplitted;	// ë¹ ë¥¸ deser ì§€ì›í•´ì¤˜ì•¼í•œë‹¤
 
-		// ¿©±â ¼öÁ¤ - µ¤¾î¾º¿öÁ®¾ßÇÏ´Â °æ¿ì°¡ ÀÖ°í ¾Æ´Ñ °æ¿ì°¡ ÀÖ´Ù
+		// ì—¬ê¸° ìˆ˜ì • - ë®ì–´ì”Œì›Œì ¸ì•¼í•˜ëŠ” ê²½ìš°ê°€ ìˆê³  ì•„ë‹Œ ê²½ìš°ê°€ ìˆë‹¤
 		if (actorStaticTag_.length() == 0)
 			_FROM_REFL(actorStaticTag_, variableSplitted);
 		else
-		{	// ¹ö¸°´Ù
+		{	// ë²„ë¦°ë‹¤
 			CString dummy;
 			_FROM_REFL(dummy, variableSplitted);
 		}
@@ -156,7 +156,7 @@ namespace SMGE
 	{
 		Super::Ctor();
 
-		// ¹«ºê¸ÕÆ®
+		// ë¬´ë¸Œë¨¼íŠ¸
 		auto transfCompo = MakeUniqPtr<CMovementComponent>(this);
 		movementCompo_ = SCast<CMovementComponent*>(transfCompo.get());
 		getTransientComponents().emplace_back(std::move(transfCompo));
@@ -216,7 +216,7 @@ namespace SMGE
 			registerComponent(pc.get());
 		}
 
-		mainBoundCompo_ = findComponent<CBoundComponent>();	// Ã³À½ ¸¸³ª´Â ¹Ù¿îµå¸¦ ¸ŞÀÎ ¹Ù¿îµå·Î »ï´Â´Ù
+		mainBoundCompo_ = findComponent<CBoundComponent>();	// ì²˜ìŒ ë§Œë‚˜ëŠ” ë°”ìš´ë“œë¥¼ ë©”ì¸ ë°”ìš´ë“œë¡œ ì‚¼ëŠ”ë‹¤
 
 		timer_.start();
 
@@ -281,27 +281,6 @@ namespace SMGE
 		Super::BeginPlay();
 	}
 
-	CPointActor::CPointActor(CObject* outer) : CCollideActor(outer)
-	{
-		//classRTTIName_ = "SMGE::CPointActor";
-		Ctor();
-	}
-
-	void CPointActor::Ctor()
-	{
-		//Super::Ctor();	// ÀÏºÎ·¯ - °¢ Å¬·¡½ºµéÀÇ »ı¼ºÀÚ¿¡¼­ µû·Î ºÒ·¯ÁÖ¹Ç·Î ÀÌ·¸°Ô ºÎ¸£¸é ¾ÈµÈ´Ù! ÇöÀç´Â ±×·¸´Ù 20200831
-
-		// Â÷ÈÄ »ı°¢ÇÒ ÀÏ - ÇöÀç CActor »ó¼ÓÀÌ¶ó¼­ ¾È¾²´Â persistcompo - mainDrawCompo µîÀÌ »ı°å´Ù°¡ ¾ø¾îÁø´Ù, ÀÌ ¹®Á¦´Â ¾ğ¸®¾ó¿¡¼­µµ ÀÖ¾ú´Ù
-		getPersistentComponents().clear();
-		getTransientComponents().clear();
-		getAllComponents().clear();
-		movementCompo_ = nullptr;
-		mainBoundCompo_ = nullptr;
-
-		auto pointCompo = MakeUniqPtr<CPointComponent>(this);
-		getTransientComponents().emplace_back(std::move(pointCompo));
-	}
-
 	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
 		CCollideActor(outer, rule, isDetailCheck, fOnCollide)
 	{
@@ -311,26 +290,26 @@ namespace SMGE
 
 	void CRayCollideActor::Ctor(float size, const glm::vec3& dir)
 	{
-		//Super::Ctor();	// ÀÏºÎ·¯ - °¢ Å¬·¡½ºµéÀÇ »ı¼ºÀÚ¿¡¼­ µû·Î ºÒ·¯ÁÖ¹Ç·Î ÀÌ·¸°Ô ºÎ¸£¸é ¾ÈµÈ´Ù! ÇöÀç´Â ±×·¸´Ù 20200831
+		//Super::Ctor();	// ì¼ë¶€ëŸ¬ - ê° í´ë˜ìŠ¤ë“¤ì˜ ìƒì„±ìì—ì„œ ë”°ë¡œ ë¶ˆëŸ¬ì£¼ë¯€ë¡œ ì´ë ‡ê²Œ ë¶€ë¥´ë©´ ì•ˆëœë‹¤! í˜„ì¬ëŠ” ê·¸ë ‡ë‹¤ 20200831
 
-		// Â÷ÈÄ »ı°¢ÇÒ ÀÏ - ÇöÀç CActor »ó¼ÓÀÌ¶ó¼­ ¾È¾²´Â persistcompo - mainDrawCompo µîÀÌ »ı°å´Ù°¡ ¾ø¾îÁø´Ù, ÀÌ ¹®Á¦´Â ¾ğ¸®¾ó¿¡¼­µµ ÀÖ¾ú´Ù
+		// ì°¨í›„ ìƒê°í•  ì¼ - í˜„ì¬ CActor ìƒì†ì´ë¼ì„œ ì•ˆì“°ëŠ” persistcompo - mainDrawCompo ë“±ì´ ìƒê²¼ë‹¤ê°€ ì—†ì–´ì§„ë‹¤, ì´ ë¬¸ì œëŠ” ì–¸ë¦¬ì–¼ì—ì„œë„ ìˆì—ˆë‹¤
 		getPersistentComponents().clear();
 		getTransientComponents().clear();
 		getAllComponents().clear();
 		movementCompo_ = nullptr;
 		mainBoundCompo_ = nullptr;
 
-		// ¹Ù¿îµå
+		// ë°”ìš´ë“œ
 		auto RayCompo = MakeUniqPtr<CRayComponent>(this, size, dir);
 		mainBoundCompo_ = SCast<CRayComponent*>(RayCompo.get());
 		getTransientComponents().emplace_back(std::move(RayCompo));
 	}
 
-	std::vector<CActor*> CRayCollideActor::QueryCollideCheckTargets()
+	CVector<CActor*> CRayCollideActor::QueryCollideCheckTargets()
 	{
 		const auto& actors = Globals::GCurrentMap->GetActors(EActorLayer::Game);
 
-		std::vector<CActor*> ret(actors.size());
+		CVector<CActor*> ret(actors.size());
 		std::transform(actors.begin(), actors.end(), ret.begin(), [this](const CSharPtr<CActor>& sptrActor)
 			{
 				auto ret = sptrActor.get();
@@ -348,12 +327,12 @@ namespace SMGE
 		return ret;
 	}
 
-	void CRayCollideActor::ProcessCollide(std::vector<CActor*>& targets)
+	void CRayCollideActor::ProcessCollide(CVector<CActor*>& targets)
 	{
 		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
 	}
 
-	void CRayCollideActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets)
+	void CRayCollideActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
 	{
 		glm::vec3 collidingPoint;
 
@@ -367,18 +346,39 @@ namespace SMGE
 				}
 				else
 				{
-					// µğÅ×ÀÏ ¹Ù¿îµå ÄŞÆ÷¿¡ ´ëÇÏ¿© Ã¼Å© - ¿©·¯°³ÀÇ Ãß°¡ Bound ¶Ç´Â µğÅ×ÀÏÇÑ CPolygonComponent °¡ ÀÖ¾î¾ß°ÚÁö?
+					// ë””í…Œì¼ ë°”ìš´ë“œ ì½¤í¬ì— ëŒ€í•˜ì—¬ ì²´í¬ - ì—¬ëŸ¬ê°œì˜ ì¶”ê°€ Bound ë˜ëŠ” ë””í…Œì¼í•œ CPolygonComponent ê°€ ìˆì–´ì•¼ê² ì§€?
 				}
 			}
 		}
 	}
 
-	std::vector<CActor*> CPointActor::QueryCollideCheckTargets()
+	CPointActor::CPointActor(CObject* outer) : CCollideActor(outer)
 	{
-		return std::vector<CActor*>();
+		//classRTTIName_ = "SMGE::CPointActor";
+		Ctor();
 	}
 
-	void CPointActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets)
+	void CPointActor::Ctor()
+	{
+		//Super::Ctor();	// ì¼ë¶€ëŸ¬ - ê° í´ë˜ìŠ¤ë“¤ì˜ ìƒì„±ìì—ì„œ ë”°ë¡œ ë¶ˆëŸ¬ì£¼ë¯€ë¡œ ì´ë ‡ê²Œ ë¶€ë¥´ë©´ ì•ˆëœë‹¤! í˜„ì¬ëŠ” ê·¸ë ‡ë‹¤ 20200831
+
+		// ì°¨í›„ ìƒê°í•  ì¼ - í˜„ì¬ CActor ìƒì†ì´ë¼ì„œ ì•ˆì“°ëŠ” persistcompo - mainDrawCompo ë“±ì´ ìƒê²¼ë‹¤ê°€ ì—†ì–´ì§„ë‹¤, ì´ ë¬¸ì œëŠ” ì–¸ë¦¬ì–¼ì—ì„œë„ ìˆì—ˆë‹¤
+		getPersistentComponents().clear();
+		getTransientComponents().clear();
+		getAllComponents().clear();
+		movementCompo_ = nullptr;
+		mainBoundCompo_ = nullptr;
+
+		auto pointCompo = MakeUniqPtr<CPointComponent>(this);
+		getTransientComponents().emplace_back(std::move(pointCompo));
+	}
+
+	CVector<CActor*> CPointActor::QueryCollideCheckTargets()
+	{
+		return CVector<CActor*>();
+	}
+
+	void CPointActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
 	{
 	}
 };

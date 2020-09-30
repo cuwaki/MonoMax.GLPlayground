@@ -164,28 +164,28 @@ void indexVBO_TBN(
 		unsigned short out_vertices_Index;
 		bool found = getSimilarVertexIndex(in_vertices[i], in_uvs[i], in_normals[i], out_vertices, out_uvs, out_normals, out_vertices_Index);
 
-		// ÀÌ¹Ì out_vertices ¿¡ µî·ÏµÈ ¾Ö Áß¿¡ i ¿Í °°Àº ¾Ö°¡ ÀÖ´Ù
+		// ì´ë¯¸ out_vertices ì— ë“±ë¡ëœ ì•  ì¤‘ì— i ì™€ ê°™ì€ ì• ê°€ ìˆë‹¤
 		if (found)
 		{ // A similar vertex is already in the VBO, use it instead !
-			out_indices.push_back(out_vertices_Index);	// i¹øÂ° Á¡À» À§ÇØ¼­ out_vertices[out_vertices_Index] ¸¦ »ç¿ëÇÏ°Ô ¸¸µç´Ù
+			out_indices.push_back(out_vertices_Index);	// ië²ˆì§¸ ì ì„ ìœ„í•´ì„œ out_vertices[out_vertices_Index] ë¥¼ ì‚¬ìš©í•˜ê²Œ ë§Œë“ ë‹¤
 
-			// °øÀ¯µÇ´Â Á¡ÀÌ¶ó´Â ¶æÀÌ´Ù - ÅºÁ¨Æ®¿Í ¹ÙÅºÀº ¿©±â¼­ Æò±ÕÀ» ³»ÁØ´Ù / ¾ÆÁ÷ ¾ê³×µéÀº ³ë¸Ö¶óÀÌÁî´Â µÇÁö ¾Ê¾Ò´Ù!
+			// ê³µìœ ë˜ëŠ” ì ì´ë¼ëŠ” ëœ»ì´ë‹¤ - íƒ„ì  íŠ¸ì™€ ë°”íƒ„ì€ ì—¬ê¸°ì„œ í‰ê· ì„ ë‚´ì¤€ë‹¤ / ì•„ì§ ì–˜ë„¤ë“¤ì€ ë…¸ë©€ë¼ì´ì¦ˆëŠ” ë˜ì§€ ì•Šì•˜ë‹¤!
 			// Average the tangents and the bitangents
 			out_tangents[out_vertices_Index] += in_tangents[i];
 			out_bitangents[out_vertices_Index] += in_bitangents[i];
 
-			// ±Ùµ¥ ³ë¸ÖÀº ¿Ö Æò±ÕÀ» ¾È³»ÁÖÁö?? ÀÌ¹Ì Obj¿¡ ÀúÀåµÉ ¶§ Æò±ÕÀÌ ³»¾îÁ³´Ù? Obj ·Îµå ÂÊÀ» ºÁ¾ßÇÒ µí... Obj¿¡¼­µµ ÀÎµ¦½Ì ¾ÈµÈ ¹öÅØ½º ´ÜÀ§·Î ³ë¸ÖÀ» ·ÎµåÇÏ´øµ¥?
+			// ê·¼ë° ë…¸ë©€ì€ ì™œ í‰ê· ì„ ì•ˆë‚´ì£¼ì§€?? ì´ë¯¸ Objì— ì €ì¥ë  ë•Œ í‰ê· ì´ ë‚´ì–´ì¡Œë‹¤? Obj ë¡œë“œ ìª½ì„ ë´ì•¼í•  ë“¯... Objì—ì„œë„ ì¸ë±ì‹± ì•ˆëœ ë²„í…ìŠ¤ ë‹¨ìœ„ë¡œ ë…¸ë©€ì„ ë¡œë“œí•˜ë˜ë°?
 		}
 		else
 		{ // If not, it needs to be added in the output data.
 			out_vertices.push_back(in_vertices[i]);
 			out_uvs.push_back(in_uvs[i]);
-			out_normals.push_back(in_normals[i]);	// ¸ğµ¨ÀÇ ³ë¸Ö
+			out_normals.push_back(in_normals[i]);	// ëª¨ë¸ì˜ ë…¸ë©€
 			out_vertices_Index = (unsigned short)out_vertices.size() - 1;
 
-			out_indices.push_back(out_vertices_Index);	// i¹øÂ° Á¡À» À§ÇØ¼­ out_vertices[out_vertices_Index] ¸¦ »ç¿ëÇÏ°Ô ¸¸µç´Ù
+			out_indices.push_back(out_vertices_Index);	// ië²ˆì§¸ ì ì„ ìœ„í•´ì„œ out_vertices[out_vertices_Index] ë¥¼ ì‚¬ìš©í•˜ê²Œ ë§Œë“ ë‹¤
 
-			// ÇöÀç´Â »ï°¢ÇüÀÇ ¼¼ Á¡ÀÌ ¸ğµÎ °°Àº ÅºÁ¨Æ®¿Í ¹ÙÅºÀ» °¡Áö°í ÀÖ´Ù
+			// í˜„ì¬ëŠ” ì‚¼ê°í˜•ì˜ ì„¸ ì ì´ ëª¨ë‘ ê°™ì€ íƒ„ì  íŠ¸ì™€ ë°”íƒ„ì„ ê°€ì§€ê³  ìˆë‹¤
 			out_tangents.push_back(in_tangents[i]);
 			out_bitangents.push_back(in_bitangents[i]);
 		}

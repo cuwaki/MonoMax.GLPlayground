@@ -7,9 +7,9 @@
 
 namespace SMGE
 {
-	// nsRE::Transform À» reflection ÇÏ±â À§ÇÑ Å¬·¡½ºÀÌ´Ù
-	// CActor ¿Í CDrawComponent °¡ »ç¿ëÇÏ´Âµ¥ »ç¿ë¹æ¹ıÀÌ ¾à°£ ´Ù¸£´Ù.
-	// CDrawComponent ´Â ±× ÀÚ½ÅÀÌ nsRE::Transform ÀÌ±â ¶§¹®ÀÌ´Ù
+	// nsRE::Transform ì„ reflection í•˜ê¸° ìœ„í•œ í´ë˜ìŠ¤ì´ë‹¤
+	// CActor ì™€ CDrawComponent ê°€ ì‚¬ìš©í•˜ëŠ”ë° ì‚¬ìš©ë°©ë²•ì´ ì•½ê°„ ë‹¤ë¥´ë‹¤.
+	// CDrawComponent ëŠ” ê·¸ ìì‹ ì´ nsRE::Transform ì´ê¸° ë•Œë¬¸ì´ë‹¤
 	struct SGRefl_Transform : public SGReflection
 	{
 		using Super = SGReflection;
@@ -39,7 +39,7 @@ namespace SMGE
 		TReflectionClass& outerDrawCompo_;
 	};
 
-	// ÀÚ½Ä ÄÄÆ÷³ÍÆ®¸¦ °¡Áú ¼ö ÀÖ¾î¾ßÇÏ¹Ç·Î CInt_Component »ó¼Ó
+	// ìì‹ ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì§ˆ ìˆ˜ ìˆì–´ì•¼í•˜ë¯€ë¡œ CInt_Component ìƒì†
 	class CDrawComponent : public CComponent, public nsRE::WorldObject, public CInt_Component
 	{
 	public:

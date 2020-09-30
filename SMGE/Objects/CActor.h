@@ -63,8 +63,8 @@ namespace SMGE
 		void Ctor();
 		void Dtor();
 
-		virtual void Tick(float);	// Â÷ÈÄ °³¹ß - CGInterf_Tickable ·Î »©ÀÚ
-		virtual void Render(float);	// Â÷ÈÄ °³¹ß - CGInterf_Renderable ·Î »©ÀÚ???
+		virtual void Tick(float);	// ì°¨í›„ ê°œë°œ - CGInterf_Tickable ë¡œ ë¹¼ì
+		virtual void Render(float);	// ì°¨í›„ ê°œë°œ - CGInterf_Renderable ë¡œ ë¹¼ì???
 
 		nsRE::Transform& getTransform();
 		const nsRE::Transform& getTransform() const;
@@ -110,7 +110,7 @@ namespace SMGE
 		CString actorStaticTag_;
 		CString actorTag_;
 
-		// ¿©±â »ı°¢ - mainDrawCompo ´Â persistcomp ¶ó¼­ ¾Ö¼ÂÀ¸·ÎºÎÅÍ µ¿ÀûÀ¸·Î »ı¼ºµÉ ¼ö ÀÖ¾î¼­ ¸â¹ö Æ÷ÀÎÅÍ¸¦ Àû¿ëÇÒ ¼ö°¡ ¾ø¾ú´Ù, ÇÏÁö¸¸ ¹«ºê¸ÕÆ®ÄŞÆ÷´Â??? »ı°¢ÇØº¼ °Í, Áö±İÀº Æ®·£Á¯Æ®ÀÓ
+		// ì—¬ê¸° ìƒê° - mainDrawCompo ëŠ” persistcomp ë¼ì„œ ì• ì…‹ìœ¼ë¡œë¶€í„° ë™ì ìœ¼ë¡œ ìƒì„±ë  ìˆ˜ ìˆì–´ì„œ ë©¤ë²„ í¬ì¸í„°ë¥¼ ì ìš©í•  ìˆ˜ê°€ ì—†ì—ˆë‹¤, í•˜ì§€ë§Œ ë¬´ë¸Œë¨¼íŠ¸ì½¤í¬ëŠ”??? ìƒê°í•´ë³¼ ê²ƒ, ì§€ê¸ˆì€ íŠ¸ëœì ¼íŠ¸ì„
 		class CMovementComponent* movementCompo_;
 		class CBoundComponent* mainBoundCompo_;
 
@@ -142,8 +142,8 @@ namespace SMGE
 
 		virtual void BeginPlay() override;
 
-		virtual std::vector<CActor*> QueryCollideCheckTargets() = 0;
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) = 0;
+		virtual CVector<CActor*> QueryCollideCheckTargets() = 0;
+		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets) = 0;
 
 	protected:
 		ECheckCollideRule rule_;
@@ -163,10 +163,10 @@ namespace SMGE
 
 		void Ctor(float size, const glm::vec3& dir);
 
-		virtual std::vector<CActor*> QueryCollideCheckTargets() override;		
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) override;
+		virtual CVector<CActor*> QueryCollideCheckTargets() override;		
+		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets) override;
 
-		void ProcessCollide(std::vector<CActor*>& targets);
+		void ProcessCollide(CVector<CActor*>& targets);
 	};
 
 	class CPointActor : public CCollideActor
@@ -179,7 +179,7 @@ namespace SMGE
 		CPointActor(CObject* outer);
 		void Ctor();
 
-		virtual std::vector<CActor*> QueryCollideCheckTargets() override;
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, std::vector<CActor*>& targets) override;
+		virtual CVector<CActor*> QueryCollideCheckTargets() override;
+		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets) override;
 	};
 };

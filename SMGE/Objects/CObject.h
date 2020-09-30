@@ -11,8 +11,8 @@ namespace SMGE
 		CObject(CObject *outer);
 		virtual ~CObject() noexcept {}
 
-		void Ctor();	// not virtual! ÇöÀç·Î¼­´Â »ı¼ºÀÚ³ª ÆÄ±«ÀÚ¿¡¼­ ºÒ¸± ¼ö ÀÖ±â ¶§¹® 20200813
-		void Dtor();	// not virtual! ÇöÀç·Î¼­´Â »ı¼ºÀÚ³ª ÆÄ±«ÀÚ¿¡¼­ ºÒ¸± ¼ö ÀÖ±â ¶§¹® 20200813
+		void Ctor();	// not virtual! í˜„ì¬ë¡œì„œëŠ” ìƒì„±ìë‚˜ íŒŒê´´ìì—ì„œ ë¶ˆë¦´ ìˆ˜ ìˆê¸° ë•Œë¬¸ 20200813
+		void Dtor();	// not virtual! í˜„ì¬ë¡œì„œëŠ” ìƒì„±ìë‚˜ íŒŒê´´ìì—ì„œ ë¶ˆë¦´ ìˆ˜ ìˆê¸° ë•Œë¬¸ 20200813
 
 		CObject* GetOuter() const;
 		CObject* GetTopOuter();
@@ -29,7 +29,7 @@ namespace SMGE
 		T* FindOuter(CObject* cur)
 		{
 			T* ret = nullptr;
-			//T findingClass{ nullptr };	//if(IsA(outer, findingOuterClassName))	// Â÷ÈÄ ÀÛ¾÷ - CObject Å¬·¡½º¿¡ static class name ¹Ú¾Æ¼­ template ÇÔ¼ö·Î Ã£À» ¼ö ÀÖ°Ô ÇÏÀÚ
+			//T findingClass{ nullptr };	//if(IsA(outer, findingOuterClassName))	// ì°¨í›„ ì‘ì—… - CObject í´ë˜ìŠ¤ì— static class name ë°•ì•„ì„œ template í•¨ìˆ˜ë¡œ ì°¾ì„ ìˆ˜ ìˆê²Œ í•˜ì
 
 			if (DCast<T*>(cur) != nullptr)
 				ret = SCast<T*>(cur);
@@ -51,14 +51,14 @@ namespace SMGE
 
 #define DECLARE_RTTI_CObject(CRN)\
 public :\
-	/* Å¬·¡½º ÀÎ½ºÅÏ½º¿ë */const std::string& GetClassRTTIName() const { return ClassRTTIName; }\
+	/* í´ë˜ìŠ¤ ì¸ìŠ¤í„´ìŠ¤ìš© */const std::string& GetClassRTTIName() const { return ClassRTTIName; }\
 private:\
-	/* private ÀÌ¾î¾ßÇÑ´Ù - ÀÚ½Äµéµµ ÇÔºÎ·Î ¹Ù²Ù¸é ¾ÈµÊ */static CString ClassRTTIName;
+	/* private ì´ì–´ì•¼í•œë‹¤ - ìì‹ë“¤ë„ í•¨ë¶€ë¡œ ë°”ê¾¸ë©´ ì•ˆë¨ */static CString ClassRTTIName;
 
 #define DEFINE_RTTI_CObject_DEFAULT(CRN) CString CRN::ClassRTTIName = ""#CRN; RTTI_CObject _staticRTTI_DEFAULT_##CRN(""#CRN, [](CObject* outer) {return new CRN(outer); }); 
 #define DEFINE_RTTI_CObject_VARIETY(CRN, ...) RTTI_CObject _staticRTTI_VARIETY_##CRN(""#CRN, CRttiNewFunctorVariety<CObject, CRN, __VA_ARGS__>{});
 
-	/* static Å¬·¡½º¿ë */
+	/* static í´ë˜ìŠ¤ìš© */
 	template<class T>
 	const std::string& GetClassRTTIName()
 	{

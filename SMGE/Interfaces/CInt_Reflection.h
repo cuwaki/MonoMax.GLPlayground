@@ -6,22 +6,22 @@
 
 
 /**
-	20200929 RTTI ¹× REFLECTION ½Ã½ºÅÛ Æ¯ÀÌ»çÇ× Á¤¸®
+	20200929 RTTI ë° REFLECTION ì‹œìŠ¤í…œ íŠ¹ì´ì‚¬í•­ ì •ë¦¬
 
-	1. RTTIName À» °¡Á®¿À´Â ÇÔ¼ö´Â ºñ½ÁÇÑ ÀÌ¸§À¸·Î ÃÑ 4°¡Áö°¡ Á¸ÀçÇÑ´Ù
+	1. RTTIName ì„ ê°€ì ¸ì˜¤ëŠ” í•¨ìˆ˜ëŠ” ë¹„ìŠ·í•œ ì´ë¦„ìœ¼ë¡œ ì´ 4ê°€ì§€ê°€ ì¡´ì¬í•œë‹¤
 		
 		SGReflection::getClassRTTIName(
 		CInt_Reflection::getClassRTTIName(
 
-		Å¬·¡½ºÀÇ ¸â¹öÇÔ¼öÀÎ GetClassRTTIName(
-		Àü¿ª ÅÛÇÃ¸´ÇÔ¼öÀÎ GetClassRTTIName(
+		í´ë˜ìŠ¤ì˜ ë©¤ë²„í•¨ìˆ˜ì¸ GetClassRTTIName(
+		ì „ì—­ í…œí”Œë¦¿í•¨ìˆ˜ì¸ GetClassRTTIName(
 
-		°¢ Å¬·¡½ºº° ClassRTTIName À» const ·Î º¸È£ÇÏ°í, ·±Å¸ÀÓ ¹× Á¤ÀûÀ¸·Î rttiname ¿¡ Á¢±ÙÇÏ±â À§ÇÏ¿© Á¾·ù°¡ ¿©·¯°¡ÁöÀÎ °ÍÀÌ´Ù
+		ê° í´ë˜ìŠ¤ë³„ ClassRTTIName ì„ const ë¡œ ë³´í˜¸í•˜ê³ , ëŸ°íƒ€ì„ ë° ì •ì ìœ¼ë¡œ rttiname ì— ì ‘ê·¼í•˜ê¸° ìœ„í•˜ì—¬ ì¢…ë¥˜ê°€ ì—¬ëŸ¬ê°€ì§€ì¸ ê²ƒì´ë‹¤
 
-	2. ½ÇÁ¦·Î RTTI ·Î½á »ç¿ëµÇÁö ¾Ê´Â Å¬·¡½ºµé¿¡´Â RTTI ¸ÅÅ©·Î³ª ÇÔ¼ö, º¯¼ö°¡ ¾øÀ» ¼ö ÀÖ´Ù - ÀÌµéÀº C++ÀÇ ÀÎÅÍÆäÀÌ½º Å¬·¡½º¿Í °°´Ù°í »ı°¢ÇÏ¸é µÈ´Ù
+	2. ì‹¤ì œë¡œ RTTI ë¡œì¨ ì‚¬ìš©ë˜ì§€ ì•ŠëŠ” í´ë˜ìŠ¤ë“¤ì—ëŠ” RTTI ë§¤í¬ë¡œë‚˜ í•¨ìˆ˜, ë³€ìˆ˜ê°€ ì—†ì„ ìˆ˜ ìˆë‹¤ - ì´ë“¤ì€ C++ì˜ ì¸í„°í˜ì´ìŠ¤ í´ë˜ìŠ¤ì™€ ê°™ë‹¤ê³  ìƒê°í•˜ë©´ ëœë‹¤
 
-	3. DEFINE_RTTI_CObject_DEFAULT ¸ÅÅ©·Î - ¸»±×´ë·Î ÀÎÀÚ°¡ outer 1°³ÀÎ µğÆúÆ® »ı¼º¿ëÀÌ´Ù
-	3. DEFINE_RTTI_CObject_VARIETY ¸ÅÅ©·Î - ÀÎÀÚ°¡ ¿©·¯°³ÀÎ °¢ Å¬·¡½º¿ë Àü¿ë »ı¼ºÀÚµéÀ» Ã³¸®ÇÏ±â À§ÇØ¼­ Á¸ÀçÇÑ´Ù
+	3. DEFINE_RTTI_CObject_DEFAULT ë§¤í¬ë¡œ - ë§ê·¸ëŒ€ë¡œ ì¸ìê°€ outer 1ê°œì¸ ë””í´íŠ¸ ìƒì„±ìš©ì´ë‹¤
+	3. DEFINE_RTTI_CObject_VARIETY ë§¤í¬ë¡œ - ì¸ìê°€ ì—¬ëŸ¬ê°œì¸ ê° í´ë˜ìŠ¤ìš© ì „ìš© ìƒì„±ìë“¤ì„ ì²˜ë¦¬í•˜ê¸° ìœ„í•´ì„œ ì¡´ì¬í•œë‹¤
 */
 
 namespace SMGE
@@ -48,7 +48,7 @@ namespace SMGE
 
 		SGReflectionStreamOut& operator<<(const SGReflection& reflData)
 		{
-			out_ = reflData;	// SGReflection À» decltype(out_) ·Î Ä³½ºÆÃÇØÁà¼­ Ã³¸®ÇÑ´Ù
+			out_ = reflData;	// SGReflection ì„ decltype(out_) ë¡œ ìºìŠ¤íŒ…í•´ì¤˜ì„œ ì²˜ë¦¬í•œë‹¤
 			return *this;
 		}
 
@@ -72,7 +72,7 @@ namespace SMGE
 
 		SGReflectionStreamIn& operator>>(SGReflection& reflData)
 		{
-			reflData = in_;		// SGReflection ÀÌ decltype(in_) À» operator= ·Î ¹Ş´Â´Ù
+			reflData = in_;		// SGReflection ì´ decltype(in_) ì„ operator= ë¡œ ë°›ëŠ”ë‹¤
 			return *this;
 		}
 
@@ -135,8 +135,8 @@ namespace SMGE
 		}
 
 		virtual void OnBeforeSerialize() const {}
-		virtual operator CWString() const;	// operator>> ÀÇ ¿ªÇÒÀ» ÀÌ°Ô ÇÑ´Ù
-		/* final */ SGReflection& operator=(const CWString& fullReflectedStr);	// operator<< ÀÇ ÃÖÁ¾ ¿ªÇÒÀ» ÀÌ°Ô ÇÑ´Ù
+		virtual operator CWString() const;	// operator>> ì˜ ì—­í• ì„ ì´ê²Œ í•œë‹¤
+		/* final */ SGReflection& operator=(const CWString& fullReflectedStr);	// operator<< ì˜ ìµœì¢… ì—­í• ì„ ì´ê²Œ í•œë‹¤
 
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted);	// DevReflection
 		virtual SGReflection& operator=(CVector<CWString>& variableSplitted);	// ReflectionUtils
@@ -152,10 +152,10 @@ namespace SMGE
 
 		CInt_Reflection& pair_;
 
-		// ¿©±â ¼öÁ¤ - ÀÌ°Ô 2°¡Áö ¼º°İÀ» °¡Áø´Ù - Á¤¸®°¡ ÇÊ¿äÇÏ´Ù
-		// Reflection ÀÚÃ¼ÀÇ className À» ³ªÅ¸³»¾ßÇÏ´Â °æ¿ì°¡ ÀÖ°í - µ¶¸³À¸·Î »ç¿ëµÇ´Â SGRefl_Transform
-		// pair_ ÀÇ className À» ³ªÅ¸³»¾ßÇÏ´Â °æ¿ì°¡ ÀÖ´Ù
-		// ¿©±â ¼öÁ¤ - ÁßÃ¸À¸·Î SGReflection µéÀÌ µÇ¾îÀÖÀ» ¶§ // ##8A ¿Í °°ÀÌ ·¹ÆÛ·±½º·Î ¿¬°áµÇ¾îÀÖÀ¸¸é ³ªÁßÀÇ °ªÀ¸·Î µ¤¿©¾º¿öÁ®¹ö¸®´Â ¹®Á¦°¡ ÀÖ´Ù - ¿¹)CActor
+		// ì—¬ê¸° ìˆ˜ì • - ì´ê²Œ 2ê°€ì§€ ì„±ê²©ì„ ê°€ì§„ë‹¤ - ì •ë¦¬ê°€ í•„ìš”í•˜ë‹¤
+		// Reflection ìì²´ì˜ className ì„ ë‚˜íƒ€ë‚´ì•¼í•˜ëŠ” ê²½ìš°ê°€ ìˆê³  - ë…ë¦½ìœ¼ë¡œ ì‚¬ìš©ë˜ëŠ” SGRefl_Transform
+		// pair_ ì˜ className ì„ ë‚˜íƒ€ë‚´ì•¼í•˜ëŠ” ê²½ìš°ê°€ ìˆë‹¤
+		// ì—¬ê¸° ìˆ˜ì • - ì¤‘ì²©ìœ¼ë¡œ SGReflection ë“¤ì´ ë˜ì–´ìˆì„ ë•Œ // ##8A ì™€ ê°™ì´ ë ˆí¼ëŸ°ìŠ¤ë¡œ ì—°ê²°ë˜ì–´ìˆìœ¼ë©´ ë‚˜ì¤‘ì˜ ê°’ìœ¼ë¡œ ë®ì—¬ì”Œì›Œì ¸ë²„ë¦¬ëŠ” ë¬¸ì œê°€ ìˆë‹¤ - ì˜ˆ)CActor
 		const CString& classRTTIName_;
 		CWString& reflectionFilePath_;
 
@@ -174,15 +174,15 @@ namespace SMGE
 		#define _ADD_REFL_VARIABLE(_varname_) variablesMap_[L""#_varname_] = &_varname_
 		#define _REF_REFL_VARIABLE(_varname_) (*SCast<decltype(&_varname_)>(variablesMap_[L""#_varname_]))
 
-		// _TO_REFL ÀÇ Çì´õ¸¸ ¸¸µå´Â ÇÔ¼ö ¹öÀü
+		// _TO_REFL ì˜ í—¤ë”ë§Œ ë§Œë“œëŠ” í•¨ìˆ˜ ë²„ì „
 		CWString _TO_REFL_Head(CWString _vartype_, CWString _varname_, bool isFast_);
 
 		template<typename T>
 		extern CWString ToREFL(const T& val)
 		{
-			// ¹®ÀÚ¿­µéÀÇ °æ¿ì
-			// Ãß°¡ ÇÒ ÀÏ - " °Ë»ç ¹× µô¸®¹ÌÅÍµé ±×¸®°í \tÀ» "\\t"·Î ¹Ù²ã¾ßÇÑ´Ù
-			// ÅÇ°°Àº °æ¿ì¿£ ¿Ö ¹Ù²Ù³Ä¸é .asset ÆÄÀÏÀÇ Æ÷¸Ë¿¡ \tÀ¸·Î µé¿©¾²±â°¡ µé¾î°¥ ¼ö ÀÖ±â ¶§¹®ÀÌ´Ù
+			// ë¬¸ìì—´ë“¤ì˜ ê²½ìš°
+			// ì¶”ê°€ í•  ì¼ - " ê²€ì‚¬ ë° ë”œë¦¬ë¯¸í„°ë“¤ ê·¸ë¦¬ê³  \tì„ "\\t"ë¡œ ë°”ê¿”ì•¼í•œë‹¤
+			// íƒ­ê°™ì€ ê²½ìš°ì—” ì™œ ë°”ê¾¸ëƒë©´ .asset íŒŒì¼ì˜ í¬ë§·ì— \tìœ¼ë¡œ ë“¤ì—¬ì“°ê¸°ê°€ ë“¤ì–´ê°ˆ ìˆ˜ ìˆê¸° ë•Œë¬¸ì´ë‹¤
 
 			if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
 				return val.length() == 0 ? wtext("\"\"") : (L'"' + val + L'"');	// 
@@ -190,7 +190,7 @@ namespace SMGE
 				return ToTCHAR(val.length() == 0 ? "\"\"" : ('"' + val + '"'));
 			else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
 				return ToTCHAR(std::to_string(val));
-			else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor µîÀÇ ÀÚµ¿ Ã³¸®¸¦ À§ÇÏ¿©
+			else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor ë“±ì˜ ìë™ ì²˜ë¦¬ë¥¼ ìœ„í•˜ì—¬
 				return val;
 
 			return L"error - not support type!";
@@ -199,8 +199,8 @@ namespace SMGE
 		template<typename L>
 		extern void FromREFL(L& left, const CWString& right)
 		{
-			// ¹®ÀÚ¿­µéÀÇ °æ¿ì
-			// Ãß°¡ ÇÒ ÀÏ - µô¸®¹ÌÅÍµéÀ» ¿ø·¡ÀÇ °ªÀ¸·Î º¯°æÇØ¼­ ³Ö±â, " µéÀ» Á¦´ë·Î ¾ø¾Ö¼­ ³Ö¾îÁÖ±â
+			// ë¬¸ìì—´ë“¤ì˜ ê²½ìš°
+			// ì¶”ê°€ í•  ì¼ - ë”œë¦¬ë¯¸í„°ë“¤ì„ ì›ë˜ì˜ ê°’ìœ¼ë¡œ ë³€ê²½í•´ì„œ ë„£ê¸°, " ë“¤ì„ ì œëŒ€ë¡œ ì—†ì• ì„œ ë„£ì–´ì£¼ê¸°
 			if constexpr (std::numeric_limits<L>::is_integer)
 				left = SCast<L>(std::atoll(ToASCII(right).c_str()));
 			else if constexpr (std::is_floating_point_v<L>)
@@ -234,7 +234,7 @@ namespace SMGE
 		extern void FromREFL_SOURCEVECTOR(L& left, CVector<CWString>& rightVec)
 		{
 			FromREFL(left, *rightVec.cursor());
-			rightVec.cursorNext();	// ´ÙÀ½À¸·Î!
+			rightVec.cursorNext();	// ë‹¤ìŒìœ¼ë¡œ!
 		}
 
 		template<typename L>
@@ -248,16 +248,16 @@ namespace SMGE
 
 			FromREFL(left, value);
 #if DEBUG || _DEBUG
-			//varName = wtext("used - ") + varName;	// »ç¿ëµÊ Ç¥½Ã
+			//varName = wtext("used - ") + varName;	// ì‚¬ìš©ë¨ í‘œì‹œ
 #endif
-			rightVec.cursorNext();	// ´ÙÀ½À¸·Î!
+			rightVec.cursorNext();	// ë‹¤ìŒìœ¼ë¡œ!
 		}
 
-		// ÇÏ´ø ÀÏ Á¤¸®
-		// ´ÙÁß ÄÁÅ×ÀÌ³Ê¸¦ ´Ù·ê ¼ö ÀÖ°Ô ÇØ¾ßÇÑ´Ù L"CVector<CVector<SGRefl_Actor>>";
-		// template À¸·Î ÇÒÁö runtime ¿¡ ÇÒÁö ÈìÈì... dimension À» ÀÌ¿ëÇÏ¿© runtime ¿¡ ÇÏ´Â °Ô ³ªÀ» °Í °°´Ù
-		// ±×¸®°í ±×°Ô ³¡³ª¸Ç ¸ÅÅ©·Î·Î ¹­¾îÁà¾ßÇÑ´Ù ret += _TO_REFL_CONTAINER(CVector<SGRefl_Actor>, actorLayers_[1]);
-		// ´ç¿¬È÷ ´ÙÁß ÄÁÅ×ÀÌ³Ê ÀĞ´Â ºÎºĞµµ ¼öÁ¤µÇ¾î¾ßÇÑ´Ù
+		// í•˜ë˜ ì¼ ì •ë¦¬
+		// ë‹¤ì¤‘ ì»¨í…Œì´ë„ˆë¥¼ ë‹¤ë£° ìˆ˜ ìˆê²Œ í•´ì•¼í•œë‹¤ L"CVector<CVector<SGRefl_Actor>>";
+		// template ìœ¼ë¡œ í• ì§€ runtime ì— í• ì§€ í í ... dimension ì„ ì´ìš©í•˜ì—¬ runtime ì— í•˜ëŠ” ê²Œ ë‚˜ì„ ê²ƒ ê°™ë‹¤
+		// ê·¸ë¦¬ê³  ê·¸ê²Œ ëë‚˜ë§¨ ë§¤í¬ë¡œë¡œ ë¬¶ì–´ì¤˜ì•¼í•œë‹¤ ret += _TO_REFL_CONTAINER(CVector<SGRefl_Actor>, actorLayers_[1]);
+		// ë‹¹ì—°íˆ ë‹¤ì¤‘ ì»¨í…Œì´ë„ˆ ì½ëŠ” ë¶€ë¶„ë„ ìˆ˜ì •ë˜ì–´ì•¼í•œë‹¤
 		template<typename CT, typename KT>
 		CWString ToCVector(const CT& cont, const CWString& contTypeName, const CWString& contVarName, std::optional<KT> contKeyForParent)
 		{
@@ -277,25 +277,25 @@ namespace SMGE
 
 			if (dimension > 1)
 			{
-				// ´ÙÁß ÄÁÅ×ÀÌ³Ê
+				// ë‹¤ì¤‘ ì»¨í…Œì´ë„ˆ
 				//for (const auto& child : cont)
 				//{
-				//	CWString childContTypeName = L"CVector<SGRefl_Actor>";	// ÀÚµ¿À¸·Î ¸¸µé¾î¾ßÇÔ
-				//	CWString childContVarName = L"[i]";	// ÀÚµ¿À¸·Î ¸¸µé¾î¾ßÇÔ, ¸Ê °°Àº °æ¿ì¿¡´Â µû·Î Ã³¸®ÇØÁà¾ß°Ú´Ù
+				//	CWString childContTypeName = L"CVector<SGRefl_Actor>";	// ìë™ìœ¼ë¡œ ë§Œë“¤ì–´ì•¼í•¨
+				//	CWString childContVarName = L"[i]";	// ìë™ìœ¼ë¡œ ë§Œë“¤ì–´ì•¼í•¨, ë§µ ê°™ì€ ê²½ìš°ì—ëŠ” ë”°ë¡œ ì²˜ë¦¬í•´ì¤˜ì•¼ê² ë‹¤
 
-				//	// ¿©±â¼­ ÀÌ·¸°Ô ÀÚ½Äµé¿¡ ´ëÇØ¼­ ¶Ç ³»·Á°¡¾ßÇÑ´Ù
+				//	// ì—¬ê¸°ì„œ ì´ë ‡ê²Œ ìì‹ë“¤ì— ëŒ€í•´ì„œ ë˜ ë‚´ë ¤ê°€ì•¼í•œë‹¤
 				//	//ret += ToCVector(child, childContTypeName, childContVarName, 0);
 				//}
 			}
 			else
-			{	// ¸¶Áö¸·ÀÌ´Ù
+			{	// ë§ˆì§€ë§‰ì´ë‹¤
 				size_t fB = contTypeName.find_first_of(L'<'), lB = contTypeName.find_first_of(L'>');
 				CWString TName = contTypeName.substr(fB + 1, lB - fB - 1);
 
 				for (const auto& it : cont)
 				{
 					if constexpr (std::is_base_of_v<SGReflection, CT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
-					{	// SGRefl_Actor µî
+					{	// SGRefl_Actor ë“±
 						ret += SCast<CWString>(it);
 					}
 					else
@@ -306,13 +306,13 @@ namespace SMGE
 					}
 
 					//if (*itStr.crbegin() == SGReflection::VARIABLE_DELIM_CHAR || *itStr.crbegin() == SGReflection::VALUE_DELIM_CHAR)
-					//{	// SGRefl_Actor ÀÌ°Å³ª glm::mat4 ÀÌ°Å³ª ...
+					//{	// SGRefl_Actor ì´ê±°ë‚˜ glm::mat4 ì´ê±°ë‚˜ ...
 					//	ret += itStr;
 					//}
 					//else
-					//{	// *it °¡ literal Å¸ÀÔÀÏ °æ¿ì ÁÖ¸£¸¤ ½áÁö´Â °æ¿ì¿¡´Â DELIM µéÀÌ ¾ø´Ù
+					//{	// *it ê°€ literal íƒ€ì…ì¼ ê²½ìš° ì£¼ë¥´ë¥µ ì¨ì§€ëŠ” ê²½ìš°ì—ëŠ” DELIM ë“¤ì´ ì—†ë‹¤
 					//	//[0]$float$0.000000
-					//	// _TO_REFL Ã³·³ ÀÛµ¿À» ½ÃÄÑ¾ßÇÑ´Ù, ±Ùµ¥ ¿©±ä ÇÔ¼ö ¾ÈÂÊÀÌ¶ó¼­ ÀÌ°Ô ¾ÈµÈ´Ù, ÀÏ´Ü ÀÓ½Ã·Î ÇÏµåÄÚµù!
+					//	// _TO_REFL ì²˜ëŸ¼ ì‘ë™ì„ ì‹œì¼œì•¼í•œë‹¤, ê·¼ë° ì—¬ê¸´ í•¨ìˆ˜ ì•ˆìª½ì´ë¼ì„œ ì´ê²Œ ì•ˆëœë‹¤, ì¼ë‹¨ ì„ì‹œë¡œ í•˜ë“œì½”ë”©!
 
 					//	ret += wtext("[x]$");
 					//	ret += TName + wtext("$");
@@ -325,8 +325,8 @@ namespace SMGE
 			return ret;
 		}
 
-		// ÇÏ´ø ÀÏ Á¤¸®
-		//// ´ÙÁß ÄÁÅ×ÀÌ³Ê ÀĞÀ» ¶§ 
+		// í•˜ë˜ ì¼ ì •ë¦¬
+		//// ë‹¤ì¤‘ ì»¨í…Œì´ë„ˆ ì½ì„ ë•Œ 
 		//// actorLayers_.resize
 		//	// actorLayers_[0
 		//		// actorLayers_[0.resize
@@ -343,7 +343,7 @@ namespace SMGE
 			CWString& size_str = std::get<Tuple_Value>(*variableSplitted.cursor());
 			ReflectionUtils::FromREFL(contSize, size_str);
 
-			variableSplitted.cursorNext();	// [2] = (L"actorLayers_[1]", L"CVector<SGRefl_Actor>", L"2") ¸¦ ¸Ô¾îÄ¡¿î´Ù
+			variableSplitted.cursorNext();	// [2] = (L"actorLayers_[1]", L"CVector<SGRefl_Actor>", L"2") ë¥¼ ë¨¹ì–´ì¹˜ìš´ë‹¤
 
 			if (contSize == 0)
 				return;

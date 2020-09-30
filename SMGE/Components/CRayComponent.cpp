@@ -84,7 +84,7 @@ namespace SMGE
 		if(rsm == nullptr)
 			rsm = new nsRE::RayRSM(size_, direction_);
 
-		// ¿©±â ¼öÁ¤ - ÀÌ°Å CResourceModel ·Î ³»¸®µç°¡, °ÔÀÓ¿£Áø¿¡¼­ ·»´õ¸µÀ» ÇÏµµ·Ï ÇÏÀÚ
+		// ì—¬ê¸° ìˆ˜ì • - ì´ê±° CResourceModel ë¡œ ë‚´ë¦¬ë“ ê°€, ê²Œì„ì—”ì§„ì—ì„œ ë Œë”ë§ì„ í•˜ë„ë¡ í•˜ì
 		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
 
 		rsm->GetRenderModel().AddWorldObject(this);
@@ -107,40 +107,40 @@ namespace SMGE
 			float r2sLen = glm::distance(sphereLoc, rayLoc);
 
 			// https://m.blog.naver.com/PostView.nhn?blogId=hermet&logNo=68084286&proxyReferer=https:%2F%2Fwww.google.com%2F
-			// ³»¿ëÀ» ±âÁØÀ¸·Î Á¶±İ º¯Çü ÇÏ¿´´Ù
+			// ë‚´ìš©ì„ ê¸°ì¤€ìœ¼ë¡œ ì¡°ê¸ˆ ë³€í˜• í•˜ì˜€ë‹¤
 
-			// »çÀÌÁî°¡ ÅÃµµ ¾øÀ» °æ¿ì¸¦ ¸ÕÀú °É·¯³½´Ù
+			// ì‚¬ì´ì¦ˆê°€ íƒë„ ì—†ì„ ê²½ìš°ë¥¼ ë¨¼ì € ê±¸ëŸ¬ë‚¸ë‹¤
 			float minSize = r2sLen - sphere->GetRadius();
 			if (size_ < minSize)
 				goto RET_FALSE;
 
-			if (r2sLen <= sphere->GetRadius())	// Á¢ÇÏ´Â °Í Æ÷ÇÔ
-			{	// ·¹ÀÌ ¿øÁ¡°ú ¿ø Áß½ÉÀÇ °Å¸®°¡ ¿øÀÇ ¹İÁö¸§º¸´Ù ÀÛ´Ù - ·¹ÀÌ°¡ ¿øÀÇ ¾È¿¡¼­ ¹ß»çµÈ °ÍÀÓ
+			if (r2sLen <= sphere->GetRadius())	// ì ‘í•˜ëŠ” ê²ƒ í¬í•¨
+			{	// ë ˆì´ ì›ì ê³¼ ì› ì¤‘ì‹¬ì˜ ê±°ë¦¬ê°€ ì›ì˜ ë°˜ì§€ë¦„ë³´ë‹¤ ì‘ë‹¤ - ë ˆì´ê°€ ì›ì˜ ì•ˆì—ì„œ ë°œì‚¬ëœ ê²ƒì„
 				outCollidingPoint = rayLoc;
 				return true;
 			}
 
 			//auto normR2S = glm::normalize(ray2sphere);
 
-			float cosTheta = glm::dot(ray2sphere, this->direction_) / r2sLen;	// ÀÌ°Å¶û
-			//float cosTheta = glm::dot(normR2S, this->direction_);	// ÀÌ°Å¶û
-			if (cosTheta <= 0.f)	// ·¹ÀÌÀÇ ¹æÇâÀÌ ¿øÂÊ°ú ¹İ´ë¹æÇâ ¶Ç´Â Á÷°¢ÀÓ
+			float cosTheta = glm::dot(ray2sphere, this->direction_) / r2sLen;	// ì´ê±°ë‘
+			//float cosTheta = glm::dot(normR2S, this->direction_);	// ì´ê±°ë‘
+			if (cosTheta <= 0.f)	// ë ˆì´ì˜ ë°©í–¥ì´ ì›ìª½ê³¼ ë°˜ëŒ€ë°©í–¥ ë˜ëŠ” ì§ê°ì„
 				return false;
 
 			float hypo = r2sLen;
-			//float base = glm::dot(this->direction_, ray2sphere);	// ÀÌ°Å¸¦ ¶È°°ÀÌ ½áµµ cosTheta ³í¸®°¡ µ¿ÀÏÇÏÁö ¾ÊÀ»±î? ±×·¯¸é dot ÇÑ¹ø ÁÙÀÏ ¼ö ÀÖ´Ù.
+			//float base = glm::dot(this->direction_, ray2sphere);	// ì´ê±°ë¥¼ ë˜‘ê°™ì´ ì¨ë„ cosTheta ë…¼ë¦¬ê°€ ë™ì¼í•˜ì§€ ì•Šì„ê¹Œ? ê·¸ëŸ¬ë©´ dot í•œë²ˆ ì¤„ì¼ ìˆ˜ ìˆë‹¤.
 			float base = cosTheta * r2sLen;
 
 			float radiusSQ = sphere->GetRadius() * sphere->GetRadius();
 			float heightSQ = hypo * hypo - base * base;
 
 			if (heightSQ <= radiusSQ)
-			{	// ±¤¼±°ú ±¸ÀÇ °Å¸®°¡ ±¸ÀÇ ¹İÁö¸§º¸´Ù ÀÛ°Å³ª °°À¸¸é °Å¸® °Ë»ç
+			{	// ê´‘ì„ ê³¼ êµ¬ì˜ ê±°ë¦¬ê°€ êµ¬ì˜ ë°˜ì§€ë¦„ë³´ë‹¤ ì‘ê±°ë‚˜ ê°™ìœ¼ë©´ ê±°ë¦¬ ê²€ì‚¬
 				float intersectBase = std::sqrtf(radiusSQ - heightSQ);
 				float distToCollidePoint = (base - intersectBase);
 
 				if (distToCollidePoint <= size_)
-				{	//  Ãæµ¹ÇÑ ÁöÁ¡°úÀÇ °Å¸®°¡ Å©±âº¸´Ù ÀÛÀ¸¸é Ãæµ¹
+				{	//  ì¶©ëŒí•œ ì§€ì ê³¼ì˜ ê±°ë¦¬ê°€ í¬ê¸°ë³´ë‹¤ ì‘ìœ¼ë©´ ì¶©ëŒ
 					outCollidingPoint = rayLoc + (direction_ * distToCollidePoint);
 					return true;
 				}

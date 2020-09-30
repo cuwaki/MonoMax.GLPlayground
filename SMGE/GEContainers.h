@@ -12,9 +12,10 @@ namespace SMGE
     public:
         CVector() : std::vector<T>() {};
         CVector(std::initializer_list<T>&& il) : std::vector<T>(std::move(il)) {}
+        CVector(size_t size) : std::vector<T>(size) {};
 
         template<typename U>
-        T& operator[](const U& index)   // enum class µéÀ» [] ·Î ¹Ù·Î ¹ŞÀ» ¼ö ÀÖ°Ô ÇÏ±â À§ÇÔ
+        T& operator[](const U& index)   // enum class ë“¤ì„ [] ë¡œ ë°”ë¡œ ë°›ì„ ìˆ˜ ìˆê²Œ í•˜ê¸° ìœ„í•¨
         {
             return ParentVectorT::operator[](etoi(index));
         }
@@ -58,7 +59,7 @@ namespace SMGE
 #define MakeSharPtr std::make_shared
 #define SPtrCast std::static_pointer_cast
 
-    /* ¾Æ·¡¿Í °°ÀÌ ÇÏ¸é »ó¼ÓµÈ Å¬·¡½ºÀÇ ½º¸¶Æ®Æ÷ÀÎÅÍ¸¦ º£ÀÌ½º Å¬·¡½ºÀÇ ½º¸¶Æ® Æ÷ÀÎÅÍ¿¡ ³ÖÀ» ¶§ ÄÄÆÄÀÏ ¿À·ù°¡ ³­´Ù - ¾î·Á¿ö¼­ ±×³É ¸ÅÅ©·Î·Î Ã³¸®ÇÑ´Ù
+    /* ì•„ë˜ì™€ ê°™ì´ í•˜ë©´ ìƒì†ëœ í´ë˜ìŠ¤ì˜ ìŠ¤ë§ˆíŠ¸í¬ì¸í„°ë¥¼ ë² ì´ìŠ¤ í´ë˜ìŠ¤ì˜ ìŠ¤ë§ˆíŠ¸ í¬ì¸í„°ì— ë„£ì„ ë•Œ ì»´íŒŒì¼ ì˜¤ë¥˜ê°€ ë‚œë‹¤ - ì–´ë ¤ì›Œì„œ ê·¸ëƒ¥ ë§¤í¬ë¡œë¡œ ì²˜ë¦¬í•œë‹¤
     // std::unique_ptr wapper
     template<typename T>
     using CUniqPtr = std::unique_ptr<T>;
@@ -84,7 +85,7 @@ namespace SMGE
     template<typename T>
     using CWeakPtr = std::weak_ptr<T>;
 
-    // Àü¿ª À¯Æ¿¸®Æ¼ ÇÔ¼öµé
+    // ì „ì—­ ìœ í‹¸ë¦¬í‹° í•¨ìˆ˜ë“¤
     namespace GlobalUtils
     {
         template<typename Container, typename T>

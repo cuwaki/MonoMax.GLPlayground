@@ -12,7 +12,7 @@ namespace SMGE
 
 		CAssetBase() {}
 
-		// template<> À¸·Î ¾²ÀÏ °Å¶ó¼­ virtual ÀÖÀ¸¸é ¾ÈµÈ´Ù!!
+		// template<> ìœ¼ë¡œ ì“°ì¼ ê±°ë¼ì„œ virtual ìˆìœ¼ë©´ ì•ˆëœë‹¤!!
 
 	protected:
 		CWString assetFilePath_;
@@ -29,12 +29,12 @@ namespace SMGE
 		CAsset(TContentClass* contentClass) :
 			contentClass_(contentClass),
 			CAssetBase()
-		{	// ¾²±â¸¦ À§ÇÏ¿© ¿ÜºÎ¿¡¼­ ¹ŞÀ½
+		{	// ì“°ê¸°ë¥¼ ìœ„í•˜ì—¬ ì™¸ë¶€ì—ì„œ ë°›ìŒ
 			isReadOnly_ = false;
 		}
 
 		CAsset(CWString filePath) : CAssetBase()
-		{	// ÀĞ±â¸¦ À§ÇÏ¿© ³»ºÎ¿¡¼­ ¸¸µê
+		{	// ì½ê¸°ë¥¼ ìœ„í•˜ì—¬ ë‚´ë¶€ì—ì„œ ë§Œë“¦
 			isReadOnly_ = true;
 		
 			contentClass_ = new TContentClass(nullptr);
@@ -62,21 +62,21 @@ namespace SMGE
 			SGStringStreamIn strIn(CuwakiDevUtils::LoadFromTextFile(filePath));
 			if (strIn.IsValid())
 			{
-				// ºÎ¸ğ Å¬·¡½º·Î °è¼Ó ¿Ã¶ó°£´Ù - ¿¹) slime.asset -> CAMonster -> CAPawn -> CActor
+				// ë¶€ëª¨ í´ë˜ìŠ¤ë¡œ ê³„ì† ì˜¬ë¼ê°„ë‹¤ - ì˜ˆ) slime.asset -> CAMonster -> CAPawn -> CActor
 				TContentClass temp(nullptr);
-				SGReflection parentRefl(static_cast<CInt_Reflection&>(temp));	// ÀÌÀ¯¸¦ ¸ğ¸£°Ú´Âµ¥ ¿©±â¼­ SCast ¾²¸é ÄÄÆÄÀÏ ¿À·ù³­´Ù
+				SGReflection parentRefl(static_cast<CInt_Reflection&>(temp));	// ì´ìœ ë¥¼ ëª¨ë¥´ê² ëŠ”ë° ì—¬ê¸°ì„œ SCast ì“°ë©´ ì»´íŒŒì¼ ì˜¤ë¥˜ë‚œë‹¤
 				strIn >> parentRefl;
 
 				auto parentAssetPath = parentRefl.getReflectionFilePath();
 				if (IsTemplateAssetPath(parentAssetPath) == true)
-				{	// ´õÀÌ»ó ºÎ¸ğ°¡ ¾ø´Ù - ÀÌ°Ô Å¾ == ÅÛÇÃ¸´ÀÌ´Ù, ÀÌÁ¦ºÎÅÍ ½ÇÁ¦·Î ·Îµå¸¦ ½ÃÀÛÇÑ´Ù - ¿¹) CActor
+				{	// ë”ì´ìƒ ë¶€ëª¨ê°€ ì—†ë‹¤ - ì´ê²Œ íƒ‘ == í…œí”Œë¦¿ì´ë‹¤, ì´ì œë¶€í„° ì‹¤ì œë¡œ ë¡œë“œë¥¼ ì‹œì‘í•œë‹¤ - ì˜ˆ) CActor
 				}
 				else
-				{	// ºÎ¸ğ Å¬·¡½ºÀÇ ÅÛÇÃ¸´À» ·ÎµåÇÑ´Ù
+				{	// ë¶€ëª¨ í´ë˜ìŠ¤ì˜ í…œí”Œë¦¿ì„ ë¡œë“œí•œë‹¤
 					LoadContentClass(CAssetManager::GetTemplateAssetPath(ToTCHAR(parentRefl.getClassRTTIName())));
 				}
 
-				// ÀÚ½Ä Å¬·¡½ºÀÇ °ªÀ¸·Î °è¼Ó µ¤¾î¾º¿öÁ®³ª°¥ °ÍÀÌ´Ù
+				// ìì‹ í´ë˜ìŠ¤ì˜ ê°’ìœ¼ë¡œ ê³„ì† ë®ì–´ì”Œì›Œì ¸ë‚˜ê°ˆ ê²ƒì´ë‹¤
 				strIn >> getContentClass()->getReflection();
 			}
 			else

@@ -5,7 +5,7 @@
 
 namespace SMGE
 {
-	using TimeT = float;	// std::clock_t ´Â long ÀÌ°í MS ´ÜÀ§ÀÌ¸ç, ÃÖ´ëÄ¡´Â ´ë·« 35000ºĞ, 583½Ã°£, 24ÀÏ
+	using TimeT = float;	// std::clock_t ëŠ” long ì´ê³  MS ë‹¨ìœ„ì´ë©°, ìµœëŒ€ì¹˜ëŠ” ëŒ€ëµ 35000ë¶„, 583ì‹œê°„, 24ì¼
     using DurationT = float;
     using DurationRatioT = DurationT;   // 0.f ~ 1.f
 

@@ -53,7 +53,7 @@ namespace SMGE
 				mousePos_ = { pos.x, pos.y };
 			}
 
-			// Æ÷Ä¿½º ¾ø¾îµµ ÇØ¾ßÇÑ´Ù
+			// í¬ì»¤ìŠ¤ ì—†ì–´ë„ í•´ì•¼í•œë‹¤
 			for (auto& it : checkMouseInputs_)
 			{
 				checkMouseInputsOLD_[it.first] = it.second;
@@ -185,7 +185,7 @@ namespace SMGE
 	}
 }
 
-// Â÷ÈÄ ÇÒ ÀÏ
+// ì°¨í›„ í•  ì¼
 #include <locale>
 #include <codecvt>
 #include <string>
@@ -199,19 +199,13 @@ namespace SMGE
 namespace SMGE
 {
 	CWString ToTCHAR(const CString& astr)
-	{	// Ãß°¡ ÇÒ ÀÏ - ¹º°¡ Á¦´ë·Î ¾ÈµÉ °Í °°´Ù
-		//CWString ret = converter.from_bytes(astr);
-		CWString ret(astr.begin(), astr.end());
-		//ret.assign(astr.begin(), astr.end());
-		return ret;
+	{
+		return CWString(astr.begin(), astr.end());
 	}
 
 	CString ToASCII(const CWString& wstr)
-	{	// Ãß°¡ ÇÒ ÀÏ - ¹º°¡ Á¦´ë·Î ¾ÈµÉ °Í °°´Ù
-		//CString ret = converter.to_bytes(wstr);
-		CString ret(wstr.begin(), wstr.end());
-		//ret.assign;
-		return ret;
+	{
+		return CString(wstr.begin(), wstr.end());
 	}
 
 	namespace Path
@@ -219,7 +213,7 @@ namespace SMGE
 		CWString GetNormalizedPath(const CWString& path)
 		{
 			CWString ret = CuwakiDevUtils::Replace(path, L"\\", L"/");
-			return CuwakiDevUtils::Replace(ret, L"//", L"/");	// Â÷ÈÄ - ¾øÀ» ¶§±îÁö Á¦´ë·Î Ã³¸®ÇÏÀÚ
+			return CuwakiDevUtils::Replace(ret, L"//", L"/");	// ì°¨í›„ - ì—†ì„ ë•Œê¹Œì§€ ì œëŒ€ë¡œ ì²˜ë¦¬í•˜ì
 		}
 
 		bool IsValidPath(const CWString& path)

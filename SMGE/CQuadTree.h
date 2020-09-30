@@ -20,12 +20,12 @@ namespace SMGE
 
 		union
 		{
-			T xy_[2];	// xy Æò¸éÀ¸·Î ´Ù·ê ¶§
-			T zx_[2];	// zx Æò¸éÀ¸·Î ´Ù·ê ¶§
-			T yz_[2];	// yz Æò¸éÀ¸·Î ´Ù·ê ¶§
-			T uv_[2];	// uv Æò¸éÀ¸·Î ´Ù·ê ¶§
+			T xy_[2];	// xy í‰ë©´ìœ¼ë¡œ ë‹¤ë£° ë•Œ
+			T zx_[2];	// zx í‰ë©´ìœ¼ë¡œ ë‹¤ë£° ë•Œ
+			T yz_[2];	// yz í‰ë©´ìœ¼ë¡œ ë‹¤ë£° ë•Œ
+			T uv_[2];	// uv í‰ë©´ìœ¼ë¡œ ë‹¤ë£° ë•Œ
 
-			T lb_[2];	// ÁÂÇÏ´ÜÀÌ ½ÃÀÛ, ¿ì»ó´ÜÀÌ ³¡ÀÎ ÁÂÇ¥°è 
+			T lb_[2];	// ì¢Œí•˜ë‹¨ì´ ì‹œì‘, ìš°ìƒë‹¨ì´ ëì¸ ì¢Œí‘œê³„ 
 			T rt_[2];
 		};
 
@@ -98,7 +98,7 @@ namespace SMGE
 		}
 		~CQuadTreeNode()
 		{
-			if(children_) delete children_;	// c2460 ¿¡·¯ ¶§¹®¿¡ ÀÌ·¸°Ô ÇÑ´Ù
+			if(children_) delete children_;	// c2460 ì—ëŸ¬ ë•Œë¬¸ì— ì´ë ‡ê²Œ í•œë‹¤
 		}
 		CQuadTreeNode(SizeType startW, SizeType startH, SizeType maxW, SizeType maxH) : rect_(startW, startH, maxW, maxH)
 		{
@@ -146,7 +146,7 @@ namespace SMGE
 		TChildren* children_ = nullptr;
 	};
 
-	// ¸ğµç ÁÂÇ¥¿Í ÁÂÇ¥°è´Â GL ¿À¸¥¼Õ ÁÂÇ¥°è¸¦ »ç¿ëÇÑ´Ù.
+	// ëª¨ë“  ì¢Œí‘œì™€ ì¢Œí‘œê³„ëŠ” GL ì˜¤ë¥¸ì† ì¢Œí‘œê³„ë¥¼ ì‚¬ìš©í•œë‹¤.
 	template<typename ContainerT, typename SizeType>
 	class CQuadTree
 	{
@@ -163,7 +163,7 @@ namespace SMGE
 	public:
 		CQuadTree(const std::string& treeName, SizeType width, SizeType height, SizeType leafNodeWidth, SizeType leafNodeHeight)
 		{
-			assert(width == height);	// ÇöÀç ºñ±ÕµîÀº Á¦´ë·Î ÀÛµ¿ÇÏÁö ¾Ê´Â µí ÇÏ´Ù, ÇÊ¿ä½Ã ³ªÁß¿¡ °íÄ¡ÀÚ;;
+			assert(width == height);	// í˜„ì¬ ë¹„ê· ë“±ì€ ì œëŒ€ë¡œ ì‘ë™í•˜ì§€ ì•ŠëŠ” ë“¯ í•˜ë‹¤, í•„ìš”ì‹œ ë‚˜ì¤‘ì— ê³ ì¹˜ì;;
 
 			treeName_ = treeName;
 
@@ -172,11 +172,11 @@ namespace SMGE
 			leafNodeWidth_ = leafNodeWidth;
 			leafNodeHeight_ = leafNodeHeight;
 
-			// GL »çºĞ¸é¿¡ ¸Âµµ·Ï -1 ~ 0 ~ 1 »çºĞ¸é ÁÂÇ¥°è·Î ¹Ù²ã¼­ ³Ö¾îÁØ´Ù
-			// ÀÌ ÄõµåÆ®¸®ÀÇ Áß½ÉÀÌ GL ¿ùµåÁÂÇ¥ 0,0¿¡ À§Ä¡ÇÏ°Ô µÇ´Â °ÍÀÌ´Ù
+			// GL ì‚¬ë¶„ë©´ì— ë§ë„ë¡ -1 ~ 0 ~ 1 ì‚¬ë¶„ë©´ ì¢Œí‘œê³„ë¡œ ë°”ê¿”ì„œ ë„£ì–´ì¤€ë‹¤
+			// ì´ ì¿¼ë“œíŠ¸ë¦¬ì˜ ì¤‘ì‹¬ì´ GL ì›”ë“œì¢Œí‘œ 0,0ì— ìœ„ì¹˜í•˜ê²Œ ë˜ëŠ” ê²ƒì´ë‹¤
 			BuildQuadTree(rootNode_, width_/-2, height_/-2, width_, height_);
 
-			// ¸®ÇÁ³ëµåµéÀ» ½ÃÀÛÀ§Ä¡¸¦ °¡Áö°í 2Â÷¿ø Å×ÀÌºí·Î ¸¸µç´Ù
+			// ë¦¬í”„ë…¸ë“œë“¤ì„ ì‹œì‘ìœ„ì¹˜ë¥¼ ê°€ì§€ê³  2ì°¨ì› í…Œì´ë¸”ë¡œ ë§Œë“ ë‹¤
 			const auto vSize = tempUVNodes_.size();
 			uvNodeTable_.reserve(vSize);
 			for (auto vIT : tempUVNodes_)	// [v] map
@@ -184,18 +184,18 @@ namespace SMGE
 				const auto& tempUNodes = vIT.second;	// [u] map
 				const auto uSize = tempUNodes.size();
 				
-				uvNodeTable_.emplace_back();	// [v]  ÇÒ´ç
+				uvNodeTable_.emplace_back();	// [v]  í• ë‹¹
 				
 				auto& uNodes = *uvNodeTable_.rbegin();
 				uNodes.reserve(uSize);
 				for (auto uIT : tempUNodes)
 				{
-					uNodes.emplace_back(uIT.second);	// [u] ÇÒ´ç
+					uNodes.emplace_back(uIT.second);	// [u] í• ë‹¹
 				}
 			}
 			tempUVNodes_.clear();
 
-			// Á¤º¸ Á¤¸®
+			// ì •ë³´ ì •ë¦¬
 			treeDepth_ = CalculateDepth(rootNode_);
 			halfWidth_ = width_ / 2;
 			halfHeight_ = height_ / 2;
@@ -205,17 +205,17 @@ namespace SMGE
 
 		TNode* QueryNodeByPoint(SizeType w, SizeType h)
 		{
-			//return QueryNodeByPoint(rootNode_, w, h);	// Æ®¸® ¿îÇàÀ» ÅëÇÑ Äõ¸®
+			//return QueryNodeByPoint(rootNode_, w, h);	// íŠ¸ë¦¬ ìš´í–‰ì„ í†µí•œ ì¿¼ë¦¬
 
-			// Å×ÀÌºíÀ» ÅëÇÑ Ã³¸®
-			// vector ÀÎµ¦½º·Î ¾²±â À§ÇÏ¿© -1 ~ 0 ~ +1 ÁÂÇ¥°è¸¦ 0 ~ 2 ÁÂÇ¥°è·Î ¹Ù²Û´Ù
+			// í…Œì´ë¸”ì„ í†µí•œ ì²˜ë¦¬
+			// vector ì¸ë±ìŠ¤ë¡œ ì“°ê¸° ìœ„í•˜ì—¬ -1 ~ 0 ~ +1 ì¢Œí‘œê³„ë¥¼ 0 ~ 2 ì¢Œí‘œê³„ë¡œ ë°”ê¾¼ë‹¤
 			h += halfHeight_;	// -5000 ~ 0 ~ 5000 -> 0 ~ 10000
 			w += halfWidth_;
 
 			auto v = h / heightGap_;	// 10000 / 1250
 			auto u = w / widthGap_;
 
-			// ¹üÀ§ ³Ñ¾î°¡¸é ÅÍÁø´Ù!
+			// ë²”ìœ„ ë„˜ì–´ê°€ë©´ í„°ì§„ë‹¤!
 
 			return uvNodeTable_[v][u];
 		}
@@ -223,18 +223,18 @@ namespace SMGE
 		TNodes QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax)
 		{
 			assert(uMin <= uMax);
-			assert(vMin <= vMax);	// ÀÌ·¡¾ß Á¤»ó ÀÛµ¿ÇÔ!!
+			assert(vMin <= vMax);	// ì´ë˜ì•¼ ì •ìƒ ì‘ë™í•¨!!
 
 			TNodes ret;
 
-			// vector ÀÎµ¦½º·Î ¾²±â À§ÇÏ¿© -1 ~ 0 ~ +1 ÁÂÇ¥°è¸¦ 0 ~ 2 ÁÂÇ¥°è·Î ¹Ù²Û´Ù
+			// vector ì¸ë±ìŠ¤ë¡œ ì“°ê¸° ìœ„í•˜ì—¬ -1 ~ 0 ~ +1 ì¢Œí‘œê³„ë¥¼ 0 ~ 2 ì¢Œí‘œê³„ë¡œ ë°”ê¾¼ë‹¤
 			vMin += halfHeight_; vMax += halfHeight_;
 			uMin += halfWidth_; uMax += halfWidth_;
 
 			auto sv = vMin / heightGap_, ev = vMax / heightGap_;
 			auto su = uMin / widthGap_, eu = uMax / widthGap_;
 
-			// Á¡°ú´Â ´Ù¸£°Ô ³Ñ¾î°¥ ¼ö ÀÖÀ¸¹Ç·Î Å¬·¥ÇÁ ÃÄÁà¾ßÇÑ´Ù
+			// ì ê³¼ëŠ” ë‹¤ë¥´ê²Œ ë„˜ì–´ê°ˆ ìˆ˜ ìˆìœ¼ë¯€ë¡œ í´ë¨í”„ ì³ì¤˜ì•¼í•œë‹¤
 			sv = std::max(0, sv); ev = std::min(height_ / heightGap_ - 1, ev);
 			su = std::max(0, su); eu = std::min(width_ / widthGap_ - 1, eu);
 
@@ -252,20 +252,20 @@ namespace SMGE
 
 			auto halfW = width / 2, halfH = height / 2;
 			if (halfW <= leafNodeWidth_ || halfH <= leafNodeHeight_)
-			{	// Á¾·á
+			{	// ì¢…ë£Œ
 				tempUVNodes_[startH][startW] = &thisNode;
 				return;
 			}
 
-			// ÀÚ½Äµéµµ Áß½É ±âÁØÀÇ -1 ~ 0 ~ 1 ÀÇ ÁÂÇ¥¸¦ °®´Â »ç»çºĞ¸éÀ» ±¸¼ºÇÏ°Ô ÇÏ±â À§ÇÏ¿© ½ÃÀÛÆ÷ÀÎÆ®¸¦ Áß½ÉÀ¸·Î ¿Å°ÜÁØ´Ù
+			// ìì‹ë“¤ë„ ì¤‘ì‹¬ ê¸°ì¤€ì˜ -1 ~ 0 ~ 1 ì˜ ì¢Œí‘œë¥¼ ê°–ëŠ” ì‚¬ì‚¬ë¶„ë©´ì„ êµ¬ì„±í•˜ê²Œ í•˜ê¸° ìœ„í•˜ì—¬ ì‹œì‘í¬ì¸íŠ¸ë¥¼ ì¤‘ì‹¬ìœ¼ë¡œ ì˜®ê²¨ì¤€ë‹¤
 			startW += halfW;
 			startH += halfH;
 
-			// °¢°¢ ÁÂÇÏ´ÜÀ» ½ÃÀÛ À¸·Î °®°í, ¿ì»ó´ÜÀ» ³¡Á¡À¸·Î °®´Â »ç°¢ÇüÀÌ µÈ´Ù!
-			BuildQuadTree(thisNode.GetChild(0), startW,	startH,	halfW, halfH);	// GL 1»çºĞ¸é
-			BuildQuadTree(thisNode.GetChild(1), startW - halfW, startH,	halfW, halfH);	// GL 2»çºĞ¸é
-			BuildQuadTree(thisNode.GetChild(2), startW - halfW, startH - halfH, halfW, halfH);	// GL 3»çºĞ¸é
-			BuildQuadTree(thisNode.GetChild(3), startW, startH - halfH, halfW, halfH);	// GL 4»çºĞ¸é
+			// ê°ê° ì¢Œí•˜ë‹¨ì„ ì‹œì‘ ìœ¼ë¡œ ê°–ê³ , ìš°ìƒë‹¨ì„ ëì ìœ¼ë¡œ ê°–ëŠ” ì‚¬ê°í˜•ì´ ëœë‹¤!
+			BuildQuadTree(thisNode.GetChild(0), startW,	startH,	halfW, halfH);	// GL 1ì‚¬ë¶„ë©´
+			BuildQuadTree(thisNode.GetChild(1), startW - halfW, startH,	halfW, halfH);	// GL 2ì‚¬ë¶„ë©´
+			BuildQuadTree(thisNode.GetChild(2), startW - halfW, startH - halfH, halfW, halfH);	// GL 3ì‚¬ë¶„ë©´
+			BuildQuadTree(thisNode.GetChild(3), startW, startH - halfH, halfW, halfH);	// GL 4ì‚¬ë¶„ë©´
 		}
 
 		TNode* QueryNodeByPoint(TNode& thisNode, SizeType w, SizeType h)
@@ -317,7 +317,7 @@ namespace SMGE
 		TNode rootNode_;
 		std::vector<std::vector<TNode*>> uvNodeTable_;	// [v][u]
 
-		// ÀÓ½Ã °ª
+		// ì„ì‹œ ê°’
 		std::map<SizeType, std::map<SizeType, TNode*>> tempUVNodes_;	// [v][u]
 	};
 
@@ -337,8 +337,8 @@ namespace SMGE
 			xyQTree_("xy", xWidth, yWidth, leafNodeWidth, leafNodeWidth),
 			zxQTree_("zx", zWidth, xWidth, leafNodeWidth, leafNodeWidth)
 		{
-			assert(xWidth == zWidth);	// ÀÌ µÎ °ªÀÌ °°Áö ¾ÊÀ¸¸é Å×ÀÌºíÀ» ÅëÇÑ ÆÇº°ÀÌ ¾î·Á¿öÁø´Ù - QueryValuesByCube( ¿©±âÀÇ Pred ÇÔ¼ö ±¸ÇöÀ» ºÁ¶ó, x °¡ °°Àº °ÍÀ» °¡Áö°í ±³Â÷ ¿©ºÎ Ã¼Å©¸¦ ÇÏ±â ¶§¹®ÀÌ´Ù
-			assert(xWidth == yWidth);	// ÇöÀç ºñ±ÕµîÀº Á¦´ë·Î ÀÛµ¿ÇÏÁö ¾Ê´Â µí ÇÏ´Ù, ÇÊ¿ä½Ã ³ªÁß¿¡ °íÄ¡ÀÚ;;
+			assert(xWidth == zWidth);	// ì´ ë‘ ê°’ì´ ê°™ì§€ ì•Šìœ¼ë©´ í…Œì´ë¸”ì„ í†µí•œ íŒë³„ì´ ì–´ë ¤ì›Œì§„ë‹¤ - QueryValuesByCube( ì—¬ê¸°ì˜ Pred í•¨ìˆ˜ êµ¬í˜„ì„ ë´ë¼, x ê°€ ê°™ì€ ê²ƒì„ ê°€ì§€ê³  êµì°¨ ì—¬ë¶€ ì²´í¬ë¥¼ í•˜ê¸° ë•Œë¬¸ì´ë‹¤
+			assert(xWidth == yWidth);	// í˜„ì¬ ë¹„ê· ë“±ì€ ì œëŒ€ë¡œ ì‘ë™í•˜ì§€ ì•ŠëŠ” ë“¯ í•˜ë‹¤, í•„ìš”ì‹œ ë‚˜ì¤‘ì— ê³ ì¹˜ì;;
 
 			treeName_ = treeName;
 		}
@@ -356,17 +356,17 @@ namespace SMGE
 		{
 			assert(sx <= ex);
 			assert(sy <= ey);
-			assert(sz <= ez);	// ÀÌ·¡¾ß Á¦´ë·Î ÀÛµ¿ÇÔ
+			assert(sz <= ez);	// ì´ë˜ì•¼ ì œëŒ€ë¡œ ì‘ë™í•¨
 
 			auto xyNodeList = xyQTree_.QueryNodesByRect(sx, sy, ex, ey);
 			auto zxNodeList = zxQTree_.QueryNodesByRect(sz, sx, ez, ex);
 
 			auto intersectNodePred = [](TNode* xyNode, TNode* zxNode)
 				{
-					return xyNode->rect_.leftBottom_.xy_[0] == zxNode->rect_.leftBottom_.zx_[1];	// x °¡ °°À¸¸é ±³ÁıÇÕ
+					return xyNode->rect_.leftBottom_.xy_[0] == zxNode->rect_.leftBottom_.zx_[1];	// x ê°€ ê°™ìœ¼ë©´ êµì§‘í•©
 				};
 
-			// ÀÌÁ¦ x°ªÀÌ °°Àº ³ëµå¿¡¼­ ±³ÁıÇÕÀÎ °ªµéÀ» Ã£´Â´Ù
+			// ì´ì œ xê°’ì´ ê°™ì€ ë…¸ë“œì—ì„œ êµì§‘í•©ì¸ ê°’ë“¤ì„ ì°¾ëŠ”ë‹¤
 			std::vector<TValue> ret;
 			for (auto xyNode : xyNodeList)
 			{
@@ -381,11 +381,11 @@ namespace SMGE
 				}
 			}
 
-			// ::set_intersection( ÀÌ°É ¸ø¾´´Ù - stl ¿¡¼­ ³»ºÎÀûÀ¸·Î Pred ÀÇ l, r À» µÚÁı¾î¼­µµ °°ÀºÁö Ã¼Å©¸¦ ÇÏ´Âµ¥ ¿©±â¼­ ¾î¼­Æ® ³­´Ù! ¿ì¸®´Â Áö±İ ÀÌ·¸°Ô µÚÁıÁö ¾ÊÀº »óÅÂ¿¡¼­¸¸ Ã¼Å©¸¦ ÇØ¾ßÇÏ±â ¶§¹®ÀÌ´Ù!!
+			// ::set_intersection( ì´ê±¸ ëª»ì“´ë‹¤ - stl ì—ì„œ ë‚´ë¶€ì ìœ¼ë¡œ Pred ì˜ l, r ì„ ë’¤ì§‘ì–´ì„œë„ ê°™ì€ì§€ ì²´í¬ë¥¼ í•˜ëŠ”ë° ì—¬ê¸°ì„œ ì–´ì„œíŠ¸ ë‚œë‹¤! ìš°ë¦¬ëŠ” ì§€ê¸ˆ ì´ë ‡ê²Œ ë’¤ì§‘ì§€ ì•Šì€ ìƒíƒœì—ì„œë§Œ ì²´í¬ë¥¼ í•´ì•¼í•˜ê¸° ë•Œë¬¸ì´ë‹¤!!
 			//std::set_intersection(xyNodeList.begin(), xyNodeList.end(), zxNodeList.begin(), zxNodeList.end(), std::back_inserter(intersectNodes),
 			//	[](TNode* xyNode, TNode* zxNode)
 			//	{
-			//		return xyNode->rect_.leftBottom_.xy_[0] == zxNode->rect_.leftBottom_.zx_[1];	// x °¡ °°À¸¸é ±³ÁıÇÕ
+			//		return xyNode->rect_.leftBottom_.xy_[0] == zxNode->rect_.leftBottom_.zx_[1];	// x ê°€ ê°™ìœ¼ë©´ êµì§‘í•©
 			//	});
 
 			return ret;

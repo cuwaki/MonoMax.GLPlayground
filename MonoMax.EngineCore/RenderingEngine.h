@@ -24,7 +24,7 @@ namespace SMGE
 		{
 			enum ETypeRot
 			{
-				PITCH = 0,	// x, y, z ¼ø¼­·Î ÀÎµ¦½º·Î È°¿ëÇÒ ¼ö ÀÖµµ·Ï
+				PITCH = 0,	// x, y, z ìˆœì„œë¡œ ì¸ë±ìŠ¤ë¡œ í™œìš©í•  ìˆ˜ ìˆë„ë¡
 				YAW,
 				ROLL,
 				ETypeRot_MAX
@@ -193,7 +193,7 @@ namespace SMGE
 			bool isVisible_ = true;
 		};
 
-		// ResourceModelÀº GLContext Á¾¼ÓÀÌ ¾Æ´Ï¶ó¼­ ¿©·¯ GLContext¿¡¼­ °ø¿ëÀ¸·Î ¾µ ¼ö ÀÖ´Ù.
+		// ResourceModelì€ GLContext ì¢…ì†ì´ ì•„ë‹ˆë¼ì„œ ì—¬ëŸ¬ GLContextì—ì„œ ê³µìš©ìœ¼ë¡œ ì“¸ ìˆ˜ ìˆë‹¤.
 		class ResourceModelBase
 		{
 		protected:
@@ -244,7 +244,7 @@ namespace SMGE
 			ResourceModel& operator=(ResourceModel&& c) noexcept;
 		};
 
-		// RenderModelÀº GLContext Á¾¼ÓÀÌ´Ù
+		// RenderModelì€ GLContext ì¢…ì†ì´ë‹¤
 		class RenderModel
 		{
 		public:
@@ -281,7 +281,7 @@ namespace SMGE
 			RenderModel(const RenderModel& c) = delete;
 			RenderModel& operator=(const RenderModel& c) = delete;
 			RenderModel(RenderModel&& c) noexcept;
-			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ ¶§¹®¿¡ ±¸Çö ºÒ°¡
+			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ ë•Œë¬¸ì— êµ¬í˜„ ë¶ˆê°€
 
 			bool GenOpenGLBuffers(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
 			void Render(const glm::mat4& VP);
@@ -365,7 +365,7 @@ namespace SMGE
 		class CRenderingEngine
 		{
 		private:
-			int m_bufferLengthW, m_bufferLengthF;	// window ±â¹İ ¹öÆÛ Å©±â¿Í frame ±â¹İ ¹öÆÛ Å©±â
+			int m_bufferLengthW, m_bufferLengthF;	// window ê¸°ë°˜ ë²„í¼ í¬ê¸°ì™€ frame ê¸°ë°˜ ë²„í¼ í¬ê¸°
 			int m_width, m_height;
 			int m_framebufferWith, m_framebufferHeight;
 			int m_colorDepth = 4;	// GL_BGRA, PixelFormats::Pbgr32
@@ -376,7 +376,7 @@ namespace SMGE
 
 			CCamera camera_;
 
-			// Å×½ºÆ® ÄÚµå
+			// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 			CHashMap<CString, ResourceModelBase*> resourceModels_;
 			//CVector<WorldObject> WorldObjects_;
 			// deprecated

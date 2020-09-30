@@ -35,7 +35,7 @@ namespace SMGE
 			m_lastUpdate = System::DateTime::Now;
 
 			m_tickTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
-			m_tickTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS * 0.95);	// ·»´õº¸´Ù ¾à°£ »¡¸® µ¹°Ô
+			m_tickTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS * 0.95);	// ë Œë”ë³´ë‹¤ ì•½ê°„ ë¹¨ë¦¬ ëŒê²Œ
 			m_tickTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Tick);
 			m_tickTimer->Start();
 
@@ -66,7 +66,7 @@ namespace SMGE
 		int colorDepth;
 		m_graphicsEngine->getWriteableBitmapInfo(dpiX, dpiY, colorDepth);
 		
-		// colorDepth == 4 ÀÌ¾î¾ßÇÏ°í ±×·¡¼­ PixelFormats::Pbgra32 ¸¦ ¾´´Ù
+		// colorDepth == 4 ì´ì–´ì•¼í•˜ê³  ê·¸ëž˜ì„œ PixelFormats::Pbgra32 ë¥¼ ì“´ë‹¤
 		m_writeableImg = gcnew WriteableBitmap(m_width, m_height, dpiX, dpiY, PixelFormats::Pbgra32, nullptr);
 
 		m_WriteableBuffer = (char*)m_writeableImg->BackBuffer.ToPointer();

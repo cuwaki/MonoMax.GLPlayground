@@ -94,7 +94,7 @@ namespace SMGE
 	{
 		//#define _TO_REFL(_vartype_, _varname_) ((isFast_ == false ? CWString(L""#_varname_ + META_DELIM + ToTCHAR(CString(typeid(_varname_).name())) + META_DELIM) : CWString()) + ReflectionUtils::ToREFL(_varname_) + VARIABLE_DELIM)
 
-		/*	variant ·Î ÇÏ´Â ¹æ¹ı
+		/*	variant ë¡œ í•˜ëŠ” ë°©ë²•
 		using TAllReflTypeVariant = std::variant<TActorKey*, CWString*, glm::mat4*>;
 
 		CHashMap<CWString, TAllReflTypeVariant> variables;
@@ -104,7 +104,7 @@ namespace SMGE
 
 		worldTransform_ = *std::get<decltype(&worldTransform_)>(variables[L"worldTransform_"]);*/
 
-		// ¾Æ·¡ º¯¼öµéÀº SGReflection ÀÔÀå¿¡¼­´Â const ÀÌ¹Ç·Î µî·Ï ¾ÈÇÏ´Â °Ô ¸Â°Ú´Ù - 20200809
+		// ì•„ë˜ ë³€ìˆ˜ë“¤ì€ SGReflection ì…ì¥ì—ì„œëŠ” const ì´ë¯€ë¡œ ë“±ë¡ ì•ˆí•˜ëŠ” ê²Œ ë§ê² ë‹¤ - 20200809
 		//_ADD_REFL_VARIABLE(className_);
 		//_ADD_REFL_VARIABLE(reflectionFilePath_);
 	}
@@ -123,16 +123,16 @@ namespace SMGE
 
 	void RemoveOrCommentForAssetFiles(CWString& str)
 	{
-		// ¸Ç ¾Õ, ½ÃÀÛ ºÎºĞ¿¡ ÀÖ´Â °ø¹éµéÀ» Á¦°ÅÇÑ´Ù, ÅÇÀÌ ½ºÆäÀÌ½º·Î ´ëÃ¼µÈ ¿¡µğÅÍ¸¦ ¾²´Â °æ¿ì ÀÌ·² ¼ö ÀÖ´Ù
+		// ë§¨ ì•, ì‹œì‘ ë¶€ë¶„ì— ìˆëŠ” ê³µë°±ë“¤ì„ ì œê±°í•œë‹¤, íƒ­ì´ ìŠ¤í˜ì´ìŠ¤ë¡œ ëŒ€ì²´ëœ ì—ë””í„°ë¥¼ ì“°ëŠ” ê²½ìš° ì´ëŸ´ ìˆ˜ ìˆë‹¤
 		for (auto it = str.begin(); it != str.end();)
 		{
 			auto c = *it;
 			if (c == L'\t' || c == L' ' || c == L'\r' || c == L'\n')
-			{	// µé¿©¾²±â
+			{	// ë“¤ì—¬ì“°ê¸°
 				str.erase(it);
 			}
 			else if (c == L'/' && (it + 1) != str.end() && *(it + 1) == L'/')
-			{	// ÁÖ¼®
+			{	// ì£¼ì„
 				str.erase(it, str.end());
 			}
 			else
@@ -146,7 +146,7 @@ namespace SMGE
 
 		if (isFast_ == false)
 		{
-			CVector<TupleVarName_VarType_Value> metaSplitted;	// ##CVector<float> ¸®ÇÃ·º¼Ç µ¥ÀÌÅÍ ÃÖÀûÈ­
+			CVector<TupleVarName_VarType_Value> metaSplitted;	// ##CVector<float> ë¦¬í”Œë ‰ì…˜ ë°ì´í„° ìµœì í™”
 			metaSplitted.reserve(variableSplitted.size());
 
 			CVector<CWString> temp;
@@ -181,7 +181,7 @@ namespace SMGE
 	{
 		// from fast
 		CString dummy;
-		_FROM_REFL(dummy, variableSplitted);	// classRTTIName_ ¹ö¸²
+		_FROM_REFL(dummy, variableSplitted);	// classRTTIName_ ë²„ë¦¼
 
 		_FROM_REFL(reflectionFilePath_, variableSplitted);
 
@@ -191,13 +191,13 @@ namespace SMGE
 	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
 	{
 		CString dummy;
-		_FROM_REFL(dummy, metaSplitted);	// classRTTIName_ ¹ö¸²
+		_FROM_REFL(dummy, metaSplitted);	// classRTTIName_ ë²„ë¦¼
 
 		CWString reflPath;
 		_FROM_REFL(reflPath, metaSplitted);
 
 		if (reflectionFilePath_.length() == 0)
-		{	// ¿©±â ¼öÁ¤ - ##8A ÀÇ ÀÓ½Ã ¼öÁ¤
+		{	// ì—¬ê¸° ìˆ˜ì • - ##8A ì˜ ì„ì‹œ ìˆ˜ì •
 			reflectionFilePath_ = std::move(reflPath);
 		}
 
@@ -208,7 +208,7 @@ namespace SMGE
 	{
 		metaSplitted.pushCursor();
 		CString rttiName;
-		_FROM_REFL(rttiName, metaSplitted);	// classRTTIName_ ¹ö¸²
+		_FROM_REFL(rttiName, metaSplitted);	// classRTTIName_ ë²„ë¦¼
 		metaSplitted.popCursor();
 		return rttiName;
 	}

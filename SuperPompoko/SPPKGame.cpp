@@ -3,7 +3,7 @@
 #include "Assets/CAsset.h"
 #include "Assets/CAssetManager.h"
 
-// Å×½ºÆ® ÄÚµå
+// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 #include "CEngineBase.h"
 #include "Objects/CMap.h"
 #include "Assets/CResourceModel.h"
@@ -39,7 +39,7 @@ namespace SMGE
 		CWString GetGameAssetRoot()
 		{
 #if DEBUG || _DEBUG
-			// °³¹ßÁß¿¡´Â ½ÇÇà dir À» ÇÁ·ÎÁ§Æ® ·çÆ®·Î ¸ÂÃç¶ó - .sln ÀÌ ÀÖ´Â °÷ ¸»ÀÌ´Ù!
+			// ê°œë°œì¤‘ì—ëŠ” ì‹¤í–‰ dir ì„ í”„ë¡œì íŠ¸ ë£¨íŠ¸ë¡œ ë§ì¶°ë¼ - .sln ì´ ìˆëŠ” ê³³ ë§ì´ë‹¤!
 			return wtext("./RunningResources/") + GetGameProjectName() + wtext("/assets/");
 #else
 #endif
@@ -88,12 +88,12 @@ namespace SMGE
 		engine_ = new nsGE::CEngineBase(this);
 		gameSettings_ = new nsGE::SGEGameSettings();
 
-		// Å×½ºÆ® ÄÚµå
+		// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
 		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
 
 #ifdef EDITOR_WORKING
-		// Å×½ºÆ® ÄÚµå
+		// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
 		currentMap_ = new CMap(this, *testMapTemplate->getContentClass());
 
@@ -103,7 +103,7 @@ namespace SMGE
 		{
 			if (userInput.IsJustPressed(nsGE::CUserInput::LBUTTON))
 			{
-				// Å×½ºÆ® ÄÚµå - µ¿Àû ¾×ÅÍ ½ºÆù »ùÇÃ ÄÚµå {
+				// í…ŒìŠ¤íŠ¸ ì½”ë“œ - ë™ì  ì•¡í„° ìŠ¤í° ìƒ˜í”Œ ì½”ë“œ {
 				auto mouseScreenPos = userInput.GetMousePosition();
 
 				glm::vec3 ray_origin;
@@ -124,7 +124,7 @@ namespace SMGE
 					engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);
 				currentMap_->FinishSpawnActor(*rayActor);
 
-				// »ı°¢ - ÀÌ°É ºñ±ä ÇÃ·¹ÀÌ·Î ³Ö°í ½ÍÀºµ¥ / ¾ÖÇÁÅÍ ºñ±ä ÇÃ·¹ÀÌ ¸»°í ±×³É ºñ±ä ÇÃ·¹ÀÌ¿¡ ³ÖÀ» ¼ö´Â ¾øÀ»±î?
+				// ìƒê° - ì´ê±¸ ë¹„ê¸´ í”Œë ˆì´ë¡œ ë„£ê³  ì‹¶ì€ë° / ì• í”„í„° ë¹„ê¸´ í”Œë ˆì´ ë§ê³  ê·¸ëƒ¥ ë¹„ê¸´ í”Œë ˆì´ì— ë„£ì„ ìˆ˜ëŠ” ì—†ì„ê¹Œ?
 				rayActor->getTransform().Translate(ray_origin);
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->ProcessCollide(targets);
@@ -143,7 +143,7 @@ namespace SMGE
 		Super::Tick(dt);
 
 #ifdef EDITOR_WORKING
-		// Å×½ºÆ® ÄÚµå
+		// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 		if (currentMap_->IsStarted() == false)
 		{
 			currentMap_->StartToPlay();
@@ -154,41 +154,41 @@ namespace SMGE
 #else
 		CWString assetRoot = PathAssetRoot();
 
-		//// ±âº» ¸®ÇÃ·º¼Ç Å×½ºÆ® ÄÚµå
+		//// ê¸°ë³¸ ë¦¬í”Œë ‰ì…˜ í…ŒìŠ¤íŠ¸ ì½”ë“œ
 		//CActor actor(nullptr);
 		//actor.setActorStaticTag("empty");
 		//SGStringStreamOut strOut;
 		//strOut << actor.getReflection();
 
-		////const auto& aaa = actor.getConstReflection();	// const °´Ã¼ Å×½ºÆ®
+		////const auto& aaa = actor.getConstReflection();	// const ê°ì²´ í…ŒìŠ¤íŠ¸
 		//SGStringStreamIn strIn;
 		//strIn.in_ = strOut.out_;
 		//strIn >> actor.getReflection();
 		//// }
 
-		// ¾×ÅÍ ÅÛÇÃ¸´ ¾Ö¼Â Å×½ºÆ® ÄÚµå - CActor ¸¦ µğ½ºÅ©¿¡ ÀúÀåÇÏ±â - ¾×ÅÍ ÅÛÇÃ¸´ ¾Ö¼ÂÀÌ µÈ´Ù
+		// ì•¡í„° í…œí”Œë¦¿ ì• ì…‹ í…ŒìŠ¤íŠ¸ ì½”ë“œ - CActor ë¥¼ ë””ìŠ¤í¬ì— ì €ì¥í•˜ê¸° - ì•¡í„° í…œí”Œë¦¿ ì• ì…‹ì´ ëœë‹¤
 		// {
-		// ¿©±âºÎÅÍ 
+		// ì—¬ê¸°ë¶€í„° 
 			auto actorAssetPath = assetRoot + wtext("/actor/forceSaveActor.asset");
 			CActor savingActor(nullptr);
 			savingActor.setActorStaticTag("force save");
 			CAsset<CActor> actorAssetWriter(&savingActor);
 			CAssetManager::SaveAsset(actorAssetPath, actorAssetWriter);
 
-			// ¾×ÅÍ °­Á¦ ·Îµå Å×½ºÆ®		
+			// ì•¡í„° ê°•ì œ ë¡œë“œ í…ŒìŠ¤íŠ¸		
 			CSharPtr<CAsset<CActor>> loadingActorTemplate = CAssetManager::LoadAsset<CActor>(actorAssetPath);
 			auto loadedActor = new CActor(this, *loadingActorTemplate->getContentClass());
-		// ¿©±â±îÁö ¾×ÅÍ ÀúÀå ¹× ·Îµå
+		// ì—¬ê¸°ê¹Œì§€ ì•¡í„° ì €ì¥ ë° ë¡œë“œ
 
 
 
-		//// ¸Ê ÅÛÇÃ¸´ ¾Ö¼Â Å×½ºÆ® ÄÚµå - CActor ¸¦ ¸Ê¿¡ ÀúÀåÇÏ±â - ¸Ê¿¡ ¹èÄ¡ÇÑ ÈÄ ¼öÁ¤ÇÑ °ªÀ¸·Î, ¸ÊÀÌ ·ÎµåµÈ ÈÄ ¾×ÅÍ°¡ ¹èÄ¡µÈ ÈÄ ÀÌ °ªÀ¸·Î µ¤¾î¾º¿ì°Ô µÈ´Ù
+		//// ë§µ í…œí”Œë¦¿ ì• ì…‹ í…ŒìŠ¤íŠ¸ ì½”ë“œ - CActor ë¥¼ ë§µì— ì €ì¥í•˜ê¸° - ë§µì— ë°°ì¹˜í•œ í›„ ìˆ˜ì •í•œ ê°’ìœ¼ë¡œ, ë§µì´ ë¡œë“œëœ í›„ ì•¡í„°ê°€ ë°°ì¹˜ëœ í›„ ì´ ê°’ìœ¼ë¡œ ë®ì–´ì”Œìš°ê²Œ ëœë‹¤
 		//CSharPtr<CAsset<CActor>> testActorTemplate = CAssetManager::LoadAsset<CActor>(assetRoot + wtext("testActorTemplate.asset"));
 		//const auto& actorTemplate = *testActorTemplate->getContentClass();
 
 		//CMap testMap;
 
-		//CActor& actorA = testMap.SpawnDefaultActor(actorTemplate, true);	// ¹èÄ¡
+		//CActor& actorA = testMap.SpawnDefaultActor(actorTemplate, true);	// ë°°ì¹˜
 		//CActor& actorB = testMap.SpawnDefaultActor(actorTemplate, true);
 
 		//actorA.getWorldTransform() = glm::mat4(1);
@@ -202,7 +202,7 @@ namespace SMGE
 		//CAsset<CMap> mapAsset(&testMap);
 		//CAssetManager::SaveAsset(assetRoot + wtext("/map/testMapTemplate.asset"), mapAsset);
 
-		/* ¾Ö¼Â¸ğµ¨ ÀúÀåÇÏ±â - ¸ğµ¨µ¥ÀÌÅÍ ¾Ö¼Â ¼¼ÀÌºê, ·ÎµåÇÏ±â
+		/* ì• ì…‹ëª¨ë¸ ì €ì¥í•˜ê¸° - ëª¨ë¸ë°ì´í„° ì• ì…‹ ì„¸ì´ë¸Œ, ë¡œë“œí•˜ê¸°
 		CResourceModel modelData(nullptr);
 		CAsset<CResourceModel> modelDataAsset(&modelData);
 
@@ -244,7 +244,7 @@ namespace SMGE
 		CVector<glm::vec2> cubeUvs;
 		cubeUvs.resize(cubeVertices.size());	// uv are all 000
 
-		CVector<glm::vec3> cubeNormals;	// °¢ »ï°¢Çü¿¡ ´ëÇÏ¿© Á¤Á¡ normal, vertColor ¸¸µé¾îÁÖ±â
+		CVector<glm::vec3> cubeNormals;	// ê° ì‚¼ê°í˜•ì— ëŒ€í•˜ì—¬ ì •ì  normal, vertColor ë§Œë“¤ì–´ì£¼ê¸°
 		CVector<glm::vec3> cubeVertexColors;
 		cubeNormals.reserve(cubeVertices.size());
 		cubeVertexColors.reserve(cubeVertices.size());
@@ -272,9 +272,9 @@ namespace SMGE
 
 		CAssetManager::SaveAsset(assetRoot + wtext("/models/cube/cube.asset"), modelDataAsset);
 		CSharPtr<CAsset<CResourceModel>> amA = CAssetManager::LoadAsset<CResourceModel>(assetRoot + wtext("/models/cube/cube.asset"));
-		¾Ö¼Â¸ğµ¨ ÀúÀåÇÏ±â */
+		ì• ì…‹ëª¨ë¸ ì €ì¥í•˜ê¸° */
 
-	//	// ¸Ê ·ÎµåÇÏ°í ¾×ÅÍµé ´Ù½Ã º¹±¸ÇÏ±â
+	//	// ë§µ ë¡œë“œí•˜ê³  ì•¡í„°ë“¤ ë‹¤ì‹œ ë³µêµ¬í•˜ê¸°
 	//	CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetRoot + wtext("/map/testMapTemplate.asset"));
 	//	CMap loadedMap(*testMapTemplate->getContentClass());
 	//	loadedMap.Activate();

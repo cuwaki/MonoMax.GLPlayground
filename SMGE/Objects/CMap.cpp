@@ -39,19 +39,19 @@ namespace SMGE
 	{
 		Super::operator=(variableSplitted);
 
-		actorLayersREFL_.resize(2);	// Å×½ºÆ® ÄÚµå
+		actorLayersREFL_.resize(2);	// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 
-		// ÀÌ°Å±ä ÇÑµ¥ ÀÌ·¸°Ô ¾²¸é auto ¸¦ ¸ø¾´´Ù...
+		// ì´ê±°ê¸´ í•œë° ì´ë ‡ê²Œ ì“°ë©´ auto ë¥¼ ëª»ì“´ë‹¤...
 		//using REFL_CVECTOR_FUNC = void(CVector<TupleVarName_VarType_Value>& variableSplitted, size_t childKey);
 		auto FuncSpawnActor = [this](auto& variableSplitted, size_t childKey)
 		{
-			// ¿©±â¼­ SGRefl_Actor °¡ »ı¼ºµÇ·Á¸é CActor & °¡ ÇÊ¿äÇÏ´Ù
+			// ì—¬ê¸°ì„œ SGRefl_Actor ê°€ ìƒì„±ë˜ë ¤ë©´ CActor & ê°€ í•„ìš”í•˜ë‹¤
 
-			// ±×·¯¹Ç·Î SGRefl_Map ÀÇ = °¡ ½ÇÇàµÇ·Á¸é ¸ÕÀú
-			// CMap ¿¡ CActor µéÀÌ ÀÎ½ºÅÏ½Ì µÇ¾îÀÖ¾î¾ßÇÑ´Ù
-			// SGRefl_Map ÀÌ CMap ¿¡ ¾×ÅÍ »ı¼ºÀ» ½ÃÅ² ÈÄ ¿¬°áÇØ¾ßÇÑ´Ù - ÀÏ´ÜÀº ÀÌ·¸°Ô ±¸ÇöÇØº¸ÀÚ!
+			// ê·¸ëŸ¬ë¯€ë¡œ SGRefl_Map ì˜ = ê°€ ì‹¤í–‰ë˜ë ¤ë©´ ë¨¼ì €
+			// CMap ì— CActor ë“¤ì´ ì¸ìŠ¤í„´ì‹± ë˜ì–´ìˆì–´ì•¼í•œë‹¤
+			// SGRefl_Map ì´ CMap ì— ì•¡í„° ìƒì„±ì„ ì‹œí‚¨ í›„ ì—°ê²°í•´ì•¼í•œë‹¤ - ì¼ë‹¨ì€ ì´ë ‡ê²Œ êµ¬í˜„í•´ë³´ì!
 
-			CActor loader(nullptr);	// ¾×ÅÍÀÇ ¾Ö¼Â °æ·Î¸¦ ¾ò´Â´Ù
+			CActor loader(nullptr);	// ì•¡í„°ì˜ ì• ì…‹ ê²½ë¡œë¥¼ ì–»ëŠ”ë‹¤
 
 			variableSplitted.pushCursor();
 			loader.getReflection() = variableSplitted;
@@ -59,21 +59,21 @@ namespace SMGE
 			CWString actorAssetPath = loader.getReflectionFilePath();
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
-				// 1. ¾Ö¼ÂÀ» ÀÌ¿ëÇÏ¿© ¸Ê¿¡ ¾×ÅÍ ½ºÆùÇÏ±â - RTTI
+				// 1. ì• ì…‹ì„ ì´ìš©í•˜ì—¬ ë§µì— ì•¡í„° ìŠ¤í°í•˜ê¸° - RTTI
 				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
 
-				// ½ÇÁ¦ ¾×ÅÍÀÇ ½ºÆùÀÌ ¸®ÇÃ·º¼Ç ´Ü°è¿¡¼­ ÀÏ¾î³ª°Ô µÈ´Ù... ±¸Á¶»ó Á» ¾Æ½¬¿î ºÎºĞÀÌ´Ù!
-				// ÀÌ·± °Í ¶§¹®¿¡ ¾ğ¸®¾óÀÇ ·¹º§µµ Æ¯¼öÇÑ ¹æ¹ıÀÌ µé¾î°¡ ÀÖ´Ù´Â°Ô ¾Æ´Ñ°¡ ½ÍÀº??
+				// ì‹¤ì œ ì•¡í„°ì˜ ìŠ¤í°ì´ ë¦¬í”Œë ‰ì…˜ ë‹¨ê³„ì—ì„œ ì¼ì–´ë‚˜ê²Œ ëœë‹¤... êµ¬ì¡°ìƒ ì¢€ ì•„ì‰¬ìš´ ë¶€ë¶„ì´ë‹¤!
+				// ì´ëŸ° ê²ƒ ë•Œë¬¸ì— ì–¸ë¦¬ì–¼ì˜ ë ˆë²¨ë„ íŠ¹ìˆ˜í•œ ë°©ë²•ì´ ë“¤ì–´ê°€ ìˆë‹¤ëŠ”ê²Œ ì•„ë‹Œê°€ ì‹¶ì€??
 
 				CActor& actorA = outerMap_.SpawnDefaultActor(loader.getClassRTTIName(), false, &outerMap_, actorTemplate->getContentClass());
 
-				// 2 ´Ü°è - ¸Ê¿¡ ÀúÀåµÈ °ªÀ¸·Î ¹èÄ¡½ÃÅ²´Ù
+				// 2 ë‹¨ê³„ - ë§µì— ì €ì¥ëœ ê°’ìœ¼ë¡œ ë°°ì¹˜ì‹œí‚¨ë‹¤
 				variableSplitted.popCursor();
 				actorA.getReflection() = variableSplitted;
 
 				outerMap_.FinishSpawnActor(actorA);
 
-				// ¿©±â¼± ¾ÆÁ÷ this->actorLayers_ ¿¡´Â µî·ÏÀÌ ¾ÈµÇ¾ú´Ù, Àú ¹Ø¿¡ 3´Ü°è¿¡¼­ Ã³¸®ÇÑ´Ù
+				// ì—¬ê¸°ì„  ì•„ì§ this->actorLayers_ ì—ëŠ” ë“±ë¡ì´ ì•ˆë˜ì—ˆë‹¤, ì € ë°‘ì— 3ë‹¨ê³„ì—ì„œ ì²˜ë¦¬í•œë‹¤
 			}
 			else
 			{
@@ -84,7 +84,7 @@ namespace SMGE
 		ReflectionUtils::FromCVector(actorLayersREFL_[0], variableSplitted, FuncSpawnActor);
 		ReflectionUtils::FromCVector(actorLayersREFL_[1], variableSplitted, FuncSpawnActor);
 
-		// 3´Ü°è - ¸Ê°ú ³ª¸¦ ·¹ÆÛ·±½º·Î ¿¬°áÇÑ´Ù
+		// 3ë‹¨ê³„ - ë§µê³¼ ë‚˜ë¥¼ ë ˆí¼ëŸ°ìŠ¤ë¡œ ì—°ê²°í•œë‹¤
 		linkINST2REFL();
 
 		return *this;
@@ -115,7 +115,10 @@ namespace SMGE
 	void CMap::ProcessPendingKills()
 	{
 		auto& actors = actorLayers_[EActorLayer::Game];
-		for (int i = actors.size() - 1; i >= 0; --i)
+		if (actors.size() == 0)
+			return;
+		
+		for (size_t i = actors.size() - 1; i > 0;)
 		{
 			auto& actor = actors[i];
 			if (actor->IsPendingKill())
@@ -125,6 +128,11 @@ namespace SMGE
 
 				actors.erase(actors.begin() + i);
 			}
+
+			if (i == 0)
+				break;
+			else
+				--i;
 		}
 	}
 
@@ -151,14 +159,14 @@ namespace SMGE
 			reflMap_ = MakeUniqPtr<TReflectionStruct>(*this);
 		}
 		else
-		{	// Â÷ÈÄ this->actorLayers_ ¿¡ º¯°æÀÌ ÀÖ´Â °æ¿ì¿¡¸¸ ¹Ù²î¾î¾ßÇÑ´Ù
+		{	// ì°¨í›„ this->actorLayers_ ì— ë³€ê²½ì´ ìˆëŠ” ê²½ìš°ì—ë§Œ ë°”ë€Œì–´ì•¼í•œë‹¤
 			reflMap_->SGRefl_Map::SGRefl_Map(*this);
 		}
 
 		return *reflMap_.get();
 	}
 
-	TActorKey CMap::DynamicActorKey = 3332;	// Å×½ºÆ® ÄÚµå
+	TActorKey CMap::DynamicActorKey = 3332;	// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 
 	//CActor& CMap::SpawnDefaultActor(const CActor& templateActor, bool isDynamic)
 	//{

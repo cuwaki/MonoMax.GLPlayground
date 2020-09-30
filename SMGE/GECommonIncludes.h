@@ -98,12 +98,12 @@ namespace SMGE
         else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
             return ToTCHAR(std::to_string(val));
 
-        // ¾Æ... ¾îÂ¿ ¼ö ¾øÀÌ ÀÌ·¸°Ô Ã³¸®ÇÑ´Ù - ¾Æ·¡ÀÇ ÀÌÀ¯·Î ÀÎÇÏ¿© ÇÏ³ªÇÏ³ª ÁöÁ¤ÇØÁà¾ßÇÒ µí... ÀÌ°Å ¹æ¹ıÀÌ ÀÖÀ» °Í °°Àºµ¥ ¾ÆÁ÷ ³» C++ ½Ç·ÂÀÌ ºÎÁ·ÇÏ±¸³ª
+        // ì•„... ì–´ì©” ìˆ˜ ì—†ì´ ì´ë ‡ê²Œ ì²˜ë¦¬í•œë‹¤ - ì•„ë˜ì˜ ì´ìœ ë¡œ ì¸í•˜ì—¬ í•˜ë‚˜í•˜ë‚˜ ì§€ì •í•´ì¤˜ì•¼í•  ë“¯... ì´ê±° ë°©ë²•ì´ ìˆì„ ê²ƒ ê°™ì€ë° ì•„ì§ ë‚´ C++ ì‹¤ë ¥ì´ ë¶€ì¡±í•˜êµ¬ë‚˜
         else if constexpr (std::is_same_v<T, glm::vec3> || std::is_same_v<T, glm::vec2> || std::is_same_v<T, glm::mat4>)
             return ToTCHAR(glm::to_string(val));    // glm::vec or mat ...
 
-        // ÀÌ ÄÚµå°¡ À§·Î ¿Ã¶ó°¡¸é Áö¿øÀÌ ¾ÈµÇ´Â Å¬·¡½º°¡ T ·Î µé¾î¿À´Â °æ¿ì ÄÄÆÄÀÏ ¿À·ù°¡ ³ª°Ô µÈ´Ù, ÀÌ°Å SFINAE ·Î ÄÄÆÄÀÏ ¿À·ù ¾È³ª°í ³Ñ¾î°¡°Ô ÇÒ ¼ö ¾ø³ª?
-        else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor µîÀÇ ÀÚµ¿ Ã³¸®¸¦ À§ÇÏ¿©
+        // ì´ ì½”ë“œê°€ ìœ„ë¡œ ì˜¬ë¼ê°€ë©´ ì§€ì›ì´ ì•ˆë˜ëŠ” í´ë˜ìŠ¤ê°€ T ë¡œ ë“¤ì–´ì˜¤ëŠ” ê²½ìš° ì»´íŒŒì¼ ì˜¤ë¥˜ê°€ ë‚˜ê²Œ ëœë‹¤, ì´ê±° SFINAE ë¡œ ì»´íŒŒì¼ ì˜¤ë¥˜ ì•ˆë‚˜ê³  ë„˜ì–´ê°€ê²Œ í•  ìˆ˜ ì—†ë‚˜?
+        else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor ë“±ì˜ ìë™ ì²˜ë¦¬ë¥¼ ìœ„í•˜ì—¬
 			return val;
         else
             return L"error - not support type!";
@@ -260,8 +260,8 @@ namespace SMGE
 
                 in.close();
 
-                // ·ÎµåÇÒ ¶§ \r\n ·Î ÀĞ¾îÁø´Ù - Windows ¿¡¼­...
-                CuwakiDevUtils::ReplaceInline(ret, L"\r\n", L"\n"); // ±×·¯¹Ç·Î ¿©±â¼­ Á¤±ÔÈ­ÇÑ´Ù! ¾Æ¿À....
+                // ë¡œë“œí•  ë•Œ \r\n ë¡œ ì½ì–´ì§„ë‹¤ - Windows ì—ì„œ...
+                CuwakiDevUtils::ReplaceInline(ret, L"\r\n", L"\n"); // ê·¸ëŸ¬ë¯€ë¡œ ì—¬ê¸°ì„œ ì •ê·œí™”í•œë‹¤! ì•„ì˜¤....
                 return ret;
             }
 
@@ -279,7 +279,7 @@ namespace SMGE
                 out << text.c_str();
                 out.close();
 
-                // ¼¼ÀÌºêÇÒ ¶§ \n À¸·Î ¾²´õ¶óµµ
+                // ì„¸ì´ë¸Œí•  ë•Œ \n ìœ¼ë¡œ ì“°ë”ë¼ë„
                 return true;
             }
 

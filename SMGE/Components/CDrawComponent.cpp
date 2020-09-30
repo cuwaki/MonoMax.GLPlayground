@@ -53,23 +53,23 @@ namespace SMGE
 
 	SGRefl_DrawComponent::operator CWString() const
 	{
-		/* ¿©±â ¼öÁ¤ - ¿©±â È£ÃâÇÏ¸é 
+		/* ì—¬ê¸° ìˆ˜ì • - ì—¬ê¸° í˜¸ì¶œí•˜ë©´ 
 				className_$CWString$"SMGE::SGRefl_Transform"
 					reflectionFilePath_$CWString$""
 
-				ÀÌ ¾Æ´Ï¶ó
+				ì´ ì•„ë‹ˆë¼
 
 			className_$CWString$"SMGE::CMeshComponent"
 				reflectionFilePath_$CWString$""
 
-				·Î ³ª°¡¼­ »¶³­´Ù
+				ë¡œ ë‚˜ê°€ì„œ ë»‘ë‚œë‹¤
 
-				ÀÌ°Å ¿Ö ÀÌ·¸°Ô µÉ¤¢¤¿?
+				ì´ê±° ì™œ ì´ë ‡ê²Œ ë ã„²ã…?
 
-			¿©±â ¶§¹®ÀÎ °Í °°Àºµ¥?? $$43
+			ì—¬ê¸° ë•Œë¬¸ì¸ ê²ƒ ê°™ì€ë°?? $$43
 
-			Áö±Ý ¿©±â ¸»°íµµ ¾Æ·¡Ã³·³ ÀÚ½Ä Å¬·¡½º¸¦ CWString À¸·Î Ä³½ºÆÃÇÏ´Â ºÎºÐÀÌ ÀÖ´Âµ¥ ´Ù¸¥ Å¬·¡½ºµé¿¡¼­µµ ¹®Á¦°¡ »ý±â°í ÀÖ´Ù className_ °ú reflectionName_ ÀÇ ÃÊ±âÈ­¸¦ Á¡°ËÇØºÁ¾ß°Ú´Ù!!
-			´Ü ½ÇÇà¿¡´Â ÇöÀç·Î½á´Â ÁöÀåÀÌ ¾ø´Â »óÅÂ±â´Â ÇÏ´Ù 20200817
+			ì§€ê¸ˆ ì—¬ê¸° ë§ê³ ë„ ì•„ëž˜ì²˜ëŸ¼ ìžì‹ í´ëž˜ìŠ¤ë¥¼ CWString ìœ¼ë¡œ ìºìŠ¤íŒ…í•˜ëŠ” ë¶€ë¶„ì´ ìžˆëŠ”ë° ë‹¤ë¥¸ í´ëž˜ìŠ¤ë“¤ì—ì„œë„ ë¬¸ì œê°€ ìƒê¸°ê³  ìžˆë‹¤ className_ ê³¼ reflectionName_ ì˜ ì´ˆê¸°í™”ë¥¼ ì ê²€í•´ë´ì•¼ê² ë‹¤!!
+			ë‹¨ ì‹¤í–‰ì—ëŠ” í˜„ìž¬ë¡œì¨ëŠ” ì§€ìž¥ì´ ì—†ëŠ” ìƒíƒœê¸°ëŠ” í•˜ë‹¤ 20200817
 		*/
 		auto ret = Super::operator CWString();
 		
@@ -171,7 +171,7 @@ namespace SMGE
 			SetVisible(isGameVisible_);
 
 #if IS_EDITOR
-		if (isEditorVisible_)	// °ÔÀÓÀÏ °æ¿ì ¿¡µðÅÍ ºñÁöºíÀÌ °ÔÀÓ ºñÁöºíÀ» µ¤¾î½á¹ö¸®µµ·Ï ÇÏÀÚ
+		if (isEditorVisible_)	// ê²Œìž„ì¼ ê²½ìš° ì—ë””í„° ë¹„ì§€ë¸”ì´ ê²Œìž„ ë¹„ì§€ë¸”ì„ ë®ì–´ì¨ë²„ë¦¬ë„ë¡ í•˜ìž
 			SetVisible(isEditorVisible_);
 #endif
 
@@ -179,7 +179,7 @@ namespace SMGE
 
 		nsRE::Transform* parentTransf = nullptr;
 
-		// ¿©±â ¼öÁ¤ - Èì.... ÀÌ°Å ¾î¶»°Ô?
+		// ì—¬ê¸° ìˆ˜ì • - í .... ì´ê±° ì–´ë–»ê²Œ?
 		CActor* actorParent = DCast<CActor*>(parent);
 		if(actorParent)
 			parentTransf = &actorParent->getTransform();

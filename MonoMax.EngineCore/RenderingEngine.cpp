@@ -20,7 +20,7 @@ namespace SMGE
 
 			programID_ = LoadShaders(vertShadPath.c_str(), fragShadPath.c_str());
 
-			// ¸ðµç ¼ÎÀÌ´õ°¡ °øÅëÀ¸·Î °¡Á®¾ßÇÒ °Í
+			// ëª¨ë“  ì…°ì´ë”ê°€ ê³µí†µìœ¼ë¡œ ê°€ì ¸ì•¼í•  ê²ƒ
 			unif_MVPMatrixID_ = glGetUniformLocation(programID_, "MVP");
 			unif_ViewMatrixID_ = glGetUniformLocation(programID_, "V");
 			unif_ModelMatrixID_ = glGetUniformLocation(programID_, "M");
@@ -28,7 +28,7 @@ namespace SMGE
 
 			unif_TextureSampleI_ = glGetUniformLocation(programID_, "myTextureSampler");
 
-			// ÀÏ´Ü °øÅë ¼ÎÀÌ´õ ¿ëÀ¸·Î ÇÏµåÄÚµù
+			// ì¼ë‹¨ ê³µí†µ ì…°ì´ë” ìš©ìœ¼ë¡œ í•˜ë“œì½”ë”©
 			vertAttrArray_ = 0;
 			uvAttrArray_ = 1;
 			normAttrArray_ = 2;
@@ -52,7 +52,7 @@ namespace SMGE
 		void VertFragShaderSet::Invalidate()
 		{
 			programID_ = 0;
-			unif_MVPMatrixID_ = -1;	// glGetUniform ¿©±â¼­ ¿¡·¯³ª¸é ¿©±â¿¡ -1 µé¾î°¡±æ·¡ ÀÌ·¸°Ô ÇÑ´Ù
+			unif_MVPMatrixID_ = -1;	// glGetUniform ì—¬ê¸°ì„œ ì—ëŸ¬ë‚˜ë©´ ì—¬ê¸°ì— -1 ë“¤ì–´ê°€ê¸¸ëž˜ ì´ë ‡ê²Œ í•œë‹¤
 			unif_ViewMatrixID_ = -1;
 			unif_ModelMatrixID_ = -1;
 			unif_TextureSampleI_ = -1;
@@ -158,7 +158,7 @@ namespace SMGE
 			{
 				ret = loadOBJ(objPath.c_str(), vertices_, uvs_, normals_);
 
-				vertexColors_.resize(vertices_.size());	// ÀÏ´Ü ¹öÄÃÀº 000 À¸·Î Ã¤¿ö³õÀÚ
+				vertexColors_.resize(vertices_.size());	// ì¼ë‹¨ ë²„ì»¬ì€ 000 ìœ¼ë¡œ ì±„ì›Œë†“ìž
 			}
 
 			return ret;
@@ -173,8 +173,8 @@ namespace SMGE
 			uvs_ = uvs;
 			normals_ = normals;
 
-			// ¾øÀ¸¸é ¸»°í·Î
-			//vertexColors_.resize(vertices.size());	// ÀÏ´Ü ¹öÄÃÀº 000 À¸·Î Ã¤¿ö³õÀÚ
+			// ì—†ìœ¼ë©´ ë§ê³ ë¡œ
+			//vertexColors_.resize(vertices.size());	// ì¼ë‹¨ ë²„ì»¬ì€ 000 ìœ¼ë¡œ ì±„ì›Œë†“ìž
 			//assert(vertices_.size() == uvs_.size());
 			//assert(uvs_.size() == normals_.size());
 			//assert(normals_.size() == vertexColors_.size());
@@ -309,7 +309,7 @@ namespace SMGE
 
 			if (wasClean)
 			{
-				// ºÎ¸ð°¡ ´õÆ¼µÉ ¶§ ÀÚ½Äµéµµ ´õÆ¼°¡ µÇ¾î¾ßÇÑ´Ù - ±×·¡¾ß RecalcMatrix °¡ Á¦´ë·Î ÀÛµ¿ÇÔ
+				// ë¶€ëª¨ê°€ ë”í‹°ë  ë•Œ ìžì‹ë“¤ë„ ë”í‹°ê°€ ë˜ì–´ì•¼í•œë‹¤ - ê·¸ëž˜ì•¼ RecalcMatrix ê°€ ì œëŒ€ë¡œ ìž‘ë™í•¨
 				std::for_each(children_.begin(), children_.end(),
 					[](auto child)
 					{
@@ -324,7 +324,7 @@ namespace SMGE
 			if (isDirty_)
 				return true;
 
-			// ³» ºÎ¸ðµé Áß ÇÏ³ª¶óµµ ´õÆ¼¸é ³ªµµ ´õÆ¼´Ù - ÀÌ°Ç ºÎ¸ðÀÇ Dirty( ¿¡¼­ º¸ÁõµÇ¹Ç·Î ¿©±â¼­ ¾ÈÇØµµ µÈ´Ù
+			// ë‚´ ë¶€ëª¨ë“¤ ì¤‘ í•˜ë‚˜ë¼ë„ ë”í‹°ë©´ ë‚˜ë„ ë”í‹°ë‹¤ - ì´ê±´ ë¶€ëª¨ì˜ Dirty( ì—ì„œ ë³´ì¦ë˜ë¯€ë¡œ ì—¬ê¸°ì„œ ì•ˆí•´ë„ ëœë‹¤
 
 			return false;
 		}
@@ -341,16 +341,16 @@ namespace SMGE
 
 			auto oldParent = parent_;
 
-			parent_ = p; // this¿¡°Ô ºÎ¸ð ¿¬°á
+			parent_ = p; // thisì—ê²Œ ë¶€ëª¨ ì—°ê²°
 
 			if (parent_ != nullptr)
-			{	// »õ ºÎ¸ð¿¡°Ô this ¿¬°á
+			{	// ìƒˆ ë¶€ëª¨ì—ê²Œ this ì—°ê²°
 				parent_->children_.push_front(this);
 			}
 
-			// °¡´É¼º - ¹Ì·¡¿¡´Â oldParent °¡ ¹«È¿ÇÑ Æ÷ÀÎÅÍ°¡ µÇ¾îÀÖÀ» °¡´É¼ºÀÌ ÀÖÀ½ - Â÷ÈÄ ÄÉÀÌ½º°¡ ¹ß°ßµÇ°ÚÁö?!!
+			// ê°€ëŠ¥ì„± - ë¯¸ëž˜ì—ëŠ” oldParent ê°€ ë¬´íš¨í•œ í¬ì¸í„°ê°€ ë˜ì–´ìžˆì„ ê°€ëŠ¥ì„±ì´ ìžˆìŒ - ì°¨í›„ ì¼€ì´ìŠ¤ê°€ ë°œê²¬ë˜ê² ì§€?!!
 			if (oldParent != nullptr)
-			{	// ¿¾ ºÎ¸ð¿¡¼­´Â Á¦°Å
+			{	// ì˜› ë¶€ëª¨ì—ì„œëŠ” ì œê±°
 				auto found = std::find(oldParent->children_.begin(), oldParent->children_.end(), this);
 				oldParent->children_.erase_after(found);
 			}
@@ -384,9 +384,9 @@ namespace SMGE
 		void Transform::RecalcMatrix_Internal(const Transform* parent)
 		{
 			if (IsDirty())
-			{	// ³ªÀÇ Æ®·£½ºÆûÀ» °è»ê
+			{	// ë‚˜ì˜ íŠ¸ëžœìŠ¤í¼ì„ ê³„ì‚°
 				//if (parent)
-				//{	// ÀÚ½ÄÀÏ °æ¿ì - ºÎ¸ðÀÇ Æ®·£½ºÆû ¸ÕÀú ¹Ý¿µÇØ¾ß ÀÇµµ´ë·Î ÀÛµ¿ÇÑ´Ù / ÀÌ ÄÚµå¿¡´Â ºÎ¸ðÀÇ ºÎ¸ð °ÍÀÌ Àû¿ë¾ÈµÇ´Â ¹ö±×°¡ ÀÖ´Ù
+				//{	// ìžì‹ì¼ ê²½ìš° - ë¶€ëª¨ì˜ íŠ¸ëžœìŠ¤í¼ ë¨¼ì € ë°˜ì˜í•´ì•¼ ì˜ë„ëŒ€ë¡œ ìž‘ë™í•œë‹¤ / ì´ ì½”ë“œì—ëŠ” ë¶€ëª¨ì˜ ë¶€ëª¨ ê²ƒì´ ì ìš©ì•ˆë˜ëŠ” ë²„ê·¸ê°€ ìžˆë‹¤
 				//	//transformMatrix_ = glm::rotate(Mat4_Identity, glm::radians(parent->rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
 				//	//transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
 				//	//transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
@@ -411,13 +411,13 @@ namespace SMGE
 				if(parent)
 					transformMatrix_ = parent->transformMatrix_ * transformMatrix_;
 
-				// ³ª¿¡°Ô ºÎ¸ð Æ®·£½ºÆûÀ» Àû¿ë - ¾Æ·¡¿Í °°ÀÌ ÇÏ¸é ÀÌµ¿¿¡ ½ºÄÉÀÏÀÌ ¹Ý¿µµÇ¾î¼­ ´õ Àû°Ô ¿òÁ÷ÀÌ´Â °Å³ª È¸Àü°ªÀÌ ÀÚ½Ä¿¡°Ô ±×´ë·Î Àû¿ëµÇ´Â µîÀÇ ¹®Á¦°¡ »ý±ä´Ù
+				// ë‚˜ì—ê²Œ ë¶€ëª¨ íŠ¸ëžœìŠ¤í¼ì„ ì ìš© - ì•„ëž˜ì™€ ê°™ì´ í•˜ë©´ ì´ë™ì— ìŠ¤ì¼€ì¼ì´ ë°˜ì˜ë˜ì–´ì„œ ë” ì ê²Œ ì›€ì§ì´ëŠ” ê±°ë‚˜ íšŒì „ê°’ì´ ìžì‹ì—ê²Œ ê·¸ëŒ€ë¡œ ì ìš©ë˜ëŠ” ë“±ì˜ ë¬¸ì œê°€ ìƒê¸´ë‹¤
 				//transformMatrix_ = transformMatrix_ * parentMatrix;
 
 				isDirty_ = false;
 			}
 
-			// ³ªÀÇ ÀÚ½Äµé¿¡°Ô ÀüÆÄ
+			// ë‚˜ì˜ ìžì‹ë“¤ì—ê²Œ ì „íŒŒ
 			std::for_each(children_.begin(), children_.end(),
 				[&](auto child)
 				{
@@ -428,10 +428,10 @@ namespace SMGE
 
 		void Transform::RecalcMatrix()
 		{
-			// this °¡ Æ®·£½ºÆû ºÎ¸ðÀÚ½Ä Ã¼ÀÎÀÇ ¾îµð¿¡ À§Ä¡ÇØÀÖµç
-			// topParent ±îÁö ¿Ã¶ó°¡¼­ RecalcMatrix_Internal ÇÏ¿© ºÎ¸ð->ÀÚ½ÄÀ¸·Î µü 1È¸ ÀüÆÄÇØ³ª°¡¸é
-			// °ÅÀÇ ³¶ºñ ¾øÀÌ Recalc °¡ Ã³¸®µÈ´Ù
-			// ´Ü ÇöÀç´Â ¸Å¹ø RecalcMatrix_Internal( ¿¡¼­ ÀÚ½ÄµéÀ» ÀÇ¹Ì¾øÀÌ ÇÑ¹ø¾¿ µ¹¾ÆÁÖ´Â Ã³¸®°¡ ÀÖ±äÇÏ´Ù - ¾Æ¸¶µµ ÂªÀ» forward_listÀÇ ¼øÈ¸
+			// this ê°€ íŠ¸ëžœìŠ¤í¼ ë¶€ëª¨ìžì‹ ì²´ì¸ì˜ ì–´ë””ì— ìœ„ì¹˜í•´ìžˆë“ 
+			// topParent ê¹Œì§€ ì˜¬ë¼ê°€ì„œ RecalcMatrix_Internal í•˜ì—¬ ë¶€ëª¨->ìžì‹ìœ¼ë¡œ ë”± 1íšŒ ì „íŒŒí•´ë‚˜ê°€ë©´
+			// ê±°ì˜ ë‚­ë¹„ ì—†ì´ Recalc ê°€ ì²˜ë¦¬ëœë‹¤
+			// ë‹¨ í˜„ìž¬ëŠ” ë§¤ë²ˆ RecalcMatrix_Internal( ì—ì„œ ìžì‹ë“¤ì„ ì˜ë¯¸ì—†ì´ í•œë²ˆì”© ëŒì•„ì£¼ëŠ” ì²˜ë¦¬ê°€ ìžˆê¸´í•˜ë‹¤ - ì•„ë§ˆë„ ì§§ì„ forward_listì˜ ìˆœíšŒ
 			
 			auto topParent = GetTopParent();
 			topParent->RecalcMatrix_Internal(nullptr);
@@ -468,7 +468,7 @@ namespace SMGE
 		const MeshOBJ& ResourceModelBase::GetMesh() const
 		{
 			MeshOBJ temp;
-			return temp;	// ÀÏºÎ·¯ - ¿©±â°¡ È£ÃâµÇ¸é ¾ÈµÈ´Ù
+			return temp;	// ì¼ë¶€ëŸ¬ - ì—¬ê¸°ê°€ í˜¸ì¶œë˜ë©´ ì•ˆëœë‹¤
 		}
 
 		const VertFragShaderSet* ResourceModelBase::GetShaderSet() const
@@ -526,7 +526,7 @@ namespace SMGE
 		{
 			ptrWorldObjects_.push_back(wm);
 
-			assert(wm->renderModel_ == nullptr);	// ÀÌ·¸Áö ¾ÊÀ¸¸é ÀÌÀü °Å¿¡¼­ »©ÁÖ´Â Ã³¸®°¡ ÇÊ¿äÇÏ´Ù
+			assert(wm->renderModel_ == nullptr);	// ì´ë ‡ì§€ ì•Šìœ¼ë©´ ì´ì „ ê±°ì—ì„œ ë¹¼ì£¼ëŠ” ì²˜ë¦¬ê°€ í•„ìš”í•˜ë‹¤
 
 			if (wm->renderModel_ == nullptr)
 				wm->renderModel_ = this;
@@ -553,8 +553,8 @@ namespace SMGE
 		{
 			Invalidate();
 
-			// ÀÓ½Ã ÄÚµå - ·»´õ¸ðµ¨ÀÌ ¸Þ½Ã °ü·ÃÀÏ °æ¿ì¿¡¸¸ ¾Æ·¡ ÄÚµå°¡ ½ÇÇàµÇ¾î¾ßÇÑ´Ù, °í¹ÎÇØºÁ¶ó
-			// ÃÖÀûÈ­ - °ÔÀÓÀÇ °æ¿ì ¹ÙÀÎµå°¡ ³¡³ª°í ³ª¸é resource_ ÀÇ ³»¿ëÀ» ºñ¿öµµ µÈ´Ù
+			// ìž„ì‹œ ì½”ë“œ - ë Œë”ëª¨ë¸ì´ ë©”ì‹œ ê´€ë ¨ì¼ ê²½ìš°ì—ë§Œ ì•„ëž˜ ì½”ë“œê°€ ì‹¤í–‰ë˜ì–´ì•¼í•œë‹¤, ê³ ë¯¼í•´ë´ë¼
+			// ìµœì í™” - ê²Œìž„ì˜ ê²½ìš° ë°”ì¸ë“œê°€ ëë‚˜ê³  ë‚˜ë©´ resource_ ì˜ ë‚´ìš©ì„ ë¹„ì›Œë„ ëœë‹¤
 			usingTextureID_ = resource_.GetTextureID(texSamp);
 			usingTextureSampleI_ = texSamp;
 			GenOpenGLBuffers(resource_.GetMesh().vertices_, resource_.GetMesh().uvs_, resource_.GetMesh().normals_, resource_.GetMesh().vertexColors_);
@@ -649,7 +649,7 @@ namespace SMGE
 		void RenderModel::Render(const glm::mat4& VP)
 		{
 			for (auto& wmPtr : WorldObjects())
-			{	// ³ª¸¦ »ç¿ëÇÏ´Â ¸ðµç ¿ùµå ¿ÀºêÁ§Æ®À» Âï´Â´Ù
+			{	// ë‚˜ë¥¼ ì‚¬ìš©í•˜ëŠ” ëª¨ë“  ì›”ë“œ ì˜¤ë¸Œì íŠ¸ì„ ì°ëŠ”ë‹¤
 				if (wmPtr->IsVisible() == false)
 					continue;
 
@@ -660,7 +660,7 @@ namespace SMGE
 
 				const glm::mat4 MVP = VP * wmPtr->GetMatrix(false);
 
-				// ÀÌ°É À¯´ÏÆûÀ¸·Î ÇÏÁö¸»°í VP¸¦ ÇÁ·¹ÀÓ´ç ÇÑ¹ø °íÁ¤ÇØµÎ°í ¼ÎÀÌ´õ ¾È¿¡¼­ ¸¸µå´Â °Ô ³ªÀ»Áöµµ?? ÇÁ·¹ÀÓ ºñ±³ ÇÊ¿äÇÏ°Ú´Ù
+				// ì´ê±¸ ìœ ë‹ˆí¼ìœ¼ë¡œ í•˜ì§€ë§ê³  VPë¥¼ í”„ë ˆìž„ë‹¹ í•œë²ˆ ê³ ì •í•´ë‘ê³  ì…°ì´ë” ì•ˆì—ì„œ ë§Œë“œëŠ” ê²Œ ë‚˜ì„ì§€ë„?? í”„ë ˆìž„ ë¹„êµ í•„ìš”í•˜ê² ë‹¤
 				if(resource_.GetShaderSet()->unif_MVPMatrixID_ != -1)
 					glUniformMatrix4fv(resource_.GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
 				if (resource_.GetShaderSet()->unif_ModelMatrixID_ != -1)
@@ -669,17 +669,17 @@ namespace SMGE
 				if (resource_.IsGizmo() == false)
 				{
 					glDrawArrays(GL_TRIANGLES, 0, verticesSize_);
-					//glDrawArrays(GL_LINES, 0, verticesSize_);	// ÀÌ°É·Î ±×¸®¸é ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ±×·ÁÁø´Ù - ¾Æ¸¶ ¼öÀÜ´À ¸ùÅ°¸¸ ±×·²Áöµµ?!
+					//glDrawArrays(GL_LINES, 0, verticesSize_);	// ì´ê±¸ë¡œ ê·¸ë¦¬ë©´ ì™€ì´ì–´í”„ë ˆìž„ìœ¼ë¡œ ê·¸ë ¤ì§„ë‹¤ - ì•„ë§ˆ ìˆ˜ìž”ëŠ ëª½í‚¤ë§Œ ê·¸ëŸ´ì§€ë„?!
 				}
 				else
 				{
 					if (verticesSize_ > 1)
 					{
-						glDrawArrays(GL_LINES, 0, verticesSize_);	// Å×½ºÆ® ÄÚµå ¤Ñ ½ºÆ¼Ä¡·Î ³ª¿À´Â ¹ö±× ÀÖ´Ù
+						glDrawArrays(GL_LINES, 0, verticesSize_);	// í…ŒìŠ¤íŠ¸ ì½”ë“œ ã…¡ ìŠ¤í‹°ì¹˜ë¡œ ë‚˜ì˜¤ëŠ” ë²„ê·¸ ìžˆë‹¤
 					}
 					else
 					{
-						glDrawArrays(GL_POINT, 0, verticesSize_);	// ¹®Á¦ - Á¡ÀÌ Á¦´ë·Î ¾È±×·ÁÁø´Ù
+						glDrawArrays(GL_POINT, 0, verticesSize_);	// ë¬¸ì œ - ì ì´ ì œëŒ€ë¡œ ì•ˆê·¸ë ¤ì§„ë‹¤
 					}
 				}
 			}
@@ -855,7 +855,7 @@ namespace SMGE
 		//	glGenVertexArrays(1, &m_vao);
 		//	glGenBuffers(1, &m_vbo);
 
-		//	// Å×½ºÆ® ÄÚµå
+		//	// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 		//	////getShaderCode("../../../../simple_color_vs.glsl"),
 		//	////getShaderCode("../../../../simple_color_fs.glsl")
 		//	//vertShaderPath_ = "simple_color_vs.glsl";
@@ -963,7 +963,7 @@ namespace SMGE
 			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 #endif
 
-			// À©µµ¿ì µ¶¸³ ½ÃÅ°±â
+			// ìœˆë„ìš° ë…ë¦½ ì‹œí‚¤ê¸°
 			m_window = glfwCreateWindow(640, 480, "Hidden OpenGL m_window", NULL, NULL);
 
 			if (!m_window)
@@ -974,7 +974,7 @@ namespace SMGE
 
 			glfwMakeContextCurrent(m_window);
 
-			// glew ¶§¹®¿¡ ¸·À½, ¼­·Î ÀÎÅ¬·çµå »©¶ó¸ç Ãæµ¹³²
+			// glew ë•Œë¬¸ì— ë§‰ìŒ, ì„œë¡œ ì¸í´ë£¨ë“œ ë¹¼ë¼ë©° ì¶©ëŒë‚¨
 			//if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			//{
 			//	glfwTerminate();
@@ -1022,7 +1022,7 @@ namespace SMGE
 			//glEnable(GL_MULTISAMPLE);
 		}
 
-		// Å×½ºÆ® ÄÚµå ¤Ñ ½ÇÁ¦ width, height ¸¦ Á¤È®È÷ ¸ÂÃß·Á¸é .xaml ¿¡¼­ w = 16, h = 39 ´õ Ãß°¡ÇØÁà¾ßÇÑ´Ù
+		// í…ŒìŠ¤íŠ¸ ì½”ë“œ ã…¡ ì‹¤ì œ width, height ë¥¼ ì •í™•ížˆ ë§žì¶”ë ¤ë©´ .xaml ì—ì„œ w = 16, h = 39 ë” ì¶”ê°€í•´ì¤˜ì•¼í•œë‹¤
 		void CRenderingEngine::Resize(int width, int height)
 		{
 			glfwSetWindowSize(m_window, width, height);
@@ -1032,11 +1032,11 @@ namespace SMGE
 
 			m_bufferLengthW = m_width * m_height * m_colorDepth;
 
-			// Ã¼Å© »çÇ× - ÀÌ°Å ´Ù½Ã Ã¼Å©ÇØ¾ßÇÏ·Á³ª??
+			// ì²´í¬ ì‚¬í•­ - ì´ê±° ë‹¤ì‹œ ì²´í¬í•´ì•¼í•˜ë ¤ë‚˜??
 			//glfwGetFramebufferSize(m_window, &m_framebufferWith, &m_framebufferHeight);
 			m_bufferLengthF = m_framebufferWith * m_framebufferHeight * m_colorDepth;
 
-			// Ã¼Å© »çÇ× - ÀÌ°Å ¾ø¾îµµ µÇ´Âµ¥ ¿Ö ÇÏ´Â°É±î?
+			// ì²´í¬ ì‚¬í•­ - ì´ê±° ì—†ì–´ë„ ë˜ëŠ”ë° ì™œ í•˜ëŠ”ê±¸ê¹Œ?
 			//free(GLRenderHandle);
 			//GLRenderHandle = (char*)malloc(m_bufferLengthW);
 
@@ -1046,7 +1046,7 @@ namespace SMGE
 			glViewport(0, 0, m_width, m_height);
 
 			//////////////////////////////////////////////////////////////////////////////////////////
-			// ÃÊ±â Ä«¸Þ¶ó Ã³¸®
+			// ì´ˆê¸° ì¹´ë©”ë¼ ì²˜ë¦¬
 			float cameraInitialDist = 20;
 			camera_.SetCameraPos({ 0,0,cameraInitialDist });
 			camera_.SetCameraLookAt({ 0,0,0 });
@@ -1066,7 +1066,7 @@ namespace SMGE
 			initWindow();
 
 			//////////////////////////////////////////////////////////////////////////////////////////
-			// °ÔÀÓ Ã³¸®
+			// ê²Œìž„ ì²˜ë¦¬
 			smge_game = new SMGE::SPPKGame(nullptr);
 			smge_game->GetEngine()->SetRenderingEngine(this);
 		}
@@ -1080,7 +1080,7 @@ namespace SMGE
 		{
 			smge_game->GetEngine()->Tick(0.01f);
 
-			// Å×½ºÆ® ÄÚµå
+			// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 			//double currentTime = glfwGetTime();
 			//float theta = currentTime * 2.f;
 
@@ -1097,8 +1097,8 @@ namespace SMGE
 
 			glm::mat4 VP = camera_.GetProjectionMatrix() * camera_.GetViewMatrix();
 
-			// Å×½ºÆ® ÄÚµå
-			// ¶óÀÌÆ®¸¦ È¸Àü½ÃÅ°ÀÚ
+			// í…ŒìŠ¤íŠ¸ ì½”ë“œ
+			// ë¼ì´íŠ¸ë¥¼ íšŒì „ì‹œí‚¤ìž
 			const float lightRotateRadius = 4;
 			glm::vec4 lightPos = glm::vec4(0, 8, lightRotateRadius, 1);
 			static double lastTime = glfwGetTime();
@@ -1112,13 +1112,13 @@ namespace SMGE
 			{
 				auto& rm = it.second->GetRenderModel();
 
-				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// ¼ÎÀÌ´õ ¸¶´Ù 1È¸
+				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// ì…°ì´ë” ë§ˆë‹¤ 1íšŒ
 				rm.BeginRender();
 				rm.Render(VP);
 				rm.EndRender();
 			}
 
-			// smge_game->GetEngine() <- ¾ê°¡ ¿ùµå¿ÀºêÁ§Æ®À» »ó¼ÓÇÑ ¾×ÅÍ¸¦ °®°Ô µÈ´Ù
+			// smge_game->GetEngine() <- ì–˜ê°€ ì›”ë“œì˜¤ë¸Œì íŠ¸ì„ ìƒì†í•œ ì•¡í„°ë¥¼ ê°–ê²Œ ëœë‹¤
 			//smge_game->GetEngine()->Render(0.01f);
 
 			if (imgBuffer != nullptr)
@@ -1183,7 +1183,7 @@ namespace SMGE
 
 		void CRenderingEngine::ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir)
 		{
-			auto glY = GetHeight() - mousePos.y;	// ½ºÅ©¸°ÁÂÇ¥¸¦ glÁÂÇ¥·Î Ãë±ÞÇØ¾ßÇÏ¹Ç·Î µÚÁý¾îÁà¾ßÇÔ
+			auto glY = GetHeight() - mousePos.y;	// ìŠ¤í¬ë¦°ì¢Œí‘œë¥¼ glì¢Œí‘œë¡œ ì·¨ê¸‰í•´ì•¼í•˜ë¯€ë¡œ ë’¤ì§‘ì–´ì¤˜ì•¼í•¨
 
 			auto ndcX = (mousePos.x / (float)GetWidth() - 0.5f) * 2.0f; // [0,1024] -> [-1,1]
 			auto ndcY = (glY / (float)GetHeight() - 0.5f) * 2.0f; // [0, 768] -> [-1,1]

@@ -55,7 +55,7 @@ namespace SMGE
 	CMeshComponent::~CMeshComponent()
 	{
 		if (drawingModelAsset_ != nullptr)
-		{	// ¿©±â ¼öÁ¤ - ÀÌ°Å CResourceModel ·Î ³»¸®µç°¡, °ÔÀÓ¿£Áø¿¡¼­ ·»´õ¸µÀ» ÇÏµµ·Ï ÇÏÀÚ
+		{	// ì—¬ê¸° ìˆ˜ì • - ì´ê±° CResourceModel ë¡œ ë‚´ë¦¬ë“ ê°€, ê²Œì„ì—”ì§„ì—ì„œ ë Œë”ë§ì„ í•˜ë„ë¡ í•˜ì
 			auto smgeMA = drawingModelAsset_->getContentClass();
 			GetRenderingEngine()->RemoveResourceModel(smgeMA);
 		}
@@ -73,12 +73,12 @@ namespace SMGE
 			if (drawingModelAsset_ != nullptr)
 				throw SMGEException(wtext("already ReadyToDrawing("));
 
-			// ¸ğµ¨ ¾Ö¼Â ·Îµå
+			// ëª¨ë¸ ì• ì…‹ ë¡œë“œ
 			drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(Globals::GetGameAssetPath(drawingModelAssetPath_));
 
 			auto rsm = drawingModelAsset_->getContentClass();
 
-			// ¿©±â ¼öÁ¤ - ÀÌ°Å CResourceModel ·Î ³»¸®µç°¡, °ÔÀÓ¿£Áø¿¡¼­ ·»´õ¸µÀ» ÇÏµµ·Ï ÇÏÀÚ
+			// ì—¬ê¸° ìˆ˜ì • - ì´ê±° CResourceModel ë¡œ ë‚´ë¦¬ë“ ê°€, ê²Œì„ì—”ì§„ì—ì„œ ë Œë”ë§ì„ í•˜ë„ë¡ í•˜ì
 			GetRenderingEngine()->AddResourceModel(ToASCII(drawingModelAssetPath_), rsm);
 
 			rsm->GetRenderModel().AddWorldObject(this);

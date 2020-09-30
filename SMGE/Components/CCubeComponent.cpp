@@ -79,7 +79,7 @@ namespace SMGE
 		if (rsm == nullptr)
 			rsm = new nsRE::CubeRSM(centerPos_, size_);
 
-		// ¿©±â ¼öÁ¤ - ÀÌ°Å CResourceModel ·Î ³»¸®µç°¡, °ÔÀÓ¿£Áø¿¡¼­ ·»´õ¸µÀ» ÇÏµµ·Ï ÇÏÀÚ
+		// ì—¬ê¸° ìˆ˜ì • - ì´ê±° CResourceModel ë¡œ ë‚´ë¦¬ë“ ê°€, ê²Œìž„ì—”ì§„ì—ì„œ ë Œë”ë§ì„ í•˜ë„ë¡ í•˜ìž
 		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
 
 		rsm->GetRenderModel().AddWorldObject(this);

@@ -30,13 +30,13 @@ namespace SMGE
 
 			// win32 - async inputs - https://m.blog.naver.com/power2845/50143021565
 
-			static constexpr TInputState VK_RELEASED = 0x0000;		// ÀÌÀü¿¡ ´©¸¥ ÀûÀÌ ¾ø°í È£Ãâ ½ÃÁ¡¿¡µµ ´­·ÁÀÖÁö ¾ÊÀº »óÅÂ
-			static constexpr TInputState VK_JUST_RELEASED = 0x0001;	// ÀÌÀü¿¡ ´©¸¥ ÀûÀÌ ÀÖ°í È£Ãâ ½ÃÁ¡¿¡´Â ´­·ÁÀÖÁö ¾ÊÀº »óÅÂ
-			static constexpr TInputState VK_PRESSED = 0x8001;		// ÀÌÀü¿¡ ´©¸¥ ÀûÀÌ ÀÖ°í È£Ãâ ½ÃÁ¡¿¡µµ ´­·ÁÀÖ´Â »óÅÂ
-			static constexpr TInputState VK_JUST_PRESSED = 0x8000;	// ÀÌÀü¿¡ ´©¸¥ ÀûÀÌ ¾ø°í È£Ãâ ½ÃÁ¡¿¡´Â ´­·ÁÀÖ´Â »óÅÂ
+			static constexpr TInputState VK_RELEASED = 0x0000;		// ì´ì „ì— ëˆ„ë¥¸ ì ì´ ì—†ê³  í˜¸ì¶œ ì‹œì ì—ë„ ëˆŒë ¤ìˆì§€ ì•Šì€ ìƒíƒœ
+			static constexpr TInputState VK_JUST_RELEASED = 0x0001;	// ì´ì „ì— ëˆ„ë¥¸ ì ì´ ìˆê³  í˜¸ì¶œ ì‹œì ì—ëŠ” ëˆŒë ¤ìˆì§€ ì•Šì€ ìƒíƒœ
+			static constexpr TInputState VK_PRESSED = 0x8001;		// ì´ì „ì— ëˆ„ë¥¸ ì ì´ ìˆê³  í˜¸ì¶œ ì‹œì ì—ë„ ëˆŒë ¤ìˆëŠ” ìƒíƒœ
+			static constexpr TInputState VK_JUST_PRESSED = 0x8000;	// ì´ì „ì— ëˆ„ë¥¸ ì ì´ ì—†ê³  í˜¸ì¶œ ì‹œì ì—ëŠ” ëˆŒë ¤ìˆëŠ” ìƒíƒœ
 
 		public:
-			// ¸®¸ÊÇÎ °¡´ÉÇÏµµ·Ï static ÀÌ´Ù
+			// ë¦¬ë§µí•‘ ê°€ëŠ¥í•˜ë„ë¡ static ì´ë‹¤
 #if IS_EDITOR
 			static TInputKey LBUTTON;
 			static TInputKey RBUTTON;

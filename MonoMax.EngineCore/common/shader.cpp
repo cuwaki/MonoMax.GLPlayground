@@ -16,7 +16,7 @@ using namespace std;
 
 GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file_path)
 {
-	// Áßº¹µÈ ¼ÎÀÌ´õ¸¦ ¸¸µéÁö ¾Êµµ·Ï Àß °ü¸®ÇÒ °Í!
+	// ì¤‘ë³µëœ ì…°ì´ë”ë¥¼ ë§Œë“¤ì§€ ì•Šë„ë¡ ì˜ ê´€ë¦¬í•  ê²ƒ!
 
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);

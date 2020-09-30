@@ -1,7 +1,7 @@
 #include "CMovementComponent.h"
 #include "../Objects/CActor.h"
 
-// Å×½ºÆ® ÄÚµå
+// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 #include "CDrawComponent.h"
 
 namespace SMGE
@@ -18,7 +18,7 @@ namespace SMGE
 		return *reflTransformCompo_.get();
 	}
 
-	// Å×½ºÆ® ÄÚµå
+	// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 	static glm::vec3 moveTo(5, 0, 0), moveFrom;
 	static glm::vec3 rotateTo(0, 0, 45), rotateFrom;
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
@@ -28,7 +28,7 @@ namespace SMGE
 	{
 		Super::OnBeginPlay(parent);
 
-		// ¿©±â ¼öÁ¤ - ÇöÀç´Â ¾×ÅÍ¸¸ °¡´É!! ÄŞÆ÷³ÍÆ®¿¡µµ ºÙÀÏ ¼ö ÀÖ°ÔÇØ¾ßÇÑ´Ù?? ¾Æ´Ï¸é ¿ÀºêÁ§Æ® ¸»°í Æ®·£½ºÆûÀ» ¿¬°á½ÃÅ°ÀÚ? ÀÌ°Ô ¸Â´Âµí!
+		// ì—¬ê¸° ìˆ˜ì • - í˜„ì¬ëŠ” ì•¡í„°ë§Œ ê°€ëŠ¥!! ì½¤í¬ë„ŒíŠ¸ì—ë„ ë¶™ì¼ ìˆ˜ ìˆê²Œí•´ì•¼í•œë‹¤?? ì•„ë‹ˆë©´ ì˜¤ë¸Œì íŠ¸ ë§ê³  íŠ¸ëœìŠ¤í¼ì„ ì—°ê²°ì‹œí‚¤ì? ì´ê²Œ ë§ëŠ”ë“¯!
 		actorParent_ = SCast<CActor*>(parent);
 
 		targetTransform_ = &actorParent_->getTransform();
@@ -40,7 +40,7 @@ namespace SMGE
 		setActive(true);
 
 		if (actorParent_->getActorStaticTag() == "this is a monkey")
-		{	// Å×½ºÆ® ÄÚµå
+		{	// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 			moveFrom = actorParent_->getLocation();
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
@@ -67,7 +67,7 @@ namespace SMGE
 
 		if (isActive())
 		{
-			// Å×½ºÆ® ÄÚµå
+			// í…ŒìŠ¤íŠ¸ ì½”ë“œ
 			if (actorParent_->getActorStaticTag() == "this is a monkey")
 			{
 				//// Translate
