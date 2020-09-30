@@ -1,4 +1,4 @@
-classRTTIName_$CString$"CActor"
+classRTTIName_$CString$"CStaticMeshActor"
     reflectionFilePath_$CWString$"/actor/mapFloor.asset"
     actorKey_$TActorKey$0
     classRTTIName_$CString$"SGRefl_Transform"
@@ -17,3 +17,13 @@ classRTTIName_$CString$"CActor"
             nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
             persistCompoSize$size_t$0
     drawingModelAssetPath_$CWString$"/models/plane/plane.asset"
+    classRTTIName_$CString$"CCubeComponent"
+        reflectionFilePath_$CWString$""
+        classRTTIName_$CString$"SGRefl_Transform"
+        reflectionFilePath_$CWString$""
+        nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+        persistCompoSize$size_t$0
+    centerPos_$glm::vec3$0.000000	0.000000	0.000000	
+    size_$glm::vec3$1.000000	1.000000	0.100000	

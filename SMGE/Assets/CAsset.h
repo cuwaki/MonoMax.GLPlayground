@@ -54,7 +54,7 @@ namespace SMGE
 	protected:
 		bool IsTemplateAssetPath(CWString filePath)
 		{
-			return SMGE::GlobalUtils::IsStartsWith(filePath, wtext("/templates/"));
+			return SMGE::GlobalUtils::IsStartsWith(filePath, wtext("/templates/")) || SMGE::GlobalUtils::IsStartsWith(filePath, wtext("templates/"));
 		}
 
 		void LoadContentClass(CWString filePath)

@@ -28,7 +28,6 @@ namespace SMGE
 		_ADD_REFL_VARIABLE(actorKey_);
 		_ADD_REFL_VARIABLE(sg_actorTransform_);
 		_ADD_REFL_VARIABLE(actorStaticTag_);
-		// persistentComponents_ 처리 필요
 	}
 
 	void SGRefl_Actor::OnBeforeSerialize() const
@@ -113,17 +112,27 @@ namespace SMGE
 	CActor::CActor(CObject* outer) : CObject(outer)
 	{
 		//classRTTIName_ = "SMGE::CActor";
-		Ctor();
-	}
+		mainBoundCompo_ = nullptr;
 
-	CActor::CActor(CObject* outer, const CActor& templateInst) : CActor(outer)
-	{
-		CopyFromTemplate(templateInst);
+		Ctor();
 	}
 
 	CActor::~CActor()
 	{
 		Dtor();
+	}
+
+	void CActor::Ctor()
+	{
+	}
+
+	void CActor::Dtor()
+	{
+		getPersistentComponents().clear();
+		getTransientComponents().clear();
+		getAllComponents().clear();
+
+		Super::Dtor();
 	}
 
 	SGReflection& CActor::getReflection()
@@ -141,37 +150,13 @@ namespace SMGE
 	{
 		return persistentComponents_;
 	}
-
 	ComponentVector& CActor::getTransientComponents()
 	{
 		return transientComponents_;
 	}
-
 	ComponentVectorWeak& CActor::getAllComponents()
 	{
 		return allComponents_;
-	}
-
-	void CActor::Ctor()
-	{
-		Super::Ctor();
-
-		// 무브먼트
-		auto transfCompo = MakeUniqPtr<CMovementComponent>(this);
-		movementCompo_ = SCast<CMovementComponent*>(transfCompo.get());
-		getTransientComponents().emplace_back(std::move(transfCompo));
-	}
-
-	void CActor::Dtor()
-	{
-		getPersistentComponents().clear();
-		getTransientComponents().clear();
-		getAllComponents().clear();
-
-		movementCompo_ = nullptr;
-		mainBoundCompo_ = nullptr;
-
-		Super::Dtor();
 	}
 
 	void CActor::Tick(float timeDelta)
@@ -216,8 +201,6 @@ namespace SMGE
 			registerComponent(pc.get());
 		}
 
-		mainBoundCompo_ = findComponent<CBoundComponent>();	// 처음 만나는 바운드를 메인 바운드로 삼는다
-
 		timer_.start();
 
 		for (auto& comp : getAllComponents())
@@ -233,27 +216,13 @@ namespace SMGE
 			comp->OnEndPlay();
 		}
 
-		for (auto& pc : getPersistentComponents())
-		{
-			unregisterComponent(pc.get());
-		}
-
-		for (auto& pc : getTransientComponents())
-		{
-			unregisterComponent(pc.get());
-		}
-	}
-
-	class CBoundComponent* CActor::GetMainBound()
-	{
-		return mainBoundCompo_;
+		unregisterComponentAll();
 	}
 
 	nsRE::Transform& CActor::getTransform()
 	{
 		return actorTransform_;
 	}
-
 	const nsRE::Transform& CActor::getTransform() const
 	{
 		return actorTransform_;
@@ -268,117 +237,11 @@ namespace SMGE
 		return isPendingKill_;
 	}
 
-	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
+	class CBoundComponent* CActor::GetMainBound()
 	{
-		//classRTTIName_ = "SMGE::CCollideActor";
+		if (mainBoundCompo_ == nullptr)
+			mainBoundCompo_ = findComponent<CBoundComponent>();	// 처음 만나는 바운드를 메인 바운드로 삼는다
 
-		rule_ = rule;
-		isDetailCheck_ = isDetailCheck;
-	}
-
-	void CCollideActor::BeginPlay()
-	{
-		Super::BeginPlay();
-	}
-
-	CRayCollideActor::CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir) :
-		CCollideActor(outer, rule, isDetailCheck, fOnCollide)
-	{
-		//classRTTIName_ = "SMGE::CRayCollideActor";
-		Ctor(size, dir);
-	}
-
-	void CRayCollideActor::Ctor(float size, const glm::vec3& dir)
-	{
-		//Super::Ctor();	// 일부러 - 각 클래스들의 생성자에서 따로 불러주므로 이렇게 부르면 안된다! 현재는 그렇다 20200831
-
-		// 차후 생각할 일 - 현재 CActor 상속이라서 안쓰는 persistcompo - mainDrawCompo 등이 생겼다가 없어진다, 이 문제는 언리얼에서도 있었다
-		getPersistentComponents().clear();
-		getTransientComponents().clear();
-		getAllComponents().clear();
-		movementCompo_ = nullptr;
-		mainBoundCompo_ = nullptr;
-
-		// 바운드
-		auto RayCompo = MakeUniqPtr<CRayComponent>(this, size, dir);
-		mainBoundCompo_ = SCast<CRayComponent*>(RayCompo.get());
-		getTransientComponents().emplace_back(std::move(RayCompo));
-	}
-
-	CVector<CActor*> CRayCollideActor::QueryCollideCheckTargets()
-	{
-		const auto& actors = Globals::GCurrentMap->GetActors(EActorLayer::Game);
-
-		CVector<CActor*> ret(actors.size());
-		std::transform(actors.begin(), actors.end(), ret.begin(), [this](const CSharPtr<CActor>& sptrActor)
-			{
-				auto ret = sptrActor.get();
-				if (ret != nullptr && ret->GetMainBound() != nullptr && ret != this)
-					return ret;
-				else
-					ret = nullptr;
-
-				return ret;
-			});
-
-		auto nullStart = std::remove_if(ret.begin(), ret.end(), [](auto& v) { return v == nullptr; });
-		ret.erase(nullStart, ret.end());
-
-		return ret;
-	}
-
-	void CRayCollideActor::ProcessCollide(CVector<CActor*>& targets)
-	{
-		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
-	}
-
-	void CRayCollideActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
-	{
-		glm::vec3 collidingPoint;
-
-		for (auto& actor : targets)
-		{
-			if (this->GetMainBound()->CheckCollide(actor->GetMainBound(), collidingPoint) == true)
-			{
-				if (isDetailCheck == false)
-				{
-					fOnCollide(this, actor, this->GetMainBound(), actor->GetMainBound(), collidingPoint);
-				}
-				else
-				{
-					// 디테일 바운드 콤포에 대하여 체크 - 여러개의 추가 Bound 또는 디테일한 CPolygonComponent 가 있어야겠지?
-				}
-			}
-		}
-	}
-
-	CPointActor::CPointActor(CObject* outer) : CCollideActor(outer)
-	{
-		//classRTTIName_ = "SMGE::CPointActor";
-		Ctor();
-	}
-
-	void CPointActor::Ctor()
-	{
-		//Super::Ctor();	// 일부러 - 각 클래스들의 생성자에서 따로 불러주므로 이렇게 부르면 안된다! 현재는 그렇다 20200831
-
-		// 차후 생각할 일 - 현재 CActor 상속이라서 안쓰는 persistcompo - mainDrawCompo 등이 생겼다가 없어진다, 이 문제는 언리얼에서도 있었다
-		getPersistentComponents().clear();
-		getTransientComponents().clear();
-		getAllComponents().clear();
-		movementCompo_ = nullptr;
-		mainBoundCompo_ = nullptr;
-
-		auto pointCompo = MakeUniqPtr<CPointComponent>(this);
-		getTransientComponents().emplace_back(std::move(pointCompo));
-	}
-
-	CVector<CActor*> CPointActor::QueryCollideCheckTargets()
-	{
-		return CVector<CActor*>();
-	}
-
-	void CPointActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
-	{
+		return mainBoundCompo_;
 	}
 };

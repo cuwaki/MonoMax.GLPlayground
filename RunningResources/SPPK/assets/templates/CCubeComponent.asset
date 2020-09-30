@@ -1,10 +1,10 @@
-classRTTIName_$CString$"CMeshComponent"
-    reflectionFilePath_$CWString$"/templates/CMeshComponent.asset"
+classRTTIName_$CString$"CCubeComponent"
+    reflectionFilePath_$CWString$"/templates/CCubeComponent.asset"
     classRTTIName_$CString$"SGRefl_Transform"
         reflectionFilePath_$CWString$""
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
         persistCompoSize$size_t$0
-    drawingModelAssetPath_$CWString$"/models/cube.asset"
-    
+    centerPos_$glm::vec3$0.000000	0.000000	0.000000	
+    size_$glm::vec3$1.000000	1.000000	1.000000	

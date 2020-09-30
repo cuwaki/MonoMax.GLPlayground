@@ -212,4 +212,15 @@ namespace SMGE
 		metaSplitted.popCursor();
 		return rttiName;
 	}
+
+	CWString SGReflection::GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted)
+	{
+		metaSplitted.pushCursor();
+		CString rttiName;
+		_FROM_REFL(rttiName, metaSplitted);	// classRTTIName_ 버림
+		CWString reflPath;
+		_FROM_REFL(reflPath, metaSplitted);
+		metaSplitted.popCursor();
+		return reflPath;
+	}
 };

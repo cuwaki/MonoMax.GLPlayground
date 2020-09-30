@@ -8,18 +8,10 @@
 #include "Objects/CMap.h"
 #include "Assets/CResourceModel.h"
 #include "Components/CPointComponent.h"
-
-class TCActor
-{
-public:
-	TCActor(int index, int x, int y, int z) : index(index), x(x), y(y), z(z)
-	{
-	}
-	int index;
-	int x, y, z;
-	int xS = 100, yS = 100, zS = 100;
-};
-
+#include "Components/CRayComponent.h"
+#include "Objects/CCollideActor.h"
+#include "Assets/CAssetManager.h"
+#include "Assets/CAsset.h"
 
 namespace SMGE
 {
@@ -95,7 +87,8 @@ namespace SMGE
 #ifdef EDITOR_WORKING
 		// 테스트 코드
 		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
-		currentMap_ = new CMap(this, *testMapTemplate->getContentClass());
+		currentMap_ = new CMap(this);
+		currentMap_->CopyFromTemplate(testMapTemplate->getContentClass());
 
 		Globals::GCurrentMap = currentMap_;
 
@@ -110,21 +103,28 @@ namespace SMGE
 				glm::vec3 ray_direction;
 				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
-				CRayCollideActor* rayActor = &currentMap_->SpawnDefaultActor<CRayCollideActor>(true,
-					Globals::GCurrentMap,
-					ECheckCollideRule::NEAREST, false,
-					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+				CCollideActor* rayActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_,
+					ECheckCollideRule::NEAREST, false, [this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
 					{
-						CPointActor* pointActor = &currentMap_->SpawnDefaultActor<CPointActor>(true, Globals::GCurrentMap);
+						CCollideActor* pointActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_);
+
+						auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
+						pointActor->CopyFromTemplate(prefab->getContentClass());
+
 						currentMap_->FinishSpawnActor(*pointActor);
 
 						pointActor->getTransform().Translate(COLL_POS);
 						pointActor->SetLifeTick(100);
-					},
-					engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);
+					});
+
+				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
+				rayActor->CopyFromTemplate(prefab->getContentClass());
 				currentMap_->FinishSpawnActor(*rayActor);
 
 				// 생각 - 이걸 비긴 플레이로 넣고 싶은데 / 애프터 비긴 플레이 말고 그냥 비긴 플레이에 넣을 수는 없을까?
+				auto rayCompo = rayActor->findComponent<CRayComponent>();
+				rayCompo->SetBoundData(engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);
+
 				rayActor->getTransform().Translate(ray_origin);
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->ProcessCollide(targets);

@@ -22,6 +22,8 @@
 
 	3. DEFINE_RTTI_CObject_DEFAULT 매크로 - 말그대로 인자가 outer 1개인 디폴트 생성용이다
 	3. DEFINE_RTTI_CObject_VARIETY 매크로 - 인자가 여러개인 각 클래스용 전용 생성자들을 처리하기 위해서 존재한다
+
+	4. 맵 로딩등을 할 때 문자열로 rtti 할 때는 버라이어티 생성자를 사용할 수 없다 - 컴파일 타임에 타입이 명시적으로 필요하기 때문이다
 */
 
 namespace SMGE
@@ -98,10 +100,13 @@ namespace SMGE
 			return const_cast<CInt_Reflection*>(this)->getReflection();
 		}
 
-		virtual void CopyFromTemplate(const CInt_Reflection& templateObj)
+		virtual void CopyFromTemplate(const CInt_Reflection* templateObj)
 		{
-			SGStringStreamIn in(templateObj.getConstReflection());
-			in >> getReflection();
+			if (templateObj != nullptr)
+			{
+				SGStringStreamIn in(templateObj->getConstReflection());
+				in >> getReflection();
+			}
 		}
 
 		virtual void OnAfterDeserialized() {}
@@ -146,6 +151,7 @@ namespace SMGE
 
 		// Utility
 		static CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted);
+		static CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted);
 
 	protected:
 		virtual void buildVariablesMap();

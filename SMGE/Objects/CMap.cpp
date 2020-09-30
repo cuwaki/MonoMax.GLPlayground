@@ -51,24 +51,26 @@ namespace SMGE
 			// CMap 에 CActor 들이 인스턴싱 되어있어야한다
 			// SGRefl_Map 이 CMap 에 액터 생성을 시킨 후 연결해야한다 - 일단은 이렇게 구현해보자!
 
-			CActor loader(nullptr);	// 액터의 애셋 경로를 얻는다
+			CString actorClassRTTIName = SGReflection::GetClassRTTIName(variableSplitted);
+			CWString actorAssetPath = SGReflection::GetReflectionFilePath(variableSplitted);
 
-			variableSplitted.pushCursor();
-			loader.getReflection() = variableSplitted;
-
-			CWString actorAssetPath = loader.getReflectionFilePath();
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
-				// 1. 애셋을 이용하여 맵에 액터 스폰하기 - RTTI
-				CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
-
 				// 실제 액터의 스폰이 리플렉션 단계에서 일어나게 된다... 구조상 좀 아쉬운 부분이다!
 				// 이런 것 때문에 언리얼의 레벨도 특수한 방법이 들어가 있다는게 아닌가 싶은??
 
-				CActor& actorA = outerMap_.SpawnDefaultActor(loader.getClassRTTIName(), false, &outerMap_, actorTemplate->getContentClass());
+				// 1. 애셋을 이용하여 맵에 액터 스폰하기 - RTTI
+				//CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
+				//CActor& actorA = outerMap_.SpawnDefaultActor(actorClassRTTIName, false, &outerMap_, actorTemplate->getContentClass());
 
-				// 2 단계 - 맵에 저장된 값으로 배치시킨다
-				variableSplitted.popCursor();
+				// 1. 디폴트로 생성하고
+				CActor& actorA = outerMap_.SpawnActorDEFAULT(actorClassRTTIName, false, &outerMap_);
+
+				// 2. 애셋 덮어씌우고
+				auto actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
+				actorA.CopyFromTemplate(actorTemplate->getContentClass());
+
+				// 3. 맵에 저장된 값으로 한번 더 덮어쓴다 - 위치나 맵에서 박은 콤포넌트 등등
 				actorA.getReflection() = variableSplitted;
 
 				outerMap_.FinishSpawnActor(actorA);
@@ -96,11 +98,6 @@ namespace SMGE
 	{
 		//classRTTIName_ = "SMGE::CMap";
 		Ctor();
-	}
-
-	CMap::CMap(CObject* outer, const CMap& templateInst) : CMap(outer)
-	{
-		CopyFromTemplate(templateInst);
 	}
 
 	void CMap::Ctor()

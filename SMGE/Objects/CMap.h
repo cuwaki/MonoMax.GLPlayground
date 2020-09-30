@@ -48,7 +48,6 @@ namespace SMGE
 
 	public:
 		CMap(CObject* outer);
-		CMap(CObject* outer, const CMap& templateInst);
 
 		void Ctor();
 
@@ -68,7 +67,7 @@ namespace SMGE
 		bool IsStarted() { return isStarted_; }
 
 	protected:
-		CActor& SpawnDefaultActorINTERNAL(CObject* newObj, bool isDynamic)
+		CActor& SpawnActorINTERNAL(CObject* newObj, bool isDynamic)
 		{
 			CSharPtr<CActor> newActor(DCast<CActor*>(newObj));
 
@@ -100,18 +99,18 @@ namespace SMGE
 	public:
 		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용
 		template<typename... Args>
-		CActor& SpawnDefaultActor(const std::string& classRTTIName, bool isDynamic, Args&&... args)
+		CActor& SpawnActorDEFAULT(const std::string& classRTTIName, bool isDynamic, Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewVariety<CActor>(classRTTIName, std::forward<Args>(args)...);
-			return static_cast<CActor&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
+			auto newObj = RTTI_CObject::NewDefault(classRTTIName, std::forward<Args>(args)...);
+			return static_cast<CActor&>(SpawnActorINTERNAL(newObj, isDynamic));
 		}
 
 		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
 		template<typename ActorT, typename... Args>
-		ActorT& SpawnDefaultActor(bool isDynamic, Args&&... args)
+		ActorT& SpawnActorVARIETY(bool isDynamic, Args&&... args)
 		{
 			auto newObj = RTTI_CObject::NewVariety<ActorT>(SMGE::GetClassRTTIName<ActorT>(), std::forward<Args>(args)...);
-			return static_cast<ActorT&>(SpawnDefaultActorINTERNAL(newObj, isDynamic));
+			return static_cast<ActorT&>(SpawnActorINTERNAL(newObj, isDynamic));
 		}
 	};
 

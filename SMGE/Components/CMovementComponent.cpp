@@ -39,19 +39,18 @@ namespace SMGE
 
 		setActive(true);
 
-		if (actorParent_->getActorStaticTag() == "this is a monkey")
 		{	// 테스트 코드
 			moveFrom = actorParent_->getLocation();
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
-			rotateFrom = actorParent_->getRotation();
-			interpRotation_.setCurveType(ECurveType::Cos);
-			interpRotation_.start(rotateFrom, rotateFrom + rotateTo, TestInterpolationTime);
+			//rotateFrom = actorParent_->getRotation();
+			//interpRotation_.setCurveType(ECurveType::Cos);
+			//interpRotation_.start(rotateFrom, rotateFrom + rotateTo, TestInterpolationTime);
 
-			scaleFrom = actorParent_->getScale();
-			interpScale_.setCurveType(ECurveType::Sin);
-			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+			//scaleFrom = actorParent_->getScale();
+			//interpScale_.setCurveType(ECurveType::Sin);
+			//interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 		}
 	}
 
@@ -68,20 +67,19 @@ namespace SMGE
 		if (isActive())
 		{
 			// 테스트 코드
-			if (actorParent_->getActorStaticTag() == "this is a monkey")
 			{
-				//// Translate
-				//if (interpTranslation_.isRunning())
-				//{
-				//	targetTransform_->Translate(interpTranslation_.current());
-				//}
-				//else
-				//{
-				//	moveTo *= -1.f;
-				//	interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
-				//}
+				// Translate
+				if (interpTranslation_.isRunning())
+				{
+					targetTransform_->Translate(interpTranslation_.current());
+				}
+				else
+				{
+					moveTo *= -1.f;
+					interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
+				}
 
-				//// Rotate
+				// Rotate
 				//if (interpRotation_.isRunning())
 				//{
 				//	targetTransform_->Rotate(interpRotation_.current());

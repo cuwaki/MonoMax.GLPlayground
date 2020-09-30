@@ -43,6 +43,8 @@ namespace SMGE
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
+		void SetBoundData(float size, const glm::vec3& direction);
+
 		void Ctor();
 
 		// CInt_Reflection

@@ -1,4 +1,4 @@
-classRTTIName_$CString$"CActor"
+classRTTIName_$CString$"CStaticMeshActor"
     reflectionFilePath_$CWString$"/actor/monkey.asset"
     actorKey_$TActorKey$0
     classRTTIName_$CString$"SGRefl_Transform"

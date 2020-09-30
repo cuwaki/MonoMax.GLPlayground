@@ -43,12 +43,16 @@ namespace SMGE
 		template<typename... Args>
 		static BaseClass* NewDefault(const std::string& classRTTIName, Args&&... args)
 		{
+			assert(NewClassDefaults_.find(classRTTIName) != NewClassDefaults_.end());
+
 			return NewClassDefaults_[classRTTIName](std::forward<Args>(args)...);
 		}
 
 		template<class TargetClass, typename... Args>
 		static BaseClass* NewVariety(const std::string& classRTTIName, Args&&... args)
 		{
+			assert(NewClassVarieties_.find(classRTTIName) != NewClassVarieties_.end());
+
 			using castT = CRttiNewFunctorVariety<BaseClass, TargetClass, Args...>;
 			return static_cast<castT&>(NewClassVarieties_[classRTTIName])(std::forward<Args>(args)...);
 		}

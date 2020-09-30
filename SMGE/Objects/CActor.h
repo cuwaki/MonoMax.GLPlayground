@@ -47,7 +47,7 @@ namespace SMGE
 
 	class CActor : public CObject, public CInt_Reflection, public CInt_Component
 	{
-		DECLARE_RTTI_CObject(CActorComponent)
+		DECLARE_RTTI_CObject(CActor)
 
 	public:
 		using Super = CObject;
@@ -57,7 +57,6 @@ namespace SMGE
 
 	public:
 		CActor(CObject* outer);
-		CActor(CObject* outer, const CActor& templateInst);
 		~CActor() noexcept;
 
 		void Ctor();
@@ -83,12 +82,14 @@ namespace SMGE
 		const glm::vec3& getRotation() const { return getTransform().GetRotation(); }
 		const glm::vec3& getScale() const { return getTransform().GetScale(); }
 
-		class CBoundComponent* GetMainBound();
-
 		void SetPendingKill();
 		bool IsPendingKill() const;
 
 		void SetLifeTick(int32 t) { lifeTick_ = t; }
+
+	public:
+		// CActor interface
+		virtual class CBoundComponent* GetMainBound();
 
 	public:
 		// CInt_Reflection
@@ -110,10 +111,6 @@ namespace SMGE
 		CString actorStaticTag_;
 		CString actorTag_;
 
-		// 여기 생각 - mainDrawCompo 는 persistcomp 라서 애셋으로부터 동적으로 생성될 수 있어서 멤버 포인터를 적용할 수가 없었다, 하지만 무브먼트콤포는??? 생각해볼 것, 지금은 트랜젼트임
-		class CMovementComponent* movementCompo_;
-		class CBoundComponent* mainBoundCompo_;
-
 	protected:
 		CUniqPtr<TReflectionStruct> reflActor_;
 
@@ -122,64 +119,11 @@ namespace SMGE
 		ComponentVector transientComponents_;
 		ComponentVectorWeak allComponents_;
 
+		class CBoundComponent* mainBoundCompo_;
 		TActorKey actorKey_ = InvalidActorKey;
-
 		CTimer timer_;
 
 		// DynamicActorKey
 		friend class CMap;
-	};
-
-
-
-	class CCollideActor : public CActor
-	{
-		using Super = CActor;
-
-	public:
-		CCollideActor(CObject* outer) : Super(outer) {}
-		CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide);
-
-		virtual void BeginPlay() override;
-
-		virtual CVector<CActor*> QueryCollideCheckTargets() = 0;
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets) = 0;
-
-	protected:
-		ECheckCollideRule rule_;
-		bool isDetailCheck_;
-		DELEGATE_OnCollide fOnCollide_;
-	};
-
-	class CRayCollideActor : public CCollideActor
-	{
-		DECLARE_RTTI_CObject(CRayCollideActor)
-
-		using Super = CCollideActor;
-
-	public:
-		CRayCollideActor(CObject* outer) : Super(outer) {}
-		CRayCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, float size, const glm::vec3& dir);
-
-		void Ctor(float size, const glm::vec3& dir);
-
-		virtual CVector<CActor*> QueryCollideCheckTargets() override;		
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets) override;
-
-		void ProcessCollide(CVector<CActor*>& targets);
-	};
-
-	class CPointActor : public CCollideActor
-	{
-		DECLARE_RTTI_CObject(CPointActor)
-
-		using Super = CActor;
-
-	public:
-		CPointActor(CObject* outer);
-		void Ctor();
-
-		virtual CVector<CActor*> QueryCollideCheckTargets() override;
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets) override;
 	};
 };

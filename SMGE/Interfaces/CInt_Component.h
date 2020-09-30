@@ -39,6 +39,10 @@ namespace SMGE
 			auto it = SMGE::GlobalUtils::FindIt(getAllComponents(), weakCompo);
 			return getAllComponents().erase(it) != getAllComponents().end();
 		}
+		virtual void unregisterComponentAll()
+		{
+			getAllComponents().clear();
+		}
 		virtual void clearAllComponents()
 		{
 			getPersistentComponents().clear();

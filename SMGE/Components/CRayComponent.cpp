@@ -44,10 +44,14 @@ namespace SMGE
 	{
 		//classRTTIName_ = "SMGE::CRayComponent";
 
+		SetBoundData(size, direction);
+		Ctor();
+	}
+
+	void CRayComponent::SetBoundData(float size, const glm::vec3& direction)
+	{
 		size_ = size;
 		direction_ = glm::normalize(direction);
-
-		Ctor();
 	}
 
 	void CRayComponent::Ctor()
