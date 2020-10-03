@@ -27,6 +27,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CPointComponent)
 
 	public:
+		using This = CPointComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_PointComponent;
 
@@ -40,10 +41,12 @@ namespace SMGE
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
+		virtual class CCubeComponent* GetOBB() override;
+
 		void Ctor();
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

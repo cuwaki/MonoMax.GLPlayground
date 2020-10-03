@@ -39,8 +39,6 @@ namespace SMGE
 
 	CSphereComponent::CSphereComponent(CObject* outer) : CBoundComponent(outer)
 	{
-		//classRTTIName_ = "SMGE::CSphereComponent";
-
 		Ctor();
 	}
 
@@ -87,5 +85,16 @@ namespace SMGE
 		rsm->GetRenderModel().AddWorldObject(this);
 
 		Super::ReadyToDrawing();
+	}
+
+	class CCubeComponent* CSphereComponent::GetOBB()
+	{
+		if (cachedOBB_ == nullptr)
+		{
+			auto centerPos = glm::vec3(0.f);
+			cachedOBB_ = CreateOBB(centerPos - radius_, centerPos + radius_);
+		}
+
+		return cachedOBB_;
 	}
 };

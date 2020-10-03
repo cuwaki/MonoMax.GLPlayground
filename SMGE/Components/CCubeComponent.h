@@ -29,13 +29,14 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CCubeComponent)
 
 	public:
+		using This = CCubeComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_CubeComponent;
 
 		friend struct TReflectionStruct;
 
 	public:
-		CCubeComponent(CObject* outer) : Super(outer) {}
+		CCubeComponent(CObject* outer);
 		CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
@@ -43,10 +44,13 @@ namespace SMGE
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
+		virtual class CCubeComponent* GetOBB() override;
+		virtual class CCubeComponent* GetAABB() override;
+
 		void Ctor();
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

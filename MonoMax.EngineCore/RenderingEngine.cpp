@@ -259,6 +259,21 @@ namespace SMGE
 			const auto& mat = GetMatrix(false);
 			return { mat[3][0], mat[3][1], mat[3][2] };
 		}
+		glm::vec3 Transform::GetWorldAxis(TransformConst::ETypeAxis aType)
+		{
+			const auto& mat = GetMatrix(false);
+			return glm::vec3{ mat[aType][0], mat[aType][1], mat[aType][2] } / GetWorldScale(aType);
+		}
+		float Transform::GetScale(TransformConst::ETypeAxis aType)
+		{
+			switch (aType)
+			{
+			case ETypeAxis::X: return scale_.x;
+			case ETypeAxis::Y: return scale_.y;
+			case ETypeAxis::Z: return scale_.z;
+			}
+			return 0.f;
+		}
 
 		void Transform::Translate(glm::vec3 worldPos)
 		{
@@ -403,9 +418,9 @@ namespace SMGE
 				}
 
 				transformMatrix_ = glm::translate(transformMatrix_, translation_);
-				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
-				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
-				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
+				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::PITCH]), WorldAxis[ETypeAxis::X]);
+				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::YAW]), WorldAxis[ETypeAxis::Y]);
+				transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationDegree_[ETypeRot::ROLL]), WorldAxis[ETypeAxis::Z]);
 				transformMatrix_ = glm::scale(transformMatrix_, scale_);
 
 				if(parent)
@@ -675,7 +690,7 @@ namespace SMGE
 				{
 					if (verticesSize_ > 1)
 					{
-						glDrawArrays(GL_LINES, 0, verticesSize_);	// 테스트 코드 ㅡ 스티치로 나오는 버그 있다
+						glDrawArrays(GL_LINE_STRIP, 0, verticesSize_);	// 테스트 코드 ㅡ 스티치로 나오는 버그 있다
 					}
 					else
 					{

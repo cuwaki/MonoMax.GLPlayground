@@ -7,6 +7,7 @@
 
 namespace SMGE
 {
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	struct CRttiNewFunctorVarietyBase
 	{
 	};
@@ -20,6 +21,15 @@ namespace SMGE
 		}
 	};
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// static 클래스용
+	template<class T>
+	const std::string& GetClassRTTIName()
+	{
+		return T(nullptr).GetClassRTTIName();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<class BaseClass, typename NewFunctor>
 	class CRtti
 	{
@@ -44,17 +54,27 @@ namespace SMGE
 		static BaseClass* NewDefault(const std::string& classRTTIName, Args&&... args)
 		{
 			assert(NewClassDefaults_.find(classRTTIName) != NewClassDefaults_.end());
-
 			return NewClassDefaults_[classRTTIName](std::forward<Args>(args)...);
 		}
 
 		template<class TargetClass, typename... Args>
-		static BaseClass* NewVariety(const std::string& classRTTIName, Args&&... args)
+		static TargetClass* NewDefault(Args&&... args)
 		{
+			const auto& classRTTIName = SMGE::GetClassRTTIName<TargetClass>();
+			return static_cast<TargetClass *>(NewDefault(classRTTIName, std::forward<Args>(args)...));
+		}
+
+		template<class TargetClass, typename... Args>
+		static TargetClass* NewVariety(Args&&... args)
+		{
+			const auto& classRTTIName = SMGE::GetClassRTTIName<TargetClass>();
+
 			assert(NewClassVarieties_.find(classRTTIName) != NewClassVarieties_.end());
 
-			using castT = CRttiNewFunctorVariety<BaseClass, TargetClass, Args...>;
-			return static_cast<castT&>(NewClassVarieties_[classRTTIName])(std::forward<Args>(args)...);
+			using NewFunctorT = CRttiNewFunctorVariety<BaseClass, TargetClass, Args...>;
+			
+			auto newOne = static_cast<NewFunctorT&>(NewClassVarieties_[classRTTIName])(std::forward<Args>(args)...);
+			return static_cast<TargetClass*>(newOne);
 		}
 	};
 }

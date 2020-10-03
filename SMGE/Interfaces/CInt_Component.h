@@ -37,7 +37,13 @@ namespace SMGE
 		virtual bool unregisterComponent(CComponent* weakCompo)
 		{
 			auto it = SMGE::GlobalUtils::FindIt(getAllComponents(), weakCompo);
-			return getAllComponents().erase(it) != getAllComponents().end();
+			if (it != getAllComponents().end())
+			{
+				getAllComponents().erase(it);
+				return true;
+			}
+
+			return false;
 		}
 		virtual void unregisterComponentAll()
 		{

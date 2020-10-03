@@ -125,18 +125,18 @@ namespace SMGE
 					userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT),
 					userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
 
-				static glm::vec2 lPressedPos;
-				bool isJustLPress = userInput.IsJustPressed(VK_LBUTTON);
-				if (isJustLPress)
-					lPressedPos = userInput.GetMousePosition();
+				static glm::vec2 RPressedPos;
+				bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
+				if (isJustRPress)
+					RPressedPos = userInput.GetMousePosition();
 
-				bool isLPress = userInput.IsPressed(VK_LBUTTON);
-				if (isJustLPress == false && isLPress == true)
+				bool isRPress = userInput.IsPressed(VK_RBUTTON);
+				if (isJustRPress == false && isRPress == true)
 				{
-					auto moved = lPressedPos - userInput.GetMousePosition();
+					auto moved = RPressedPos - userInput.GetMousePosition();
 					GetRenderingEngine()->GetCamera()->RotateCamera(moved);
 
-					lPressedPos = userInput.GetMousePosition();
+					RPressedPos = userInput.GetMousePosition();
 				}
 
 				return false;
@@ -206,6 +206,32 @@ namespace SMGE
 	CString ToASCII(const CWString& wstr)
 	{
 		return CString(wstr.begin(), wstr.end());
+	}
+
+	namespace CuwakiDevUtils
+	{
+		void Quat2Direction(glm::quat& q, float& pitch, float& yaw, float& roll)
+		{
+			float test = q.x * q.y + q.z * q.w;
+			if (test > 0.499) { // singularity at north pole
+				yaw = 2 * atan2f(q.x, q.w);
+				roll = 3.141592f / 2;
+				pitch = 0;
+				return;
+			}
+			if (test < -0.499) { // singularity at south pole
+				yaw = -2 * atan2f(q.x, q.w);
+				roll = -3.141592f / 2;
+				pitch = 0;
+				return;
+			}
+			float sqx = q.x * q.x;
+			float sqy = q.y * q.y;
+			float sqz = q.z * q.z;
+			yaw = atan2f(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * sqy - 2 * sqz);
+			roll = asinf(2 * test);
+			pitch = atan2f(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * sqx - 2 * sqz);
+		}
 	}
 
 	namespace Path

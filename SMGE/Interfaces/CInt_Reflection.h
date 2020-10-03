@@ -91,7 +91,7 @@ namespace SMGE
 	class CInt_Reflection : public CInterfaceBase
 	{
 	public:
-		CWString& getReflectionFilePath() { return reflectionFilePath_; }
+		virtual const CWString& getReflectionFilePath() const;
 		virtual const CString& getClassRTTIName() const = 0;
 
 		virtual SGReflection& getReflection() = 0;
@@ -110,9 +110,6 @@ namespace SMGE
 		}
 
 		virtual void OnAfterDeserialized() {}
-
-	protected:
-		CWString reflectionFilePath_;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,9 +128,7 @@ namespace SMGE
 		static const CWString::value_type VALUE_DELIM_CHAR;
 
 		SGReflection(CInt_Reflection& obj) : 
-			pair_(obj), 
-			classRTTIName_(obj.getClassRTTIName()),
-			reflectionFilePath_(obj.getReflectionFilePath()) // ##8A
+			pair_(obj)
 		{
 			if (isFast_ == false)
 				buildVariablesMap();
@@ -149,23 +144,13 @@ namespace SMGE
 		const CString& getClassRTTIName() const { return classRTTIName_; }
 		const CWString& getReflectionFilePath() const { return reflectionFilePath_; }
 
-		// Utility
-		static CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted);
-		static CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted);
-
 	protected:
 		virtual void buildVariablesMap();
 
 		CInt_Reflection& pair_;
 
-		// 여기 수정 - 이게 2가지 성격을 가진다 - 정리가 필요하다
-		// Reflection 자체의 className 을 나타내야하는 경우가 있고 - 독립으로 사용되는 SGRefl_Transform
-		// pair_ 의 className 을 나타내야하는 경우가 있다
-		// 여기 수정 - 중첩으로 SGReflection 들이 되어있을 때 // ##8A 와 같이 레퍼런스로 연결되어있으면 나중의 값으로 덮여씌워져버리는 문제가 있다 - 예)CActor
-		const CString& classRTTIName_;
-		CWString& reflectionFilePath_;
-
-		CWString reflectionName_;
+		CString classRTTIName_;
+		CWString reflectionFilePath_;
 
 		bool isFast_ = false;
 		CHashMap<CWString, void*> variablesMap_;
@@ -179,6 +164,9 @@ namespace SMGE
 		#define _FROM_REFL(_varname_, _in_vec_) ReflectionUtils::FromREFL_SOURCEVECTOR(_varname_, _in_vec_)
 		#define _ADD_REFL_VARIABLE(_varname_) variablesMap_[L""#_varname_] = &_varname_
 		#define _REF_REFL_VARIABLE(_varname_) (*SCast<decltype(&_varname_)>(variablesMap_[L""#_varname_]))
+
+		CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted);
+		CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted);
 
 		// _TO_REFL 의 헤더만 만드는 함수 버전
 		CWString _TO_REFL_Head(CWString _vartype_, CWString _varname_, bool isFast_);
@@ -391,7 +379,7 @@ namespace SMGE
 		template<typename TargetClass, typename OuterClass>
 		auto FuncLoadClass(OuterClass* outer, CVector<TupleVarName_VarType_Value>& variableSplitted)
 		{
-			auto rttiName = SGReflection::GetClassRTTIName(variableSplitted);
+			auto rttiName = ReflectionUtils::GetClassRTTIName(variableSplitted);
 
 			auto newObj = DCast<TargetClass*>(RTTI_CObject::NewDefault(rttiName, outer));
 			newObj->getReflection() = variableSplitted;

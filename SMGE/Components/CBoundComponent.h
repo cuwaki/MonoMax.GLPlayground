@@ -56,10 +56,18 @@ namespace SMGE
 
 		EBoundType GetBoundType() const { return boundType_; }
 
+		virtual class CCubeComponent* GetOBB() = 0;
+		virtual class CCubeComponent* GetAABB();
+
+	protected:
+		class CCubeComponent* CreateOBB(const glm::vec3& lb, const glm::vec3& rt);
+
 	protected:
 		bool isPickingTarget_;
 		bool isCollideTarget_;
 
 		EBoundType boundType_ = EBoundType::MAX;
+
+		class CCubeComponent* cachedOBB_;
 	};
 };

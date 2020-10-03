@@ -8,7 +8,6 @@ namespace SMGE
 {
 	CMovementComponent::CMovementComponent(CObject* outer) : CComponent(outer)
 	{
-		//classRTTIName_ = "SMGE::CMovementComponent";
 	}
 
 	SGReflection& CMovementComponent::getReflection()

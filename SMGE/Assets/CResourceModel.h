@@ -35,13 +35,14 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CResourceModel)
 
 	public:
+		using This = CResourceModel;
 		using TReflectionStruct = SGRefl_ResourceModel;
 		friend struct TReflectionStruct;
 
 		CResourceModel(CObject* outer);
 
 	public:
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override;
 

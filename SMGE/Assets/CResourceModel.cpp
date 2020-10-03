@@ -55,7 +55,6 @@ namespace SMGE
 
 	CResourceModel::CResourceModel(CObject* outer) : nsRE::ResourceModel(), CObject(outer)
 	{
-		//classRTTIName_ = "SMGE::CResourceModel";
 	}
 
 	SGReflection& CResourceModel::getReflection()

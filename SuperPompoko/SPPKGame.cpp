@@ -86,6 +86,10 @@ namespace SMGE
 
 #ifdef EDITOR_WORKING
 		// 테스트 코드
+		//CSharPtr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
+		//auto testActor = new CActor(this);
+		//testActor->CopyFromTemplate(test->getContentClass());
+
 		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
 		currentMap_ = new CMap(this);
 		currentMap_->CopyFromTemplate(testMapTemplate->getContentClass());
@@ -128,7 +132,7 @@ namespace SMGE
 				rayActor->getTransform().Translate(ray_origin);
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->ProcessCollide(targets);
-				rayActor->SetLifeTick(2);
+				rayActor->SetLifeTick(200);
 				// }
 			}
 

@@ -88,7 +88,32 @@ namespace SMGE
 			}
 		}
 		// } glm::section
+
+		CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted)
+		{
+			metaSplitted.pushCursor();
+			CString rttiName;
+			_FROM_REFL(rttiName, metaSplitted);
+			metaSplitted.popCursor();
+			return rttiName;
+		}
+
+		CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted)
+		{
+			metaSplitted.pushCursor();
+			CString rttiName;
+			_FROM_REFL(rttiName, metaSplitted);
+			CWString reflPath;
+			_FROM_REFL(reflPath, metaSplitted);
+			metaSplitted.popCursor();
+			return reflPath;
+		}
 	};
+
+	const CWString& CInt_Reflection::getReflectionFilePath() const
+	{
+		return getConstReflection().getReflectionFilePath();
+	}
 
 	void SGReflection::buildVariablesMap()
 	{
@@ -180,9 +205,7 @@ namespace SMGE
 	SGReflection& SGReflection::operator=(CVector<CWString>& variableSplitted)
 	{
 		// from fast
-		CString dummy;
-		_FROM_REFL(dummy, variableSplitted);	// classRTTIName_ 버림
-
+		_FROM_REFL(classRTTIName_, variableSplitted);
 		_FROM_REFL(reflectionFilePath_, variableSplitted);
 
 		return *this;
@@ -190,37 +213,9 @@ namespace SMGE
 
 	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
 	{
-		CString dummy;
-		_FROM_REFL(dummy, metaSplitted);	// classRTTIName_ 버림
-
-		CWString reflPath;
-		_FROM_REFL(reflPath, metaSplitted);
-
-		if (reflectionFilePath_.length() == 0)
-		{	// 여기 수정 - ##8A 의 임시 수정
-			reflectionFilePath_ = std::move(reflPath);
-		}
+		_FROM_REFL(classRTTIName_, metaSplitted);
+		_FROM_REFL(reflectionFilePath_, metaSplitted);
 
 		return *this;
-	}
-
-	CString SGReflection::GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted)
-	{
-		metaSplitted.pushCursor();
-		CString rttiName;
-		_FROM_REFL(rttiName, metaSplitted);	// classRTTIName_ 버림
-		metaSplitted.popCursor();
-		return rttiName;
-	}
-
-	CWString SGReflection::GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted)
-	{
-		metaSplitted.pushCursor();
-		CString rttiName;
-		_FROM_REFL(rttiName, metaSplitted);	// classRTTIName_ 버림
-		CWString reflPath;
-		_FROM_REFL(reflPath, metaSplitted);
-		metaSplitted.popCursor();
-		return reflPath;
 	}
 };

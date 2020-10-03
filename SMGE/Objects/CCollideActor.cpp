@@ -10,8 +10,6 @@ namespace SMGE
 {
 	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
 	{
-		//classRTTIName_ = "SMGE::CCollideActor";
-
 		rule_ = rule;
 		isDetailCheck_ = isDetailCheck;
 	}

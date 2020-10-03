@@ -43,6 +43,7 @@ namespace SMGE
 	public:
 		using TReflectionStruct = SGRefl_Map;
 
+		using This = CMap;
 		using Super = CObject;
 		friend struct TReflectionStruct;
 
@@ -83,7 +84,7 @@ namespace SMGE
 		}
 
 	public:
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:
@@ -109,7 +110,7 @@ namespace SMGE
 		template<typename ActorT, typename... Args>
 		ActorT& SpawnActorVARIETY(bool isDynamic, Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewVariety<ActorT>(SMGE::GetClassRTTIName<ActorT>(), std::forward<Args>(args)...);
+			auto newObj = RTTI_CObject::NewVariety<ActorT>(std::forward<Args>(args)...);
 			return static_cast<ActorT&>(SpawnActorINTERNAL(newObj, isDynamic));
 		}
 	};

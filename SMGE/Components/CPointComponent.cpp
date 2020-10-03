@@ -3,7 +3,7 @@
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
 #include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
-#include "CSphereComponent.h"
+#include "CCubeComponent.h"
 
 namespace SMGE
 {
@@ -36,8 +36,6 @@ namespace SMGE
 
 	CPointComponent::CPointComponent(CObject* outer) : CBoundComponent(outer)
 	{
-		//classRTTIName_ = "SMGE::CPointComponent";
-
 		Ctor();
 	}
 
@@ -87,5 +85,16 @@ namespace SMGE
 	{
 		outCollidingPoint = nsRE::TransformConst::Vec3_Zero;
 		return false;
+	}
+
+	class CCubeComponent* CPointComponent::GetOBB()
+	{
+		if (cachedOBB_ == nullptr)
+		{
+			auto centerPos = glm::vec3(0.f);
+			cachedOBB_ = CreateOBB(centerPos - Configs::BoundEpsilon, centerPos + Configs::BoundEpsilon);
+		}
+
+		return cachedOBB_;
 	}
 };

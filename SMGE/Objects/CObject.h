@@ -57,11 +57,4 @@ private:\
 
 #define DEFINE_RTTI_CObject_DEFAULT(CRN) CString CRN::ClassRTTIName = ""#CRN; RTTI_CObject _staticRTTI_DEFAULT_##CRN(""#CRN, [](CObject* outer) {return new CRN(outer); }); 
 #define DEFINE_RTTI_CObject_VARIETY(CRN, ...) RTTI_CObject _staticRTTI_VARIETY_##CRN(""#CRN, CRttiNewFunctorVariety<CObject, CRN, __VA_ARGS__>{});
-
-	/* static 클래스용 */
-	template<class T>
-	const std::string& GetClassRTTIName()
-	{
-		return T(nullptr).GetClassRTTIName();
-	}
 };

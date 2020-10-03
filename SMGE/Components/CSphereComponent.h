@@ -28,6 +28,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CSphereComponent)
 
 	public:
+		using This = CSphereComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_SphereComponent;
 
@@ -40,10 +41,12 @@ namespace SMGE
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 
+		virtual class CCubeComponent* GetOBB() override;
+
 		void Ctor();
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 		float GetRadius() const { return radius_; }

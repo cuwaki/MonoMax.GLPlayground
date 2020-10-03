@@ -13,5 +13,7 @@ namespace SMGE
 	public:
 		CStaticMeshActor(CObject* outer);
 		void Ctor();
+
+		virtual void BeginPlay() override;
 	};
 }

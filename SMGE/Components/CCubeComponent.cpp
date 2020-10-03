@@ -39,10 +39,12 @@ namespace SMGE
 		return *this;
 	}
 
-	CCubeComponent::CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop) : CBoundComponent(outer)
+	CCubeComponent::CCubeComponent(CObject* outer) : Super(outer)
 	{
-		//classRTTIName_ = "SMGE::CCubeComponent";
 		Ctor();
+	}
+	CCubeComponent::CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop) : CCubeComponent(outer)
+	{
 	}
 
 	void CCubeComponent::Ctor()
@@ -90,5 +92,19 @@ namespace SMGE
 	bool CCubeComponent::CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint)
 	{
 		return false;
+	}
+
+	class CCubeComponent* CCubeComponent::GetOBB()
+	{
+		cachedOBB_ = this;
+		return this;
+	}
+
+	class CCubeComponent* CCubeComponent::GetAABB()
+	{
+		// 액터가 무버블인 경우 aabb 는 계속 바뀔 것이기 때문에 매번 생성한다
+		// 아니면 캐싱한다
+		glm::vec3 worldLB, worldRT;
+		return nullptr;
 	}
 };

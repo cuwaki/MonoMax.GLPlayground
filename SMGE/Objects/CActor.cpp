@@ -17,8 +17,15 @@ namespace SMGE
 		actorKey_(actor.actorKey_),
 		sg_actorTransform_(actor, actor.actorTransform_),
 		actorStaticTag_(actor.actorStaticTag_),	
-		outerActor_(actor), SGReflection(actor)
+		outerActor_(actor),
+		SGReflection(actor)
 	{
+	}
+
+	SGRefl_Actor::SGRefl_Actor(const CSharPtr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr)
+	{
+		classRTTIName_ = actorPtr->getReflection().getClassRTTIName();	// 이미 로드된 액터로부터 사본으로 생기는 경우라서 이걸 수동으로 복사해줘야한다
+		reflectionFilePath_ = actorPtr->getReflection().getReflectionFilePath();
 	}
 
 	void SGRefl_Actor::buildVariablesMap()
@@ -111,7 +118,6 @@ namespace SMGE
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CActor::CActor(CObject* outer) : CObject(outer)
 	{
-		//classRTTIName_ = "SMGE::CActor";
 		mainBoundCompo_ = nullptr;
 
 		Ctor();

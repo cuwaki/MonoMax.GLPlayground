@@ -12,6 +12,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CMovementComponent)
 
 	public:
+		using This = CMovementComponent;
 		using Super = CComponent;
 		using TReflectionStruct = SGRefl_Component;
 
@@ -25,7 +26,7 @@ namespace SMGE
 		virtual void Tick(float td) override;
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

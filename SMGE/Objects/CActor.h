@@ -18,7 +18,7 @@ namespace SMGE
 		using Super = SGReflection;
 
 		SGRefl_Actor(CActor& actor);
-		SGRefl_Actor(const CSharPtr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr) {}
+		SGRefl_Actor(const CSharPtr<CActor>& actorPtr);
 		
 		virtual void buildVariablesMap() override;
 		
@@ -50,6 +50,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CActor)
 
 	public:
+		using This = CActor;
 		using Super = CObject;
 		using TReflectionStruct = SGRefl_Actor;
 
@@ -93,7 +94,7 @@ namespace SMGE
 
 	public:
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override;
 

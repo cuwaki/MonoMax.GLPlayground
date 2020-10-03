@@ -12,17 +12,22 @@ namespace SMGE
 	namespace Globals
 	{
 		extern nsGE::CGameBase* GCurrentGame;
-		
+
 		CWString GetGameProjectName();
-		
+
 		CWString GetGameAssetRoot();
-\
-		CWString GetGameAssetPath(const CWString& assetFilePath);
-		CWString GetEngineAssetPath(const CWString& assetFilePath);		
+		\
+			CWString GetGameAssetPath(const CWString& assetFilePath);
+		CWString GetEngineAssetPath(const CWString& assetFilePath);
 
 #if IS_EDITOR
 		CWString GetGameProjectRoot();
 #endif
+	}
+
+	namespace Configs
+	{
+		constexpr static float BoundEpsilon = 0.0001f;	// 점이나 선, 면 등을 사용할 때 어떤 두께가 필요한 경우가 있어서 정의된 상수
 	}
 
 	namespace nsGE

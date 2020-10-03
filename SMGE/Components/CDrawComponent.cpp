@@ -8,7 +8,6 @@ namespace SMGE
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SGRefl_Transform::SGRefl_Transform(CInt_Reflection& anything, nsRE::Transform& trans) : SGReflection(anything), nsre_transform_(trans)
 	{
-		reflectionName_ = wtext("SMGE::SGRefl_Transform");
 	}
 
 	SGRefl_Transform::operator CWString() const
@@ -113,8 +112,6 @@ namespace SMGE
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldObject(nullptr)
 	{
-		//classRTTIName_ = "SMGE::CDrawComponent";
-
 		Ctor();
 	}
 

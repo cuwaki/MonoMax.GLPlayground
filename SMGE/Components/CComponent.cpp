@@ -11,7 +11,6 @@ namespace SMGE
 
 	CComponent::CComponent(CObject* outer) : CObject(outer)
 	{
-		//classRTTIName_ = "SMGE::CComponent";
 	}
 
 	void CComponent::OnBeginPlay(class CObject* parent)

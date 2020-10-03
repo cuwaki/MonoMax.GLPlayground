@@ -21,6 +21,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CComponent)
 
 	public:
+		using This = CComponent;
 		using Super = CObject;
 		using TReflectionStruct = SGRefl_Component;
 
@@ -38,7 +39,7 @@ namespace SMGE
 		bool isActive() const { return isActive_; }
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 		virtual void OnAfterDeserialized() override {}
 

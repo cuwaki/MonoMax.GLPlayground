@@ -51,8 +51,8 @@ namespace SMGE
 			// CMap 에 CActor 들이 인스턴싱 되어있어야한다
 			// SGRefl_Map 이 CMap 에 액터 생성을 시킨 후 연결해야한다 - 일단은 이렇게 구현해보자!
 
-			CString actorClassRTTIName = SGReflection::GetClassRTTIName(variableSplitted);
-			CWString actorAssetPath = SGReflection::GetReflectionFilePath(variableSplitted);
+			CString actorClassRTTIName = ReflectionUtils::GetClassRTTIName(variableSplitted);
+			CWString actorAssetPath = ReflectionUtils::GetReflectionFilePath(variableSplitted);
 
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
@@ -96,7 +96,6 @@ namespace SMGE
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CMap::CMap(CObject* outer) : CObject(outer)
 	{
-		//classRTTIName_ = "SMGE::CMap";
 		Ctor();
 	}
 
@@ -157,7 +156,7 @@ namespace SMGE
 		}
 		else
 		{	// 차후 this->actorLayers_ 에 변경이 있는 경우에만 바뀌어야한다
-			reflMap_->SGRefl_Map::SGRefl_Map(*this);
+			//reflMap_->SGRefl_Map::SGRefl_Map(*this);	// 201003 이거 왜 이렇게 했더라? 구조적으로 이렇게 하면 안되게 되어서 주석으로 막음
 		}
 
 		return *reflMap_.get();

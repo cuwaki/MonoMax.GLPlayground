@@ -26,6 +26,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CMeshComponent)
 
 	public:
+		using This = CMeshComponent;
 		using Super = CDrawComponent;
 		using TReflectionStruct = SGRefl_MeshComponent;
 
@@ -43,7 +44,7 @@ namespace SMGE
 		void SetDrawingModelAsset(const CWString& modelAssetPath);
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:

@@ -26,6 +26,8 @@
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/string_cast.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/glm.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/ext.hpp"
+#include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/quaternion.hpp"
+#include "../packages/glm.0.9.9.800/build/native/include/glm/gtc/quaternion.hpp"
 
 #define etoi(_E_) SCast<int32>(_E_)
 #define etos(_E_) SCast<size_t>(_E_)
@@ -285,6 +287,8 @@ namespace SMGE
 
             return false;
         }
+
+        void Quat2Direction(glm::quat& q, float& pitch, float& yaw, float& roll);
     }
 
     namespace Path

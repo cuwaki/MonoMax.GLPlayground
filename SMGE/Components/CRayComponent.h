@@ -29,6 +29,7 @@ namespace SMGE
 		DECLARE_RTTI_CObject(CRayComponent)
 
 	public:
+		using This = CRayComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = SGRefl_RayComponent;
 
@@ -45,15 +46,17 @@ namespace SMGE
 
 		void SetBoundData(float size, const glm::vec3& direction);
 
+		virtual class CCubeComponent* GetOBB() override;
+
 		void Ctor();
 
 		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return GetClassRTTIName(); }
+		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflRayCompo_;
-		float size_;
-		glm::vec3 direction_;
+		float size_ = 1.f;
+		glm::vec3 direction_{1.f, 0.f, 0.f};
 	};
 };

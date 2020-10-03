@@ -4,6 +4,7 @@
 #include "../Objects/CActor.h"
 #include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
 #include "CSphereComponent.h"
+#include "CCubeComponent.h"
 
 namespace SMGE
 {
@@ -42,14 +43,16 @@ namespace SMGE
 
 	CRayComponent::CRayComponent(CObject* outer, float size, const glm::vec3& direction) : CBoundComponent(outer)
 	{
-		//classRTTIName_ = "SMGE::CRayComponent";
-
 		SetBoundData(size, direction);
 		Ctor();
 	}
 
 	void CRayComponent::SetBoundData(float size, const glm::vec3& direction)
 	{
+		// 테스트 코드 - 레이컴포넌트의 obb 생성하기
+		GetOBB();
+
+
 		size_ = size;
 		direction_ = glm::normalize(direction);
 	}
@@ -73,6 +76,26 @@ namespace SMGE
 		Super::OnEndPlay();
 	}
 
+	class CCubeComponent* CRayComponent::GetOBB()
+	{
+		if (cachedOBB_ == nullptr)
+		{
+			auto startPos = glm::vec3(0.f);	// opengl x축을 바라보는 게 전방으로 놓고 계산한다
+			auto endPos = glm::vec3(startPos.x + size_, startPos.y, startPos.z);
+
+			auto lb = startPos - Configs::BoundEpsilon;
+			auto rt = endPos + Configs::BoundEpsilon;
+			cachedOBB_ = CreateOBB(lb, rt);
+
+			// 이제 obb가 붙을 본체를 direction_ 방향으로 회전시켜야한다
+			auto rotQ = glm::quat(direction_);
+
+			return cachedOBB_;
+		}
+
+		return cachedOBB_;
+	}
+
 	SGReflection& CRayComponent::getReflection()
 	{
 		if (reflRayCompo_.get() == nullptr)
@@ -86,6 +109,7 @@ namespace SMGE
 
 		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if(rsm == nullptr)
+			// 테스트 코드 - 레이컴포넌트의 obb 생성하기
 			rsm = new nsRE::RayRSM(size_, direction_);
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
