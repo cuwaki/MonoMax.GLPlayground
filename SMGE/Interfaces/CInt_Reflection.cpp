@@ -189,7 +189,8 @@ namespace SMGE
 			metaSplitted.cursorBegin();
 
 			auto& ret = operator=(metaSplitted);
-			pair_.OnAfterDeserialized();
+			if(pair_ != nullptr)
+				pair_->OnAfterDeserialized();
 			return ret;
 		}
 		else
@@ -197,7 +198,8 @@ namespace SMGE
 			variableSplitted.cursorBegin();
 
 			auto& ret = operator=(variableSplitted);
-			pair_.OnAfterDeserialized();
+			if (pair_ != nullptr)
+				pair_->OnAfterDeserialized();
 			return ret;
 		}
 	}

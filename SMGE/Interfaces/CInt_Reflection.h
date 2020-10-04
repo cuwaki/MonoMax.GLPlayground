@@ -127,11 +127,13 @@ namespace SMGE
 		static const CWString::value_type VARIABLE_DELIM_CHAR;
 		static const CWString::value_type VALUE_DELIM_CHAR;
 
-		SGReflection(CInt_Reflection& obj) : 
-			pair_(obj)
+		SGReflection(CInt_Reflection* obj) : pair_(obj)
 		{
 			if (isFast_ == false)
 				buildVariablesMap();
+		}
+		SGReflection(CInt_Reflection& obj) : SGReflection(&obj)
+		{
 		}
 
 		virtual void OnBeforeSerialize() const {}
@@ -147,13 +149,26 @@ namespace SMGE
 	protected:
 		virtual void buildVariablesMap();
 
-		CInt_Reflection& pair_;
+		CInt_Reflection* pair_;
 
 		CString classRTTIName_;
 		CWString reflectionFilePath_;
 
 		bool isFast_ = false;
 		CHashMap<CWString, void*> variablesMap_;
+	};
+
+	// 말그대로 .asset 의 헤더 부분만 딱 읽어오기 위한 클래스이다 - 애셋 로드할 때 실제 그 애셋 안에 뭐가 든지 모를 때 사용한다.
+	class CHeaderOnlyReflection : public CInt_Reflection
+	{
+	public:
+		CHeaderOnlyReflection(void *dummy) {}
+		virtual const CString& getClassRTTIName() const { return dummyClassRTTIName_; }
+		virtual SGReflection& getReflection() { return dummy_; }
+
+	protected:
+		CString dummyClassRTTIName_ = "CHeaderOnlyReflection";
+		SGReflection dummy_{ *this };
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

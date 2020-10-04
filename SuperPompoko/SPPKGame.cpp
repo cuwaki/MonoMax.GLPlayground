@@ -12,6 +12,7 @@
 #include "Objects/CCollideActor.h"
 #include "Assets/CAssetManager.h"
 #include "Assets/CAsset.h"
+#include "Objects/CStaticMeshActor.h"
 
 namespace SMGE
 {
@@ -87,7 +88,7 @@ namespace SMGE
 #ifdef EDITOR_WORKING
 		// 테스트 코드
 		//CSharPtr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
-		//auto testActor = new CActor(this);
+		//auto testActor = new CStaticMeshActor(this);
 		//testActor->CopyFromTemplate(test->getContentClass());
 
 		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));

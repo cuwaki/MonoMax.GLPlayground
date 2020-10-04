@@ -43,6 +43,7 @@ namespace SMGE
 			return CuwakiDevUtils::SaveToTextFile(filePath, strOut.out_);
 		}
 
+	protected:
 		static CHashMap<CWString, CSharPtr<CAssetBase> > cachedAssets_;
 	};
 }
