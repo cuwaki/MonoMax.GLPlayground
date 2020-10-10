@@ -79,7 +79,7 @@ namespace SMGE
 
 		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (rsm == nullptr)
-			rsm = new nsRE::CubeRSM(centerPos_, size_);
+			rsm = new nsRE::CubeRSM(size_);
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
 		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
@@ -96,8 +96,12 @@ namespace SMGE
 
 	class CCubeComponent* CCubeComponent::GetOBB()
 	{
-		cachedOBB_ = this;
-		return this;
+		auto lb = centerPos_ - size_, rt = centerPos_ + size_;
+		cachedOBB_ = CreateOBB(lb, rt);
+
+		assert(this == cachedOBB_);
+
+		return cachedOBB_;
 	}
 
 	class CCubeComponent* CCubeComponent::GetAABB()

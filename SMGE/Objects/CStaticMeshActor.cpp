@@ -18,8 +18,5 @@ namespace SMGE
 	void CStaticMeshActor::BeginPlay()
 	{
 		Super::BeginPlay();
-
-		// 테스트 코드 - 레이컴포넌트의 obb 생성하기
-		GetMainBound()->GetOBB();
 	}
 }

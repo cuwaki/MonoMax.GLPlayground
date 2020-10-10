@@ -19,13 +19,17 @@ namespace SMGE
 	{
 		namespace TransformConst
 		{
+			const glm::vec3 GetModelRotateDirectionAxis()
+			{
+				return WorldXAxis;
+			}
 			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat3& currentRotMat)
 			{
-				return currentRotMat[ETypeAxis::Z];
+				return currentRotMat[ETypeAxis::X];
 			}
 			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat4& currentRotMat)
 			{
-				return currentRotMat[ETypeAxis::Z];
+				return currentRotMat[ETypeAxis::X];
 			}
 			const glm::vec3 GetModelRotateUpAxis(const glm::mat3& currentRotMat)
 			{
@@ -478,10 +482,15 @@ namespace SMGE
 
 				const auto translMat = glm::translate(Mat4_Identity, translation_);
 
+				// 쿼터니언 기본 정보
+				// http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
+
+				// 1. 오일러각 조절로 기본 각도를 맞추고
 				// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
 				const glm::quat euler2Quat(rotationRadianEuler_);
 				const auto eulerRotMat = glm::toMat4(euler2Quat);
 
+				// 2. 방향지정으로 회전
 				const auto modelDirAxis = GetModelRotateDirectionAxis(eulerRotMat);
 				const auto modelUpAxis = GetModelRotateUpAxis(eulerRotMat);
 				//const glm::quat qX = glm::angleAxis(glm::degrees(rotationRadianQuat_.x), glm::vec3(eulerRotMat[ETypeAxis::X]));

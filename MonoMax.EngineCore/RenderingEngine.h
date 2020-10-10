@@ -50,6 +50,8 @@ namespace SMGE
 			const glm::vec3 WorldZAxis{ 0, 0, 1 };
 			const glm::vec3 WorldAxis[3] = { WorldXAxis, WorldYAxis, WorldZAxis };	// access with ETypeAxis
 
+			const glm::vec3 GetModelRotateDirectionAxis();
+
 			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat3& currentRotMat);
 			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat4& currentRotMat);
 			const glm::vec3 GetModelRotateUpAxis(const glm::mat3& currentRotMat);

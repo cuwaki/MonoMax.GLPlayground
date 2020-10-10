@@ -91,7 +91,7 @@ namespace SMGE
 	{
 		if (cachedOBB_ == nullptr)
 		{
-			auto centerPos = glm::vec3(0.f);
+			auto centerPos = glm::vec3(0.f);	// 모델 좌표계에 생성해야한다, 부모의 transform을 따라야하기 때문
 			cachedOBB_ = CreateOBB(centerPos - Configs::BoundEpsilon, centerPos + Configs::BoundEpsilon);
 		}
 

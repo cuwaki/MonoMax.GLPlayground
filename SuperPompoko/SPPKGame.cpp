@@ -116,24 +116,28 @@ namespace SMGE
 						auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
 						pointActor->CopyFromTemplate(prefab->getContentClass());
 
-						currentMap_->FinishSpawnActor(*pointActor);
-
 						pointActor->getTransform().Translate(COLL_POS);
+
+						currentMap_->FinishSpawnActor(*pointActor);
+						
 						pointActor->SetLifeTick(100);
 					});
 
 				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
 				rayActor->CopyFromTemplate(prefab->getContentClass());
-				currentMap_->FinishSpawnActor(*rayActor);
 
-				// 생각 - 이걸 비긴 플레이로 넣고 싶은데 / 애프터 비긴 플레이 말고 그냥 비긴 플레이에 넣을 수는 없을까?
 				auto rayCompo = rayActor->findComponent<CRayComponent>();
 				rayCompo->SetBoundData(engine_->GetRenderingEngine()->GetCamera()->GetZFar(), ray_direction);
 
+				// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 				rayActor->getTransform().Translate(ray_origin);
+				rayActor->getTransform().RotateQuat(ray_direction);
+
+				currentMap_->FinishSpawnActor(*rayActor);
+
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->ProcessCollide(targets);
-				rayActor->SetLifeTick(200);
+				rayActor->SetLifeTick(100);
 				// }
 			}
 

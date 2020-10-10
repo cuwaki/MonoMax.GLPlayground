@@ -44,14 +44,18 @@ namespace SMGE
 		auto map = FindOuter<CMap>(this);
 		if (map != nullptr)	// 현재 맵이 없다면 beginplay 가 작동하지 않아서 제대로된 obb로서의 작동을 할 수 없다
 		{
-			getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(RTTI_CObject::NewVariety<CCubeComponent>(this, lb, rt)));
+			auto meCube = DCast<CCubeComponent*>(this);
 
-			auto cube = static_cast<CCubeComponent*>(getTransientComponents().back().get());
+			auto obbCube = meCube == nullptr ? RTTI_CObject::NewVariety<CCubeComponent>(this, lb, rt) : meCube;
+			getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(obbCube));
 
-			if (map->IsStarted())
-				cube->OnBeginPlay(this);
+			if (meCube == nullptr)
+			{	// this 가 CCubeComponent 가 아닐 때만
+				if (map->IsStarted())
+					obbCube->OnBeginPlay(this);
+			}
 
-			return cube;
+			return obbCube;
 		}
 
 		return nullptr;

@@ -34,20 +34,24 @@ namespace SMGE
 			CreateFrom(vertices);
 		}
 
-		CubeRSM::CubeRSM(const glm::vec3& centerPos, const glm::vec3& size)
+		CubeRSM::CubeRSM(const glm::vec3& size)
 		{
 			std::vector<glm::vec3> vertices;
+			
+			glm::vec3 centerPos(0);
 			vertices = nsRE::makeSimpleCube3D_Line<glm::vec3>(centerPos, size);
 
 			CreateFrom(vertices);
 		}
 
-		RayRSM::RayRSM(float size, const glm::vec3& direction) : GizmoRSM()
+		RayRSM::RayRSM(float size) : GizmoRSM()
 		{
 			std::vector<glm::vec3> vertices;
 			vertices.reserve(2);
 
 			vertices.emplace_back(0.f, 0.f, 0.f);
+
+			glm::vec3 direction = TransformConst::GetModelRotateDirectionAxis();
 			vertices.emplace_back(glm::normalize(direction) * size);
 
 			CreateFrom(vertices);
