@@ -1,11 +1,14 @@
 #ifndef QUATERNION_UTILS_H
 #define QUATERNION_UTILS_H
 
-quat RotationBetweenVectors(vec3 start, vec3 dest);
+namespace OpenGL_Tutorials
+{
+	glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
-quat LookAt(vec3 direction, vec3 desiredUp);
+	glm::quat LookAt(glm::vec3 direction, glm::vec3 desiredUp, glm::vec3 defaultDirectionAxis, glm::vec3 defaultUpAxis);
 
-quat RotateTowards(quat q1, quat q2, float maxAngle);
+	glm::quat RotateTowards(glm::quat q1, glm::quat q2, float maxAngle);
+}
 
 
 #endif // QUATERNION_UTILS_H

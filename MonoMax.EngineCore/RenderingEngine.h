@@ -42,12 +42,18 @@ namespace SMGE
 			const glm::vec3 Vec3_OneHalf(0.5);
 			const glm::vec3 Vec3_One(1);
 
+			const glm::mat3 Mat3_Identity(1);
 			const glm::mat4 Mat4_Identity(1);
 
 			const glm::vec3 WorldXAxis{ 1, 0, 0 };
 			const glm::vec3 WorldYAxis{ 0, 1, 0 };
 			const glm::vec3 WorldZAxis{ 0, 0, 1 };
 			const glm::vec3 WorldAxis[3] = { WorldXAxis, WorldYAxis, WorldZAxis };	// access with ETypeAxis
+
+			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat4& currentRotMat);
+			const glm::vec3 GetModelRotateUpAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 GetModelRotateUpAxis(const glm::mat4& currentRotMat);
 		};
 
 		class VertFragShaderSet
@@ -126,7 +132,8 @@ namespace SMGE
 		{
 		private:
 			glm::vec3 translation_;
-			glm::vec3 rotationDegree_;
+			glm::vec3 rotationRadianEuler_;
+			glm::vec3 lookAtDirection_;
 			glm::vec3 scale_;
 
 		protected:
@@ -142,7 +149,8 @@ namespace SMGE
 			const glm::mat4& GetMatrix(bool forceRecalc);
 
 			const glm::vec3& GetTranslation() const;
-			const glm::vec3& GetRotation() const;
+			const glm::vec3& GetRotationEuler() const;
+			const glm::vec3& GetLookAtDirection() const;
 			const glm::vec3& GetScale() const;
 
 			glm::vec3 GetWorldPosition();
@@ -151,11 +159,12 @@ namespace SMGE
 			float GetScale(TransformConst::ETypeAxis aType);
 
 			void Translate(glm::vec3 worldPos);
-			void Rotate(glm::vec3 rotateDegrees);
-			void RotateAxis(TransformConst::ETypeRot rType, float degrees);
+			void RotateEuler(glm::vec3 rotateDegrees);
+			void RotateEuler(TransformConst::ETypeRot rType, float degrees);
+			void RotateQuat(const glm::vec3& lookAtDir);
 			void Scale(float scale);
 			void Scale(glm::vec3 scale);
-			void ScaleAxis(TransformConst::ETypeAxis aType, float scale);
+			void Scale(TransformConst::ETypeAxis aType, float scale);
 
 			void OnBeforeRendering();
 

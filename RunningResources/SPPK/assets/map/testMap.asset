@@ -9,8 +9,8 @@ classRTTIName_$CString$"CMap"
 		classRTTIName_$CString$"SGRefl_Transform"
 		reflectionFilePath_$CWString$""
 		nsre_transform_.GetTranslation()$glm::vec3$-5.000000	3.000000	0.000000	
-		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-		nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	45.000000	0.000000	
+		nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
 		actorStaticTag_$CString$"this is a monkey"
 		persistCompoSize$size_t$3
 		classRTTIName_$CString$"CMeshComponent"

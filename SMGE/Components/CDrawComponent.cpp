@@ -15,7 +15,10 @@ namespace SMGE
 		CWString ret = Super::operator CWString();
 
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetTranslation());
-		ret += _TO_REFL(glm::vec3, nsre_transform_.GetRotation());
+
+		auto radRot = nsre_transform_.GetRotationEuler();
+		ret += _TO_REFL(glm::vec3, glm::degrees(radRot));
+
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetScale());
 
 		return ret;
@@ -31,7 +34,7 @@ namespace SMGE
 		_FROM_REFL(scale, variableSplitted);
 
 		nsre_transform_.Translate(translation);
-		nsre_transform_.Rotate(rotation);
+		nsre_transform_.RotateEuler(rotation);
 		nsre_transform_.Scale(scale);
 
 		return *this;

@@ -80,7 +80,7 @@ namespace SMGE
 		CTimer& getActorTimer() { return timer_; }
 
 		const glm::vec3& getLocation() const {	return getTransform().GetTranslation(); }
-		const glm::vec3& getRotation() const { return getTransform().GetRotation(); }
+		const glm::vec3& getRotationEuler() const { return getTransform().GetRotationEuler(); }
 		const glm::vec3& getScale() const { return getTransform().GetScale(); }
 
 		void SetPendingKill();
