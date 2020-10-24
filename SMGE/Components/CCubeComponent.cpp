@@ -6,45 +6,9 @@
 
 namespace SMGE
 {
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SGRefl_CubeComponent::SGRefl_CubeComponent(TReflectionClass& rc) : Super(rc), centerPos_(rc.centerPos_), size_(rc.size_), sg_transform_(rc, rc), outerCubeCompo_(rc)
-	{
-	}
-	//SGRefl_CubeComponent::SGRefl_CubeComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_CubeComponent(*uptr.get())
-	//{
-	//}
-
-	void SGRefl_CubeComponent::OnBeforeSerialize() const
-	{
-		Super::OnBeforeSerialize();
-	}
-
-	SGRefl_CubeComponent::operator CWString() const
-	{
-		auto ret = Super::operator CWString();
-
-		ret += _TO_REFL(glm::vec3, centerPos_);
-		ret += _TO_REFL(glm::vec3, size_);
-
-		return ret;
-	}
-
-	SGReflection& SGRefl_CubeComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
-	{
-		Super::operator=(variableSplitted);
-
-		_FROM_REFL(centerPos_, variableSplitted);
-		_FROM_REFL(size_, variableSplitted);
-
-		return *this;
-	}
-
 	CCubeComponent::CCubeComponent(CObject* outer) : Super(outer)
 	{
 		Ctor();
-	}
-	CCubeComponent::CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop) : CCubeComponent(outer)
-	{
 	}
 
 	void CCubeComponent::Ctor()
@@ -53,7 +17,7 @@ namespace SMGE
 #if IS_EDITOR
 		isEditorVisible_ = true;
 #endif
-		boundType_ = EBoundType::RAY;
+		boundType_ = EBoundType::CUBE;
 	}
 
 	void CCubeComponent::OnBeginPlay(CObject* parent)
@@ -77,14 +41,14 @@ namespace SMGE
 	{
 		const auto resmKey = "gizmoK:cube";
 
-		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
-		if (rsm == nullptr)
-			rsm = new nsRE::CubeRSM(size_);
+		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+		if (gizmorm == nullptr)
+			gizmorm = new nsRE::CubeRM();
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
+		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
 
-		rsm->GetRenderModel().AddWorldObject(this);
+		gizmorm->GetRenderModel().AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}
@@ -96,19 +60,20 @@ namespace SMGE
 
 	class CCubeComponent* CCubeComponent::GetOBB()
 	{
-		auto lb = centerPos_ - size_, rt = centerPos_ + size_;
-		cachedOBB_ = CreateOBB(lb, rt);
-
-		assert(this == cachedOBB_);
-
-		return cachedOBB_;
+		weakOBB_ = this;	// 나 자신이 OBB이다
+		return weakOBB_;
 	}
 
-	class CCubeComponent* CCubeComponent::GetAABB()
+	SCubeBound CCubeComponent::GetAABB()
 	{
-		// 액터가 무버블인 경우 aabb 는 계속 바뀔 것이기 때문에 매번 생성한다
-		// 아니면 캐싱한다
-		glm::vec3 worldLB, worldRT;
-		return nullptr;
+		// 액터가 무버블인 경우 aabb 는 계속 바뀔 것이기 때문에 매번 생성한다 / 아니면 캐싱한다
+		SCubeBound aabb;
+
+		// 모델좌표 -> 월드 좌표
+		//glm::vec3 worldLB = this->centerPos_ - size_, worldRT = this->centerPos_ + size_;
+
+		// 큐브 콤포넌트가 아니고 큐브 바운드 개체를 만들자 - 쓰고 버리는 개체
+
+		return aabb;
 	}
 };

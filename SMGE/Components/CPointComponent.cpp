@@ -7,33 +7,6 @@
 
 namespace SMGE
 {
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SGRefl_PointComponent::SGRefl_PointComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc, rc), outerPointCompo_(rc)
-	{
-	}
-	//SGRefl_PointComponent::SGRefl_PointComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_PointComponent(*uptr.get())
-	//{
-	//}
-
-	void SGRefl_PointComponent::OnBeforeSerialize() const
-	{
-		Super::OnBeforeSerialize();
-	}
-
-	SGRefl_PointComponent::operator CWString() const
-	{
-		auto ret = Super::operator CWString();
-
-		return ret;
-	}
-
-	SGReflection& SGRefl_PointComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
-	{
-		Super::operator=(variableSplitted);
-
-		return *this;
-	}
-
 	CPointComponent::CPointComponent(CObject* outer) : CBoundComponent(outer)
 	{
 		Ctor();
@@ -69,14 +42,14 @@ namespace SMGE
 	{
 		const auto resmKey = "gizmoK:point";
 
-		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
-		if(rsm == nullptr)
-			rsm = new nsRE::PointRSM();
+		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+		if(gizmorm == nullptr)
+			gizmorm = new nsRE::PointRM();
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
+		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
 
-		rsm->GetRenderModel().AddWorldObject(this);
+		gizmorm->GetRenderModel().AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}
@@ -89,12 +62,14 @@ namespace SMGE
 
 	class CCubeComponent* CPointComponent::GetOBB()
 	{
-		if (cachedOBB_ == nullptr)
+		if (weakOBB_ == nullptr)
 		{
-			auto centerPos = glm::vec3(0.f);	// 모델 좌표계에 생성해야한다, 부모의 transform을 따라야하기 때문
-			cachedOBB_ = CreateOBB(centerPos - Configs::BoundEpsilon, centerPos + Configs::BoundEpsilon);
+			weakOBB_ = CreateOBB();
+
+			// 여기 - 안급함 - 점은 특이해서 부모의 크기를 따라가면 안된다, 크기 고정 처리 필요
+			//auto currentWorldScale = GetWorldScales(); 일단 이거 역수 넣어주면 되긴하는데... 부모의 스케일이 바뀔 때마다 처리해야하나?
 		}
 
-		return cachedOBB_;
+		return weakOBB_;
 	}
 };

@@ -19,25 +19,44 @@ namespace SMGE
 	{
 		namespace TransformConst
 		{
-			const glm::vec3 GetModelRotateDirectionAxis()
+			/*
+				이 함수의 의미는
+				
+				SMGE 에서 모델의 최초 기준 방향이 월드 +z축이라고 놓고 각종 회전 작업을 한다는 뜻이며				
+				모델이 로드가 완료된 시점에서 월드의 +z축을 따라서 앞으로 바라보고 있게 설정된 상태로 되어야한다는 것이다.
+
+				nsRE::Transform 에서 회전 처리를 할 때 DefaultModelFrontAxis() 를 default 로 이용하여 처리하기 때문이다.
+			*/
+			const glm::vec3 DefaultModelFrontAxis()
 			{
-				return WorldXAxis;
+				static_assert(DefaultAxis_Front == ETypeAxis::Z);
+				return WorldZAxis;
 			}
-			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat3& currentRotMat)
+			const glm::vec3 DefaultModelFrontAxis(const glm::mat3& currentRotMat)
 			{
-				return currentRotMat[ETypeAxis::X];
+				return currentRotMat[DefaultAxis_Front];
 			}
-			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat4& currentRotMat)
+			const glm::vec3 DefaultModelFrontAxis(const glm::mat4& currentRotMat)
 			{
-				return currentRotMat[ETypeAxis::X];
+				return currentRotMat[DefaultAxis_Front];
 			}
-			const glm::vec3 GetModelRotateUpAxis(const glm::mat3& currentRotMat)
+
+			const glm::vec3 DefaultModelUpAxis(const glm::mat3& currentRotMat)
 			{
-				return currentRotMat[ETypeAxis::Y];
+				return currentRotMat[DefaultAxis_Up];
 			}
-			const glm::vec3 GetModelRotateUpAxis(const glm::mat4& currentRotMat)
+			const glm::vec3 DefaultModelUpAxis(const glm::mat4& currentRotMat)
 			{
-				return currentRotMat[ETypeAxis::Y];
+				return currentRotMat[DefaultAxis_Up];
+			}
+
+			const glm::vec3 DefaultModelLeftAxis(const glm::mat3& currentRotMat)
+			{
+				return currentRotMat[DefaultAxis_Left];
+			}
+			const glm::vec3 DefaultModelLeftAxis(const glm::mat4& currentRotMat)
+			{
+				return currentRotMat[DefaultAxis_Left];
 			}
 		}
 		using namespace TransformConst;
@@ -275,9 +294,14 @@ namespace SMGE
 			return lookAtDirection_;
 		}
 
-		const glm::vec3& Transform::GetScale() const
+		const glm::vec3& Transform::GetScales() const
 		{
 			return scale_;
+		}
+		float Transform::GetScale(TransformConst::ETypeAxis aType) const
+		{
+			assert(aType >= ETypeAxis::X && aType <= ETypeAxis::Z);
+			return scale_[aType];
 		}
 
 		const glm::mat4& Transform::GetMatrix(bool forceRecalc)
@@ -287,32 +311,46 @@ namespace SMGE
 
 			return transformMatrix_;
 		}
-
-		glm::vec3 Transform::GetWorldPosition()
+		const glm::mat4& Transform::GetMatrixNoRecalc() const
 		{
-			const auto& mat = GetMatrix(false);
-			return { mat[3][0], mat[3][1], mat[3][2] };
-		}
-		glm::vec3 Transform::GetWorldAxis(TransformConst::ETypeAxis aType)
-		{
-			const auto& mat = GetMatrix(false);
-			return glm::vec3{ 
-				mat[aType][0] / GetWorldScale(ETypeAxis::X),
-				mat[aType][1] / GetWorldScale(ETypeAxis::Y),
-				mat[aType][2] / GetWorldScale(ETypeAxis::Z)
-			};
-		}
-		float Transform::GetScale(TransformConst::ETypeAxis aType)
-		{
-			switch (aType)
-			{
-			case ETypeAxis::X: return scale_.x;
-			case ETypeAxis::Y: return scale_.y;
-			case ETypeAxis::Z: return scale_.z;
-			}
-			return 0.f;
+			return transformMatrix_;
 		}
 
+		glm::vec3 Transform::GetWorldPosition() const
+		{
+			const auto& mat = GetMatrixNoRecalc();
+			return mat[3];
+		}
+
+		glm::vec3 Transform::GetWorldAxis(TransformConst::ETypeAxis aType) const
+		{
+			const auto& mat = GetMatrixNoRecalc();
+			
+			glm::vec3 ret = mat[aType] / GetWorldScale(aType);
+			return glm::normalize(ret);
+		}
+		glm::vec3 Transform::GetWorldFront() const
+		{
+			return GetWorldAxis(DefaultAxis_Front);
+		}
+		glm::vec3 Transform::GetWorldUp() const
+		{
+			return GetWorldAxis(DefaultAxis_Up);
+		}
+		glm::vec3 Transform::GetWorldLeft() const
+		{
+			return GetWorldAxis(DefaultAxis_Left);
+		}
+
+		float Transform::GetWorldScale(TransformConst::ETypeAxis aType) const
+		{
+			return inheritedScale_[aType];
+		}
+		glm::vec3 Transform::GetWorldScales() const
+		{
+			return inheritedScale_;
+		}
+		
 		void Transform::Translate(glm::vec3 worldPos)
 		{
 			translation_ = worldPos;
@@ -417,7 +455,11 @@ namespace SMGE
 			}
 		}
 
-		Transform* Transform::GetParent() const
+		Transform* Transform::GetParent()
+		{
+			return parent_;
+		}
+		const Transform* Transform::GetParentConst() const
 		{
 			return parent_;
 		}
@@ -431,10 +473,19 @@ namespace SMGE
 
 			return this;
 		}
+		const Transform* Transform::GetTopParentConst() const
+		{
+			if (GetParentConst())
+			{
+				return GetParentConst()->GetTopParentConst();
+			}
+
+			return this;
+		}
 
 		bool Transform::HasParent() const
 		{
-			return GetParent() != nullptr;
+			return GetParentConst() != nullptr;
 		}
 
 		bool Transform::IsTop() const
@@ -459,9 +510,9 @@ namespace SMGE
 				//	transformMatrix_ = glm::scale(transformMatrix_, parent->scale_);
 				//}
 				//else
-				{
-					transformMatrix_ = Mat4_Identity;
-				}
+				//{
+				//	transformMatrix_ = Mat4_Identity;
+				//}
 
 				// 풀어서 조합하는 경우는 아래와 같이 되는데
 				// 매트릭스로 합쳐서 하는 경우에는
@@ -491,21 +542,30 @@ namespace SMGE
 				const auto eulerRotMat = glm::toMat4(euler2Quat);
 
 				// 2. 방향지정으로 회전
-				const auto modelDirAxis = GetModelRotateDirectionAxis(eulerRotMat);
-				const auto modelUpAxis = GetModelRotateUpAxis(eulerRotMat);
+				const auto modelDirAxis = DefaultModelFrontAxis(eulerRotMat);
+				const auto modelUpAxis = DefaultModelUpAxis(eulerRotMat);
 				//const glm::quat qX = glm::angleAxis(glm::degrees(rotationRadianQuat_.x), glm::vec3(eulerRotMat[ETypeAxis::X]));
 				const glm::quat lookAt = OpenGL_Tutorials::LookAt(lookAtDirection_, modelUpAxis, modelDirAxis, WorldYAxis);
 				const auto lookAtRotMat = glm::toMat4(lookAt);
 
+				// 나의 스케일 처리
 				const auto scalMat = glm::scale(Mat4_Identity, scale_);
-
 				transformMatrix_ = translMat * lookAtRotMat * eulerRotMat * scalMat;
 
 				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
 				//transformMatrix_ = transformMatrix_ * parentMatrix;
 
-				if(parent)
+				if (parent)
+				{
+					assert(parent == parent_);
+
 					transformMatrix_ = parent->transformMatrix_ * transformMatrix_;
+					inheritedScale_ = parent->inheritedScale_ * scale_;
+				}
+				else
+				{
+					inheritedScale_ = scale_;
+				}
 
 				isDirty_ = false;
 			}
@@ -518,6 +578,31 @@ namespace SMGE
 				}
 			);
 		}
+
+		// DEPRECATED
+		//glm::vec3 Transform::GetFinalWorldScales() const
+		//{
+		//	auto topParent = GetTopParentConst();
+		//	topParent->RecalcFinalWorldScales_Internal(nullptr);
+
+		//	return inheritedScale_;
+		//}
+
+		//void Transform::RecalcFinalWorldScales_Internal(const Transform* parent) const
+		//{
+		//	if (parent != nullptr)
+		//		inheritedScale_ = scale_ * parent->inheritedScale_;
+		//	else
+		//		inheritedScale_ = scale_;
+
+		//	// 나의 자식들에게 전파
+		//	std::for_each(children_.begin(), children_.end(),
+		//		[&](auto child)
+		//		{
+		//			child->RecalcFinalWorldScales_Internal(this);
+		//		}
+		//	);
+		//}
 
 		void Transform::RecalcMatrix()
 		{

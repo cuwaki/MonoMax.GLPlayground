@@ -9,6 +9,7 @@ namespace SMGE
 
 	using DELEGATE_OnCollide = std::function<void(class CActor *SRC, class CActor *TAR, const class CBoundComponent *SRC_BOUND, const class CBoundComponent *TAR_BOUND, const glm::vec3& COLL_POS)>;
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	enum class EBoundType
 	{
 		POINT,
@@ -24,6 +25,26 @@ namespace SMGE
 		MAX = 255,
 	};
 
+	struct SBound
+	{
+		EBoundType type_ = EBoundType::MAX;
+	};
+	struct SPlaneBound : public SBound
+	{
+		SPlaneBound();
+
+		glm::vec3 normal_;
+		glm::vec3 size_;
+	};
+	struct SCubeBound : public SBound
+	{
+		SCubeBound();
+
+		glm::vec3 centerPos_;
+		glm::vec3 size_;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	enum class ECheckCollideRule
 	{
 		NEAREST,
@@ -57,10 +78,10 @@ namespace SMGE
 		EBoundType GetBoundType() const { return boundType_; }
 
 		virtual class CCubeComponent* GetOBB() = 0;
-		virtual class CCubeComponent* GetAABB();
+		virtual SCubeBound GetAABB();
 
 	protected:
-		class CCubeComponent* CreateOBB(const glm::vec3& lb, const glm::vec3& rt);
+		class CCubeComponent* CreateOBB();
 
 	protected:
 		bool isPickingTarget_;
@@ -68,6 +89,6 @@ namespace SMGE
 
 		EBoundType boundType_ = EBoundType::MAX;
 
-		class CCubeComponent* cachedOBB_;
+		class CCubeComponent* weakOBB_;
 	};
 };

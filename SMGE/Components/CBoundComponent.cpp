@@ -3,9 +3,20 @@
 #include "../CEngineBase.h"
 #include "CCubeComponent.h"
 #include "../Objects/CMap.h"
+#include "../Assets/CAssetManager.h"
 
 namespace SMGE
 {
+	SPlaneBound::SPlaneBound()
+	{
+		type_ = EBoundType::PLANE;
+	}
+
+	SCubeBound::SCubeBound()
+	{
+		type_ = EBoundType::CUBE;
+	}
+
 	CBoundComponent::CBoundComponent(CObject* outer) : CDrawComponent(outer)
 	{
 		Ctor();
@@ -13,7 +24,7 @@ namespace SMGE
 
 	void CBoundComponent::Ctor()
 	{
-		cachedOBB_ = nullptr;
+		weakOBB_ = nullptr;
 
 		isPickingTarget_ = true;
 		isCollideTarget_ = true;
@@ -34,28 +45,35 @@ namespace SMGE
 		return false;
 	}
 
-	class CCubeComponent* CBoundComponent::GetAABB()
+	SCubeBound CBoundComponent::GetAABB()
 	{
 		return GetOBB()->GetAABB();	// obb 즉 CCubeComponent 로부터 aabb 를 만든다, 정확도는 떨어질 수 있지만 빠르다, 사실 aabb 에서 정확도를 따지는 건 이미 무리인듯??
 	}
 
-	class CCubeComponent* CBoundComponent::CreateOBB(const glm::vec3& lb, const glm::vec3& rt)
+	class CCubeComponent* CBoundComponent::CreateOBB()
 	{
 		auto map = FindOuter<CMap>(this);
 		if (map != nullptr)	// 현재 맵이 없다면 beginplay 가 작동하지 않아서 제대로된 obb로서의 작동을 할 수 없다
 		{
-			auto meCube = DCast<CCubeComponent*>(this);
+			getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
 
-			auto obbCube = meCube == nullptr ? RTTI_CObject::NewVariety<CCubeComponent>(this, lb, rt) : meCube;
-			getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(obbCube));
+			auto obbCube = DCast<CCubeComponent*>(getTransientComponents().back().get());
+			if (obbCube)
+			{
+				// 여기 - LoadObject 와 같이 new 하고 reflect 까지 한번에 끝내주는 함수 필요
+				auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
+				obbCube->CopyFromTemplate(asset->getContentClass());
 
-			if (meCube == nullptr)
-			{	// this 가 CCubeComponent 가 아닐 때만
+				// 여기 - new and register and beginplay 함수 필요 - 한방에 처리 되도록
+				//{
+				registerComponent(obbCube);
+
 				if (map->IsStarted())
 					obbCube->OnBeginPlay(this);
-			}
+				// }
 
-			return obbCube;
+				return obbCube;
+			}
 		}
 
 		return nullptr;

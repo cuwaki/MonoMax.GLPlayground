@@ -8,49 +8,28 @@
 
 namespace SMGE
 {
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SGRefl_RayComponent::SGRefl_RayComponent(TReflectionClass& rc) : Super(rc), size_(rc.size_), direction_(rc.direction_), sg_transform_(rc, rc), outerRayCompo_(rc)
+	CRayComponent::CRayComponent(CObject* outer) : Super(outer)
 	{
-	}
-	//SGRefl_RayComponent::SGRefl_RayComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_RayComponent(*uptr.get())
-	//{
-	//}
-
-	void SGRefl_RayComponent::OnBeforeSerialize() const
-	{
-		Super::OnBeforeSerialize();
-	}
-
-	SGRefl_RayComponent::operator CWString() const
-	{
-		auto ret = Super::operator CWString();
-
-		ret += _TO_REFL(float, size_);
-		ret += _TO_REFL(glm::vec3, direction_);
-
-		return ret;
-	}
-
-	SGReflection& SGRefl_RayComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
-	{
-		Super::operator=(variableSplitted);
-
-		_FROM_REFL(size_, variableSplitted);
-		_FROM_REFL(direction_, variableSplitted);
-
-		return *this;
-	}
-
-	CRayComponent::CRayComponent(CObject* outer, float size, const glm::vec3& direction) : CBoundComponent(outer)
-	{
-		SetBoundData(size, direction);
 		Ctor();
 	}
 
-	void CRayComponent::SetBoundData(float size, const glm::vec3& direction)
+	// 콤포넌트의 트랜스폼을 바꾼다, 보통은 이걸 안쓰고 부모의 트랜스폼이 반영된 것을 쓰게 될 것이다
+	void CRayComponent::SetBoundDataComponent(float size, const glm::vec3& direction)
 	{
-		size_ = size;
-		direction_ = glm::normalize(direction);
+		Scale(nsRE::TransformConst::DefaultAxis_Front, size);
+		RotateQuat(glm::normalize(direction));
+
+		RecalcMatrix();
+	}
+
+	float CRayComponent::getRayLength() const
+	{
+		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front];
+	}
+
+	glm::vec3 CRayComponent::getRayDirection() const
+	{
+		return GetWorldFront();
 	}
 
 	void CRayComponent::Ctor()
@@ -65,6 +44,8 @@ namespace SMGE
 	void CRayComponent::OnBeginPlay(CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
+
+		GetOBB();
 	}
 
 	void CRayComponent::OnEndPlay()
@@ -74,17 +55,16 @@ namespace SMGE
 
 	class CCubeComponent* CRayComponent::GetOBB()
 	{
-		if (cachedOBB_ == nullptr)
+		if (weakOBB_ == nullptr)
 		{
-			auto startPos = glm::vec3(0.f);	// 모델 좌표계에 생성해야한다, 부모의 transform을 따라야하기 때문
-			auto endPos = startPos + nsRE::TransformConst::GetModelRotateDirectionAxis() * size_;
+			weakOBB_ = CreateOBB();
 
-			auto lb = startPos - Configs::BoundEpsilon;
-			auto rt = endPos + Configs::BoundEpsilon;
-			cachedOBB_ = CreateOBB(lb, rt);
+			// 레이는 0에서 앞으로 뻗지만, OBB 는 큐브라서 중점에서 만들어지므로 Z축을 앵커로 잡아야한다
+			assert(nsRE::TransformConst::DefaultAxis_Front == nsRE::TransformConst::ETypeAxis::Z);
+			weakOBB_->Translate({ 0, 0, 0.5f });	// 단위크기니까 0.5로 하면 된다
 		}
 
-		return cachedOBB_;
+		return weakOBB_;
 	}
 
 	SGReflection& CRayComponent::getReflection()
@@ -98,14 +78,14 @@ namespace SMGE
 	{
 		const auto resmKey = "gizmoK:ray";
 
-		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
-		if(rsm == nullptr)
-			rsm = new nsRE::RayRSM(size_);
+		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+		if(gizmorm == nullptr)
+			gizmorm = new nsRE::RayRM();
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
+		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
 
-		rsm->GetRenderModel().AddWorldObject(this);
+		gizmorm->GetRenderModel().AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}
@@ -114,6 +94,8 @@ namespace SMGE
 	{
 		if (checkTarget->GetBoundType() == EBoundType::SPHERE)
 		{
+			outCollidingPoint = nsRE::TransformConst::Vec3_Zero;
+
 			CSphereComponent* sphere = DCast<CSphereComponent*>(checkTarget);
 
 			this->RecalcMatrix();
@@ -127,12 +109,16 @@ namespace SMGE
 			// https://m.blog.naver.com/PostView.nhn?blogId=hermet&logNo=68084286&proxyReferer=https:%2F%2Fwww.google.com%2F
 			// 내용을 기준으로 조금 변형 하였다
 
-			// 사이즈가 택도 없을 경우를 먼저 걸러낸다
-			float minSize = r2sLen - sphere->GetRadius();
-			if (size_ < minSize)
-				goto RET_FALSE;
+			const auto rayLength = this->getRayLength();
+			const auto sphereRadius = sphere->GetRadius();
+			const auto rayDirection = this->getRayDirection();
 
-			if (r2sLen <= sphere->GetRadius())	// 접하는 것 포함
+			// 사이즈가 택도 없을 경우를 먼저 걸러낸다
+			float minSize = r2sLen - sphereRadius;
+			if (rayLength < minSize)
+				return false;
+
+			if (r2sLen <= sphereRadius)	// 접하는 것 포함
 			{	// 레이 원점과 원 중심의 거리가 원의 반지름보다 작다 - 레이가 원의 안에서 발사된 것임
 				outCollidingPoint = rayLoc;
 				return true;
@@ -140,7 +126,7 @@ namespace SMGE
 
 			//auto normR2S = glm::normalize(ray2sphere);
 
-			float cosTheta = glm::dot(ray2sphere, this->direction_) / r2sLen;	// 이거랑
+			float cosTheta = glm::dot(ray2sphere, rayDirection) / r2sLen;	// 이거랑
 			//float cosTheta = glm::dot(normR2S, this->direction_);	// 이거랑
 			if (cosTheta <= 0.f)	// 레이의 방향이 원쪽과 반대방향 또는 직각임
 				return false;
@@ -149,7 +135,7 @@ namespace SMGE
 			//float base = glm::dot(this->direction_, ray2sphere);	// 이거를 똑같이 써도 cosTheta 논리가 동일하지 않을까? 그러면 dot 한번 줄일 수 있다.
 			float base = cosTheta * r2sLen;
 
-			float radiusSQ = sphere->GetRadius() * sphere->GetRadius();
+			float radiusSQ = sphereRadius * sphereRadius;
 			float heightSQ = hypo * hypo - base * base;
 
 			if (heightSQ <= radiusSQ)
@@ -157,16 +143,14 @@ namespace SMGE
 				float intersectBase = std::sqrtf(radiusSQ - heightSQ);
 				float distToCollidePoint = (base - intersectBase);
 
-				if (distToCollidePoint <= size_)
+				if (distToCollidePoint <= rayLength)
 				{	//  충돌한 지점과의 거리가 크기보다 작으면 충돌
-					outCollidingPoint = rayLoc + (direction_ * distToCollidePoint);
+					outCollidingPoint = rayLoc + (rayDirection * distToCollidePoint);
 					return true;
 				}
 			}
 		}
 
-RET_FALSE:
-		outCollidingPoint = nsRE::TransformConst::Vec3_Zero;
 		return false;
 	}
 };

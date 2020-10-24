@@ -81,7 +81,7 @@ namespace SMGE
 
 		const glm::vec3& getLocation() const {	return getTransform().GetTranslation(); }
 		const glm::vec3& getRotationEuler() const { return getTransform().GetRotationEuler(); }
-		const glm::vec3& getScale() const { return getTransform().GetScale(); }
+		const glm::vec3& getScales() const { return getTransform().GetScales(); }
 
 		void SetPendingKill();
 		bool IsPendingKill() const;

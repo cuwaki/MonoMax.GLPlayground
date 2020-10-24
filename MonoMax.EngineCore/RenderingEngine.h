@@ -50,12 +50,19 @@ namespace SMGE
 			const glm::vec3 WorldZAxis{ 0, 0, 1 };
 			const glm::vec3 WorldAxis[3] = { WorldXAxis, WorldYAxis, WorldZAxis };	// access with ETypeAxis
 
-			const glm::vec3 GetModelRotateDirectionAxis();
+			const ETypeAxis DefaultAxis_Front = ETypeAxis::Z;
+			const ETypeAxis DefaultAxis_Up = ETypeAxis::Y;
+			const ETypeAxis DefaultAxis_Left = ETypeAxis::X;
 
-			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat3& currentRotMat);
-			const glm::vec3 GetModelRotateDirectionAxis(const glm::mat4& currentRotMat);
-			const glm::vec3 GetModelRotateUpAxis(const glm::mat3& currentRotMat);
-			const glm::vec3 GetModelRotateUpAxis(const glm::mat4& currentRotMat);
+			const glm::vec3 DefaultModelFrontAxis();
+			const glm::vec3 DefaultModelFrontAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 DefaultModelFrontAxis(const glm::mat4& currentRotMat);
+
+			const glm::vec3 DefaultModelUpAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 DefaultModelUpAxis(const glm::mat4& currentRotMat);
+
+			const glm::vec3 DefaultModelLeftAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 DefaultModelLeftAxis(const glm::mat4& currentRotMat);
 		};
 
 		class VertFragShaderSet
@@ -149,16 +156,21 @@ namespace SMGE
 			Transform();
 
 			const glm::mat4& GetMatrix(bool forceRecalc);
+			const glm::mat4& GetMatrixNoRecalc() const;
 
 			const glm::vec3& GetTranslation() const;
 			const glm::vec3& GetRotationEuler() const;
 			const glm::vec3& GetLookAtDirection() const;
-			const glm::vec3& GetScale() const;
+			const glm::vec3& GetScales() const;
+			float GetScale(TransformConst::ETypeAxis aType) const;
 
-			glm::vec3 GetWorldPosition();
-			glm::vec3 GetWorldAxis(TransformConst::ETypeAxis aType);
-			float GetWorldScale(TransformConst::ETypeAxis aType) { return GetScale(aType); }
-			float GetScale(TransformConst::ETypeAxis aType);
+			glm::vec3 GetWorldPosition() const;
+			glm::vec3 GetWorldAxis(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetWorldFront() const;
+			glm::vec3 GetWorldUp() const;
+			glm::vec3 GetWorldLeft() const;
+			float GetWorldScale(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetWorldScales() const;
 
 			void Translate(glm::vec3 worldPos);
 			void RotateEuler(glm::vec3 rotateDegrees);
@@ -175,13 +187,20 @@ namespace SMGE
 			void RecalcMatrix();
 
 			void ChangeParent(Transform* p);
-			Transform* GetParent() const;
+			
+			Transform* GetParent();
+			const Transform* GetParentConst() const;
+
 			Transform* GetTopParent();
+			const Transform* GetTopParentConst() const;
+
 			bool HasParent() const;
 			bool IsTop() const;
 
 		private:
 			void RecalcMatrix_Internal(const Transform* parent);
+
+			mutable glm::vec3 inheritedScale_;
 		};
 
 		class WorldObject : public Transform

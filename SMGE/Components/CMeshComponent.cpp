@@ -74,12 +74,12 @@ namespace SMGE
 			// 모델 애셋 로드
 			drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(Globals::GetGameAssetPath(drawingModelAssetPath_));
 
-			auto rsm = drawingModelAsset_->getContentClass();
+			auto rm = drawingModelAsset_->getContentClass();
 
 			// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-			GetRenderingEngine()->AddResourceModel(ToASCII(drawingModelAssetPath_), rsm);
+			GetRenderingEngine()->AddResourceModel(ToASCII(drawingModelAssetPath_), rm);
 
-			rsm->GetRenderModel().AddWorldObject(this);
+			rm->GetRenderModel().AddWorldObject(this);
 		}
 
 		Super::ReadyToDrawing();

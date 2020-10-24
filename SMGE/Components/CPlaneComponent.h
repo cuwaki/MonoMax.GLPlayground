@@ -5,19 +5,20 @@
 
 namespace SMGE
 {
-	class CPointComponent : public CBoundComponent
+	class CPlaneComponent : public CBoundComponent
 	{
-		DECLARE_RTTI_CObject(CPointComponent)
+		DECLARE_RTTI_CObject(CPlaneComponent)
 
 	public:
-		using This = CPointComponent;
+		using This = CPlaneComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = typename Super::TReflectionStruct;
 
 		friend struct TReflectionStruct;
 
 	public:
-		CPointComponent(CObject* outer);
+		CPlaneComponent(CObject* outer);
+		CPlaneComponent(CObject* outer, bool hasFace);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
@@ -25,6 +26,7 @@ namespace SMGE
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
 		virtual class CCubeComponent* GetOBB() override;
+		virtual SCubeBound GetAABB() override;
 
 		void Ctor();
 
@@ -32,7 +34,12 @@ namespace SMGE
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
+	public:
+		glm::vec3 getNormal() const;
+		SPlaneBound getBound() const;
+
 	protected:
-		CUniqPtr<TReflectionStruct> reflPointCompo_;
+		bool hasFace_ = false;
+		CUniqPtr<TReflectionStruct> reflPlaneCompo_;
 	};
 };

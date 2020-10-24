@@ -15,9 +15,6 @@ namespace SMGE
 	template<typename T>
 	struct SPoint2D
 	{
-		friend CQuadTree;
-		friend COcTree;
-
 		union
 		{
 			T xy_[2];	// xy 평면으로 다룰 때
@@ -47,15 +44,12 @@ namespace SMGE
 	};
 
 	template<typename T>
-	struct SRect
+	struct SRect2D
 	{
-		friend CQuadTree;
-		friend COcTree;
-
-		SRect() : l_(leftBottom_.uv_[0]), b_(leftBottom_.uv_[1]), r_(rightTop_.uv_[0]), t_(rightTop_.uv_[1])
+		SRect2D() : l_(leftBottom_.uv_[0]), b_(leftBottom_.uv_[1]), r_(rightTop_.uv_[0]), t_(rightTop_.uv_[1])
 		{
 		}
-		SRect(T l, T b, T r, T t) : SRect()
+		SRect2D(T l, T b, T r, T t) : SRect2D()
 		{
 			l_ = l;
 			b_ = b;
@@ -66,11 +60,11 @@ namespace SMGE
 		SPoint2D<T> leftBottom_, rightTop_;
 		T& l_, &b_, &r_, &t_;
 
-		bool operator==(const SRect<T>& r)
+		bool operator==(const SRect2D<T>& r)
 		{
 			return leftBottom_ == r.leftBottom_ && rightTop_ == r.rightTop_;
 		}
-		bool operator!=(const SRect<T>& r)
+		bool operator!=(const SRect2D<T>& r)
 		{
 			return !operator==(r);
 		}
@@ -141,7 +135,7 @@ namespace SMGE
 
 	protected:
 		ContainerT container_;
-		SRect<SizeType> rect_;
+		SRect2D<SizeType> rect_;
 
 		TChildren* children_ = nullptr;
 	};

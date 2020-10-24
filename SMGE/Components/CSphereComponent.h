@@ -5,24 +5,6 @@
 
 namespace SMGE
 {
-	class CSphereComponent;
-
-	struct SGRefl_SphereComponent : public SGRefl_DrawComponent
-	{
-		using Super = SGRefl_DrawComponent;
-		using TReflectionClass = CSphereComponent;
-
-		SGRefl_SphereComponent(TReflectionClass& rc);
-
-		virtual void OnBeforeSerialize() const override;
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
-
-		float& radius_;
-		SGRefl_Transform sg_transform_;
-		TReflectionClass& outerSphereCompo_;
-	};
-
 	class CSphereComponent : public CBoundComponent
 	{
 		DECLARE_RTTI_CObject(CSphereComponent)
@@ -30,7 +12,7 @@ namespace SMGE
 	public:
 		using This = CSphereComponent;
 		using Super = CBoundComponent;
-		using TReflectionStruct = SGRefl_SphereComponent;
+		using TReflectionStruct = typename Super::TReflectionStruct;
 
 		friend struct TReflectionStruct;
 
@@ -49,10 +31,9 @@ namespace SMGE
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
-		float GetRadius() const { return radius_; }
+		float GetRadius() const;
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflSphereCompo_;
-		float radius_;
 	};
 };

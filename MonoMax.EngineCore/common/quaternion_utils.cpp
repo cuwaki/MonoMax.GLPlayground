@@ -10,14 +10,19 @@ namespace OpenGL_Tutorials
 	using namespace glm;
 
 	// Returns a quaternion such that q*start = dest
-	quat RotationBetweenVectors(vec3 start, vec3 dest) {
+	quat RotationBetweenVectors(vec3 start, vec3 dest)
+	{
 		start = normalize(start);
 		dest = normalize(dest);
 
 		float cosTheta = dot(start, dest);
 		vec3 rotationAxis;
 
-		if (cosTheta < -1.f + 0.001f) {
+		// 원래의 코드 - 여기서 엡실론을 작게 하면 할 수록 튀는 시간이 짧다
+		//const auto Epsilon = 0.00001f;	// 잠깐 튀고 돌아온다
+		const auto Epsilon = 0.000001f;	// 이 정도로 하니 튀지 않는다, 하지만 플롯 정밀도가 받쳐주나? cpu 마다 또는 최적화 옵션마다 다른 결과가 날 수 있을 듯 하다
+		if (cosTheta < (-1.f + Epsilon))
+		{
 			// special case when vectors in opposite directions :
 			// there is no "ideal" rotation axis
 			// So guess one; any will do as long as it's perpendicular to start
@@ -43,8 +48,6 @@ namespace OpenGL_Tutorials
 			rotationAxis.y * invs,
 			rotationAxis.z * invs
 		);
-
-
 	}
 
 

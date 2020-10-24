@@ -6,37 +6,6 @@
 
 namespace SMGE
 {
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SGRefl_SphereComponent::SGRefl_SphereComponent(TReflectionClass& rc) : Super(rc), radius_(rc.radius_), sg_transform_(rc, rc), outerSphereCompo_(rc)
-	{
-	}
-	//SGRefl_SphereComponent::SGRefl_SphereComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_SphereComponent(*uptr.get())
-	//{
-	//}
-
-	void SGRefl_SphereComponent::OnBeforeSerialize() const
-	{
-		Super::OnBeforeSerialize();
-	}
-
-	SGRefl_SphereComponent::operator CWString() const
-	{
-		auto ret = Super::operator CWString();
-
-		ret += _TO_REFL(float, radius_);
-
-		return ret;
-	}
-
-	SGReflection& SGRefl_SphereComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
-	{
-		Super::operator=(variableSplitted);
-
-		_FROM_REFL(radius_, variableSplitted);
-
-		return *this;
-	}
-
 	CSphereComponent::CSphereComponent(CObject* outer) : CBoundComponent(outer)
 	{
 		Ctor();
@@ -44,13 +13,10 @@ namespace SMGE
 
 	void CSphereComponent::Ctor()
 	{
-		radius_ = 1.f;
-
 		isGameVisible_ = false;
 #if IS_EDITOR
 		isEditorVisible_ = true;
 #endif
-
 		boundType_ = EBoundType::SPHERE;
 	}
 
@@ -75,26 +41,30 @@ namespace SMGE
 	{
 		const auto resmKey = "gizmoK:sphere";
 
-		auto rsm = GetRenderingEngine()->GetResourceModel(resmKey);
-		if (rsm == nullptr)
-			rsm = new nsRE::SphereRSM(radius_);
+		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+		if (gizmorm == nullptr)
+			gizmorm = new nsRE::SphereRM();
 
 		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(rsm));
+		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
 
-		rsm->GetRenderModel().AddWorldObject(this);
+		gizmorm->GetRenderModel().AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}
 
 	class CCubeComponent* CSphereComponent::GetOBB()
 	{
-		if (cachedOBB_ == nullptr)
+		if (weakOBB_ == nullptr)
 		{
-			auto centerPos = glm::vec3(0.f);// 모델 좌표계에 생성해야한다, 부모의 transform을 따라야하기 때문
-			cachedOBB_ = CreateOBB(centerPos - radius_, centerPos + radius_);
+			weakOBB_ = CreateOBB();
 		}
 
-		return cachedOBB_;
+		return weakOBB_;
+	}
+
+	float CSphereComponent::GetRadius() const
+	{
+		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front];
 	}
 };

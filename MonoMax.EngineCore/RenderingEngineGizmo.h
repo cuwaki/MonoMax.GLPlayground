@@ -6,37 +6,51 @@ namespace SMGE
 {
 	namespace nsRE
 	{
-		class GizmoRSM : public ResourceModel
+		class GizmoRM : public ResourceModel
 		{
 		public:
-			GizmoRSM() : ResourceModel() {}
+			GizmoRM() : ResourceModel() {}
 		protected:
 			virtual void CreateFrom(const std::vector<glm::vec3>& vertices);
 		};
 
-		// 모든 GizmoRSM 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
-		class SphereRSM : public GizmoRSM
+		// 모든 GizmoRM 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
+		class SphereRM : public GizmoRM
 		{
 		public:
-			SphereRSM(float radius);
+			SphereRM();
 		};
 
-		class CubeRSM : public GizmoRSM
+		class CubeRM : public GizmoRM
 		{
 		public:
-			CubeRSM(const glm::vec3& size);
+			CubeRM();
 		};
 
-		class RayRSM : public GizmoRSM
+		// 라인으로 그려지는 평면
+		class PlaneRM : public GizmoRM
 		{
 		public:
-			RayRSM(float size);
+			PlaneRM();
 		};
 
-		class PointRSM : public GizmoRSM
+		// 면으로 그려지는 평면
+		class PlaneFacedRM : public GizmoRM
 		{
 		public:
-			PointRSM();
+			PlaneFacedRM();
+		};
+		
+		class RayRM : public GizmoRM
+		{
+		public:
+			RayRM();
+		};
+
+		class PointRM : public GizmoRM
+		{
+		public:
+			PointRM();
 		};
 	}
 }

@@ -6,5 +6,7 @@ classRTTIName_$CString$"CCubeComponent"
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
         persistCompoSize$size_t$0
-    centerPos_$glm::vec3$0.000000	0.000000	0.000000	
-    size_$glm::vec3$1.000000	1.000000	1.000000	
+
+    // 아래 사항들은 따로 값으로 안하고 위의 트랜스폼으로 처리하므로 없어야한다 201017, 그래서 DEPRE 됨
+    //centerPos_$glm::vec3$0.000000	0.000000	0.000000	
+    //size_$glm::vec3$1.000000	1.000000	1.000000	

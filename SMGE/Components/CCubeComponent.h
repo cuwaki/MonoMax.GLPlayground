@@ -5,25 +5,6 @@
 
 namespace SMGE
 {
-	class CCubeComponent;
-
-	struct SGRefl_CubeComponent : public SGRefl_DrawComponent
-	{
-		using Super = SGRefl_DrawComponent;
-		using TReflectionClass = CCubeComponent;
-
-		SGRefl_CubeComponent(TReflectionClass& rc);
-
-		virtual void OnBeforeSerialize() const override;
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
-
-		glm::vec3& centerPos_;
-		glm::vec3& size_;
-		SGRefl_Transform sg_transform_;
-		TReflectionClass& outerCubeCompo_;
-	};
-
 	class CCubeComponent : public CBoundComponent
 	{
 		DECLARE_RTTI_CObject(CCubeComponent)
@@ -31,13 +12,12 @@ namespace SMGE
 	public:
 		using This = CCubeComponent;
 		using Super = CBoundComponent;
-		using TReflectionStruct = SGRefl_CubeComponent;
+		using TReflectionStruct = typename Super::TReflectionStruct;
 
 		friend struct TReflectionStruct;
 
 	public:
 		CCubeComponent(CObject* outer);
-		CCubeComponent(CObject* outer, const glm::vec3& leftBottom, const glm::vec3& rightTop);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
@@ -45,7 +25,7 @@ namespace SMGE
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
 		virtual class CCubeComponent* GetOBB() override;
-		virtual class CCubeComponent* GetAABB() override;
+		virtual SCubeBound GetAABB() override;
 
 		void Ctor();
 
@@ -55,7 +35,5 @@ namespace SMGE
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflCubeCompo_;
-		glm::vec3 centerPos_;
-		glm::vec3 size_;
 	};
 };

@@ -19,7 +19,7 @@ namespace SMGE
 		auto radRot = nsre_transform_.GetRotationEuler();
 		ret += _TO_REFL(glm::vec3, glm::degrees(radRot));
 
-		ret += _TO_REFL(glm::vec3, nsre_transform_.GetScale());
+		ret += _TO_REFL(glm::vec3, nsre_transform_.GetScales());
 
 		return ret;
 	}
