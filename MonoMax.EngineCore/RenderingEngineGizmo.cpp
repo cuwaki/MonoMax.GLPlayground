@@ -22,6 +22,11 @@ namespace SMGE
 			GetRenderModel().GenOpenGLBuffers(vertices, dummy2, dummy3, dummy3);
 		}
 
+		void GizmoRM::CallDefaultGLDraw(size_t verticesSize) const
+		{
+			glDrawArrays(GL_LINE_STRIP, 0, verticesSize);	// 여기 ㅡ 스티치로 나오는 버그 있다
+		}
+
 		SphereRM::SphereRM() : GizmoRM()
 		{
 			const auto divides = 36;
@@ -65,6 +70,11 @@ namespace SMGE
 			vertices.push_back({ xyTri2Base + glm::vec2{ 0.f, -1.f }, 0.f });	// 0.5, -0.5, 0
 
 			CreateFrom(vertices);
+		}
+
+		void PlaneFacedRM::CallDefaultGLDraw(size_t verticesSize) const
+		{
+			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
 		}
 
 		PlaneRM::PlaneRM() : GizmoRM()

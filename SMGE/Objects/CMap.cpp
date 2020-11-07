@@ -162,7 +162,7 @@ namespace SMGE
 		return *reflMap_.get();
 	}
 
-	TActorKey CMap::DynamicActorKey = 3332;	// 테스트 코드
+	TActorKey CMap::DynamicActorKey = 3332;	// 디버깅할 때 티나라고 이상한 값에서 시작하게 해둠
 
 	//CActor& CMap::SpawnDefaultActor(const CActor& templateActor, bool isDynamic)
 	//{

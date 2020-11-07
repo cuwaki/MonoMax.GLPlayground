@@ -1,7 +1,7 @@
 classRTTIName_$CString$"CMap"
     reflectionFilePath_$CWString$"/map/testMap.asset"
 	actorReflLayers_[0]$CVector<SGRefl_Actor>$0
-	actorReflLayers_[1]$CVector<SGRefl_Actor>$1
+	actorReflLayers_[1]$CVector<SGRefl_Actor>$3
 
 
 	classRTTIName_$CString$"CStaticMeshActor"
@@ -11,7 +11,7 @@ classRTTIName_$CString$"CMap"
 		reflectionFilePath_$CWString$""
 		nsre_transform_.GetTranslation()$glm::vec3$-5.000000	3.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	45.000000	0.000000	
-		nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
+		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
 		actorStaticTag_$CString$"this is a monkey"
 		persistCompoSize$size_t$2
 		classRTTIName_$CString$"CMeshComponent"
@@ -20,7 +20,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
 			persistCompoSize$size_t$0
 			drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
 		classRTTIName_$CString$"CSphereComponent"
@@ -52,22 +52,14 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.00000	
 			persistCompoSize$size_t$0
 			drawingModelAssetPath_$CWString$"/models/cube/cube.asset"
-		classRTTIName_$CString$"CSphereComponent"
-			reflectionFilePath_$CWString$"/templates/CSphereComponent.asset"
+		classRTTIName_$CString$"CPlaneComponent"
+			reflectionFilePath_$CWString$"/templates/CPlaneComponent.asset"
 			classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$5.000000	0.000000	0.000000	
-				nsre_transform_.GetRotation()$glm::vec3$0.000000	45.000000	0.000000	
-				nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000    
-				persistCompoSize$size_t$1
-			classRTTIName_$CString$"CPlaneComponent"
-				reflectionFilePath_$CWString$"/templates/CPlaneComponent.asset"
-				classRTTIName_$CString$"SGRefl_Transform"
-					reflectionFilePath_$CWString$""
-					nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
-					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-					nsre_transform_.GetScale()$glm::vec3$4.0000	4.0000	0.10000    
-					persistCompoSize$size_t$0
+				nsre_transform_.GetTranslation()$glm::vec3$0.000000	5.000000	0.000000	
+				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetScale()$glm::vec3$4.0000	4.0000	0.10000    
+				persistCompoSize$size_t$0
 
 
 

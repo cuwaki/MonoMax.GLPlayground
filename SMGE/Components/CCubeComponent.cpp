@@ -3,9 +3,12 @@
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
 #include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
+#include <algorithm>
 
 namespace SMGE
 {
+	using namespace nsRE::TransformConst;
+
 	CCubeComponent::CCubeComponent(CObject* outer) : Super(outer)
 	{
 		Ctor();
@@ -43,10 +46,10 @@ namespace SMGE
 
 		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (gizmorm == nullptr)
+		{
 			gizmorm = new nsRE::CubeRM();
-
-		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
+			GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+		}
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
 
@@ -64,15 +67,44 @@ namespace SMGE
 		return weakOBB_;
 	}
 
-	SCubeBound CCubeComponent::GetAABB()
+	SAABB CCubeComponent::GetAABB()
 	{
-		// 액터가 무버블인 경우 aabb 는 계속 바뀔 것이기 때문에 매번 생성한다 / 아니면 캐싱한다
-		SCubeBound aabb;
+		RecalcMatrix();
 
-		// 모델좌표 -> 월드 좌표
-		//glm::vec3 worldLB = this->centerPos_ - size_, worldRT = this->centerPos_ + size_;
+		const int X = ETypeAxis::X, Y = ETypeAxis::Y, Z = ETypeAxis::Z;
 
-		// 큐브 콤포넌트가 아니고 큐브 바운드 개체를 만들자 - 쓰고 버리는 개체
+		SCubeBound cb;
+		cb.centerPos_ = GetWorldPosition();
+		cb.size_ = GetWorldScales();
+		cb.dir_[X] = GetWorldAxis(ETypeAxis::X);
+		cb.dir_[Y] = GetWorldAxis(ETypeAxis::Y);
+		cb.dir_[Z] = GetWorldAxis(ETypeAxis::Z);
+
+		auto xHalfSize = cb.dir_[X] * cb.size_[X] * 0.5f;
+		auto yHalfSize = cb.dir_[Y] * cb.size_[Y] * 0.5f;
+		auto zHalfSize = cb.dir_[Z] * cb.size_[Z] * 0.5f;
+
+		SAABB aabb;
+		auto points = { cb.centerPos_ - xHalfSize, cb.centerPos_ - yHalfSize, cb.centerPos_ - zHalfSize, cb.centerPos_ + xHalfSize, cb.centerPos_ + yHalfSize, cb.centerPos_ + zHalfSize };
+		aabb.lb_ = *points.begin();
+		aabb.rt_ = *points.begin();
+
+		std::for_each(points.begin(), points.end(), [&aabb](auto& point)
+			{
+				if (point.x < aabb.lb_.x)
+					aabb.lb_.x = point.x;
+				if (point.y < aabb.lb_.y)
+					aabb.lb_.y = point.y;
+				if (point.z < aabb.lb_.z)
+					aabb.lb_.z = point.z;
+
+				if (point.x > aabb.rt_.x)
+					aabb.rt_.x = point.x;
+				if (point.y > aabb.rt_.y)
+					aabb.rt_.y = point.y;
+				if (point.z > aabb.rt_.z)
+					aabb.rt_.z = point.z;
+			});
 
 		return aabb;
 	}

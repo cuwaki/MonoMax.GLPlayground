@@ -44,8 +44,6 @@ namespace SMGE
 	void CRayComponent::OnBeginPlay(CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
-
-		GetOBB();
 	}
 
 	void CRayComponent::OnEndPlay()
@@ -79,11 +77,11 @@ namespace SMGE
 		const auto resmKey = "gizmoK:ray";
 
 		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
-		if(gizmorm == nullptr)
+		if (gizmorm == nullptr)
+		{
 			gizmorm = new nsRE::RayRM();
-
-		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
+			GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+		}
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
 

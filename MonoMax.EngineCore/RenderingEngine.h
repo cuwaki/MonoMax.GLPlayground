@@ -247,6 +247,7 @@ namespace SMGE
 			virtual GLuint GetShaderID() const { return 0; }
 
 			bool IsGizmo() const;
+			virtual void CallDefaultGLDraw(size_t verticesSize) const;
 
 			class RenderModel& GetRenderModel() const;
 
@@ -409,11 +410,8 @@ namespace SMGE
 
 			CCamera camera_;
 
-			// 테스트 코드
 			CHashMap<CString, ResourceModelBase*> resourceModels_;
 			//CVector<WorldObject> WorldObjects_;
-			// deprecated
-			//CVector<OldModelWorld*> m_oldWorldObjectList;
 
 			void initWindow();
 

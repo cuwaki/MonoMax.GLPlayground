@@ -42,6 +42,25 @@ namespace SMGE
 
 		glm::vec3 centerPos_;
 		glm::vec3 size_;
+		glm::vec3 dir_[3];
+	};
+
+	struct SAABB
+	{
+		glm::vec3 lb_, rt_;
+
+		bool isIntersect(const SAABB& other) const;
+
+		bool isXContains(const SAABB& other) const;
+		bool isYContains(const SAABB& other) const;
+		bool isZContains(const SAABB& other) const;
+		bool isIntersectPoints(const SAABB& other) const;
+		inline bool isContains(const glm::vec3& point) const;
+
+		inline const glm::vec3& lb() const;
+		inline const glm::vec3& rt() const;
+		inline glm::vec3 lt() const;
+		inline glm::vec3 rb() const;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +97,7 @@ namespace SMGE
 		EBoundType GetBoundType() const { return boundType_; }
 
 		virtual class CCubeComponent* GetOBB() = 0;
-		virtual SCubeBound GetAABB();
+		virtual SAABB GetAABB();
 
 	protected:
 		class CCubeComponent* CreateOBB();

@@ -25,7 +25,7 @@ namespace SMGE
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
 		virtual class CCubeComponent* GetOBB() override;
-		virtual SCubeBound GetAABB() override;
+		virtual SAABB GetAABB() override;
 
 		void Ctor();
 

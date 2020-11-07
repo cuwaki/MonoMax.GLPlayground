@@ -43,10 +43,10 @@ namespace SMGE
 
 		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (gizmorm == nullptr)
+		{
 			gizmorm = new nsRE::SphereRM();
-
-		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
+			GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+		}
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
 
@@ -65,6 +65,6 @@ namespace SMGE
 
 	float CSphereComponent::GetRadius() const
 	{
-		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front];
+		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front] / 2.f;	// 반지름이니까
 	}
 };

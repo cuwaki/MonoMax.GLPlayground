@@ -8,6 +8,7 @@ namespace SMGE
 {
 	CPlaneComponent::CPlaneComponent(CObject* outer) : Super(outer)
 	{
+		hasFace_ = true;	// 테스트 코드
 		Ctor();
 	}
 	CPlaneComponent::CPlaneComponent(CObject* outer, bool hasFace) : CPlaneComponent(outer)
@@ -27,9 +28,6 @@ namespace SMGE
 	void CPlaneComponent::OnBeginPlay(CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
-
-		// 테스트 코드
-		GetOBB();
 	}
 
 	void CPlaneComponent::OnEndPlay()
@@ -53,18 +51,21 @@ namespace SMGE
 			resmKey = "gizmoK:plane_faced";
 			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 			if (gizmorm == nullptr)
+			{
 				gizmorm = new nsRE::PlaneFacedRM();
+				GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			}
 		}
 		else
 		{
 			resmKey = "gizmoK:plane";
 			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 			if (gizmorm == nullptr)
+			{
 				gizmorm = new nsRE::PlaneRM();
+				GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			}
 		}
-
-		// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-		GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
 
@@ -83,12 +84,6 @@ namespace SMGE
 			weakOBB_ = CreateOBB();
 		}
 		return weakOBB_;
-	}
-
-	SCubeBound CPlaneComponent::GetAABB()
-	{
-		SCubeBound aabb;
-		return aabb;
 	}
 
 	glm::vec3 CPlaneComponent::getNormal() const

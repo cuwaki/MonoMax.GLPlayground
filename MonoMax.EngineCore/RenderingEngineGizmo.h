@@ -10,8 +10,10 @@ namespace SMGE
 		{
 		public:
 			GizmoRM() : ResourceModel() {}
+
 		protected:
 			virtual void CreateFrom(const std::vector<glm::vec3>& vertices);
+			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
 		};
 
 		// 모든 GizmoRM 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
@@ -39,6 +41,8 @@ namespace SMGE
 		{
 		public:
 			PlaneFacedRM();
+		protected:
+			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
 		};
 		
 		class RayRM : public GizmoRM

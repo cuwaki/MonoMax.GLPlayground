@@ -95,7 +95,7 @@ namespace SMGE
 		TActorLayers<CSharPtr<CActor>> actorLayers_;
 		bool isStarted_ = false;
 
-		static TActorKey DynamicActorKey;	// 테스트 코드
+		static TActorKey DynamicActorKey;
 
 	public:
 		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용

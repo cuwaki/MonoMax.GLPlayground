@@ -659,6 +659,12 @@ namespace SMGE
 			return GetMesh().uvs_.size() == 0;
 		}
 
+		void ResourceModelBase::CallDefaultGLDraw(size_t verticesSize) const
+		{
+			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
+			//glDrawArrays(GL_LINES, 0, verticesSize);	// 이걸로 그리면 와이어프레임으로 그려진다 - 아마 수잔느 몽키만 그럴지도?!
+		}
+
 		void ResourceModelBase::Invalidate()
 		{
 			renderModel_ = nullptr;
@@ -844,22 +850,7 @@ namespace SMGE
 				if (resource_.GetShaderSet()->unif_ModelMatrixID_ != -1)
 					glUniformMatrix4fv(resource_.GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
 
-				if (resource_.IsGizmo() == false)
-				{
-					glDrawArrays(GL_TRIANGLES, 0, verticesSize_);
-					//glDrawArrays(GL_LINES, 0, verticesSize_);	// 이걸로 그리면 와이어프레임으로 그려진다 - 아마 수잔느 몽키만 그럴지도?!
-				}
-				else
-				{
-					if (verticesSize_ > 1)
-					{
-						glDrawArrays(GL_LINE_STRIP, 0, verticesSize_);	// 테스트 코드 ㅡ 스티치로 나오는 버그 있다
-					}
-					else
-					{
-						glDrawArrays(GL_POINT, 0, verticesSize_);	// 문제 - 점이 제대로 안그려진다
-					}
-				}
+				resource_.CallDefaultGLDraw(verticesSize_);
 			}
 		}
 
@@ -1256,9 +1247,8 @@ namespace SMGE
 
 		void CRenderingEngine::Tick()
 		{
+			// 테스트 코드 - 대강 느낌만 맞춰둠
 			smge_game->GetEngine()->Tick(0.01f);
-
-			// 테스트 코드
 			//double currentTime = glfwGetTime();
 			//float theta = currentTime * 2.f;
 
@@ -1275,8 +1265,7 @@ namespace SMGE
 
 			glm::mat4 VP = camera_.GetProjectionMatrix() * camera_.GetViewMatrix();
 
-			// 테스트 코드
-			// 라이트를 회전시키자
+			// 테스트 코드 - 라이트를 회전시키자
 			const float lightRotateRadius = 4;
 			glm::vec4 lightPos = glm::vec4(0, 8, lightRotateRadius, 1);
 			static double lastTime = glfwGetTime();
