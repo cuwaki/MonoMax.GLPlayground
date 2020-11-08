@@ -24,7 +24,7 @@ namespace SMGE
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
-		virtual class CCubeComponent* GetOBB() override;
+		virtual const class CCubeComponent* GetOBB() override;
 
 		void Ctor();
 

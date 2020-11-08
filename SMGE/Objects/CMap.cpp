@@ -145,10 +145,16 @@ namespace SMGE
 			sptrActor->Tick(timeDelta);
 
 			newLoc = sptrActor->getLocation();
-			if(oldLoc != newLoc)
+			if(oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
 			{	// 일단 무식하게 한다
 				actorOctree_.RemoveByPoint(sptrActor.get(), oldLoc);
 				actorOctree_.AddByPoint(sptrActor.get(), newLoc);
+
+				// 역시 일단 무식하게 한다
+				if (sptrActor->GetMainBound() != nullptr)
+				{
+					sptrActor->GetMainBound()->CacheAABB();
+				}
 			}
 		}
 	}
@@ -196,7 +202,7 @@ namespace SMGE
 	{
 		targetActor.OnSpawnFinished(this);
 
-		if (isStarted_ == true)
+		if (isBeganPlay_ == true)
 		{
 			actorOctree_.AddByPoint(&targetActor, targetActor.getLocation());
 			targetActor.BeginPlay();
@@ -225,25 +231,25 @@ namespace SMGE
 		return actorOctree_.QueryValuesByCube(aabb.lb_, aabb.rt_);
 	}
 
-	void CMap::StartToPlay()
+	void CMap::BeginPlay()
 	{
-		if (isStarted_ == true)
+		if (isBeganPlay_ == true)
 			throw SMGEException(wtext("CMap already activated"));
 
 		actorOctree_.Create("actorOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
-
-		isStarted_ = true;
 
 		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
 		{
 			actorOctree_.AddByPoint(sptrActor.get(), sptrActor->getLocation());
 			sptrActor->BeginPlay();
 		}
+
+		isBeganPlay_ = true;
 	}
 
 	void CMap::FinishPlaying()
 	{
-		if (isStarted_ == false)
+		if (isBeganPlay_ == false)
 			return;
 
 		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
@@ -253,6 +259,6 @@ namespace SMGE
 		}
 
 		actorLayers_.clear();
-		isStarted_ = false;
+		isBeganPlay_ = false;
 	}
 };

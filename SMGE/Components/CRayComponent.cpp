@@ -51,7 +51,7 @@ namespace SMGE
 		Super::OnEndPlay();
 	}
 
-	class CCubeComponent* CRayComponent::GetOBB()
+	const class CCubeComponent* CRayComponent::GetOBB()
 	{
 		if (weakOBB_ == nullptr)
 		{

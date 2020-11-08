@@ -60,7 +60,7 @@ namespace SMGE
 		return false;
 	}
 
-	class CCubeComponent* CPointComponent::GetOBB()
+	const class CCubeComponent* CPointComponent::GetOBB()
 	{
 		if (weakOBB_ == nullptr)
 		{

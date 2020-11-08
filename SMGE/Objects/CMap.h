@@ -79,9 +79,9 @@ namespace SMGE
 		const CVector<CSharPtr<CActor>>& GetActors(EActorLayer layer) const;
 		CVector<CActor*> QueryActors(const SAABB& aabb) const;
 
-		void StartToPlay();
+		void BeginPlay();
 		void FinishPlaying();
-		bool IsStarted() { return isStarted_; }
+		bool IsBeganPlay() { return isBeganPlay_; }
 
 	protected:
 		CActor& SpawnActorINTERNAL(CObject* newObj, bool isDynamic)
@@ -110,7 +110,7 @@ namespace SMGE
 		// runtime
 		ActorOcTree actorOctree_;
 		TActorLayers<CSharPtr<CActor>> actorLayers_;
-		bool isStarted_ = false;
+		bool isBeganPlay_ = false;
 
 		static TActorKey DynamicActorKey;
 

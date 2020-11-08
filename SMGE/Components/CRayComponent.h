@@ -26,7 +26,7 @@ namespace SMGE
 
 		void SetBoundDataComponent(float size, const glm::vec3& direction);
 
-		virtual class CCubeComponent* GetOBB() override;
+		virtual const class CCubeComponent* GetOBB() override;
 
 		void Ctor();
 

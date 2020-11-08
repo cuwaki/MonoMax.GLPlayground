@@ -61,15 +61,15 @@ namespace SMGE
 		return false;
 	}
 
-	class CCubeComponent* CCubeComponent::GetOBB()
+	const class CCubeComponent* CCubeComponent::GetOBB()
 	{
 		weakOBB_ = this;	// 나 자신이 OBB이다
 		return weakOBB_;
 	}
 
-	SAABB CCubeComponent::GetAABB()
+	void CCubeComponent::CacheAABB()
 	{
-		RecalcMatrix();
+		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
 		const int X = ETypeAxis::X, Y = ETypeAxis::Y, Z = ETypeAxis::Z;
 
@@ -84,28 +84,25 @@ namespace SMGE
 		auto yHalfSize = cb.dir_[Y] * cb.size_[Y] * 0.5f;
 		auto zHalfSize = cb.dir_[Z] * cb.size_[Z] * 0.5f;
 
-		SAABB aabb;
 		auto points = { cb.centerPos_ - xHalfSize, cb.centerPos_ - yHalfSize, cb.centerPos_ - zHalfSize, cb.centerPos_ + xHalfSize, cb.centerPos_ + yHalfSize, cb.centerPos_ + zHalfSize };
-		aabb.lb_ = *points.begin();
-		aabb.rt_ = *points.begin();
+		cachedAABB_.lb_ = *points.begin();
+		cachedAABB_.rt_ = *points.begin();
 
-		std::for_each(points.begin(), points.end(), [&aabb](auto& point)
+		std::for_each(points.begin(), points.end(), [this](auto& point)
 			{
-				if (point.x < aabb.lb_.x)
-					aabb.lb_.x = point.x;
-				if (point.y < aabb.lb_.y)
-					aabb.lb_.y = point.y;
-				if (point.z < aabb.lb_.z)
-					aabb.lb_.z = point.z;
+				if (point.x < cachedAABB_.lb_.x)
+					cachedAABB_.lb_.x = point.x;
+				if (point.y < cachedAABB_.lb_.y)
+					cachedAABB_.lb_.y = point.y;
+				if (point.z < cachedAABB_.lb_.z)
+					cachedAABB_.lb_.z = point.z;
 
-				if (point.x > aabb.rt_.x)
-					aabb.rt_.x = point.x;
-				if (point.y > aabb.rt_.y)
-					aabb.rt_.y = point.y;
-				if (point.z > aabb.rt_.z)
-					aabb.rt_.z = point.z;
+				if (point.x > cachedAABB_.rt_.x)
+					cachedAABB_.rt_.x = point.x;
+				if (point.y > cachedAABB_.rt_.y)
+					cachedAABB_.rt_.y = point.y;
+				if (point.z > cachedAABB_.rt_.z)
+					cachedAABB_.rt_.z = point.z;
 			});
-
-		return aabb;
 	}
 };

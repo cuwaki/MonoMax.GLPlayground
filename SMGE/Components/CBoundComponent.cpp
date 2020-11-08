@@ -101,6 +101,8 @@ namespace SMGE
 	void CBoundComponent::OnBeginPlay(CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
+
+		CacheAABB();
 	}
 
 	void CBoundComponent::OnEndPlay()
@@ -113,9 +115,20 @@ namespace SMGE
 		return false;
 	}
 
-	SAABB CBoundComponent::GetAABB()
+	void CBoundComponent::CacheAABB()
 	{
-		return GetOBB()->GetAABB();	// obb 즉 CCubeComponent 로부터 aabb 를 만든다, 정확도는 떨어질 수 있지만 빠르다, 사실 aabb 에서 정확도를 따지는 건 이미 무리인듯??
+		const_cast<CCubeComponent*>(GetOBB())->CacheAABB();	// obb 즉 CCubeComponent 로부터 aabb 를 만든다, 정확도는 떨어질 수 있지만 빠르다, 사실 aabb 에서 정확도를 따지는 건 이미 무리인듯??
+		cachedAABB_ = GetOBB()->GetAABB();
+	}
+
+	const SAABB& CBoundComponent::GetAABB() const
+	{
+		return cachedAABB_;
+	}
+
+	const class CCubeComponent* CBoundComponent::GetOBB() const
+	{
+		return weakOBB_;	// const 객체의 경우 아직 캐시가 안되었을 때 올수도 있다, 좀 생각해보자! 애초부터 const 가 아니었으면 const 가 아닌 GetOBB() 가 실행되었을테니까 음...
 	}
 
 	class CCubeComponent* CBoundComponent::CreateOBB()
@@ -131,6 +144,12 @@ namespace SMGE
 			auto obbCube = DCast<CCubeComponent*>(getTransientComponents().back().get());
 			if (obbCube)
 			{
+				// 일단 안보이게
+				obbCube->isGameVisible_ = false;
+#if IS_EDITOR
+				obbCube->isEditorVisible_ = false;
+#endif
+
 				// 여기 - LoadObject 와 같이 new 하고 reflect 까지 한번에 끝내주는 함수 필요
 				auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
 				obbCube->CopyFromTemplate(asset->getContentClass());
@@ -139,7 +158,7 @@ namespace SMGE
 				//{
 				registerComponent(obbCube);
 
-				if (map->IsStarted())
+				if (map->IsBeganPlay())
 					obbCube->OnBeginPlay(this);
 				// }
 

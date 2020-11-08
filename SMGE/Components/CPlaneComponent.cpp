@@ -77,12 +77,10 @@ namespace SMGE
 		return false;
 	}
 
-	class CCubeComponent* CPlaneComponent::GetOBB()
+	const class CCubeComponent* CPlaneComponent::GetOBB()
 	{
 		if(weakOBB_ == nullptr)
-		{
 			weakOBB_ = CreateOBB();
-		}
 		return weakOBB_;
 	}
 

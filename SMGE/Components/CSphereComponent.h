@@ -23,7 +23,7 @@ namespace SMGE
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 
-		virtual class CCubeComponent* GetOBB() override;
+		virtual const class CCubeComponent* GetOBB() override;
 
 		void Ctor();
 

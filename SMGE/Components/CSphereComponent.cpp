@@ -53,12 +53,10 @@ namespace SMGE
 		Super::ReadyToDrawing();
 	}
 
-	class CCubeComponent* CSphereComponent::GetOBB()
+	const class CCubeComponent* CSphereComponent::GetOBB()
 	{
 		if (weakOBB_ == nullptr)
-		{
 			weakOBB_ = CreateOBB();
-		}
 
 		return weakOBB_;
 	}

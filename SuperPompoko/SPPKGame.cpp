@@ -142,7 +142,7 @@ namespace SMGE
 
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->ProcessCollide(targets);
-				rayActor->SetLifeTick(300);
+				rayActor->SetLifeTick(100);
 				// }
 			}
 
@@ -158,9 +158,9 @@ namespace SMGE
 
 #ifdef EDITOR_WORKING
 		// 테스트 코드
-		if (currentMap_->IsStarted() == false)
+		if (currentMap_->IsBeganPlay() == false)
 		{
-			currentMap_->StartToPlay();
+			currentMap_->BeginPlay();
 		}
 
 		currentMap_->Tick(dt);

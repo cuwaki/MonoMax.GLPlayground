@@ -8,10 +8,10 @@
 
 namespace SMGE
 {
-	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
+	CCollideActor::CCollideActor(CObject* outer, ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide) : CActor(outer), fOnCollide_(fOnCollide)
 	{
 		rule_ = rule;
-		isDetailCheck_ = isDetailCheck;
+		isPolygonCheck_ = isPolygonCheck;
 	}
 
 	CVector<CActor*> CCollideActor::QueryCollideCheckTargets()
@@ -34,18 +34,20 @@ namespace SMGE
 
 	void CCollideActor::ProcessCollide(CVector<CActor*>& targets)
 	{
-		ProcessCollide(rule_, isDetailCheck_, fOnCollide_, targets);
+		ProcessCollide(rule_, isPolygonCheck_, fOnCollide_, targets);
 	}
 
-	void CCollideActor::ProcessCollide(ECheckCollideRule rule, bool isDetailCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
+	void CCollideActor::ProcessCollide(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
 	{
 		glm::vec3 collidingPoint;
 
 		for (auto& actor : targets)
 		{
-			if (this->GetMainBound()->CheckCollide(actor->GetMainBound(), collidingPoint) == true)
+			if (
+				//this->GetMainBound()->GetAABB().isIntersect(actor->GetMainBound()->GetAABB()) == true &&	// aabb 체크 넘어가면
+				this->GetMainBound()->CheckCollide(actor->GetMainBound(), collidingPoint) == true)			// 바운드끼리 체크 한다
 			{
-				if (isDetailCheck == false)
+				if (isPolygonCheck == false)
 				{
 					fOnCollide(this, actor, this->GetMainBound(), actor->GetMainBound(), collidingPoint);
 				}

@@ -50,17 +50,18 @@ namespace SMGE
 		glm::vec3 lb_, rt_;
 
 		bool isIntersect(const SAABB& other) const;
-
-		bool isXContains(const SAABB& other) const;
-		bool isYContains(const SAABB& other) const;
-		bool isZContains(const SAABB& other) const;
-		bool isIntersectPoints(const SAABB& other) const;
 		inline bool isContains(const glm::vec3& point) const;
 
 		inline const glm::vec3& lb() const;
 		inline const glm::vec3& rt() const;
 		inline glm::vec3 lt() const;
 		inline glm::vec3 rb() const;
+
+	protected:
+		bool isXContains(const SAABB& other) const;
+		bool isYContains(const SAABB& other) const;
+		bool isZContains(const SAABB& other) const;
+		bool isIntersectPoints(const SAABB& other) const;
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,8 +97,10 @@ namespace SMGE
 
 		EBoundType GetBoundType() const { return boundType_; }
 
-		virtual class CCubeComponent* GetOBB() = 0;
-		virtual SAABB GetAABB();
+		virtual const class CCubeComponent* GetOBB() const;
+		virtual const class CCubeComponent* GetOBB() = 0;
+		virtual const SAABB& GetAABB() const;
+		virtual void CacheAABB();
 
 	protected:
 		class CCubeComponent* CreateOBB();
@@ -108,6 +111,7 @@ namespace SMGE
 
 		EBoundType boundType_ = EBoundType::MAX;
 
+		SAABB cachedAABB_;
 		class CCubeComponent* weakOBB_;
 	};
 };
