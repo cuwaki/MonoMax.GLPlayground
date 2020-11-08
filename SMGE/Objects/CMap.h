@@ -2,10 +2,25 @@
 
 #include "../Interfaces/CInt_Reflection.h"
 #include "CActor.h"
+#include "../Components/CBoundComponent.h"
 #include "../RTTI.hpp"
+#include "../CQuadTree.h"
+#include <set>
 
 namespace SMGE
 {
+	namespace MapConst
+	{
+		constexpr float OctreeLeafWidth = 50.f;	// 50미터
+		constexpr int32 OctreeDepth = 6;
+
+		constexpr float MaxX = OctreeLeafWidth * 64.f;	// 64 == std::pow(2, OctreeDepth)
+		constexpr float MaxY = MaxX;
+		constexpr float MaxZ = MaxX;
+	}
+
+	using ActorOcTree = COcTree<std::set<CActor *>, float>;
+
 	enum class EActorLayer : uint8
 	{
 		System = 0,	// 카메라, 매니저 ...
@@ -62,6 +77,7 @@ namespace SMGE
 		CActor* FindActor(TActorKey ak);
 		CSharPtr<CActor>&& RemoveActor(TActorKey ak);
 		const CVector<CSharPtr<CActor>>& GetActors(EActorLayer layer) const;
+		CVector<CActor*> QueryActors(const SAABB& aabb) const;
 
 		void StartToPlay();
 		void FinishPlaying();
@@ -92,6 +108,7 @@ namespace SMGE
 
 	protected:
 		// runtime
+		ActorOcTree actorOctree_;
 		TActorLayers<CSharPtr<CActor>> actorLayers_;
 		bool isStarted_ = false;
 

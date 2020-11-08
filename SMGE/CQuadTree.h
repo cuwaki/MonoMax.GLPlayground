@@ -6,6 +6,7 @@
 #include <functional>
 #include <string>
 #include <forward_list>
+#include "GEContainers.h"
 
 namespace SMGE
 {
@@ -80,7 +81,6 @@ namespace SMGE
 		friend COcTree;
 
 	public:
-		using TSize = SizeType;
 		using TChild = CQuadTreeNode<ContainerT, SizeType>;
 		using TChildren = std::array<TChild, 4>;
 		using TContainer = ContainerT;
@@ -155,7 +155,13 @@ namespace SMGE
 		using TNodes = std::forward_list<TNode*>;
 
 	public:
+		CQuadTree() {}
 		CQuadTree(const std::string& treeName, SizeType width, SizeType height, SizeType leafNodeWidth, SizeType leafNodeHeight)
+		{
+			Create(treeName, width, height, leafNodeWidth, leafNodeHeight);
+		}
+
+		void Create(const std::string& treeName, SizeType width, SizeType height, SizeType leafNodeWidth, SizeType leafNodeHeight)
 		{
 			assert(width == height);	// 현재 비균등은 제대로 작동하지 않는 듯 하다, 필요시 나중에 고치자;;
 
@@ -197,7 +203,7 @@ namespace SMGE
 			heightGap_ = uvNodeTable_[1][0]->GetRect().b_ - uvNodeTable_[0][0]->GetRect().b_;
 		}
 
-		TNode* QueryNodeByPoint(SizeType w, SizeType h)
+		TNode* QueryNodeByPoint(SizeType w, SizeType h) const
 		{
 			//return QueryNodeByPoint(rootNode_, w, h);	// 트리 운행을 통한 쿼리
 
@@ -214,10 +220,10 @@ namespace SMGE
 			return uvNodeTable_[v][u];
 		}
 		
-		TNodes QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax)
+		TNodes QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax) const
 		{
-			assert(uMin <= uMax);
 			assert(vMin <= vMax);	// 이래야 정상 작동함!!
+			assert(uMin <= uMax);
 
 			TNodes ret;
 
@@ -225,15 +231,15 @@ namespace SMGE
 			vMin += halfHeight_; vMax += halfHeight_;
 			uMin += halfWidth_; uMax += halfWidth_;
 
-			auto sv = vMin / heightGap_, ev = vMax / heightGap_;
-			auto su = uMin / widthGap_, eu = uMax / widthGap_;
+			size_t sv = vMin / heightGap_, ev = vMax / heightGap_;
+			size_t su = uMin / widthGap_, eu = uMax / widthGap_;
 
 			// 점과는 다르게 넘어갈 수 있으므로 클램프 쳐줘야한다
-			sv = std::max(0, sv); ev = std::min(height_ / heightGap_ - 1, ev);
-			su = std::max(0, su); eu = std::min(width_ / widthGap_ - 1, eu);
+			sv = std::max<size_t>(0, sv); ev = std::min<size_t>(height_ / heightGap_ - 1, ev);
+			su = std::max<size_t>(0, su); eu = std::min<size_t>(width_ / widthGap_ - 1, eu);
 
-			for (auto vv = sv; vv <= ev; ++vv)
-				for (auto uu = su; uu <= eu; ++uu)
+			for (size_t vv = sv; vv <= ev; ++vv)
+				for (size_t uu = su; uu <= eu; ++uu)
 					ret.emplace_front(uvNodeTable_[vv][uu]);
 
 			return ret;
@@ -262,7 +268,7 @@ namespace SMGE
 			BuildQuadTree(thisNode.GetChild(3), startW, startH - halfH, halfW, halfH);	// GL 4사분면
 		}
 
-		TNode* QueryNodeByPoint(TNode& thisNode, SizeType w, SizeType h)
+		TNode* QueryNodeByPoint(TNode& thisNode, SizeType w, SizeType h) const
 		{
 			TNode* ret = nullptr;
 
@@ -309,7 +315,7 @@ namespace SMGE
 		size_t treeDepth_ = 0;
 		
 		TNode rootNode_;
-		std::vector<std::vector<TNode*>> uvNodeTable_;	// [v][u]
+		CVector<CVector<TNode*>> uvNodeTable_;	// [v][u]
 
 		// 임시 값
 		std::map<SizeType, std::map<SizeType, TNode*>> tempUVNodes_;	// [v][u]
@@ -319,7 +325,6 @@ namespace SMGE
 	class COcTree
 	{
 	public:
-		using TSize = SizeType;
 		using TContainer = ContainerT;
 		using TValue = typename ContainerT::value_type;
 
@@ -327,14 +332,17 @@ namespace SMGE
 		using TNode = typename TSubTree::TNode;
 
 	public:
-		COcTree(const std::string& treeName, SizeType xWidth, SizeType yWidth, SizeType zWidth, SizeType leafNodeWidth) :
-			xyQTree_("xy", xWidth, yWidth, leafNodeWidth, leafNodeWidth),
-			zxQTree_("zx", zWidth, xWidth, leafNodeWidth, leafNodeWidth)
+		COcTree() {}
+
+		void Create(const std::string& treeName, SizeType xWidth, SizeType yWidth, SizeType zWidth, SizeType leafNodeWidth)
 		{
 			assert(xWidth == zWidth);	// 이 두 값이 같지 않으면 테이블을 통한 판별이 어려워진다 - QueryValuesByCube( 여기의 Pred 함수 구현을 봐라, x 가 같은 것을 가지고 교차 여부 체크를 하기 때문이다
 			assert(xWidth == yWidth);	// 현재 비균등은 제대로 작동하지 않는 듯 하다, 필요시 나중에 고치자;;
 
 			treeName_ = treeName;
+
+			xyQTree_.Create("xy", xWidth, yWidth, leafNodeWidth, leafNodeWidth);
+			zxQTree_.Create("zx", zWidth, xWidth, leafNodeWidth, leafNodeWidth);
 		}
 
 		TNode* QueryNodeByXY(SizeType x, SizeType y)
@@ -346,7 +354,7 @@ namespace SMGE
 			return zxQTree_.QueryNodeByPoint(z, x);
 		}
 
-		auto QueryValuesByCube(SizeType sx, SizeType sy, SizeType sz, SizeType ex, SizeType ey, SizeType ez)
+		auto QueryValuesByCube(SizeType sx, SizeType sy, SizeType sz, SizeType ex, SizeType ey, SizeType ez) const
 		{
 			assert(sx <= ex);
 			assert(sy <= ey);
@@ -361,7 +369,7 @@ namespace SMGE
 				};
 
 			// 이제 x값이 같은 노드에서 교집합인 값들을 찾는다
-			std::vector<TValue> ret;
+			CVector<TValue> ret;
 			for (auto xyNode : xyNodeList)
 			{
 				for (auto zxNode : zxNodeList)
@@ -385,9 +393,9 @@ namespace SMGE
 			return ret;
 		}
 
-		auto QueryValuesByPoint(SizeType x, SizeType y, SizeType z)
+		auto QueryValuesByPoint(SizeType x, SizeType y, SizeType z) const
 		{
-			std::vector<TValue> intersect;
+			CVector<TValue> intersect;
 
 			const TNode* xyNode = QueryNodeByXY(x, y);
 			const TNode* zxNode = QueryNodeByZX(z, x);
@@ -400,6 +408,58 @@ namespace SMGE
 			}
 
 			return intersect;
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// glm::vec3 를 이용하는 경우의 지원
+		template<typename GLMVEC3>
+		auto QueryValuesByPoint(const GLMVEC3& point) const
+		{
+			return QueryValuesByPoint(point.x, point.y, point.z);
+		}
+
+		template<typename GLMVEC3>
+		auto QueryValuesByCube(const GLMVEC3& lb, const GLMVEC3& rt) const
+		{
+			return QueryValuesByCube(lb.x, lb.y, lb.z, rt.x, rt.y, rt.z);
+		}
+
+		template<typename GLMVEC3>
+		bool AddByPoint(const TValue value, const GLMVEC3& point)
+		{
+			TNode* xyNode = QueryNodeByXY(point.x, point.y);
+			TNode* zxNode = QueryNodeByZX(point.z, point.x);
+
+			if (xyNode && zxNode)
+			{
+				TContainer& dataXY = xyNode->GetContainer();
+				dataXY.insert(value);
+
+				TContainer& dataZX = zxNode->GetContainer();
+				dataZX.insert(value);
+				return true;
+			}
+
+			return false;
+		}
+
+		template<typename GLMVEC3>
+		bool RemoveByPoint(const TValue value, const GLMVEC3& point)
+		{
+			TNode* xyNode = QueryNodeByXY(point.x, point.y);
+			TNode* zxNode = QueryNodeByZX(point.z, point.x);
+
+			if (xyNode && zxNode)
+			{
+				TContainer& dataXY = xyNode->GetContainer();
+				dataXY.erase(value);
+
+				TContainer& dataZX = zxNode->GetContainer();
+				dataZX.erase(value);
+				return true;
+			}
+
+			return false;
 		}
 
 	protected:

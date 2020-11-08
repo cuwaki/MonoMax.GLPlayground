@@ -8,6 +8,8 @@
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"
 
+#include "../Components/CCubeComponent.h"
+
 #include <algorithm>
 
 namespace SMGE

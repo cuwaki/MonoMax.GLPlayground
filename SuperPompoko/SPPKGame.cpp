@@ -109,15 +109,17 @@ namespace SMGE
 				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
 				CCollideActor* rayActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_,
-					ECheckCollideRule::NEAREST, false, [this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+					ECheckCollideRule::NEAREST, false, 
+					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
 					{
 						CCollideActor* pointActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_);
 
 						auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
 						pointActor->CopyFromTemplate(prefab->getContentClass());
-
-						// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-						pointActor->getTransform().Translate(COLL_POS);
+						{
+							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
+							pointActor->getTransform().Translate(COLL_POS);
+						}
 
 						currentMap_->FinishSpawnActor(*pointActor);
 						
@@ -126,21 +128,16 @@ namespace SMGE
 
 				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
 				rayActor->CopyFromTemplate(prefab->getContentClass());
+				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
+					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
 
-				auto rayCompo = rayActor->findComponent<CRayComponent>();
-				{
 					float rayLength = engine_->GetRenderingEngine()->GetCamera()->GetZFar();
 					//rayCompo->SetBoundData(rayLength, ray_direction);
-
-					// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-
-					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
 					rayActor->getTransform().Translate(ray_origin);
 					rayActor->getTransform().Scale({ 0.1f, 0.1f, 0.1f });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
 					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
 					rayActor->getTransform().RotateQuat(ray_direction);
 				}
-
 				currentMap_->FinishSpawnActor(*rayActor);
 
 				auto targets = rayActor->QueryCollideCheckTargets();

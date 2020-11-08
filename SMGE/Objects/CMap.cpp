@@ -119,7 +119,9 @@ namespace SMGE
 			auto& actor = actors[i];
 			if (actor->IsPendingKill())
 			{
+				actorOctree_.RemoveByPoint(actor.get(), actor.get()->getLocation());
 				actor->EndPlay();
+
 				actor = nullptr;
 
 				actors.erase(actors.begin() + i);
@@ -134,9 +136,20 @@ namespace SMGE
 
 	void CMap::Tick(float timeDelta)
 	{
+		glm::vec3 oldLoc, newLoc;
+
 		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
 		{
+			oldLoc = sptrActor->getLocation();
+
 			sptrActor->Tick(timeDelta);
+
+			newLoc = sptrActor->getLocation();
+			if(oldLoc != newLoc)
+			{	// 일단 무식하게 한다
+				actorOctree_.RemoveByPoint(sptrActor.get(), oldLoc);
+				actorOctree_.AddByPoint(sptrActor.get(), newLoc);
+			}
 		}
 	}
 
@@ -185,6 +198,7 @@ namespace SMGE
 
 		if (isStarted_ == true)
 		{
+			actorOctree_.AddByPoint(&targetActor, targetActor.getLocation());
 			targetActor.BeginPlay();
 		}
 
@@ -206,15 +220,23 @@ namespace SMGE
 		return actorLayers_[layer];
 	}
 
+	CVector<CActor*> CMap::QueryActors(const SAABB& aabb) const
+	{
+		return actorOctree_.QueryValuesByCube(aabb.lb_, aabb.rt_);
+	}
+
 	void CMap::StartToPlay()
 	{
 		if (isStarted_ == true)
 			throw SMGEException(wtext("CMap already activated"));
 
+		actorOctree_.Create("actorOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
+
 		isStarted_ = true;
 
 		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
 		{
+			actorOctree_.AddByPoint(sptrActor.get(), sptrActor->getLocation());
 			sptrActor->BeginPlay();
 		}
 	}
@@ -226,6 +248,7 @@ namespace SMGE
 
 		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
 		{
+			actorOctree_.RemoveByPoint(sptrActor.get(), sptrActor->getLocation());
 			sptrActor->EndPlay();
 		}
 

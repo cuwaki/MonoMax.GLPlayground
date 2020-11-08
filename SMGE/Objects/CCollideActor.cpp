@@ -16,18 +16,16 @@ namespace SMGE
 
 	CVector<CActor*> CCollideActor::QueryCollideCheckTargets()
 	{
-		const auto& actors = Globals::GCurrentMap->GetActors(EActorLayer::Game);
+		auto aabb = GetMainBound()->GetAABB();
 
 		CVector<CActor*> ret;
-		ret.reserve(actors.size() / 2);
+		ret.reserve(10);
 
-		for (size_t i = 0; i < actors.size(); ++i)
+		auto actorWeaks = Globals::GCurrentMap->QueryActors(aabb);
+		for (size_t i = 0; i < actorWeaks.size(); ++i)
 		{
-			const auto& sptrActor = actors[i];
-
-			auto actor = sptrActor.get();
-			if (actor != nullptr && actor->GetMainBound() != nullptr && actor != this)
-				ret.push_back(actor);
+			if (actorWeaks[i] != nullptr && actorWeaks[i]->GetMainBound() != nullptr && actorWeaks[i] != this)
+				ret.push_back(actorWeaks[i]);
 		}
 
 		return ret;
@@ -54,6 +52,7 @@ namespace SMGE
 				else
 				{
 					// 디테일 바운드 콤포에 대하여 체크 - 여러개의 추가 Bound 또는 디테일한 CPolygonComponent 가 있어야겠지?
+					assert(false);	// 아직 미지원
 				}
 			}
 		}
