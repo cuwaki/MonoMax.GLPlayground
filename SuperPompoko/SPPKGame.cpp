@@ -13,6 +13,7 @@
 #include "Assets/CAssetManager.h"
 #include "Assets/CAsset.h"
 #include "Objects/CStaticMeshActor.h"
+#include "CBoundCheck.h"
 
 namespace SMGE
 {
@@ -78,6 +79,32 @@ namespace SMGE
 
 	void SPPKGame::Initialize()
 	{
+		// 테스트 코드
+		// {
+		SPlaneBound plane({ 0,1,0 }, { 0,0,0 });
+		SSegmentBound layonUpPlane({ 1,1,1 }, { -1,-1,-1 });
+		SSegmentBound layonBelowPlane({ -1,-1,-1 }, { 1,1,1 });
+
+		glm::vec3 out;
+		layonUpPlane.check(plane, out);
+		layonBelowPlane.check(plane, out);
+
+		SSegmentBound lay({ 0,1,0 }, { 0,-2,0 });
+		lay.check2D_XY(glm::vec3(1, 0.5, 0));
+		lay.check2D_XY(glm::vec3(0, -2, 0));
+
+		SSphereBound sph({ 0, 0, 0 }, 2.f);
+		SSegmentBound lay2({ 3,0,0 }, { -3,0,0 });
+		SSegmentBound lay3({ 3,2.1f,0 }, { -3,2.1f,0 });
+		SSegmentBound lay4({ 3,1.9f,0 }, { -3,1.9f,0 });
+		SSegmentBound lay5({ -3,0,0 }, { 3,0,0 });
+
+		lay2.check(sph, out);
+		lay3.check(sph, out);
+		lay4.check(sph, out);
+		lay5.check(sph, out);
+		// }
+
 		engine_ = new nsGE::CEngineBase(this);
 		gameSettings_ = new nsGE::SGEGameSettings();
 

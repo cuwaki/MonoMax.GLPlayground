@@ -38,7 +38,7 @@ namespace SMGE
 #if IS_EDITOR
 		isEditorVisible_ = true;
 #endif
-		boundType_ = EBoundType::RAY;
+		boundType_ = EBoundType::SEGMENT;
 	}
 
 	void CRayComponent::OnBeginPlay(CObject* parent)
