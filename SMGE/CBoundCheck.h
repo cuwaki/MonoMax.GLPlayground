@@ -2,6 +2,7 @@
 
 #include "../packages/glm.0.9.9.800/build/native/include/glm/glm.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/ext.hpp"
+#include <memory>
 
 namespace SMGE
 {
@@ -27,6 +28,8 @@ namespace SMGE
 		POINT,
 		SEGMENT,
 		PLANE,
+		TRIANGLE,
+		QUAD,
 
 		SPHERE,
 		CUBE,
@@ -55,6 +58,9 @@ namespace SMGE
 		}
 
 		glm::vec3 loc_;
+
+		bool check(const struct SPointBound& point) const;
+		bool operator==(const SPointBound& other) const;
 	};
 
 	struct SSegmentBound : public SBound
@@ -69,12 +75,18 @@ namespace SMGE
 		glm::vec3 start_, end_;
 
 		float getSlope2D_XY() const;
-
 		bool check2D_XY(const SSegmentBound& other, glm::vec3& outCross) const;
 		bool check2D_XY(const SPointBound& point) const;
 		
+		//bool check3D(const struct SSegmentBound& ...
+		bool operator==(const SSegmentBound& other) const;
+
 		bool check(const struct SPlaneBound& plane, glm::vec3& outCross) const;
+		bool check(const struct STriangleBound& tri, glm::vec3& outCross) const;
+		bool check(const struct SQuadBound& quad, glm::vec3& outCross) const;
+
 		bool check(const struct SSphereBound& sphere, glm::vec3& outCross) const;
+		bool check(const struct SCubeBound& cube, glm::vec3& outCross) const;
 	};
 
 	struct SPlaneBound : public SBound
@@ -82,10 +94,43 @@ namespace SMGE
 		SPlaneBound() : SBound(EBoundType::PLANE) {}
 		SPlaneBound(const glm::vec3& norm, const glm::vec3& loc);
 
+		float getDistanceOnPlane(const glm::vec3& loc) const;
+
+		bool isInFront(const glm::vec3& loc) const;
+		bool isOnPlane(const glm::vec3& loc) const;
+		bool isInBack(const glm::vec3& loc) const;
+		
+		bool check(const SPointBound& point) const;
+		bool check(const struct SPlaneBound& plane, glm::vec3& ourCrossVector, glm::vec3& outCrossPoint) const;
+
+		bool operator==(const SPlaneBound& other) const;
+
+		glm::vec3 getNormal() const { return normal_; }
+		float getD() const { return d_; }
+
+	protected:
 		glm::vec3 normal_;
 		float d_;
+	};
 
-		float getDistanceOnPlane(const glm::vec3& loc) const;
+	struct STriangleBound : public SPlaneBound
+	{
+		STriangleBound();
+		STriangleBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2);
+
+		bool operator==(const STriangleBound& other) const;
+
+		glm::vec3 p0_, p1_, p2_;
+	};
+
+	struct SQuadBound : public SPlaneBound
+	{
+		SQuadBound();
+		SQuadBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2, const glm::vec3& ccw_p3);
+
+		bool operator==(const SQuadBound& other) const;
+
+		glm::vec3 p0_, p1_, p2_, p3_;
 	};
 
 	struct SSphereBound : public SBound
@@ -97,6 +142,8 @@ namespace SMGE
 			radius_ = r;
 		}
 
+		bool operator==(const SSphereBound& other) const;
+
 		glm::vec3 loc_;
 		float radius_;
 	};
@@ -104,10 +151,24 @@ namespace SMGE
 	struct SCubeBound : public SBound
 	{
 		SCubeBound() : SBound(EBoundType::CUBE) {}
+		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3& eulerDegreesXYZ);
+		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3 (&eulerAxis)[3]);
 
+		bool operator==(const SCubeBound& other) const;
+
+		void getQuads(SQuadBound (&outQuads)[6]) const;
+
+		glm::vec3 getEulerAxis(int axis) const { return eulerAxis_[axis]; }
+		float getSize(int axis) const { return axis == 0 ? size_.x : (axis == 1 ? size_.y : size_.z); }
+		glm::vec3 getCenterPos() const { return centerPos_; }
+
+	protected:
+		// 캐시가 있으므로 생성된 후 절대로 외부에서 수정이 되면 안된다!
 		glm::vec3 centerPos_;
 		glm::vec3 size_;
-		glm::vec3 dir_[3];
+		glm::vec3 eulerAxis_[3];	// x, y, z축
+
+		mutable std::unique_ptr<SQuadBound> cachedQuads_[6];
 	};
 
 	struct SAABB : public SBound

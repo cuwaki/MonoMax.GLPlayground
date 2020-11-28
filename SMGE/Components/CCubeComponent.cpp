@@ -73,18 +73,13 @@ namespace SMGE
 
 		const int X = ETypeAxis::X, Y = ETypeAxis::Y, Z = ETypeAxis::Z;
 
-		SCubeBound cb;
-		cb.centerPos_ = GetWorldPosition();
-		cb.size_ = GetWorldScales();
-		cb.dir_[X] = GetWorldAxis(ETypeAxis::X);
-		cb.dir_[Y] = GetWorldAxis(ETypeAxis::Y);
-		cb.dir_[Z] = GetWorldAxis(ETypeAxis::Z);
+		SCubeBound cb(GetWorldPosition(), GetWorldScales(), { GetWorldAxis(ETypeAxis::X), GetWorldAxis(ETypeAxis::Y), GetWorldAxis(ETypeAxis::Z) });
 
-		auto xHalfSize = cb.dir_[X] * cb.size_[X] * 0.5f;
-		auto yHalfSize = cb.dir_[Y] * cb.size_[Y] * 0.5f;
-		auto zHalfSize = cb.dir_[Z] * cb.size_[Z] * 0.5f;
+		auto xHalfVec = cb.getEulerAxis(X) * cb.getSize(X) * 0.5f;
+		auto yHalfVec = cb.getEulerAxis(Y) * cb.getSize(Y) * 0.5f;
+		auto zHalfVec = cb.getEulerAxis(Z) * cb.getSize(Z) * 0.5f;
 
-		auto points = { cb.centerPos_ - xHalfSize, cb.centerPos_ - yHalfSize, cb.centerPos_ - zHalfSize, cb.centerPos_ + xHalfSize, cb.centerPos_ + yHalfSize, cb.centerPos_ + zHalfSize };
+		auto points = { cb.getCenterPos() - xHalfVec, cb.getCenterPos() - yHalfVec, cb.getCenterPos() - zHalfVec, cb.getCenterPos() + xHalfVec, cb.getCenterPos() + yHalfVec, cb.getCenterPos() + zHalfVec };
 		cachedAABB_.lb_ = *points.begin();
 		cachedAABB_.rt_ = *points.begin();
 

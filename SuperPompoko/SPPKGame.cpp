@@ -81,28 +81,52 @@ namespace SMGE
 	{
 		// 테스트 코드
 		// {
-		SPlaneBound plane({ 0,1,0 }, { 0,0,0 });
-		SSegmentBound layonUpPlane({ 1,1,1 }, { -1,-1,-1 });
-		SSegmentBound layonBelowPlane({ -1,-1,-1 }, { 1,1,1 });
+		//glm::vec3 out;
+		//bool rr;
 
-		glm::vec3 out;
-		layonUpPlane.check(plane, out);
-		layonBelowPlane.check(plane, out);
+		//SPlaneBound plane({ 0,1,0 }, { 0,0,0 });
+		//SSegmentBound layonUpPlane({ 1,1,1 }, { -1,-1,-1 });
+		//SSegmentBound layonBelowPlane({ -1,-1,-1 }, { 1,1,1 });
 
-		SSegmentBound lay({ 0,1,0 }, { 0,-2,0 });
-		lay.check2D_XY(glm::vec3(1, 0.5, 0));
-		lay.check2D_XY(glm::vec3(0, -2, 0));
+		//layonUpPlane.check(plane, out);
+		//layonBelowPlane.check(plane, out);
 
-		SSphereBound sph({ 0, 0, 0 }, 2.f);
-		SSegmentBound lay2({ 3,0,0 }, { -3,0,0 });
-		SSegmentBound lay3({ 3,2.1f,0 }, { -3,2.1f,0 });
-		SSegmentBound lay4({ 3,1.9f,0 }, { -3,1.9f,0 });
-		SSegmentBound lay5({ -3,0,0 }, { 3,0,0 });
+		//SSegmentBound lay({ 0,1,0 }, { 0,-2,0 });
+		//lay.check2D_XY(glm::vec3(1, 0.5, 0));
+		//lay.check2D_XY(glm::vec3(0, -2, 0));
 
-		lay2.check(sph, out);
-		lay3.check(sph, out);
-		lay4.check(sph, out);
-		lay5.check(sph, out);
+		//SSphereBound sph({ 0, 0, 0 }, 2.f);
+		//SSegmentBound lay2({ 3,0,0 }, { -3,0,0 });
+		//SSegmentBound lay3({ 3,2.1f,0 }, { -3,2.1f,0 });
+		//SSegmentBound lay4({ 3,1.9f,0 }, { -3,1.9f,0 });
+		//SSegmentBound lay5({ -3,0,0 }, { 3,0,0 });
+
+		//lay2.check(sph, out);
+		//lay3.check(sph, out);
+		//lay4.check(sph, out);
+		//lay5.check(sph, out);
+
+
+		//SSegmentBound layT({ 0.5,0.5,3 }, { 0.5,0.5,-3 });
+		//STriangleBound tri({ -1, 0, 0 }, { 1, -1, 0 }, { 1, 1, 0 });
+		//STriangleBound triNoCross({ -3, 0, 0 }, { -1, -1, 0 }, { -1, 1, 0 });
+		//rr = layT.check(tri, out);
+		//rr = layT.check(triNoCross, out);
+
+		//SQuadBound quad({ -1, -1, 0 }, { 1, -1, 0 }, { 1, 1, 0 }, { -1, 1, 0 });		
+		//SQuadBound quadNoCross({ -3, -3, 0 }, { -1, -3, 0 }, { -1, -1, 0 }, { -3, -1, 0 });
+		//rr = layT.check(quad, out);
+		//rr = layT.check(quadNoCross, out);
+		
+		//SSegmentBound layT({ 0.5,0.5,3 }, { 0.5,0.5,-3 });
+		//SCubeBound cube({ 0, 0, 0 }, { 2, 2, 2 }, { 0,0,0 });
+		//rr = layT.check(cube, out);
+
+		//layT = SSegmentBound({ 0.5,0.5,-3 }, { 0.5,0.5,+3 });
+		//rr = layT.check(cube, out);
+
+		//layT = SSegmentBound({ 3,0.5,0.5 }, { -3,0.5,0.5 });
+		//rr = layT.check(cube, out);
 		// }
 
 		engine_ = new nsGE::CEngineBase(this);

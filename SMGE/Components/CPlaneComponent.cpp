@@ -91,11 +91,10 @@ namespace SMGE
 
 	SPlaneBound CPlaneComponent::getBound() const
 	{
-		SPlaneBound ret;
-
-		ret.normal_ = getNormal();
-
-		// 트랜스폼에서 필요한 것들 내보내야함 - 위치 크기 회전
+		SPlaneBound ret(getNormal(), { 0,0,0 });
+		
+		// 여기 - 트랜스폼에서 필요한 것들 내보내야함 - 위치 크기 회전
+		// 여기 - 사실 평면 컴포넌트는 없고, 쿼드 컴포넌트로 대체되어야맞다
 
 		return ret;
 	}
