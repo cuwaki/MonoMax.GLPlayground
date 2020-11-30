@@ -80,137 +80,6 @@ namespace SMGE
 		return loc_ == other.loc_;
 	}
 
-	bool SSphereBound::operator==(const SSphereBound& other) const
-	{
-		return loc_ == other.loc_ && isNearlyEqual(radius_, other.radius_);
-	}
-
-	bool SSphereBound::check(const SPointBound& point) const
-	{
-		const auto distSQ = getDistanceSquared(loc_, point.loc_);
-		return distSQ < (radius_ * radius_);
-	}
-
-	bool SSphereBound::check(const SPlaneBound& plane, SSegmentBound& outCrossSegment) const
-	{
-		const auto dist = plane.getSignedDistanceFromPlane(loc_);
-		const auto absDist = std::fabsf(dist);
-		if (absDist < radius_)
-		{
-			bool isUnderOfPlane = std::signbit(dist);
-
-			const auto gap = radius_ - absDist;
-			const auto end = loc_ + (plane.getNormal() * (isUnderOfPlane ? 1.f : -1.f)) * (radius_ - gap);
-			outCrossSegment = SSegmentBound(loc_, end);
-			return true;
-		}
-
-		return false;
-	}
-
-	bool SSphereBound::check(const STriangleBound& tri, SSegmentBound& outCrossSegment) const
-	{
-		// 1. 평면과의 체크
-		bool isCross = check(static_cast<const SPlaneBound&>(tri), outCrossSegment);
-		if (isCross)
-		{
-			SSegmentBound segs[3];
-			tri.getSegments(segs);
-
-			// 차후 최적화 가능성 - 구를 평면도형에 투영한 넓이와 평면도형의 넓이를 비교하여 평면도형이 더 넓다면 선분의 교차보다 먼저 면과의 교차를 검사하는 것이 빠를 것 같다
-
-			glm::vec3 crossed;
-			for (auto& seg : segs)
-			{	// 차후 최적화 가능성 - 평면도형의 중심이 구의 밖이라면, 내적을 이용하여 둔각인 것들의 경우 체크 안해도 될 것 같다 - 확실한지는 테스트 해봐야할 듯
-				// 2. 구가 평면도형의 선분과 교차하였는가?
-				if (seg.check(*this, crossed) == true)
-				{
-					outCrossSegment.start_ = seg.start_;
-					outCrossSegment.end_ = crossed;
-					return true;
-				}
-			}
-
-			// 3. 구가 평면도형의 면에 교차하였는가?
-			crossed = outCrossSegment.end_;
-			return outCrossSegment.check(tri, crossed, false);	// 이미 평면과는 체크되었으므로 false
-		}
-
-		return false;
-	}
-
-	bool SSphereBound::check(const SQuadBound& quad, SSegmentBound& outCrossSegment) const
-	{
-		// 1. 평면과의 체크
-		bool isCross = check(static_cast<const SPlaneBound&>(quad), outCrossSegment);
-		if (isCross)
-		{
-			SSegmentBound segs[4];
-			quad.getSegments(segs);
-
-			// 차후 최적화 가능성 - 구를 평면도형에 투영한 넓이와 평면도형의 넓이를 비교하여 평면도형이 더 넓다면 선분의 교차보다 먼저 면과의 교차를 검사하는 것이 빠를 것 같다
-
-			glm::vec3 crossed;
-			for (auto& seg : segs)
-			{	// 차후 최적화 가능성 - 평면도형의 중심이 구의 밖이라면, 내적을 이용하여 둔각인 것들의 경우 체크 안해도 될 것 같다 - 확실한지는 테스트 해봐야할 듯
-				// 2. 구가 평면도형의 선분과 교차하였는가?
-				if (seg.check(*this, crossed) == true)
-				{
-					outCrossSegment.start_ = seg.start_;
-					outCrossSegment.end_ = crossed;
-					return true;
-				}
-			}
-
-			// 3. 구가 평면도형의 면에 교차하였는가?
-			crossed = outCrossSegment.end_;
-			return outCrossSegment.check(quad, crossed, false);	// 이미 평면과는 체크되었으므로 false
-		}
-
-		return false;
-	}
-
-	bool SSphereBound::check(const SSphereBound& sphere, SSegmentBound& outCrossSegment) const
-	{
-		const auto rr = radius_ + sphere.radius_;
-
-		const auto distSQ = getDistanceSquared(loc_, sphere.loc_);
-		if (distSQ < (rr * rr))
-		{
-			const auto dist = std::sqrtf(distSQ);
-			const auto gap = rr - dist;
-
-			const auto toDir = glm::normalize(loc_ - sphere.loc_);
-			const auto end = sphere.loc_ + toDir * (sphere.radius_ - gap);
-
-			outCrossSegment = SSegmentBound(sphere.loc_, end);
-			return true;
-		}
-
-		return false;
-	}
-
-	bool SSphereBound::check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const
-	{
-		SQuadBound quads[6];
-		cube.getQuads(quads);
-
-		const auto cubeToSphereDir = glm::normalize(loc_ - cube.getCenterPos());
-
-		for (const auto& quad : quads)
-		{
-			const auto cosT = glm::dot(quad.getNormal(), cubeToSphereDir);
-			const auto isSameDir = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, cosT);
-
-			if (isSameDir && check(quad, outCrossSegment))
-			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	void SSegmentBound::reverse()
 	{
 		std::swap(start_, end_);
@@ -396,12 +265,12 @@ namespace SMGE
 
 	bool SSegmentBound::check(const SSphereBound& sphere, glm::vec3& outCross) const
 	{
-		const auto radiusSQ = sphere.radius_ * sphere.radius_;
+		const auto radiusSQ = sphere.getRadius() * sphere.getRadius();
 
-		auto distanceSQ = getDistanceSquared(start_, sphere.loc_);
+		auto distanceSQ = getDistanceSquared(start_, sphere.getCenterPos());
 		if (distanceSQ < radiusSQ)
 		{	// 시점이 구 안에 있는 경우
-			distanceSQ = getDistanceSquared(end_, sphere.loc_);
+			distanceSQ = getDistanceSquared(end_, sphere.getCenterPos());
 			if (distanceSQ < radiusSQ)
 			{	// 종점도 구 안에 있는 경우
 				return false;
@@ -416,12 +285,12 @@ namespace SMGE
 		else
 		{
 			// 아래 코드는 활성화 해도 되고 안해도 되는데 일단 막아두었다, glm::normalize 할 때 sqrtf 를 하기 때문...
-			//const auto distanceToSphereCenter = getDistanceFromSegment(sphere.loc_);
-			//if (distanceToSphereCenter >= sphere.radius_)	// >= 에 주의! 현재 딱 경계라면 비충돌로 판정하는 것이 기준이다
+			//const auto distanceToSphereCenter = getDistanceFromSegment(sphere.getCenterPos());
+			//if (distanceToSphereCenter >= sphere.getRadius())	// >= 에 주의! 현재 딱 경계라면 비충돌로 판정하는 것이 기준이다
 			//	return false;
 
 			const auto toEnd = end_ - start_;
-			const auto xa = start_.x - sphere.loc_.x, ya = start_.y - sphere.loc_.y, za = start_.z - sphere.loc_.z;
+			const auto xa = start_.x - sphere.getCenterPos().x, ya = start_.y - sphere.getCenterPos().y, za = start_.z - sphere.getCenterPos().z;
 
 			const auto a = toEnd.x * toEnd.x + toEnd.y * toEnd.y + toEnd.z * toEnd.z;
 			const auto b = 2.f * (toEnd.x * xa + toEnd.y * ya + toEnd.z * za);
@@ -448,6 +317,9 @@ namespace SMGE
 
 	bool SSegmentBound::check(const SCubeBound& cube, glm::vec3& outCross) const
 	{
+		if(check(static_cast<const SSphereBound&>(cube), outCross) == false)
+			return false;
+
 		SQuadBound quads[6];
 		cube.getQuads(quads);
 
@@ -455,7 +327,7 @@ namespace SMGE
 
 		for (const auto& quad : quads)
 		{
-			const auto cosT = glm::dot(quad.getNormal(), segDirInverse);
+			const auto cosT = glm::dot(segDirInverse, quad.getNormal());
 			const auto isInFront = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, cosT);
 
 			if (isInFront && check(quad, outCross) == true)
@@ -596,6 +468,145 @@ namespace SMGE
 		outSegs[3] = cachedSegments_.get()[3];
 	}
 
+	bool SSphereBound::operator==(const SSphereBound& other) const
+	{
+		return loc_ == other.loc_ && isNearlyEqual(radius_, other.getRadius());
+	}
+
+	bool SSphereBound::check(const SPointBound& point) const
+	{
+		const auto distSQ = getDistanceSquared(loc_, point.loc_);
+		return distSQ < (radius_* radius_);
+	}
+
+	bool SSphereBound::check(const SPlaneBound& plane, SSegmentBound& outCrossSegment) const
+	{
+		const auto dist = plane.getSignedDistanceFromPlane(loc_);
+		const auto absDist = std::fabsf(dist);
+		if (absDist < radius_)
+		{
+			bool isUnderOfPlane = std::signbit(dist);
+
+			const auto gap = radius_ - absDist;
+			const auto end = loc_ + (plane.getNormal() * (isUnderOfPlane ? 1.f : -1.f)) * (radius_ - gap);
+			outCrossSegment = SSegmentBound(loc_, end);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool SSphereBound::check(const STriangleBound& tri, SSegmentBound& outCrossSegment) const
+	{
+		// 1. 평면과의 체크
+		bool isCross = check(static_cast<const SPlaneBound&>(tri), outCrossSegment);
+		if (isCross)
+		{
+			SSegmentBound segs[3];
+			tri.getSegments(segs);
+
+			// 차후 최적화 가능성 - 구를 평면도형에 투영한 넓이와 평면도형의 넓이를 비교하여 평면도형이 더 넓다면 선분의 교차보다 먼저 면과의 교차를 검사하는 것이 빠를 것 같다
+
+			glm::vec3 crossed;
+			for (auto& seg : segs)
+			{	// 차후 최적화 가능성 - 평면도형의 중심이 구의 밖이라면, 내적을 이용하여 둔각인 것들의 경우 체크 안해도 될 것 같다 - 확실한지는 테스트 해봐야할 듯
+				// 2. 구가 평면도형의 선분과 교차하였는가?
+				if (seg.check(*this, crossed) == true)
+				{
+					outCrossSegment.start_ = seg.start_;
+					outCrossSegment.end_ = crossed;
+					return true;
+				}
+			}
+
+			// 3. 구가 평면도형의 면에 교차하였는가?
+			crossed = outCrossSegment.end_;
+			return outCrossSegment.check(tri, crossed, false);	// 이미 평면과는 체크되었으므로 false
+		}
+
+		return false;
+	}
+
+	bool SSphereBound::check(const SQuadBound& quad, SSegmentBound& outCrossSegment) const
+	{
+		// 1. 평면과의 체크
+		bool isCross = check(static_cast<const SPlaneBound&>(quad), outCrossSegment);
+		if (isCross)
+		{
+			SSegmentBound segs[4];
+			quad.getSegments(segs);
+
+			// 차후 최적화 가능성 - 구를 평면도형에 투영한 넓이와 평면도형의 넓이를 비교하여 평면도형이 더 넓다면 선분의 교차보다 먼저 면과의 교차를 검사하는 것이 빠를 것 같다
+
+			glm::vec3 crossed;
+			for (auto& seg : segs)
+			{	// 차후 최적화 가능성 - 평면도형의 중심이 구의 밖이라면, 내적을 이용하여 둔각인 것들의 경우 체크 안해도 될 것 같다 - 확실한지는 테스트 해봐야할 듯
+				// 2. 구가 평면도형의 선분과 교차하였는가?
+				if (seg.check(*this, crossed) == true)
+				{
+					outCrossSegment.start_ = seg.start_;
+					outCrossSegment.end_ = crossed;
+					return true;
+				}
+			}
+
+			// 3. 구가 평면도형의 면에 교차하였는가?
+			crossed = outCrossSegment.end_;
+			return outCrossSegment.check(quad, crossed, false);	// 이미 평면과는 체크되었으므로 false
+		}
+
+		return false;
+	}
+
+	bool SSphereBound::check(const SSphereBound& sphere, SSegmentBound& outCrossSegment) const
+	{
+		const auto rr = radius_ + sphere.getRadius();
+
+		const auto distSQ = getDistanceSquared(loc_, sphere.getCenterPos());
+		if (distSQ < (rr * rr))
+		{
+			const auto dist = std::sqrtf(distSQ);
+			const auto gap = rr - dist;
+
+			const auto toDir = glm::normalize(loc_ - sphere.getCenterPos());
+			const auto end = sphere.getCenterPos() + toDir * (sphere.getRadius() - gap);
+
+			outCrossSegment = SSegmentBound(sphere.getCenterPos(), end);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool SSphereBound::check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const
+	{
+		if (check(static_cast<const SSphereBound&>(cube), outCrossSegment) == false)
+			return false;
+
+		SQuadBound quads[6];
+		cube.getQuads(quads);
+
+		const auto cubeToSphereDir = glm::normalize(loc_ - cube.getCenterPos());
+
+		for (const auto& quad : quads)
+		{
+			const auto cosT = glm::dot(cubeToSphereDir, quad.getNormal());
+			const auto isSameDir = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, cosT);
+
+			if (isSameDir && check(quad, outCrossSegment))
+			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	SCubeBound::SCubeBound() : SSphereBound()
+	{
+		type_ = EBoundType::CUBE;
+	}
+
 	SCubeBound::SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3& eulerDegreesXYZ) : SCubeBound()
 	{
 		using namespace nsRE::TransformConst;
@@ -615,16 +626,22 @@ namespace SMGE
 	{
 		using namespace nsRE::TransformConst;
 
-		centerPos_ = centerPos;
 		size_ = size;
 		eulerAxis_[ETypeAxis::X] = eulerAxis[ETypeAxis::X];
 		eulerAxis_[ETypeAxis::Y] = eulerAxis[ETypeAxis::Y];
 		eulerAxis_[ETypeAxis::Z] = eulerAxis[ETypeAxis::Z];
+
+		const auto xHalfLeng = size_.x / 2.f;
+		const auto yHalfLeng = size_.y / 2.f;
+		const auto zHalfLeng = size_.z / 2.f;
+		
+		const auto farestDistanceFromCenter = std::sqrtf(xHalfLeng * xHalfLeng + yHalfLeng * yHalfLeng + zHalfLeng * zHalfLeng);
+		this->SSphereBound::SSphereBound(centerPos, farestDistanceFromCenter);
 	}
 
 	bool SCubeBound::operator==(const SCubeBound& other) const
 	{
-		return centerPos_ == other.centerPos_ && 
+		return loc_ == other.loc_ && 
 			size_ == other.size_ &&
 			eulerAxis_[0] == other.eulerAxis_[0] &&
 			eulerAxis_[1] == other.eulerAxis_[1] &&
@@ -664,22 +681,22 @@ namespace SMGE
 			// 앞Z+ 뒤Z- 위Y+ 아래Y- 우X+ 좌X- 의 순서로
 			// 평면의 방향은 큐브의 바깥쪽으로 <- 이건 절대로 바뀌면 안됨
 
-			const auto frontCenter = centerPos_ + halfZVec;
+			const auto frontCenter = loc_ + halfZVec;
 			cachedQuads_.get()[0] = SQuadBound(LB(frontCenter, halfXVec, halfYVec), RB(frontCenter, halfXVec, halfYVec), RT(frontCenter, halfXVec, halfYVec), LT(frontCenter, halfXVec, halfYVec));	// 앞Z+
 
-			const auto backCenter = centerPos_ - halfZVec;	// 역방향 지정에 주의, 현재 상황에서 뒷면이므로 노멀이 반대를 보고 있어야하니깐
+			const auto backCenter = loc_ - halfZVec;	// 역방향 지정에 주의, 현재 상황에서 뒷면이므로 노멀이 반대를 보고 있어야하니깐
 			cachedQuads_.get()[1] = SQuadBound(LT(backCenter, halfXVec, halfYVec), RT(backCenter, halfXVec, halfYVec), RB(backCenter, halfXVec, halfYVec), LB(backCenter, halfXVec, halfYVec));	// 뒤Z-
 
-			const auto upCenter = centerPos_ + halfYVec;
+			const auto upCenter = loc_ + halfYVec;
 			cachedQuads_.get()[2] = SQuadBound(LB(upCenter, halfZVec, halfXVec), RB(upCenter, halfZVec, halfXVec), RT(upCenter, halfZVec, halfXVec), LT(upCenter, halfZVec, halfXVec));	// 위Y+
 
-			const auto bottomCenter = centerPos_ - halfYVec;
+			const auto bottomCenter = loc_ - halfYVec;
 			cachedQuads_.get()[3] = SQuadBound(LT(bottomCenter, halfZVec, halfXVec), RT(bottomCenter, halfZVec, halfXVec), RB(bottomCenter, halfZVec, halfXVec), LB(bottomCenter, halfZVec, halfXVec));	// 아래Y-
 
-			const auto rightCenter = centerPos_ + halfXVec;
+			const auto rightCenter = loc_ + halfXVec;
 			cachedQuads_.get()[4] = SQuadBound(LB(rightCenter, halfYVec, halfZVec), RB(rightCenter, halfYVec, halfZVec), RT(rightCenter, halfYVec, halfZVec), LT(rightCenter, halfYVec, halfZVec));	// 우X+
 
-			const auto leftCenter = centerPos_ - halfXVec;
+			const auto leftCenter = loc_ - halfXVec;
 			cachedQuads_.get()[5] = SQuadBound(LT(leftCenter, halfYVec, halfZVec), RT(leftCenter, halfYVec, halfZVec), RB(leftCenter, halfYVec, halfZVec), LB(leftCenter, halfYVec, halfZVec));	// 우X-
 		}
 
@@ -693,6 +710,9 @@ namespace SMGE
 
 	bool SCubeBound::check(const SPointBound& point) const
 	{
+		if(this->SSphereBound::SSphereBound::check(point) == false)
+			return false;
+
 		SQuadBound quads[6];
 		getQuads(quads);
 
@@ -705,9 +725,49 @@ namespace SMGE
 		return true;
 	}
 
-	bool SCubeBound::check(const SCubeBound& cube) const
+	bool SCubeBound::check(const SCubeBound& otherCube, SSegmentBound& outCrossSegment) const
 	{
-		// 복잡하네...
+		if (this->SSphereBound::SSphereBound::check(static_cast<const SSphereBound&>(otherCube), outCrossSegment) == false)
+			return false;
+
+		SQuadBound otherQuads[6], thisQuads[6];
+		otherCube.getQuads(otherQuads);
+		this->getQuads(thisQuads);
+
+		const auto otherToThisDir = glm::normalize(getCenterPos() - otherCube.getCenterPos());
+
+		glm::vec3 crossed;
+		for (const auto& otherQuad : otherQuads)
+		{
+			const auto otherCosT = glm::dot(otherToThisDir, otherQuad.getNormal());
+			const auto isSameDir = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, otherCosT);
+
+			if (isSameDir)
+			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
+				for (const auto& thisQuad : thisQuads)
+				{
+					const auto thisCosT = glm::dot(otherToThisDir, thisQuad.getNormal());
+					const auto isOppositeDir = isInRange(-1.f, 0.f, thisCosT);
+
+					if (isOppositeDir)
+					{	// 역시 큐브는 입체...
+						SSegmentBound otherSegs[4];
+						otherQuad.getSegments(otherSegs);
+
+						for (const auto& seg : otherSegs)
+						{
+							if (seg.check(thisQuad, crossed))
+							{
+								outCrossSegment.start_ = seg.start_;
+								outCrossSegment.end_ = crossed;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+
 		return false;
 	}
 };

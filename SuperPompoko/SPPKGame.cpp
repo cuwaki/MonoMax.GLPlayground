@@ -141,35 +141,43 @@ namespace SMGE
 		//rr = cub_pt.check(point);
 
 		// 스피어와 스피어, 플레인,트라이,쿼드
-		SSphereBound spr_all({ 2,0,0 }, 3.f);
-		SSphereBound spr2({ 6,0,0 }, 3.f);
-		SSphereBound spr3({ -4,0,0 }, 3.f);
-		rr = spr_all.check(spr2, outSeg);
-		rr = spr2.check(spr_all, outSeg);
-		rr = spr_all.check(spr3, outSeg);
+		//SSphereBound spr_all({ 2,0,0 }, 3.f);
+		//SSphereBound spr2({ 6,0,0 }, 3.f);
+		//SSphereBound spr3({ -4,0,0 }, 3.f);
+		//rr = spr_all.check(spr2, outSeg);
+		//rr = spr2.check(spr_all, outSeg);
+		//rr = spr_all.check(spr3, outSeg);
 
-		spr_all = SSphereBound({ 1,1,1 }, 3.f);
-		SPlaneBound plane({ 0,0,1 }, { 0,0,2 });
-		STriangleBound tri({ -1, -1.9f, 0 }, { 1, -1.9f, +1 }, { 1, -1.9f, -1 });
-		SQuadBound quad({ -1, -1, -1 }, { 1, -1, -1 }, { 1, 1, -1 }, { -1, +1, -1 });
+		//spr_all = SSphereBound({ 1,1,1 }, 3.f);
+		//SPlaneBound plane({ 0,0,1 }, { 0,0,2 });
+		//STriangleBound tri({ -1, -1.9f, 0 }, { 1, -1.9f, +1 }, { 1, -1.9f, -1 });
+		//SQuadBound quad({ -1, -1, -1 }, { 1, -1, -1 }, { 1, 1, -1 }, { -1, +1, -1 });
 
-		rr = spr_all.check(plane, outSeg);
-		rr = spr_all.check(tri, outSeg);	// 선분과 교차
-		rr = spr_all.check(quad, outSeg);	// 선분과 교차
+		//rr = spr_all.check(plane, outSeg);
+		//rr = spr_all.check(tri, outSeg);	// 선분과 교차
+		//rr = spr_all.check(quad, outSeg);	// 선분과 교차
 
-		quad = SQuadBound({ -10, -10, 0 }, { 10, -10, 0 }, { 10, 10, 0 }, { -10, +10, 0 });
-		rr = spr_all.check(quad, outSeg);	// 도형의 면과 교차
+		//quad = SQuadBound({ -10, -10, 0 }, { 10, -10, 0 }, { 10, 10, 0 }, { -10, +10, 0 });
+		//rr = spr_all.check(quad, outSeg);	// 도형의 면과 교차
 
-		// 스피어와 큐브
-		spr_all = SSphereBound({ 0,0,0 }, 3.f);
+		//// 스피어와 큐브
+		//spr_all = SSphereBound({ 0,0,0 }, 3.f);
 
-		// 면과의 교차 체크 - Y -2 ~ -6
-		SCubeBound cube({ 0, -4, 0 }, { 20, 4, 20 }, { 0,0,0 });
-		rr = spr_all.check(cube, outSeg);
-		
-		// 선분과의 교차 체크 - X 2 ~ 6, / Y 0 ~ -4 / Z -5 ~ 5
-		cube = SCubeBound({ 4, -2, 0 }, { 4, 4, 10 }, { 0,0,0 });
-		rr = spr_all.check(cube, outSeg);
+		//// 면과의 교차 체크 - Y -2 ~ -6
+		//SCubeBound cube({ 0, -4, 0 }, { 20, 4, 20 }, { 0,0,0 });
+		//rr = spr_all.check(cube, outSeg);
+		//
+		//// 선분과의 교차 체크 - X 2 ~ 6, / Y 0 ~ -4 / Z -5 ~ 5
+		//cube = SCubeBound({ 4, -2, 0 }, { 4, 4, 10 }, { 0,0,0 });
+		//rr = spr_all.check(cube, outSeg);
+
+		//SCubeBound cube({ 0, 0, 0 }, { 6, 6, 6 }, { 0,0,0 });
+		//SCubeBound cube2({ 4, 4, 4 }, { 6, 6, 6 }, { 0,0,0 });
+
+		//rr = cube.check(cube2, outSeg);
+
+		//cube2 = SCubeBound({ 7, 7, 7 }, { 6, 6, 6 }, { 0,0,0 });
+		//rr = cube.check(cube2, outSeg);
 		//}
 
 		engine_ = new nsGE::CEngineBase(this);

@@ -109,7 +109,7 @@ namespace SMGE
 
 		bool operator==(const SPlaneBound& other) const;
 
-		glm::vec3 getNormal() const { return normal_; }
+		const glm::vec3& getNormal() const { return normal_; }
 		float getD() const { return d_; }
 
 	protected:
@@ -193,29 +193,34 @@ namespace SMGE
 		bool check(const SSphereBound& sphere, SSegmentBound& outCrossSegment) const;
 		bool check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const;
 
+		const glm::vec3& getCenterPos() const { return loc_; }
+		float getRadius() const { return radius_; }
+
+	protected:
 		glm::vec3 loc_;
 		float radius_;
 	};
 
-	struct SCubeBound : public SBound
+	// 큐브의 바운드 연산은 매우 비효율적이기 때문에, 스피어를 기본으로 체크하도록 한다
+	struct SCubeBound : public SSphereBound
 	{
-		SCubeBound() : SBound(EBoundType::CUBE) {}
+		SCubeBound();
 		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3& eulerDegreesXYZ);
 		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3 (&eulerAxis)[3]);
 
 		bool operator==(const SCubeBound& other) const;
 		bool check(const SPointBound& point) const;
-		bool check(const SCubeBound& cube) const;
+		bool check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const;
 
 		void getQuads(SQuadBound (&outQuads)[6]) const;
 
-		glm::vec3 getEulerAxis(int axis) const { return eulerAxis_[axis]; }
+		const glm::vec3& getEulerAxis(int axis) const { return eulerAxis_[axis]; }
 		float getSize(int axis) const { return axis == 0 ? size_.x : (axis == 1 ? size_.y : size_.z); }
-		glm::vec3 getCenterPos() const { return centerPos_; }
+
+		float getFarestDistance() const { return radius_; }
 
 	protected:
-		// 캐시가 있으므로 생성된 후 절대로 외부에서 수정이 되면 안된다!
-		glm::vec3 centerPos_;
+		// 캐시가 있고, SSphereBound 의 역할도 하므로, 이 값들은 생성된 후 절대로 외부에서 수정이 되면 안된다! 뭐.. 이건 다른 것도 마찬가지
 		glm::vec3 size_;
 		glm::vec3 eulerAxis_[3];	// x, y, z축
 
