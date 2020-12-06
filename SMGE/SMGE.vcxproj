@@ -169,9 +169,9 @@
     <ClCompile Include="Components\CCubeComponent.cpp" />
     <ClCompile Include="Components\CDrawComponent.cpp" />
     <ClCompile Include="Components\CMeshComponent.cpp" />
-    <ClCompile Include="Components\CPlaneComponent.cpp" />
+    <ClCompile Include="Components\CQuadComponent.cpp" />
     <ClCompile Include="Components\CPointComponent.cpp" />
-    <ClCompile Include="Components\CRayComponent.cpp" />
+    <ClCompile Include="Components\CSegmentComponent.cpp" />
     <ClCompile Include="Components\CSphereComponent.cpp" />
     <ClCompile Include="Components\CStaticMeshComponent.cpp" />
     <ClCompile Include="Components\CMovementComponent.cpp" />
@@ -193,9 +193,9 @@
     <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="Components\CBoundComponent.h" />
     <ClInclude Include="Components\CCubeComponent.h" />
-    <ClInclude Include="Components\CPlaneComponent.h" />
+    <ClInclude Include="Components\CQuadComponent.h" />
     <ClInclude Include="Components\CPointComponent.h" />
-    <ClInclude Include="Components\CRayComponent.h" />
+    <ClInclude Include="Components\CSegmentComponent.h" />
     <ClInclude Include="Components\CSphereComponent.h" />
     <ClInclude Include="Components\CMovementComponent.h" />
     <ClInclude Include="CQuadTree.h" />

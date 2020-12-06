@@ -2,8 +2,8 @@
 #include "Objects/CObject.h"
 #include "Components/CComponent.h"
 #include "Components/CPointComponent.h"
-#include "Components/CRayComponent.h"
-#include "Components/CPlaneComponent.h"
+#include "Components/CSegmentComponent.h"
+#include "Components/CQuadComponent.h"
 #include "Components/CCubeComponent.h"
 #include "Components/CSphereComponent.h"
 #include "Components/CMeshComponent.h"
@@ -28,9 +28,9 @@ namespace SMGE
 
 	DEFINE_RTTI_CObject_DEFAULT(CPointComponent);
 	DEFINE_RTTI_CObject_VARIETY(CPointComponent, CObject*);
-	DEFINE_RTTI_CObject_DEFAULT(CPlaneComponent);
+	DEFINE_RTTI_CObject_DEFAULT(CQuadComponent);
 	DEFINE_RTTI_CObject_DEFAULT(CCubeComponent);
-	DEFINE_RTTI_CObject_DEFAULT(CRayComponent);
+	DEFINE_RTTI_CObject_DEFAULT(CSegmentComponent);
 	DEFINE_RTTI_CObject_DEFAULT(CSphereComponent);
 
 	DEFINE_RTTI_CObject_DEFAULT(CMeshComponent);

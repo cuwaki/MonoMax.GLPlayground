@@ -3,7 +3,7 @@
 #include "../Components/CMeshComponent.h"
 #include "../Components/CMovementComponent.h"
 #include "../Components/CSphereComponent.h"
-#include "../Components/CRayComponent.h"
+#include "../Components/CSegmentComponent.h"
 #include "../Components/CPointComponent.h"
 #include "../Assets/CAssetManager.h"
 #include "../CGameBase.h"

@@ -1,5 +1,5 @@
-classRTTIName_$CString$"CRayComponent"
-    reflectionFilePath_$CWString$"/templates/CRayComponent.asset"
+classRTTIName_$CString$"CSegmentComponent"
+    reflectionFilePath_$CWString$"/templates/CSegmentComponent.asset"
     classRTTIName_$CString$"SGRefl_Transform"
         reflectionFilePath_$CWString$""
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	

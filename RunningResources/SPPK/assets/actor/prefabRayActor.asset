@@ -8,7 +8,7 @@ classRTTIName_$CString$"CCollideActor"
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
     actorStaticTag_$CString$""
     persistCompoSize$size_t$1
-    classRTTIName_$CString$"CRayComponent"
+    classRTTIName_$CString$"CSegmentComponent"
         reflectionFilePath_$CWString$""
         classRTTIName_$CString$"SGRefl_Transform"
             reflectionFilePath_$CWString$""

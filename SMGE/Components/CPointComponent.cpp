@@ -60,16 +60,16 @@ namespace SMGE
 		return false;
 	}
 
-	const class CCubeComponent* CPointComponent::GetOBB()
+	void CPointComponent::CacheAABB()
 	{
-		if (weakOBB_ == nullptr)
-		{
-			weakOBB_ = CreateOBB();
+		cachedAABB_ = getBound();
+	}
 
-			// 여기 - 안급함 - 점은 특이해서 부모의 크기를 따라가면 안된다, 크기 고정 처리 필요
-			//auto currentWorldScale = GetWorldScales(); 일단 이거 역수 넣어주면 되긴하는데... 부모의 스케일이 바뀔 때마다 처리해야하나?
-		}
+	SPointBound CPointComponent::getBound()
+	{
+		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		return weakOBB_;
+		SPointBound pt(GetWorldPosition());
+		return pt;
 	}
 };

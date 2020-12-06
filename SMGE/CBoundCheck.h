@@ -3,11 +3,11 @@
 #include "../packages/glm.0.9.9.800/build/native/include/glm/glm.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/ext.hpp"
 #include <memory>
+#include "CGameBase.h"
 
 namespace SMGE
 {
-	constexpr float BoundCheckEpsilon = 0.00001f;
-	inline bool isNearlyEqual(const float& l, const float& r, const float& epsilon = BoundCheckEpsilon)
+	inline bool isNearlyEqual(const float& l, const float& r, const float& epsilon = Configs::BoundCheckEpsilon)
 	{
 		return std::fabsf(l - r) < epsilon;
 	}
@@ -21,6 +21,26 @@ namespace SMGE
 	{
 		const auto x = (l.x - r.x), y = (l.y - r.y), z = (l.z - r.z);
 		return x * x + y * y + z * z;
+	}
+	template<typename VecT>
+	void findMinAndMaxVector(const std::initializer_list<VecT>& points, VecT& outMin, VecT& outMax)
+	{
+		std::for_each(points.begin(), points.end(), [&outMin, &outMax](const auto& point)
+			{
+				if (point.x < outMin.x)
+					outMin.x = point.x;
+				if (point.y < outMin.y)
+					outMin.y = point.y;
+				if (point.z < outMin.z)
+					outMin.z = point.z;
+
+				if (point.x > outMax.x)
+					outMax.x = point.x;
+				if (point.y > outMax.y)
+					outMax.y = point.y;
+				if (point.z > outMax.z)
+					outMax.z = point.z;
+			});
 	}
 
 	enum class EBoundType
@@ -42,6 +62,8 @@ namespace SMGE
 		MAX = 255,
 	};
 
+	struct SAABB;
+
 	struct SBound
 	{
 		SBound(EBoundType t) : type_(t) {}
@@ -61,6 +83,8 @@ namespace SMGE
 
 		bool check(const struct SPointBound& point) const;
 		bool operator==(const SPointBound& other) const;
+
+		operator SAABB() const;
 	};
 
 	struct SSegmentBound : public SBound
@@ -91,6 +115,8 @@ namespace SMGE
 
 		bool check(const struct SSphereBound& sphere, glm::vec3& outCross) const;
 		bool check(const struct SCubeBound& cube, glm::vec3& outCross) const;
+
+		operator SAABB() const;
 	};
 
 	struct SPlaneBound : public SBound
@@ -121,6 +147,10 @@ namespace SMGE
 	{
 		STriangleBound();
 		STriangleBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2);
+		STriangleBound(const STriangleBound& other) noexcept
+		{
+			*this = other;
+		}
 
 		bool operator==(const STriangleBound& other) const;
 		STriangleBound& operator=(const STriangleBound& other) noexcept
@@ -140,6 +170,8 @@ namespace SMGE
 		const glm::vec3& getP1() const { return p1_; }
 		const glm::vec3& getP2() const { return p2_; }
 
+		operator SAABB() const;
+
 	protected:
 		glm::vec3 p0_, p1_, p2_;
 		mutable std::unique_ptr<SSegmentBound[]> cachedSegments_;
@@ -149,6 +181,10 @@ namespace SMGE
 	{
 		SQuadBound();
 		SQuadBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2, const glm::vec3& ccw_p3);
+		SQuadBound(const SQuadBound& other) noexcept
+		{
+			*this = other;
+		}
 
 		bool operator==(const SQuadBound& other) const;
 		SQuadBound& operator=(const SQuadBound& other) noexcept
@@ -169,6 +205,8 @@ namespace SMGE
 		const glm::vec3& getP1() const { return p1_; }
 		const glm::vec3& getP2() const { return p2_; }
 		const glm::vec3& getP3() const { return p3_; }
+
+		operator SAABB() const;
 
 	protected:
 		glm::vec3 p0_, p1_, p2_, p3_;
@@ -196,6 +234,8 @@ namespace SMGE
 		const glm::vec3& getCenterPos() const { return loc_; }
 		float getRadius() const { return radius_; }
 
+		operator SAABB() const;
+
 	protected:
 		glm::vec3 loc_;
 		float radius_;
@@ -212,12 +252,14 @@ namespace SMGE
 		bool check(const SPointBound& point) const;
 		bool check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const;
 
-		void getQuads(SQuadBound (&outQuads)[6]) const;
+		void getQuads(SQuadBound (&outQuads)[6], bool isJustWantFrontAndBack = false) const;
 
 		const glm::vec3& getEulerAxis(int axis) const { return eulerAxis_[axis]; }
 		float getSize(int axis) const { return axis == 0 ? size_.x : (axis == 1 ? size_.y : size_.z); }
 
-		float getFarestDistance() const { return radius_; }
+		float getFarthestDistance() const { return radius_; }
+
+		operator SAABB() const;
 
 	protected:
 		// 캐시가 있고, SSphereBound 의 역할도 하므로, 이 값들은 생성된 후 절대로 외부에서 수정이 되면 안된다! 뭐.. 이건 다른 것도 마찬가지
@@ -230,21 +272,29 @@ namespace SMGE
 	struct SAABB : public SBound
 	{
 		SAABB() : SBound(EBoundType::AABB) {}
-
-		glm::vec3 lb_, rt_;
+		SAABB(const glm::vec3& min, const glm::vec3& max) : SAABB()
+		{
+			min_ = min;
+			max_ = max;
+		}
 
 		bool isIntersect(const SAABB& other) const;
 		inline bool isContains(const glm::vec3& point) const;
 
-		inline const glm::vec3& lb() const;
-		inline const glm::vec3& rt() const;
-		inline glm::vec3 lt() const;
-		inline glm::vec3 rb() const;
+		inline const glm::vec3& min() const;
+		inline const glm::vec3& max() const;
+		std::initializer_list<glm::vec3> points() const;
+
+		inline glm::vec3 getSize() const;
+
+		operator SCubeBound() const;
 
 	protected:
-		bool isXContains(const SAABB& other) const;
-		bool isYContains(const SAABB& other) const;
-		bool isZContains(const SAABB& other) const;
+		inline bool isXContains(const SAABB& other) const;
+		inline bool isYContains(const SAABB& other) const;
+		inline bool isZContains(const SAABB& other) const;
 		bool isIntersectPoints(const SAABB& other) const;
+
+		glm::vec3 min_, max_;
 	};
 }

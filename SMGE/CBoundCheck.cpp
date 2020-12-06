@@ -4,72 +4,6 @@
 
 namespace SMGE
 {
-	bool SAABB::isIntersect(const SAABB& other) const
-	{
-		if (isIntersectPoints(other))	// 점이 포함된 경우 또는 this가 other 를 완전히 감싼 경우
-			return true;
-
-		if (other.isIntersectPoints(*this))	// other 가 this 를 완전히 감싼 경우
-			return true;
-
-		// 점이 포함이 아니고 선분이 포함인 경우의 체크 : + 이런 식으로 크로스 된 경우
-		bool xyCross = (isXContains(other) && other.isYContains(*this)) || other.isXContains(*this) && this->isYContains(other);
-		if (xyCross == true)
-		{	// xy 로는 크로스 관계임이 확실해짐
-
-			// zx 로 크로스인지 체크
-			bool zxCross = (isZContains(other) && other.isXContains(*this)) || other.isZContains(*this) && this->isXContains(other);
-			return zxCross;
-		}
-
-		return false;
-	}
-
-	bool SAABB::isXContains(const SAABB& other) const
-	{
-		const auto otherLB = other.lb(), otherRT = other.rt();
-		return otherLB.x >= lb_.x && otherLB.x < rt_.x&& otherRT.x >= lb_.x && otherRT.x < rt_.x;
-	}
-	bool SAABB::isYContains(const SAABB& other) const
-	{
-		const auto otherLB = other.lb(), otherRT = other.rt();
-		return otherLB.y >= lb_.y && otherLB.y < rt_.y&& otherRT.y >= lb_.y && otherRT.y < rt_.y;
-	}
-	bool SAABB::isZContains(const SAABB& other) const
-	{
-		const auto otherLB = other.lb(), otherRT = other.rt();
-		return otherLB.z >= lb_.z && otherLB.z < rt_.z&& otherRT.z >= lb_.z && otherRT.z < rt_.z;
-	}
-	bool SAABB::isIntersectPoints(const SAABB& other) const
-	{
-		return this->isContains(other.lb()) || this->isContains(other.rt()) || this->isContains(other.lt()) || this->isContains(other.rb());
-	}
-
-	inline bool SAABB::isContains(const glm::vec3& point) const
-	{
-		return
-			point.x >= lb_.x && point.x < rt_.x&&
-			point.y >= lb_.y && point.y < rt_.y&&
-			point.z >= lb_.z && point.z < rt_.z;
-	}
-
-	inline const glm::vec3& SAABB::lb() const
-	{
-		return lb_;
-	}
-	inline const glm::vec3& SAABB::rt() const
-	{
-		return rt_;
-	}
-	inline glm::vec3 SAABB::lt() const
-	{
-		return { lb_.x, rt_.y, lb_.z };
-	}
-	inline glm::vec3 SAABB::rb() const
-	{
-		return { rt_.x, lb_.y, rt_.z };
-	}
-
 	bool SPointBound::check(const struct SPointBound& point) const
 	{
 		return *this == point;
@@ -78,6 +12,12 @@ namespace SMGE
 	bool SPointBound::operator==(const SPointBound& other) const
 	{
 		return loc_ == other.loc_;
+	}
+
+	SPointBound::operator SAABB() const
+	{
+		const glm::vec3 epsilonVec3(Configs::BoundEpsilon);
+		return { loc_ - epsilonVec3, loc_ + epsilonVec3 };
 	}
 
 	void SSegmentBound::reverse()
@@ -90,6 +30,16 @@ namespace SMGE
 		const auto dir = glm::normalize(end_ - start_);
 		const auto toLoc = loc - start_;
 		return std::fabsf(glm::dot(dir, toLoc));
+	}
+
+	SSegmentBound::operator SAABB() const
+	{
+		const glm::vec3 epsilonVec3(Configs::BoundEpsilon);
+
+		glm::vec3 min, max;
+		findMinAndMaxVector({ start_ - epsilonVec3, start_ + epsilonVec3, end_ - epsilonVec3, end_ + epsilonVec3 }, min, max);
+
+		return { min, max };
 	}
 
 	float SSegmentBound::getSlope2D_XY() const
@@ -193,7 +143,7 @@ namespace SMGE
 			;	// 평면 위에서 쏜 경우
 
 		const auto cosT = glm::dot(plane.getNormal() * (isUnderOfPlane ? 1.f : -1.f), toEndDir);
-		if (isInRange(-1.f, 0.f + BoundCheckEpsilon, cosT))	// 평행 또는 반대방향
+		if (isInRange(-1.f, 0.f + Configs::BoundCheckEpsilon, cosT))	// 평행 또는 반대방향
 			return false;
 
 		const auto hypotenuseLen = baseLineLen * 1.f / cosT;	// 삼각비를 이용
@@ -328,7 +278,7 @@ namespace SMGE
 		for (const auto& quad : quads)
 		{
 			const auto cosT = glm::dot(segDirInverse, quad.getNormal());
-			const auto isInFront = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, cosT);
+			const auto isInFront = isInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, cosT);
 
 			if (isInFront && check(quad, outCross) == true)
 			{	// 선분의 방향의 역이 quad 의 앞쪽이 아니라면 체크할 필요가 없다, cube 는 입체이고 입체라면 앞에서 오는 충돌이 뒷면에 닿을 일이 없기 때문이다
@@ -400,6 +350,13 @@ namespace SMGE
 		p2_ = ccw_p2;
 	}
 
+	STriangleBound::operator SAABB() const
+	{
+		glm::vec3 min, max;
+		findMinAndMaxVector({ p0_, p1_, p2_ }, min, max);
+		return { min, max };
+	}
+
 	bool STriangleBound::operator==(const STriangleBound& other) const
 	{
 		return p0_ == other.getP0() && p1_ == other.getP1() && p2_ == other.getP2();
@@ -445,6 +402,13 @@ namespace SMGE
 		p3_ = ccw_p3;
 	}
 
+	SQuadBound::operator SAABB() const
+	{
+		glm::vec3 min, max;
+		findMinAndMaxVector({ p0_, p1_, p2_, p3_ }, min, max);
+		return { min, max };
+	}
+
 	bool SQuadBound::operator==(const SQuadBound& other) const
 	{
 		return p0_ == other.getP0() && p1_ == other.getP1() && p2_ == other.getP2() && p3_ == other.getP3();
@@ -471,6 +435,12 @@ namespace SMGE
 	bool SSphereBound::operator==(const SSphereBound& other) const
 	{
 		return loc_ == other.loc_ && isNearlyEqual(radius_, other.getRadius());
+	}
+
+	SSphereBound::operator SAABB() const
+	{
+		auto radiusVec3 = glm::vec3(radius_, radius_, radius_);
+		return { loc_ - radiusVec3, loc_ + radiusVec3 };
 	}
 
 	bool SSphereBound::check(const SPointBound& point) const
@@ -591,7 +561,7 @@ namespace SMGE
 		for (const auto& quad : quads)
 		{
 			const auto cosT = glm::dot(cubeToSphereDir, quad.getNormal());
-			const auto isSameDir = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, cosT);
+			const auto isSameDir = isInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, cosT);
 
 			if (isSameDir && check(quad, outCrossSegment))
 			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
@@ -635,8 +605,23 @@ namespace SMGE
 		const auto yHalfLeng = size_.y / 2.f;
 		const auto zHalfLeng = size_.z / 2.f;
 		
-		const auto farestDistanceFromCenter = std::sqrtf(xHalfLeng * xHalfLeng + yHalfLeng * yHalfLeng + zHalfLeng * zHalfLeng);
-		this->SSphereBound::SSphereBound(centerPos, farestDistanceFromCenter);
+		const auto farthestDistanceFromCenter = std::sqrtf(xHalfLeng * xHalfLeng + yHalfLeng * yHalfLeng + zHalfLeng * zHalfLeng);
+		this->SSphereBound::SSphereBound(centerPos, farthestDistanceFromCenter);
+	}
+
+	SCubeBound::operator SAABB() const
+	{
+		SQuadBound outQuads[6];
+		getQuads(outQuads, true);
+
+		glm::vec3 min, max;
+		findMinAndMaxVector(
+			{
+				outQuads[0].getP0(), outQuads[0].getP1(), outQuads[0].getP2(), outQuads[0].getP3(),
+				outQuads[1].getP0(), outQuads[1].getP1(), outQuads[1].getP2(), outQuads[1].getP3()
+			},
+			min, max);
+		return { min, max };
 	}
 
 	bool SCubeBound::operator==(const SCubeBound& other) const
@@ -648,7 +633,7 @@ namespace SMGE
 			eulerAxis_[2] == other.eulerAxis_[2];
 	}
 
-	void SCubeBound::getQuads(SQuadBound(&outQuads)[6]) const
+	void SCubeBound::getQuads(SQuadBound(&outQuads)[6], bool isJustWantFrontAndBack) const
 	{
 		using namespace nsRE::TransformConst;
 
@@ -687,6 +672,13 @@ namespace SMGE
 			const auto backCenter = loc_ - halfZVec;	// 역방향 지정에 주의, 현재 상황에서 뒷면이므로 노멀이 반대를 보고 있어야하니깐
 			cachedQuads_.get()[1] = SQuadBound(LT(backCenter, halfXVec, halfYVec), RT(backCenter, halfXVec, halfYVec), RB(backCenter, halfXVec, halfYVec), LB(backCenter, halfXVec, halfYVec));	// 뒤Z-
 
+			if (isJustWantFrontAndBack)
+			{
+				outQuads[0] = cachedQuads_.get()[0];
+				outQuads[1] = cachedQuads_.get()[1];
+				return;
+			}
+
 			const auto upCenter = loc_ + halfYVec;
 			cachedQuads_.get()[2] = SQuadBound(LB(upCenter, halfZVec, halfXVec), RB(upCenter, halfZVec, halfXVec), RT(upCenter, halfZVec, halfXVec), LT(upCenter, halfZVec, halfXVec));	// 위Y+
 
@@ -702,6 +694,10 @@ namespace SMGE
 
 		outQuads[0] = cachedQuads_.get()[0];
 		outQuads[1] = cachedQuads_.get()[1];
+
+		if (isJustWantFrontAndBack)
+			return;
+
 		outQuads[2] = cachedQuads_.get()[2];
 		outQuads[3] = cachedQuads_.get()[3];
 		outQuads[4] = cachedQuads_.get()[4];
@@ -740,7 +736,7 @@ namespace SMGE
 		for (const auto& otherQuad : otherQuads)
 		{
 			const auto otherCosT = glm::dot(otherToThisDir, otherQuad.getNormal());
-			const auto isSameDir = isInRange(0.f + BoundCheckEpsilon, 1.f + BoundCheckEpsilon, otherCosT);
+			const auto isSameDir = isInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, otherCosT);
 
 			if (isSameDir)
 			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
@@ -769,5 +765,91 @@ namespace SMGE
 		}
 
 		return false;
+	}
+
+	bool SAABB::isIntersect(const SAABB& other) const
+	{
+		if (isIntersectPoints(other))	// 점이 포함된 경우 또는 this가 other 를 완전히 감싼 경우
+			return true;
+
+		if (other.isIntersectPoints(*this))	// other 가 this 를 완전히 감싼 경우
+			return true;
+
+		// 점이 포함이 아니고 선분이 포함인 경우의 체크 : 십자가 같은 경우
+		bool xyCross = (isXContains(other) && other.isYContains(*this)) || other.isXContains(*this) && this->isYContains(other);
+		if (xyCross == true)
+		{	// xy 로는 크로스 관계임이 확실해짐
+
+			// zx 로 크로스인지 체크
+			bool zxCross = (isZContains(other) && other.isXContains(*this)) || other.isZContains(*this) && this->isXContains(other);
+			return zxCross;
+		}
+
+		return false;
+	}
+
+	inline bool SAABB::isXContains(const SAABB& other) const
+	{
+		const auto otherMIN = other.min(), otherMAX = other.max();
+		return otherMIN.x >= min_.x && otherMIN.x < max_.x&& otherMAX.x >= min_.x && otherMAX.x < max_.x;
+	}
+	inline bool SAABB::isYContains(const SAABB& other) const
+	{
+		const auto otherMIN = other.min(), otherMAX = other.max();
+		return otherMIN.y >= min_.y && otherMIN.y < max_.y&& otherMAX.y >= min_.y && otherMAX.y < max_.y;
+	}
+	inline bool SAABB::isZContains(const SAABB& other) const
+	{
+		const auto otherMIN = other.min(), otherMAX = other.max();
+		return otherMIN.z >= min_.z && otherMIN.z < max_.z&& otherMAX.z >= min_.z && otherMAX.z < max_.z;
+	}
+
+	bool SAABB::isIntersectPoints(const SAABB& other) const
+	{
+		const auto points = other.points();
+		for (auto& p : points)
+		{
+			if (isContains(p))
+				return true;
+		}
+		return false;
+	}
+
+	inline bool SAABB::isContains(const glm::vec3& point) const
+	{
+		return
+			point.x >= min_.x && point.x < max_.x&&
+			point.y >= min_.y && point.y < max_.y&&
+			point.z >= min_.z && point.z < max_.z;
+	}
+
+	inline const glm::vec3& SAABB::min() const
+	{
+		return min_;
+	}
+	inline const glm::vec3& SAABB::max() const
+	{
+		return max_;
+	}
+
+	inline glm::vec3 SAABB::getSize() const
+	{
+		return { max().x - min().x, max().y - min().y, max().z - min().z };
+	}
+
+	inline std::initializer_list<glm::vec3> SAABB::points() const
+	{
+		const auto size = getSize();
+		return
+		{	// 반시계 방향으로 만들어서 리턴한다
+			min(), { min().x, min().y, min().z + size.z }, { min().x + size.x, min().y, min().z + size.z }, { min().x + size.x, min().y, min().z },	// 아랫면의 네 귀퉁이
+			max(), { max().x, max().y, max().z - size.z }, { max().x - size.x, max().y, max().z - size.z }, { max().x - size.x, max().y, max().z }	// 윗면의 네 귀퉁이
+		};
+	}
+
+	SAABB::operator SCubeBound() const
+	{
+		const auto size = getSize();
+		return { min() + size / 2.f, size, { 0.f, 0.f, 0.f } };
 	}
 };

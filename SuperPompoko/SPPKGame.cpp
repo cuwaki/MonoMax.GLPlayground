@@ -8,7 +8,7 @@
 #include "Objects/CMap.h"
 #include "Assets/CResourceModel.h"
 #include "Components/CPointComponent.h"
-#include "Components/CRayComponent.h"
+#include "Components/CSegmentComponent.h"
 #include "Objects/CCollideActor.h"
 #include "Assets/CAssetManager.h"
 #include "Assets/CAsset.h"
@@ -236,7 +236,7 @@ namespace SMGE
 					float rayLength = engine_->GetRenderingEngine()->GetCamera()->GetZFar();
 					//rayCompo->SetBoundData(rayLength, ray_direction);
 					rayActor->getTransform().Translate(ray_origin);
-					rayActor->getTransform().Scale({ 0.1f, 0.1f, 0.1f });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
+					rayActor->getTransform().Scale({ Configs::BoundEpsilon, Configs::BoundEpsilon, Configs::BoundEpsilon });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
 					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
 					rayActor->getTransform().RotateQuat(ray_direction);
 				}

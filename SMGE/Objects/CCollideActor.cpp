@@ -1,6 +1,6 @@
 #include "CCollideActor.h"
 #include "../Components/CPointComponent.h"
-#include "../Components/CRayComponent.h"
+#include "../Components/CSegmentComponent.h"
 #include "../Components/CCubeComponent.h"
 #include "../Components/CSphereComponent.h"
 #include "../CGameBase.h"

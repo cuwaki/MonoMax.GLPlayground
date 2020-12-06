@@ -5,37 +5,38 @@
 
 namespace SMGE
 {
-	class CPlaneComponent : public CBoundComponent
+	// 쿼드는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
+
+	class CQuadComponent : public CBoundComponent
 	{
-		DECLARE_RTTI_CObject(CPlaneComponent)
+		DECLARE_RTTI_CObject(CQuadComponent)
 
 	public:
-		using This = CPlaneComponent;
+		using This = CQuadComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = typename Super::TReflectionStruct;
 
 		friend struct TReflectionStruct;
 
 	public:
-		CPlaneComponent(CObject* outer);
-		CPlaneComponent(CObject* outer, bool hasFace);
+		CQuadComponent(CObject* outer);
+		CQuadComponent(CObject* outer, bool hasFace);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
-		virtual const class CCubeComponent* GetOBB() override;
+		virtual void CacheAABB() override;
+
+		glm::vec3 getNormal() const;
+		SQuadBound getBound();
 
 		void Ctor();
 
 		// CInt_Reflection
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
-
-	public:
-		glm::vec3 getNormal() const;
-		SPlaneBound getBound() const;
 
 	protected:
 		bool hasFace_ = false;

@@ -228,7 +228,7 @@ namespace SMGE
 
 	CVector<CActor*> CMap::QueryActors(const SAABB& aabb) const
 	{
-		return actorOctree_.QueryValuesByCube(aabb.lb_, aabb.rt_);
+		return actorOctree_.QueryValuesByCube(aabb.min(), aabb.max());
 	}
 
 	void CMap::BeginPlay()

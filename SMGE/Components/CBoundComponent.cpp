@@ -38,12 +38,6 @@ namespace SMGE
 		return false;
 	}
 
-	void CBoundComponent::CacheAABB()
-	{
-		const_cast<CCubeComponent*>(GetOBB())->CacheAABB();	// obb 즉 CCubeComponent 로부터 aabb 를 만든다, 정확도는 떨어질 수 있지만 빠르다, 사실 aabb 에서 정확도를 따지는 건 이미 무리인듯??
-		cachedAABB_ = GetOBB()->GetAABB();
-	}
-
 	const SAABB& CBoundComponent::GetAABB() const
 	{
 		return cachedAABB_;
@@ -51,11 +45,20 @@ namespace SMGE
 
 	const class CCubeComponent* CBoundComponent::GetOBB() const
 	{
-		return weakOBB_;	// const 객체의 경우 아직 캐시가 안되었을 때 올수도 있다, 좀 생각해보자! 애초부터 const 가 아니었으면 const 가 아닌 GetOBB() 가 실행되었을테니까 음...
+		if (weakOBB_ == nullptr)
+			weakOBB_ = const_cast<CBoundComponent*>(this)->CreateOBB();
+
+		return weakOBB_;
 	}
 
 	class CCubeComponent* CBoundComponent::CreateOBB()
 	{
+		auto thisCube = DCast<CCubeComponent*>(this);
+		if (thisCube)
+		{	// 나 자신이 OBB이다
+			return thisCube;
+		}
+
 		auto map = FindOuter<CMap>(this);
 		if (map != nullptr)	// 현재 맵이 없다면 beginplay 가 작동하지 않아서 제대로된 obb로서의 작동을 할 수 없다
 		{

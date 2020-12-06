@@ -5,19 +5,19 @@
 
 namespace SMGE
 {
-	class CRayComponent : public CBoundComponent
+	class CSegmentComponent : public CBoundComponent
 	{
-		DECLARE_RTTI_CObject(CRayComponent)
+		DECLARE_RTTI_CObject(CSegmentComponent)
 
 	public:
-		using This = CRayComponent;
+		using This = CSegmentComponent;
 		using Super = CBoundComponent;
 		using TReflectionStruct = typename Super::TReflectionStruct;
 
 		friend struct TReflectionStruct;
 
 	public:
-		CRayComponent(CObject* outer);
+		CSegmentComponent(CObject* outer);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
@@ -26,7 +26,10 @@ namespace SMGE
 
 		void SetBoundDataComponent(float size, const glm::vec3& direction);
 
-		virtual const class CCubeComponent* GetOBB() override;
+		virtual CCubeComponent* CreateOBB() override;
+		virtual void CacheAABB() override;
+
+		SSegmentBound getBound();
 
 		void Ctor();
 

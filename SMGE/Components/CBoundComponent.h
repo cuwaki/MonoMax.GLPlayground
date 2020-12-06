@@ -44,12 +44,12 @@ namespace SMGE
 		EBoundType GetBoundType() const { return boundType_; }
 
 		virtual const class CCubeComponent* GetOBB() const;
-		virtual const class CCubeComponent* GetOBB() = 0;
-		virtual const SAABB& GetAABB() const;
-		virtual void CacheAABB();
+
+		const SAABB& GetAABB() const;
+		virtual void CacheAABB() = 0;
 
 	protected:
-		class CCubeComponent* CreateOBB();
+		virtual class CCubeComponent* CreateOBB();
 
 	protected:
 		bool isPickingTarget_;
@@ -58,6 +58,6 @@ namespace SMGE
 		EBoundType boundType_ = EBoundType::MAX;
 
 		SAABB cachedAABB_;
-		class CCubeComponent* weakOBB_;
+		mutable class CCubeComponent* weakOBB_;
 	};
 };
