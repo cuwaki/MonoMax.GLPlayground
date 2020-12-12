@@ -6,6 +6,15 @@ namespace SMGE
 {
 	namespace nsRE
 	{
+		class GizmoShaderSet : public VertFragShaderSet
+		{
+		public:
+			GizmoShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
+			void set_vertexColorForFragment(const glm::vec3& gizmoVC);
+
+			GLuint unif_vertexColorForFragment = 0;
+		};
+
 		class GizmoRM : public ResourceModel
 		{
 		public:
@@ -14,6 +23,13 @@ namespace SMGE
 		protected:
 			virtual void CreateFrom(const std::vector<glm::vec3>& vertices);
 			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
+
+			GizmoShaderSet* GetGizmoShaderSet() const
+			{
+				return static_cast<GizmoShaderSet *>(vfShaderSet_);
+			}
+
+			glm::vec3 gizmoColor_{ 1.f };
 		};
 
 		// 모든 GizmoRM 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
@@ -30,31 +46,34 @@ namespace SMGE
 		};
 
 		// 라인으로 그려지는 평면
-		class PlaneRM : public GizmoRM
+		class QuadRM : public GizmoRM
 		{
 		public:
-			PlaneRM();
+			QuadRM();
 		};
 
 		// 면으로 그려지는 평면
-		class PlaneFacedRM : public GizmoRM
+		class QuadFacedRM : public GizmoRM
 		{
 		public:
-			PlaneFacedRM();
+			QuadFacedRM();
 		protected:
 			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
 		};
 		
-		class RayRM : public GizmoRM
+		class SegmentRM : public GizmoRM
 		{
 		public:
-			RayRM();
+			SegmentRM();
 		};
 
 		class PointRM : public GizmoRM
 		{
 		public:
 			PointRM();
+
+		protected:
+			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
 		};
 	}
 }

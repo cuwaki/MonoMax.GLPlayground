@@ -47,8 +47,8 @@ namespace SMGE
 		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (gizmorm == nullptr)
 		{
-			gizmorm = new nsRE::CubeRM();
-			GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::CubeRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		}
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
@@ -61,16 +61,11 @@ namespace SMGE
 		return false;
 	}
 
-	void CCubeComponent::CacheAABB()
-	{
-		cachedAABB_ = getBound();
-	}
-
-	SCubeBound CCubeComponent::getBound()
+	const SBound& CCubeComponent::getBound()
 	{
 		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		SCubeBound cb(GetWorldPosition(), GetWorldScales(), { GetWorldAxis(ETypeAxis::X), GetWorldAxis(ETypeAxis::Y), GetWorldAxis(ETypeAxis::Z) });
-		return cb;
+		cubeBound_ = SCubeBound(GetWorldPosition(), GetWorldScales(), { GetWorldAxis(ETypeAxis::X), GetWorldAxis(ETypeAxis::Y), GetWorldAxis(ETypeAxis::Z) });
+		return cubeBound_;
 	}
 };

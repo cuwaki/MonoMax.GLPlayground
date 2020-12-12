@@ -42,11 +42,12 @@ namespace SMGE
 		virtual bool IsCollideTarget() const { return isCollideTarget_; }
 
 		EBoundType GetBoundType() const { return boundType_; }
+		virtual const SBound& getBound() = 0;
 
 		virtual const class CCubeComponent* GetOBB() const;
 
 		const SAABB& GetAABB() const;
-		virtual void CacheAABB() = 0;
+		virtual void CacheAABB() { cachedAABB_ = getBound(); }
 
 	protected:
 		virtual class CCubeComponent* CreateOBB();

@@ -4,9 +4,7 @@ classRTTIName_$CString$"CSegmentComponent"
         reflectionFilePath_$CWString$""
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-        nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
+        // Z 가 front 라서 Z가 1
+        nsre_transform_.GetScale()$glm::vec3$0.001	0.001	1.000000    
         persistCompoSize$size_t$0
-    // 아래 사항들은 따로 값으로 안하고 위의 트랜스폼으로 처리하므로 없어야한다 201017, 그래서 DEPRE 됨
-    //size_$float$1.0
-    //direction_$glm::vec3$1.000000	0.000000	0.000000	
     

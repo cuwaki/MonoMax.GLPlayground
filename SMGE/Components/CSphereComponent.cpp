@@ -44,8 +44,8 @@ namespace SMGE
 		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (gizmorm == nullptr)
 		{
-			gizmorm = new nsRE::SphereRM();
-			GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::SphereRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		}
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
@@ -53,21 +53,16 @@ namespace SMGE
 		Super::ReadyToDrawing();
 	}
 
-	void CSphereComponent::CacheAABB()
-	{
-		cachedAABB_ = getBound();
-	}
-
 	float CSphereComponent::GetRadius() const
 	{
 		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front] / 2.f;	// 반지름이니까
 	}
 
-	SSphereBound CSphereComponent::getBound()
+	const SBound& CSphereComponent::getBound()
 	{
 		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		SSphereBound sp(GetWorldPosition(), GetRadius());
-		return sp;
+		sphereBound_ = SSphereBound(GetWorldPosition(), GetRadius());
+		return sphereBound_;
 	}
 };

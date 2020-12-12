@@ -79,6 +79,6 @@ namespace SMGE
 		}
 
 		// 여기 ㅡ 여기서 버텍스가 하나도 없으면 함수 콜 안하는 게 맞다
-		this->CreateRenderModel();
+		this->NewRenderModel();
 	}
 };

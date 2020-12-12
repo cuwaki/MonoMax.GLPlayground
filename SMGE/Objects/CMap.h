@@ -81,7 +81,8 @@ namespace SMGE
 
 		void BeginPlay();
 		void FinishPlaying();
-		bool IsBeganPlay() { return isBeganPlay_; }
+		bool IsBeganPlay() const { return isBeganPlay_; }
+		bool IsBeginningPlay() const { return isBeginningPlay_; }
 
 	protected:
 		CActor& SpawnActorINTERNAL(CObject* newObj, bool isDynamic)
@@ -111,6 +112,7 @@ namespace SMGE
 		ActorOcTree actorOctree_;
 		TActorLayers<CSharPtr<CActor>> actorLayers_;
 		bool isBeganPlay_ = false;
+		bool isBeginningPlay_ = false;
 
 		static TActorKey DynamicActorKey;
 

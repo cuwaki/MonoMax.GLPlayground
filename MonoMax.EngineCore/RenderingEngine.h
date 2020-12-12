@@ -67,14 +67,30 @@ namespace SMGE
 
 		class VertFragShaderSet
 		{
-			static std::map<CWString, VertFragShaderSet> Cache;
+			static std::map<CWString, std::unique_ptr<VertFragShaderSet>> Cache;
 
 		public:
-			static VertFragShaderSet& FindOrLoadShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
+			template<typename T>
+			static T* FindOrLoadShaderSet(const CWString& vertShadPath, const CWString& fragShadPath)
+			{
+				std::wstring vsfsKey(vertShadPath + fragShadPath);
+				SMGE::ToLowerInline(vsfsKey);
 
-		protected:
+				auto cachedVFSet = Cache.find(vsfsKey);
+				if (cachedVFSet != Cache.end())
+				{
+					return static_cast<T*>((*cachedVFSet).second.get());
+				}
+
+				Cache[vsfsKey] = std::make_unique<T>(vertShadPath.c_str(), fragShadPath.c_str());
+
+				return static_cast<T*>(Cache[vsfsKey].get());
+			}
+
+			// 여기 - 아 이거 프로텍티여야하는데... 일단 컴파일이 안되서 열어둠
 			VertFragShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
 
+		protected:
 			VertFragShaderSet(const VertFragShaderSet& c) = delete;
 			VertFragShaderSet& operator=(const VertFragShaderSet& c) = delete;
 
@@ -239,7 +255,7 @@ namespace SMGE
 			virtual ~ResourceModelBase();
 			
 			virtual void Invalidate();
-			virtual void CreateRenderModel();
+			virtual void NewRenderModel();
 			
 			virtual GLuint GetTextureID(int texSamp) const;
 			virtual const MeshOBJ& GetMesh() const;
@@ -272,7 +288,7 @@ namespace SMGE
 			virtual const MeshOBJ& GetMesh() const override { return mesh_; }
 			virtual MeshOBJ& GetMesh() { return mesh_; }
 			virtual const VertFragShaderSet* GetShaderSet() const override { return vfShaderSet_; }
-			virtual GLuint GetShaderID() const override { return vfShaderSet_->programID_; }
+			virtual GLuint GetShaderID() const override;
 
 			ResourceModel(ResourceModel&& c) noexcept;
 			ResourceModel& operator=(ResourceModel&& c) noexcept;

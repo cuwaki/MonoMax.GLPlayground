@@ -14,5 +14,5 @@ classRTTIName_$CString$"CCollideActor"
         reflectionFilePath_$CWString$""
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-        nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+        nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001	
         persistCompoSize$size_t$0

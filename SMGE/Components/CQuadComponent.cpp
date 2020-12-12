@@ -8,7 +8,7 @@ namespace SMGE
 {
 	CQuadComponent::CQuadComponent(CObject* outer) : Super(outer)
 	{
-		hasFace_ = true;	// 테스트 코드
+		//hasFace_ = true;	// 테스트 코드
 		Ctor();
 	}
 	CQuadComponent::CQuadComponent(CObject* outer, bool hasFace) : CQuadComponent(outer)
@@ -53,22 +53,22 @@ namespace SMGE
 		nsRE::ResourceModelBase* gizmorm = nullptr;
 		if (hasFace_)
 		{
-			resmKey = "gizmoK:plane_faced";
+			resmKey = "gizmoK:quad_faced";
 			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 			if (gizmorm == nullptr)
 			{
-				gizmorm = new nsRE::PlaneFacedRM();
-				GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::QuadFacedRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 			}
 		}
 		else
 		{
-			resmKey = "gizmoK:plane";
+			resmKey = "gizmoK:quad";
 			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 			if (gizmorm == nullptr)
 			{
-				gizmorm = new nsRE::PlaneRM();
-				GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::QuadRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 			}
 		}
 
@@ -82,17 +82,12 @@ namespace SMGE
 		return false;
 	}
 
-	void CQuadComponent::CacheAABB()
-	{
-		cachedAABB_ = getBound();
-	}
-
 	glm::vec3 CQuadComponent::getNormal() const
 	{
 		return GetWorldFront();
 	}
 
-	SQuadBound CQuadComponent::getBound()
+	const SBound& CQuadComponent::getBound()
 	{
 		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
@@ -103,7 +98,7 @@ namespace SMGE
 		const auto xVec = GetWorldAxis(nsRE::TransformConst::ETypeAxis::X) * halfSize.x;
 		const auto yVec = GetWorldAxis(nsRE::TransformConst::ETypeAxis::Y) * halfSize.y;
 
-		SQuadBound qd(center - xVec - yVec, center + xVec - yVec, center + xVec + yVec, center -xVec + yVec);	// 좌하, 우하, 우상, 좌상 - 반시계 방향으로
-		return qd;
+		quadBound_ = SQuadBound(center - xVec - yVec, center + xVec - yVec, center + xVec + yVec, center -xVec + yVec);	// 좌하, 우하, 우상, 좌상 - 반시계 방향으로
+		return quadBound_;
 	}
 };

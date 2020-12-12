@@ -3,13 +3,12 @@ classRTTIName_$CString$"CMap"
 	actorReflLayers_[0]$CVector<SGRefl_Actor>$0
 	actorReflLayers_[1]$CVector<SGRefl_Actor>$1
 
-
 	classRTTIName_$CString$"CStaticMeshActor"
 		reflectionFilePath_$CWString$"/actor/monkey.asset"
 		actorKey_$TActorKey$164
 		classRTTIName_$CString$"SGRefl_Transform"
 		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$-5.000000	3.000000	0.000000	
+		nsre_transform_.GetTranslation()$glm::vec3$-5.000000	5.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	45.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
 		actorStaticTag_$CString$"this is a monkey"
@@ -31,6 +30,105 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 				persistCompoSize$size_t$0
+
+
+
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$0
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$3.000000	3.000000	3.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+		classRTTIName_$CString$"CSphereComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	1.00	
+			persistCompoSize$size_t$0
+
+
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$1
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$5.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+		classRTTIName_$CString$"CQuadComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
+			persistCompoSize$size_t$0
+
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$2
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	5.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+		classRTTIName_$CString$"CSegmentComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+			persistCompoSize$size_t$0
+
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$3
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	-5.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+		classRTTIName_$CString$"CCubeComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.00	2.00	2.00
+			persistCompoSize$size_t$0
+
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$4
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$-5.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+		classRTTIName_$CString$"CPointComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001
+			persistCompoSize$size_t$0
+
 
 
 	classRTTIName_$CString$"CActor"

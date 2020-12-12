@@ -24,9 +24,7 @@ namespace SMGE
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
-		virtual void CacheAABB() override;
-
-		SCubeBound getBound();
+		virtual const SBound& getBound() override;
 
 		void Ctor();
 
@@ -36,5 +34,7 @@ namespace SMGE
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflCubeCompo_;
+
+		SCubeBound cubeBound_;
 	};
 };

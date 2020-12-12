@@ -27,10 +27,8 @@ namespace SMGE
 		virtual void ReadyToDrawing() override;
 		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
-		virtual void CacheAABB() override;
-
 		glm::vec3 getNormal() const;
-		SQuadBound getBound();
+		virtual const SBound& getBound() override;
 
 		void Ctor();
 
@@ -41,5 +39,7 @@ namespace SMGE
 	protected:
 		bool hasFace_ = false;
 		CUniqPtr<TReflectionStruct> reflPlaneCompo_;
+
+		SQuadBound quadBound_;
 	};
 };

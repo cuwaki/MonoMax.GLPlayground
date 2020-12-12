@@ -4,6 +4,11 @@
 
 namespace SMGE
 {
+	SBound::operator SAABB() const
+	{
+		return SAABB();
+	}
+
 	bool SPointBound::check(const struct SPointBound& point) const
 	{
 		return *this == point;

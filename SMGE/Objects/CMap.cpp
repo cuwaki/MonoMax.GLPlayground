@@ -236,13 +236,17 @@ namespace SMGE
 		if (isBeganPlay_ == true)
 			throw SMGEException(wtext("CMap already activated"));
 
-		actorOctree_.Create("actorOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
-
-		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		isBeginningPlay_ = true;
 		{
-			actorOctree_.AddByPoint(sptrActor.get(), sptrActor->getLocation());
-			sptrActor->BeginPlay();
+			actorOctree_.Create("actorOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
+
+			for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+			{
+				actorOctree_.AddByPoint(sptrActor.get(), sptrActor->getLocation());
+				sptrActor->BeginPlay();
+			}
 		}
+		isBeginningPlay_ = false;
 
 		isBeganPlay_ = true;
 	}

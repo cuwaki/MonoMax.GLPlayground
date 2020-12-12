@@ -23,9 +23,7 @@ namespace SMGE
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 
-		virtual void CacheAABB() override;
-
-		SSphereBound getBound();
+		virtual const SBound& getBound() override;
 
 		void Ctor();
 
@@ -37,5 +35,6 @@ namespace SMGE
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflSphereCompo_;
+		SSphereBound sphereBound_;
 	};
 };

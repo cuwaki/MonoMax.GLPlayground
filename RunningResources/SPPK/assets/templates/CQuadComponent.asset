@@ -6,6 +6,3 @@ classRTTIName_$CString$"CQuadComponent"
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	0.001   
         persistCompoSize$size_t$0
-
-    // 아래 사항들은 따로 값으로 안하고 위의 트랜스폼으로 처리하므로 없어야한다 201017, 그래서 DEPRE 됨
-    //normal_$glm::vec3$0.000000	0.000000	1.000000	

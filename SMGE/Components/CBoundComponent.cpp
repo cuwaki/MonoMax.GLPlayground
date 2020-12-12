@@ -70,11 +70,11 @@ namespace SMGE
 			auto obbCube = DCast<CCubeComponent*>(getTransientComponents().back().get());
 			if (obbCube)
 			{
-				// 일단 안보이게
-				obbCube->isGameVisible_ = false;
-#if IS_EDITOR
-				obbCube->isEditorVisible_ = false;
-#endif
+				// 테스트 코드
+//				obbCube->isGameVisible_ = false;
+//#if IS_EDITOR
+//				obbCube->isEditorVisible_ = false;
+//#endif
 
 				// 여기 - LoadObject 와 같이 new 하고 reflect 까지 한번에 끝내주는 함수 필요
 				auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
@@ -84,7 +84,7 @@ namespace SMGE
 				//{
 				registerComponent(obbCube);
 
-				if (map->IsBeganPlay())
+				if (map->IsBeganPlay() || map->IsBeginningPlay())
 					obbCube->OnBeginPlay(this);
 				// }
 

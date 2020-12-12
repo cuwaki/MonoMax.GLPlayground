@@ -49,7 +49,7 @@ void main(){
 	// Eye vector (towards the camera)
 	vec3 E = normalize(VertexToEye_cameraspace);
 
-	// ¶óÀÌÆ® ¹æÇâÀ» µÚÁý¾î¼­ ¾ò¾î³»¾ßÇÑ´Ù, ¶óÀÌÆ®°¡ ¹Ý»çµÇ¼­ Ä«¸Þ¶ó·Î µé¾î°¡´Â ¹æÇâÀ» ³ªÅ¸³»¾ßÇÏ¹Ç·Î
+	// ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½î¼­ ï¿½ï¿½î³»ï¿½ï¿½ï¿½Ñ´ï¿½, ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ý»ï¿½Ç¼ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ ï¿½ï¿½î°¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ï¿½Ï¹Ç·ï¿½
 	// Direction in which the triangle reflects the light
 	vec3 R = reflect(-l,n);
 
@@ -69,7 +69,7 @@ void main(){
 		// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,specularPower) / distancePowered;
 
-	// ÀÚ ÀÌÁ¦ ¹öÅØ½ºÄÃ·¯ÇÏ°í ÀÌ ÄÃ·¯¸¦ ¾î¶»°Ô Á¶ÇÕÇÒ °ÍÀÌ³Ä?
-	// ¿©±â ¸»°í diffuse ¿¡ ´õÇØÁà¾ßÇÒ °Í °°´Ù!
-	color += VertexColorForFragment;
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ï¿½Ã·ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½î¶»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì³ï¿½?
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ diffuse ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!
+	color *= VertexColorForFragment;
 }

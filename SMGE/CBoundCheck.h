@@ -62,6 +62,13 @@ namespace SMGE
 		MAX = 255,
 	};
 
+	const bool BoundCheckMatrix[int32(EBoundType::CUBE)+1][int32(EBoundType::CUBE)+1] =
+	{
+		{ true, false, false, false, false, false, false },	// POINT
+		{ false, true, true, true, true, true, true },	// SEGMENT
+		{ true, false, false, false, false, false, false },	// SEGMENT
+	};
+
 	struct SAABB;
 
 	struct SBound
@@ -69,6 +76,8 @@ namespace SMGE
 		SBound(EBoundType t) : type_(t) {}
 
 		EBoundType type_ = EBoundType::MAX;
+
+		virtual operator SAABB() const;
 	};
 
 	struct SPointBound : public SBound
@@ -84,7 +93,7 @@ namespace SMGE
 		bool check(const struct SPointBound& point) const;
 		bool operator==(const SPointBound& other) const;
 
-		operator SAABB() const;
+		virtual operator SAABB() const override;
 	};
 
 	struct SSegmentBound : public SBound
@@ -116,7 +125,7 @@ namespace SMGE
 		bool check(const struct SSphereBound& sphere, glm::vec3& outCross) const;
 		bool check(const struct SCubeBound& cube, glm::vec3& outCross) const;
 
-		operator SAABB() const;
+		virtual operator SAABB() const override;
 	};
 
 	struct SPlaneBound : public SBound
@@ -170,7 +179,7 @@ namespace SMGE
 		const glm::vec3& getP1() const { return p1_; }
 		const glm::vec3& getP2() const { return p2_; }
 
-		operator SAABB() const;
+		virtual operator SAABB() const override;
 
 	protected:
 		glm::vec3 p0_, p1_, p2_;
@@ -206,7 +215,7 @@ namespace SMGE
 		const glm::vec3& getP2() const { return p2_; }
 		const glm::vec3& getP3() const { return p3_; }
 
-		operator SAABB() const;
+		virtual operator SAABB() const override;
 
 	protected:
 		glm::vec3 p0_, p1_, p2_, p3_;
@@ -234,7 +243,7 @@ namespace SMGE
 		const glm::vec3& getCenterPos() const { return loc_; }
 		float getRadius() const { return radius_; }
 
-		operator SAABB() const;
+		virtual operator SAABB() const override;
 
 	protected:
 		glm::vec3 loc_;
@@ -259,7 +268,7 @@ namespace SMGE
 
 		float getFarthestDistance() const { return radius_; }
 
-		operator SAABB() const;
+		virtual operator SAABB() const override;
 
 	protected:
 		// 캐시가 있고, SSphereBound 의 역할도 하므로, 이 값들은 생성된 후 절대로 외부에서 수정이 되면 안된다! 뭐.. 이건 다른 것도 마찬가지

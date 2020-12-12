@@ -27,9 +27,7 @@ namespace SMGE
 		void SetBoundDataComponent(float size, const glm::vec3& direction);
 
 		virtual CCubeComponent* CreateOBB() override;
-		virtual void CacheAABB() override;
-
-		SSegmentBound getBound();
+		virtual const SBound& getBound() override;
 
 		void Ctor();
 
@@ -42,5 +40,6 @@ namespace SMGE
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflRayCompo_;
+		SSegmentBound segBound_;
 	};
 };

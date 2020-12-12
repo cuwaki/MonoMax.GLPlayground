@@ -29,7 +29,7 @@ namespace SMGE
 			*/
 			const glm::vec3 DefaultModelFrontAxis()
 			{
-				static_assert(DefaultAxis_Front == ETypeAxis::Z);
+				static_assert(DefaultAxis_Front == ETypeAxis::Z);	// 이거 바꾸면 asset 도 그렇고 바꿀 곳이 많음! 건들지 말 것!
 				return WorldZAxis;
 			}
 			const glm::vec3 DefaultModelFrontAxis(const glm::mat3& currentRotMat)
@@ -108,24 +108,7 @@ namespace SMGE
 			vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
 		}
 
-		std::map<CWString, VertFragShaderSet> VertFragShaderSet::Cache;
-		VertFragShaderSet& VertFragShaderSet::FindOrLoadShaderSet(const CWString& vertex_file_path, const CWString& fragment_file_path)
-		{
-			std::wstring vsfsKey(vertex_file_path);
-			vsfsKey += fragment_file_path;
-			SMGE::ToLowerInline(vsfsKey);
-
-			auto cachedVFSet = Cache.find(vsfsKey);
-			if (cachedVFSet != Cache.end())
-			{
-				return (*cachedVFSet).second;
-			}
-
-			VertFragShaderSet newOne(vertex_file_path.c_str(), fragment_file_path.c_str());
-			Cache[vsfsKey] = std::move(newOne);
-
-			return Cache[vsfsKey];
-		}
+		std::map<CWString, std::unique_ptr<VertFragShaderSet>> VertFragShaderSet::Cache;
 
 		VertFragShaderSet::VertFragShaderSet(VertFragShaderSet&& c) noexcept
 		{
@@ -625,7 +608,7 @@ namespace SMGE
 			}
 		}
 
-		void ResourceModelBase::CreateRenderModel()
+		void ResourceModelBase::NewRenderModel()
 		{
 			if (renderModel_ != nullptr)
 				return;
@@ -686,7 +669,7 @@ namespace SMGE
 		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath) : ResourceModelBase()
 		{
 			texture_.TextureDDS::TextureDDS(textureFilePath);
-			vfShaderSet_ = &VertFragShaderSet::FindOrLoadShaderSet(vertShadPath, fragShadPath);
+			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(vertShadPath, fragShadPath);
 			mesh_.MeshOBJ::MeshOBJ(objPath);
 		}
 		ResourceModel::ResourceModel(ResourceModel&& c) noexcept
@@ -703,6 +686,11 @@ namespace SMGE
 			ResourceModelBase::operator=(std::move(c));
 
 			return *this;
+		}
+
+		GLuint ResourceModel::GetShaderID() const
+		{
+			return vfShaderSet_->programID_;
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

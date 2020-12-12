@@ -64,18 +64,13 @@ namespace SMGE
 		return obb;
 	}
 
-	void CSegmentComponent::CacheAABB()
-	{
-		cachedAABB_ = getBound();
-	}
-
-	SSegmentBound CSegmentComponent::getBound()
+	const SBound& CSegmentComponent::getBound()
 	{
 		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
 		const auto start = GetWorldPosition();
-		SSegmentBound seg(start, start + getRayDirection() * getRayLength());
-		return seg;
+		segBound_ = SSegmentBound(start, start + getRayDirection() * getRayLength());
+		return segBound_;
 	}
 
 	SGReflection& CSegmentComponent::getReflection()
@@ -95,8 +90,8 @@ namespace SMGE
 		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		if (gizmorm == nullptr)
 		{
-			gizmorm = new nsRE::RayRM();
-			GetRenderingEngine()->AddResourceModel(resmKey, std::move(gizmorm));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::SegmentRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
 		}
 
 		gizmorm->GetRenderModel().AddWorldObject(this);
