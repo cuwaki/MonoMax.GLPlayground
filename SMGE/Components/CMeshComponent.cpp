@@ -55,7 +55,7 @@ namespace SMGE
 		if (drawingModelAsset_ != nullptr)
 		{	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
 			auto smgeMA = drawingModelAsset_->getContentClass();
-			GetRenderingEngine()->RemoveResourceModel(smgeMA);
+			nsRE::CResourceModelProvider::RemoveResourceModel(smgeMA);
 		}
 	}
 
@@ -77,9 +77,9 @@ namespace SMGE
 			auto rm = drawingModelAsset_->getContentClass();
 
 			// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-			GetRenderingEngine()->AddResourceModel(ToASCII(drawingModelAssetPath_), rm);
+			nsRE::CResourceModelProvider::AddResourceModel(ToASCII(drawingModelAssetPath_), rm);
 
-			rm->GetRenderModel().AddWorldObject(this);
+			rm->GetRenderModel(nullptr)->AddWorldObject(this);
 		}
 
 		Super::ReadyToDrawing();

@@ -13,45 +13,71 @@ namespace SMGE
 			unif_vertexColorForFragment = glGetUniformLocation(programID_, "vertexColorForFragment");
 		}
 
-		void GizmoShaderSet::set_vertexColorForFragment(const glm::vec3& gizmoVC)
+		void GizmoShaderSet::set_vertexColorForFragment(const glm::vec3& gizmoVC) const
 		{
 			if (unif_vertexColorForFragment != -1)
 				glUniform3f(unif_vertexColorForFragment, gizmoVC.r, gizmoVC.g, gizmoVC.b);
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		void GizmoRM::CreateFrom(const std::vector<glm::vec3>& vertices)
+		void GizmoResourceModel::CreateFrom(const std::vector<glm::vec3>& vertices, bool isFaced)
 		{
 			std::vector<glm::vec2> dummy2(0);
 			std::vector<glm::vec3> dummy3(0);
 
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
 
+			auto gizRendM = static_cast<GizmoRenderModel*>(NewRenderModel(nullptr));
+			gizRendM->isFaced_ = isFaced;
+		}
+
+		RenderModel* GizmoResourceModel::NewRenderModel(const GLFWwindow* contextWindow) const
+		{
+			auto newOne = std::make_unique<GizmoRenderModel>(*this, 0);
+			renderModelsPerContext_.insert(std::make_pair(contextWindow, std::move(newOne)));
+
+			return GetRenderModel(contextWindow);
+		}
+
+		GizmoRenderModel::GizmoRenderModel(const ResourceModelBase& asset, GLuint texSamp) : RenderModel(asset, texSamp)
+		{
 			auto gizmoVert = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.vert")),
-				 gizmoFrag = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
-			
+				gizmoFrag = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
+
 			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<GizmoShaderSet>(gizmoVert, gizmoFrag);
 
-			NewRenderModel();
-
-			GetRenderModel().GenOpenGLBuffers(vertices, dummy2, dummy3, dummy3);
+			const auto& gizResM = static_cast<const GizmoResourceModel&>(asset);
+			const auto& gizMesh = gizResM.GetMesh();
+			GenGLMeshDatas(gizMesh.vertices_, gizMesh.uvs_, gizMesh.normals_, gizMesh.vertexColors_);
 		}
 
-		void GizmoRM::CallDefaultGLDraw(size_t verticesSize) const
+		void GizmoRenderModel::BeginRender()
 		{
-			glLineWidth(1.f);	// 여기 - 기즈모 렌더링 시스템으로 통합해야함
-			GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
-			glDrawArrays(GL_LINES, 0, verticesSize);
+			RenderModel::BeginRender();
+
+			if (isFaced_ == false)
+			{
+				glEnable(GL_PROGRAM_POINT_SIZE);	// 여기 - 기즈모 렌더링 시스템으로 통합해야함
+				glLineWidth(1.f);					// 여기 - 기즈모 렌더링 시스템으로 통합해야함
+			}
 		}
 
-		SphereRM::SphereRM() : GizmoRM()
+		void GizmoRenderModel::CallGLDraw(size_t verticesSize) const
+		{
+			if(isFaced_)
+				glDrawArrays(GL_TRIANGLES, 0, verticesSize);
+			else
+				glDrawArrays(verticesSize == 1 ? GL_POINTS : GL_LINES, 0, verticesSize);
+		}
+
+		SphereRM::SphereRM() : GizmoResourceModel()
 		{
 			const auto divides = 36;
 
 			std::vector<glm::vec3> vertices;
 			vertices = nsRE::makeSimpleSphere3D_Lines<glm::vec3>(divides, 0.5f);
 
-			CreateFrom(vertices);
+			CreateFrom(vertices, false);
 		}
 
 		CubeRM::CubeRM()
@@ -61,10 +87,10 @@ namespace SMGE
 			glm::vec3 centerPos(0);
 			vertices = nsRE::makeSimpleCube3D_Lines<glm::vec3>(centerPos, glm::vec3(1.f));
 
-			CreateFrom(vertices);
+			CreateFrom(vertices, false);
 		}
 
-		QuadFacedRM::QuadFacedRM() : GizmoRM()
+		QuadFacedRM::QuadFacedRM() : GizmoResourceModel()
 		{
 			std::vector<glm::vec3> vertices;
 
@@ -83,16 +109,10 @@ namespace SMGE
 			vertices.push_back({ xyTri2Base - xySize, 0.f });	// -0.5, -0.5, 0
 			vertices.push_back({ xyTri2Base + glm::vec2{ 0.f, -1.f }, 0.f });	// 0.5, -0.5, 0
 
-			CreateFrom(vertices);
+			CreateFrom(vertices, true);
 		}
 
-		void QuadFacedRM::CallDefaultGLDraw(size_t verticesSize) const
-		{
-			GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
-			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
-		}
-
-		QuadRM::QuadRM() : GizmoRM()
+		QuadRM::QuadRM() : GizmoResourceModel()
 		{
 			std::vector<glm::vec3> vertices;
 
@@ -115,10 +135,10 @@ namespace SMGE
 			vertices.push_back({ xyTri1Base + glm::vec2{ 0.f, 1.f }, 0.f });	// -0.5, 0.5, 0
 			vertices.push_back({ xyTri1Base, 0.f });	// -0.5, -0.5, 0
 
-			CreateFrom(vertices);
+			CreateFrom(vertices, false);
 		}
 
-		SegmentRM::SegmentRM() : GizmoRM()
+		SegmentRM::SegmentRM() : GizmoResourceModel()
 		{
 			glm::vec3 direction = TransformConst::DefaultModelFrontAxis();
 
@@ -127,23 +147,15 @@ namespace SMGE
 			vertices.emplace_back(0.f, 0.f, 0.f);	// 시점
 			vertices.emplace_back(glm::normalize(direction) * 1.f);	// 종점
 
-			CreateFrom(vertices);
+			CreateFrom(vertices, false);
 		}
 
 		PointRM::PointRM()
 		{
-			glEnable(GL_PROGRAM_POINT_SIZE);	// 여기 - 기즈모 렌더링 시스템으로 통합해야함
-
 			std::vector<glm::vec3> vertices;
 
 			vertices.emplace_back(0.f, 0.f, 0.f);
-			CreateFrom(vertices);
-		}
-
-		void PointRM::CallDefaultGLDraw(size_t verticesSize) const
-		{
-			GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
-			glDrawArrays(GL_POINTS, 0, verticesSize);
+			CreateFrom(vertices, false);
 		}
 	}
 }

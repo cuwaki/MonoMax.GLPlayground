@@ -4,9 +4,33 @@
 #include "CCubeComponent.h"
 #include "../Objects/CMap.h"
 #include "../Assets/CAssetManager.h"
+#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
 
 namespace SMGE
 {
+	SGRefl_BoundComponent::SGRefl_BoundComponent(TReflectionClass& rc) : Super(rc), 
+		gizmoColor_(rc.gizmoColor_)
+	{
+	}
+
+	SGRefl_BoundComponent::operator CWString() const
+	{
+		auto ret = Super::operator CWString();
+
+		ret += _TO_REFL(glm::vec3, gizmoColor_);
+
+		return ret;
+	}
+
+	SGReflection& SGRefl_BoundComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	{
+		Super::operator=(variableSplitted);
+
+		_FROM_REFL(gizmoColor_, variableSplitted);
+
+		return *this;
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CBoundComponent::CBoundComponent(CObject* outer) : CDrawComponent(outer)
 	{
@@ -21,6 +45,13 @@ namespace SMGE
 		isCollideTarget_ = true;
 	}
 
+	void CBoundComponent::OnBeforeRendering()
+	{
+		WorldObject::OnBeforeRendering();
+
+		static_cast<const nsRE::GizmoRenderModel*>(renderModel_)->GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
+	}
+
 	void CBoundComponent::OnBeginPlay(CObject* parent)
 	{
 		Super::OnBeginPlay(parent);
@@ -33,8 +64,11 @@ namespace SMGE
 		Super::OnEndPlay();
 	}
 
-	bool CBoundComponent::CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint)
+	bool CBoundComponent::CheckCollide(CBoundComponent* checkTarget, SSegmentBound& outCross)
 	{
+		if (checkTarget != nullptr)
+			return GetBound().check(checkTarget->GetBound(), outCross);
+		
 		return false;
 	}
 
@@ -70,7 +104,7 @@ namespace SMGE
 			auto obbCube = DCast<CCubeComponent*>(getTransientComponents().back().get());
 			if (obbCube)
 			{
-				// 테스트 코드
+				// 테스트 코드 - OBB 가 눈에 보이도록
 //				obbCube->isGameVisible_ = false;
 //#if IS_EDITOR
 //				obbCube->isEditorVisible_ = false;
@@ -93,5 +127,12 @@ namespace SMGE
 		}
 
 		return nullptr;
+	}
+
+	SGReflection& CBoundComponent::getReflection()
+	{
+		if (reflMeshCompo_.get() == nullptr)
+			reflMeshCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+		return *reflMeshCompo_.get();
 	}
 };

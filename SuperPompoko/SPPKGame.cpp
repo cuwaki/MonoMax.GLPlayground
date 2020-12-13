@@ -82,7 +82,6 @@ namespace SMGE
 		engine_ = new nsGE::CEngineBase(this);
 		gameSettings_ = new nsGE::SGEGameSettings();
 
-		// 테스트 코드
 		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
 		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
 
@@ -111,7 +110,7 @@ namespace SMGE
 
 				CCollideActor* rayActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_,
 					ECheckCollideRule::NEAREST, false, 
-					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const glm::vec3& COLL_POS)
+					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const SSegmentBound& COLL_SEG)
 					{
 						CCollideActor* pointActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_);
 
@@ -119,12 +118,12 @@ namespace SMGE
 						pointActor->CopyFromTemplate(prefab->getContentClass());
 						{
 							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-							pointActor->getTransform().Translate(COLL_POS);
+							pointActor->getTransform().Translate(COLL_SEG.end_);
 						}
 
 						currentMap_->FinishSpawnActor(*pointActor);
 						
-						pointActor->SetLifeTick(300);
+						pointActor->SetLifeTick(100);
 					});
 
 				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
@@ -142,7 +141,7 @@ namespace SMGE
 				currentMap_->FinishSpawnActor(*rayActor);
 
 				auto targets = rayActor->QueryCollideCheckTargets();
-				rayActor->ProcessCollide(targets);
+				rayActor->CheckCollideAndProcess(targets);
 				rayActor->SetLifeTick(100);
 				// }
 			}
@@ -158,7 +157,6 @@ namespace SMGE
 		Super::Tick(dt);
 
 #ifdef EDITOR_WORKING
-		// 테스트 코드
 		if (currentMap_->IsBeganPlay() == false)
 		{
 			currentMap_->BeginPlay();

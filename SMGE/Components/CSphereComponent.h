@@ -23,7 +23,7 @@ namespace SMGE
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 
-		virtual const SBound& getBound() override;
+		virtual const SBound& GetBound() override;
 
 		void Ctor();
 

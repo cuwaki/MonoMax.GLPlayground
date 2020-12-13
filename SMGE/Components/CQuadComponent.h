@@ -25,20 +25,14 @@ namespace SMGE
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
-		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
 		glm::vec3 getNormal() const;
-		virtual const SBound& getBound() override;
+		virtual const SBound& GetBound() override;
 
 		void Ctor();
 
-		// CInt_Reflection
-		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
-		virtual SGReflection& getReflection() override;
-
 	protected:
 		bool hasFace_ = false;
-		CUniqPtr<TReflectionStruct> reflPlaneCompo_;
 
 		SQuadBound quadBound_;
 	};

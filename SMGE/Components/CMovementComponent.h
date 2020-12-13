@@ -35,6 +35,7 @@ namespace SMGE
 		class CActor* actorParent_;
 		nsRE::Transform* targetTransform_ = nullptr;
 
+		// 테스트 코드 - 인터폴레이션
 		CInterpolation<glm::vec3> interpTranslation_;
 		CInterpolation<glm::vec3> interpRotation_;
 		CInterpolation<glm::vec3> interpScale_;

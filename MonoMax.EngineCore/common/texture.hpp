@@ -10,7 +10,7 @@ GLuint loadBMP_custom(const wchar_t * imagepath);
 //GLuint loadTGA_glfw(const char * imagepath);
 
 // Load a .DDS file using GLFW's own loader
-GLuint loadDDS(const wchar_t * imagepath);
-
+bool loadDDS(const wchar_t* imagepath, GLuint& outImageFormat, GLuint& outMipMapCount, GLuint& outWidth, GLuint& outHeight, unsigned char*& outImage);
+GLuint GLCreateTextureDDS(GLuint format, GLuint mipMapCount, GLuint width, GLuint height, unsigned char* buffer);
 
 #endif

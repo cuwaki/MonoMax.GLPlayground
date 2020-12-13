@@ -25,4 +25,5 @@ classRTTIName_$CString$"CStaticMeshActor"
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
         persistCompoSize$size_t$0
-    radius_$float$1.0
+        gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
+        

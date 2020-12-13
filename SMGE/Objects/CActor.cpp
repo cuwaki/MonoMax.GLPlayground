@@ -1,7 +1,6 @@
 #include "CActor.h"
 #include "CMap.h"
 #include "../Components/CMeshComponent.h"
-#include "../Components/CMovementComponent.h"
 #include "../Components/CSphereComponent.h"
 #include "../Components/CSegmentComponent.h"
 #include "../Components/CPointComponent.h"
@@ -248,7 +247,14 @@ namespace SMGE
 	class CBoundComponent* CActor::GetMainBound()
 	{
 		if (mainBoundCompo_ == nullptr)
-			mainBoundCompo_ = findComponent<CBoundComponent>();	// 처음 만나는 바운드를 메인 바운드로 삼는다
+			// 여기 - transient 를 메인으로 삼은 경우 문제가 될 수 있는 점이 개선되어야한다
+			mainBoundCompo_ = findComponent<CBoundComponent>([](auto compoPtr)
+				{
+					auto bc = DCast<CBoundComponent*>(compoPtr);
+					if (bc && bc->IsCollideTarget())
+						return true;
+					return false;
+				});
 
 		return mainBoundCompo_;
 	}

@@ -6,5 +6,6 @@ classRTTIName_$CString$"CSegmentComponent"
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         // Z 가 front 라서 Z가 1
         nsre_transform_.GetScale()$glm::vec3$0.001	0.001	1.000000    
-        persistCompoSize$size_t$0
+    persistCompoSize$size_t$0
+    gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
     

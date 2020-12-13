@@ -81,8 +81,8 @@ namespace SMGE
 
 		void BeginPlay();
 		void FinishPlaying();
-		bool IsBeganPlay() const { return isBeganPlay_; }
-		bool IsBeginningPlay() const { return isBeginningPlay_; }
+		bool IsBeganPlay() const		{ return isBeganPlay_ == true && isBeginningPlay_ == false; }
+		bool IsBeginningPlay() const	{ return isBeginningPlay_ == true && isBeganPlay_ == false; }
 
 	protected:
 		CActor& SpawnActorINTERNAL(CObject* newObj, bool isDynamic)

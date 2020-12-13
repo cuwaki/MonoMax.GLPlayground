@@ -22,12 +22,11 @@ namespace SMGE
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
-		virtual bool CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint) override;
 
 		void SetBoundDataComponent(float size, const glm::vec3& direction);
 
 		virtual CCubeComponent* CreateOBB() override;
-		virtual const SBound& getBound() override;
+		virtual const SBound& GetBound() override;
 
 		void Ctor();
 

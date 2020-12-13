@@ -56,12 +56,12 @@ namespace SMGE
 			getAllComponents().clear();
 		}
 
-		template<class T>
-		T* findComponent()
+		template<typename T, class CheckFunc>
+		T* findComponent(CheckFunc& checkFunc)
 		{
-			auto found = std::find_if(getAllComponents().begin(), getAllComponents().end(), [](auto& compo)
+			auto found = std::find_if(getAllComponents().begin(), getAllComponents().end(), [&checkFunc](auto& compo)
 				{
-					if (DCast<T*>(compo))
+					if (checkFunc(compo))
 						return true;
 					return false;
 				});
@@ -72,9 +72,9 @@ namespace SMGE
 			// 아직 비긴 플레이가 불리지 않았다면 밑으로 내려가게 될 것이다
 
 			// 2. persistent
-			auto foundPers = std::find_if(getPersistentComponents().begin(), getPersistentComponents().end(), [](auto& compo)
+			auto foundPers = std::find_if(getPersistentComponents().begin(), getPersistentComponents().end(), [&checkFunc](auto& compo)
 				{
-					if (DCast<T*>(compo.get()))
+					if (checkFunc(compo.get()))
 						return true;
 					return false;
 				});
@@ -83,9 +83,9 @@ namespace SMGE
 				return DCast<T*>((*foundPers).get());
 
 			// 3. transient
-			auto foundTrans = std::find_if(getTransientComponents().begin(), getTransientComponents().end(), [](auto& compo)
+			auto foundTrans = std::find_if(getTransientComponents().begin(), getTransientComponents().end(), [&checkFunc](auto& compo)
 				{
-					if (DCast<T*>(compo.get()))
+					if (checkFunc(compo.get()))
 						return true;
 					return false;
 				});

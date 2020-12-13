@@ -10,70 +10,71 @@ namespace SMGE
 		{
 		public:
 			GizmoShaderSet(const CWString& vertShadPath, const CWString& fragShadPath);
-			void set_vertexColorForFragment(const glm::vec3& gizmoVC);
+			void set_vertexColorForFragment(const glm::vec3& gizmoVC) const;
 
 			GLuint unif_vertexColorForFragment = 0;
 		};
 
-		class GizmoRM : public ResourceModel
+		class GizmoResourceModel : public ResourceModel
 		{
 		public:
-			GizmoRM() : ResourceModel() {}
+			GizmoResourceModel() : ResourceModel() {}
 
 		protected:
-			virtual void CreateFrom(const std::vector<glm::vec3>& vertices);
-			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
-
-			GizmoShaderSet* GetGizmoShaderSet() const
-			{
-				return static_cast<GizmoShaderSet *>(vfShaderSet_);
-			}
-
-			glm::vec3 gizmoColor_{ 1.f };
+			virtual void CreateFrom(const std::vector<glm::vec3>& vertices, bool isFaced);
+			virtual RenderModel* NewRenderModel(const GLFWwindow* contextWindow) const override;
 		};
 
-		// 모든 GizmoRM 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
-		class SphereRM : public GizmoRM
+		class GizmoRenderModel : public RenderModel
+		{
+		public:
+			GizmoRenderModel(const ResourceModelBase& asset, GLuint texSamp);
+			GizmoShaderSet* GetGizmoShaderSet() const { return static_cast<GizmoShaderSet*>(vfShaderSet_); }
+
+			bool isFaced_ = false;
+
+		protected:
+			virtual void CallGLDraw(size_t verticesSize) const override;
+			virtual void BeginRender() override;
+		};
+
+		// 모든 GizmoResourceModel 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
+		class SphereRM : public GizmoResourceModel
 		{
 		public:
 			SphereRM();
 		};
 
-		class CubeRM : public GizmoRM
+		class CubeRM : public GizmoResourceModel
 		{
 		public:
 			CubeRM();
 		};
 
 		// 라인으로 그려지는 평면
-		class QuadRM : public GizmoRM
+		class QuadRM : public GizmoResourceModel
 		{
 		public:
 			QuadRM();
 		};
 
 		// 면으로 그려지는 평면
-		class QuadFacedRM : public GizmoRM
+		class QuadFacedRM : public GizmoResourceModel
 		{
 		public:
 			QuadFacedRM();
-		protected:
-			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
 		};
-		
-		class SegmentRM : public GizmoRM
+
+		class SegmentRM : public GizmoResourceModel
 		{
 		public:
 			SegmentRM();
 		};
 
-		class PointRM : public GizmoRM
+		class PointRM : public GizmoResourceModel
 		{
 		public:
 			PointRM();
-
-		protected:
-			virtual void CallDefaultGLDraw(size_t verticesSize) const override;
 		};
 	}
 }

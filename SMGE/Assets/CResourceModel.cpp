@@ -66,11 +66,14 @@ namespace SMGE
 
 	void CResourceModel::OnAfterDeserialized()
 	{
-		this->ResourceModel::ResourceModel(
-			Globals::GetGameAssetPath(textureFilePath_),
-			Globals::GetGameAssetPath(vertShaderPath_),
-			Globals::GetGameAssetPath(fragShaderPath_),
-			Globals::GetGameAssetPath(objFilePath_));
+		bool isEmpty = textureFilePath_.length() == 0 && objFilePath_.length() == 0 && vertShaderPath_.length() == 0 && fragShaderPath_.length() == 0;
+		if (isEmpty)
+			return;
+
+		this->ResourceModel::ResourceModel(Globals::GetGameAssetPath(textureFilePath_),
+											Globals::GetGameAssetPath(objFilePath_),
+											Globals::GetGameAssetPath(vertShaderPath_),
+											Globals::GetGameAssetPath(fragShaderPath_));
 
 		if (objFilePath_.length() == 0 && vertices_.size() > 0)
 		{	// obj파일이 아닌 직접 지정 방식이다
@@ -79,6 +82,6 @@ namespace SMGE
 		}
 
 		// 여기 ㅡ 여기서 버텍스가 하나도 없으면 함수 콜 안하는 게 맞다
-		this->NewRenderModel();
+		NewRenderModel(nullptr);
 	}
 };

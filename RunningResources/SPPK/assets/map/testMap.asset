@@ -1,7 +1,7 @@
 classRTTIName_$CString$"CMap"
     reflectionFilePath_$CWString$"/map/testMap.asset"
 	actorReflLayers_[0]$CVector<SGRefl_Actor>$0
-	actorReflLayers_[1]$CVector<SGRefl_Actor>$1
+	actorReflLayers_[1]$CVector<SGRefl_Actor>$6
 
 	classRTTIName_$CString$"CStaticMeshActor"
 		reflectionFilePath_$CWString$"/actor/monkey.asset"
@@ -30,7 +30,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 				persistCompoSize$size_t$0
-
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
 	classRTTIName_$CString$"CCollideActor"
@@ -51,7 +51,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	1.00	
 			persistCompoSize$size_t$0
-
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
@@ -71,6 +71,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
 			persistCompoSize$size_t$0
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
@@ -90,6 +91,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 			persistCompoSize$size_t$0
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
@@ -109,6 +111,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.00	2.00	2.00
 			persistCompoSize$size_t$0
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
@@ -128,6 +131,13 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001
 			persistCompoSize$size_t$0
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
+
+
+
+
+
+
 
 
 
@@ -158,7 +168,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$4.0000	4.0000	0.001    
 				persistCompoSize$size_t$0
-
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
 	classRTTIName_$CString$"CActor"
@@ -188,3 +198,4 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
 				persistCompoSize$size_t$0
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	

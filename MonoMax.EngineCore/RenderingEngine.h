@@ -112,24 +112,27 @@ namespace SMGE
 			void Invalidate();
 		};
 
-		class TextureDDS
+		class TextureData
 		{
 		public:
-			GLuint textureID_;
+			GLuint format_;
+			GLuint mipMapCount_;
+			GLuint width_, height_;
+			unsigned char* image_ = nullptr;
 
-			TextureDDS() { Invalidate(); }
-			TextureDDS(const CWString& texPath);
-			~TextureDDS();
+			TextureData() {}
+			TextureData(const CWString& texPath);
+			~TextureData();
+
 			void Destroy();
-			void Invalidate();
 
-			TextureDDS(const TextureDDS& c) = delete;
-			TextureDDS& operator=(const TextureDDS & c) = delete;
-			TextureDDS(TextureDDS && c) noexcept;
-			TextureDDS& operator=(TextureDDS && c) noexcept;
+			TextureData(const TextureData& c) = delete;
+			TextureData& operator=(const TextureData & c) = delete;
+			TextureData(TextureData && c) noexcept;
+			TextureData& operator=(TextureData && c) noexcept;
 		};
 
-		class MeshOBJ
+		class MeshData
 		{
 		public:
 			std::vector<glm::vec3> vertices_;
@@ -137,9 +140,9 @@ namespace SMGE
 			std::vector<glm::vec3> normals_;
 			std::vector<glm::vec3> vertexColors_;
 
-			MeshOBJ() { Invalidate(); }
-			MeshOBJ(const CWString& objPath);
-			~MeshOBJ() { Destroy(); }
+			MeshData() { Invalidate(); }
+			MeshData(const CWString& objPath);
+			~MeshData() { Destroy(); }
 
 			bool loadFromOBJFile(const CWString& objPath);
 			bool loadFromPlainData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals);
@@ -147,10 +150,10 @@ namespace SMGE
 			void Destroy();
 			void Invalidate();
 
-			MeshOBJ(const MeshOBJ& c) = delete;
-			MeshOBJ& operator=(const MeshOBJ& c) = delete;
-			MeshOBJ(MeshOBJ&& c) noexcept;
-			MeshOBJ& operator=(MeshOBJ&& c) noexcept;
+			MeshData(const MeshData& c) = delete;
+			MeshData& operator=(const MeshData& c) = delete;
+			MeshData(MeshData&& c) noexcept;
+			MeshData& operator=(MeshData&& c) noexcept;
 		};
 
 		class Transform
@@ -196,7 +199,7 @@ namespace SMGE
 			void Scale(glm::vec3 scale);
 			void Scale(TransformConst::ETypeAxis aType, float scale);
 
-			void OnBeforeRendering();
+			virtual void OnBeforeRendering();
 
 			void Dirty();
 			bool IsDirty() const;
@@ -242,68 +245,17 @@ namespace SMGE
 			bool isVisible_ = true;
 		};
 
-		// ResourceModel은 GLContext 종속이 아니라서 여러 GLContext에서 공용으로 쓸 수 있다.
-		class ResourceModelBase
-		{
-		protected:
-			class RenderModel* renderModel_ = nullptr;
-
-			friend class RenderModel;
-
-		public:
-			ResourceModelBase() {}
-			virtual ~ResourceModelBase();
-			
-			virtual void Invalidate();
-			virtual void NewRenderModel();
-			
-			virtual GLuint GetTextureID(int texSamp) const;
-			virtual const MeshOBJ& GetMesh() const;
-			virtual const VertFragShaderSet* GetShaderSet() const;
-			virtual GLuint GetShaderID() const { return 0; }
-
-			bool IsGizmo() const;
-			virtual void CallDefaultGLDraw(size_t verticesSize) const;
-
-			class RenderModel& GetRenderModel() const;
-
-			ResourceModelBase(const ResourceModelBase& c) = delete;
-			ResourceModelBase& operator=(const ResourceModelBase& c) = delete;
-			ResourceModelBase(ResourceModelBase&& c) noexcept;
-			ResourceModelBase& operator=(ResourceModelBase&& c) noexcept;
-		};
-
-		class ResourceModel : public ResourceModelBase
-		{
-		protected:
-			TextureDDS texture_;
-			VertFragShaderSet* vfShaderSet_ = nullptr;
-			MeshOBJ mesh_;
-
-		public:
-			ResourceModel() {}
-			ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath);
-
-			virtual GLuint GetTextureID(int texSamp) const override { return texture_.textureID_; }
-			virtual const MeshOBJ& GetMesh() const override { return mesh_; }
-			virtual MeshOBJ& GetMesh() { return mesh_; }
-			virtual const VertFragShaderSet* GetShaderSet() const override { return vfShaderSet_; }
-			virtual GLuint GetShaderID() const override;
-
-			ResourceModel(ResourceModel&& c) noexcept;
-			ResourceModel& operator=(ResourceModel&& c) noexcept;
-		};
-
 		// RenderModel은 GLContext 종속이다
 		class RenderModel
 		{
 		public:
 			// static datas
-			const ResourceModelBase& resource_;
+			const class ResourceModelBase& resourceModel_;
 
 			// rendering datas
 			GLsizei verticesSize_ = 0;
 
+			// gl buffers
 			GLuint vao_ = 0;
 			GLuint vertexBuffer_ = 0;
 			GLuint uvBuffer_ = 0;
@@ -312,6 +264,9 @@ namespace SMGE
 			GLuint glDrawType_ = GL_STATIC_DRAW;
 
 			// shader
+			VertFragShaderSet* vfShaderSet_ = nullptr;
+
+			// texture
 			GLuint usingTextureID_ = 0;
 			GLuint usingTextureSampleI_ = 0;
 
@@ -333,11 +288,64 @@ namespace SMGE
 			RenderModel(RenderModel&& c) noexcept;
 			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ 때문에 구현 불가
 
-			bool GenOpenGLBuffers(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
+			bool GenGLMeshDatas(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
+
+			virtual GLuint GetTextureID(int texSamp) const;
+			virtual const VertFragShaderSet* GetShaderSet() const;
+			virtual GLuint GetShaderID() const;
+			virtual void CallGLDraw(size_t verticesSize) const;
+
 			void Render(const glm::mat4& VP);
-			void BeginRender();
-			void EndRender();
+			virtual void BeginRender();
+			virtual void EndRender();
 			void SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos);
+		};
+
+		// ResourceModel은 GLContext 종속이 아니라서 여러 GLContext에서 공용으로 쓸 수 있다.
+		class ResourceModelBase
+		{
+		protected:
+			mutable std::map<const GLFWwindow*, std::unique_ptr<RenderModel>> renderModelsPerContext_;
+
+		public:
+			ResourceModelBase() {}
+			
+			virtual void Invalidate();
+
+			virtual class RenderModel* NewRenderModel(const GLFWwindow* contextWindow) const;
+			class RenderModel* GetRenderModel(const GLFWwindow* contextWindow) const;
+
+			virtual const MeshData& GetMesh() const;
+			virtual const TextureData& GetTexture() const;
+
+			ResourceModelBase(const ResourceModelBase& c) = delete;
+			ResourceModelBase& operator=(const ResourceModelBase& c) = delete;
+			ResourceModelBase(ResourceModelBase&& c) noexcept;
+			ResourceModelBase& operator=(ResourceModelBase&& c) noexcept;
+		};
+
+		class ResourceModel : public ResourceModelBase
+		{
+		protected:
+			TextureData texture_;
+			MeshData mesh_;
+			CWString vertShadPath_;
+			CWString fragShadPath_;
+
+		public:
+			ResourceModel() {}
+			ResourceModel(const CWString& textureFilePath, const CWString& objPath, const CWString& vertShadPath, const CWString& fragShadPath);
+
+			virtual const MeshData& GetMesh() const override { return mesh_; }
+			virtual MeshData& GetMesh() { return mesh_; }
+			virtual const TextureData& GetTexture() const override { return texture_; }
+			virtual TextureData& GetTexture() { return texture_; }
+
+			const CWString& GetVertShaderPath() const { return vertShadPath_; }
+			const CWString& GetFragShaderPath() const { return fragShadPath_; }
+
+			ResourceModel(ResourceModel&& c) noexcept;
+			ResourceModel& operator=(ResourceModel&& c) noexcept;
 		};
 	}
 
@@ -412,6 +420,18 @@ namespace SMGE
 			void safeDeleteFramebuffer(GLuint& fbo);
 		}
 
+		class CResourceModelProvider
+		{
+			static CHashMap<CString, std::unique_ptr<ResourceModelBase>> ResourceModels;
+
+		public:
+			static bool AddResourceModel(const CString& key, ResourceModelBase* am);
+			static bool RemoveResourceModel(ResourceModelBase* am);
+			static ResourceModelBase* FindResourceModel(const CString& key);
+
+			static const CHashMap<CString, std::unique_ptr<ResourceModelBase>>& GetResourceModels();
+		};
+
 		class CRenderingEngine
 		{
 		private:
@@ -425,9 +445,6 @@ namespace SMGE
 			bool isRunning = false;
 
 			CCamera camera_;
-
-			CHashMap<CString, ResourceModelBase*> resourceModels_;
-			//CVector<WorldObject> WorldObjects_;
 
 			void initWindow();
 
@@ -447,10 +464,6 @@ namespace SMGE
 
 			void Tick();
 			void Render(char* imgBuffer);
-
-			bool AddResourceModel(const CString& key, ResourceModelBase* am);
-			bool RemoveResourceModel(ResourceModelBase* am);
-			ResourceModelBase* GetResourceModel(const CString& key);
 
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 			void ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir);

@@ -8,7 +8,7 @@ namespace SMGE
 {
 	CQuadComponent::CQuadComponent(CObject* outer) : Super(outer)
 	{
-		//hasFace_ = true;	// 테스트 코드
+		hasFace_ = true;	// 테스트 코드
 		Ctor();
 	}
 	CQuadComponent::CQuadComponent(CObject* outer, bool hasFace) : CQuadComponent(outer)
@@ -37,16 +37,6 @@ namespace SMGE
 		Super::OnEndPlay();
 	}
 
-	SGReflection& CQuadComponent::getReflection()
-	{
-		if (reflPlaneCompo_.get() == nullptr)
-			reflPlaneCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
-
-		// 쿼드는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
-
-		return *reflPlaneCompo_.get();
-	}
-
 	void CQuadComponent::ReadyToDrawing()
 	{
 		CString resmKey;
@@ -54,32 +44,27 @@ namespace SMGE
 		if (hasFace_)
 		{
 			resmKey = "gizmoK:quad_faced";
-			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
 			{
-				GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::QuadFacedRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-				gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadFacedRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			}
 		}
 		else
 		{
 			resmKey = "gizmoK:quad";
-			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
 			{
-				GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::QuadRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-				gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			}
 		}
 
-		gizmorm->GetRenderModel().AddWorldObject(this);
+		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
 
 		Super::ReadyToDrawing();
-	}
-
-	bool CQuadComponent::CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint)
-	{
-		return false;
 	}
 
 	glm::vec3 CQuadComponent::getNormal() const
@@ -87,7 +72,7 @@ namespace SMGE
 		return GetWorldFront();
 	}
 
-	const SBound& CQuadComponent::getBound()
+	const SBound& CQuadComponent::GetBound()
 	{
 		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 

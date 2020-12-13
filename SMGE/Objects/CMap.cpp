@@ -39,7 +39,7 @@ namespace SMGE
 	{
 		Super::operator=(variableSplitted);
 
-		actorLayersREFL_.resize(2);	// 테스트 코드
+		actorLayersREFL_.resize(etoi(EActorLayer::Max));
 
 		// 이거긴 한데 이렇게 쓰면 auto 를 못쓴다...
 		//using REFL_CVECTOR_FUNC = void(CVector<TupleVarName_VarType_Value>& variableSplitted, size_t childKey);

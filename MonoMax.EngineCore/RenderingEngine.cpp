@@ -17,6 +17,48 @@ namespace SMGE
 {
 	namespace nsRE
 	{
+		CHashMap<CString, std::unique_ptr<nsRE::ResourceModelBase>> CResourceModelProvider::ResourceModels;
+
+		bool CResourceModelProvider::AddResourceModel(const CString& key, ResourceModelBase* am)
+		{
+			auto already = FindResourceModel(key);
+			if (already == nullptr)
+			{
+				ResourceModels.insert(std::make_pair(key, am));
+				return true;
+			}
+
+			return false;
+		}
+
+		bool CResourceModelProvider::RemoveResourceModel(ResourceModelBase* am)
+		{
+			auto found = std::find_if(ResourceModels.begin(), ResourceModels.end(),
+				[am](const auto& pair)
+				{
+					return pair.second.get() == am;
+				});
+
+			if (found == ResourceModels.end())
+			{
+				return false;
+			}
+
+			ResourceModels.erase(found);
+			return true;
+		}
+
+		ResourceModelBase* CResourceModelProvider::FindResourceModel(const CString& key)
+		{
+			auto clIt = ResourceModels.find(key);
+			return clIt != ResourceModels.end() ? clIt->second.get() : nullptr;
+		}
+
+		const CHashMap<CString, std::unique_ptr<ResourceModelBase>>& CResourceModelProvider::GetResourceModels()
+		{
+			return ResourceModels;
+		}
+
 		namespace TransformConst
 		{
 			/*
@@ -134,54 +176,48 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		TextureDDS::TextureDDS(const CWString& texPath)
+		TextureData::TextureData(const CWString& texPath)
 		{
-			Invalidate();
-
 			if (texPath.length() > 0)
-				textureID_ = loadDDS(texPath.c_str());
+				loadDDS(texPath.c_str(), format_, mipMapCount_, width_, height_, image_);
 		}
 
-		TextureDDS::~TextureDDS()
+		TextureData::~TextureData()
 		{
 			Destroy();
 		}
 
-		void TextureDDS::Destroy()
+		void TextureData::Destroy()
 		{
-			if (textureID_ != 0)
-			{
-				glDeleteTextures(1, &textureID_);
-				textureID_ = 0;
-			}
+			if (image_ != nullptr)
+				free(image_);
 		}
 
-		void TextureDDS::Invalidate()
-		{
-			textureID_ = 0;
-		}
-
-		TextureDDS::TextureDDS(TextureDDS&& c) noexcept
+		TextureData::TextureData(TextureData&& c) noexcept
 		{
 			operator=(std::move(c));
 		}
 
-		TextureDDS& TextureDDS::operator=(TextureDDS&& c) noexcept
+		TextureData& TextureData::operator=(TextureData&& c) noexcept
 		{
-			textureID_ = c.textureID_;
-			c.Invalidate();
+			format_ = c.format_;
+			mipMapCount_ = c.mipMapCount_;
+			width_ = c.width_;
+			height_ = c.height_;
+			
+			image_ = c.image_;	c.image_ = nullptr;
 
 			return *this;
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		MeshOBJ::MeshOBJ(const CWString& objPath)
+		MeshData::MeshData(const CWString& objPath)
 		{
 			Invalidate();
 			loadFromOBJFile(objPath);
 		}
 
-		bool MeshOBJ::loadFromOBJFile(const CWString& objPath)
+		bool MeshData::loadFromOBJFile(const CWString& objPath)
 		{
 			bool ret = false;
 
@@ -195,7 +231,7 @@ namespace SMGE
 			return ret;
 		}
 
-		bool MeshOBJ::loadFromPlainData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals)
+		bool MeshData::loadFromPlainData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals)
 		{
 			if (vertices.size() == 0)
 				return false;
@@ -213,7 +249,7 @@ namespace SMGE
 			return true;
 		}
 
-		bool MeshOBJ::setVertexColors(const std::vector<glm::vec3>& vertexColors)
+		bool MeshData::setVertexColors(const std::vector<glm::vec3>& vertexColors)
 		{
 			if (vertexColors.size() == 0 || vertices_.size() != vertexColors.size())
 				return false;
@@ -222,12 +258,12 @@ namespace SMGE
 			return true;
 		}
 
-		void MeshOBJ::Destroy()
+		void MeshData::Destroy()
 		{
 			Invalidate();
 		}
 
-		void MeshOBJ::Invalidate()
+		void MeshData::Invalidate()
 		{
 			vertices_.clear();
 			uvs_.clear();
@@ -235,12 +271,12 @@ namespace SMGE
 			vertexColors_.clear();
 		}
 
-		MeshOBJ::MeshOBJ(MeshOBJ&& c) noexcept
+		MeshData::MeshData(MeshData&& c) noexcept
 		{
 			operator=(std::move(c));
 		}
 
-		MeshOBJ& MeshOBJ::operator=(MeshOBJ&& c) noexcept
+		MeshData& MeshData::operator=(MeshData&& c) noexcept
 		{
 			vertices_ = std::move(c.vertices_);
 			uvs_ = std::move(c.uvs_);
@@ -592,65 +628,45 @@ namespace SMGE
 			// this 가 트랜스폼 부모자식 체인의 어디에 위치해있든
 			// topParent 까지 올라가서 RecalcMatrix_Internal 하여 부모->자식으로 딱 1회 전파해나가면
 			// 거의 낭비 없이 Recalc 가 처리된다
-			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회
+			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회 - 최적화 고려
 			
 			auto topParent = GetTopParent();
 			topParent->RecalcMatrix_Internal(nullptr);
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		ResourceModelBase::~ResourceModelBase()
+		RenderModel* ResourceModelBase::NewRenderModel(const GLFWwindow* contextWindow) const
 		{
-			if (renderModel_ != nullptr)
-			{
-				delete renderModel_;
-				renderModel_ = nullptr;
-			}
+			auto newOne = std::make_unique<RenderModel>(*this, 0);
+			renderModelsPerContext_.insert( std::make_pair(contextWindow, std::move(newOne)) );
+			
+			return GetRenderModel(contextWindow);
 		}
 
-		void ResourceModelBase::NewRenderModel()
+		class RenderModel* ResourceModelBase::GetRenderModel(const GLFWwindow* contextWindow) const
 		{
-			if (renderModel_ != nullptr)
-				return;
+			auto found = renderModelsPerContext_.find(contextWindow);
+			if (found != renderModelsPerContext_.end())
+				return found->second.get();
 
-			renderModel_ = new RenderModel(*this, 0);
-		}
-
-		class RenderModel& ResourceModelBase::GetRenderModel() const
-		{
-			return *renderModel_;
-		}
-
-		GLuint ResourceModelBase::GetTextureID(int texSamp) const
-		{
-			return 0;
-		}
-
-		const MeshOBJ& ResourceModelBase::GetMesh() const
-		{
-			MeshOBJ temp;
-			return temp;	// 일부러 - 여기가 호출되면 안된다
-		}
-
-		const VertFragShaderSet* ResourceModelBase::GetShaderSet() const
-		{
 			return nullptr;
 		}
 
-		bool ResourceModelBase::IsGizmo() const
+		const MeshData& ResourceModelBase::GetMesh() const
 		{
-			return GetMesh().uvs_.size() == 0;
+			MeshData temp;
+			return temp;	// 일부러 - 여기가 호출되면 안되기 때문이다
 		}
 
-		void ResourceModelBase::CallDefaultGLDraw(size_t verticesSize) const
+		const TextureData& ResourceModelBase::GetTexture() const
 		{
-			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
-			//glDrawArrays(GL_LINES, 0, verticesSize);	// 이걸로 그리면 와이어프레임으로 그려진다 - 아마 수잔느 몽키만 그럴지도?!
+			TextureData temp;
+			return temp;	// 일부러 - 여기가 호출되면 안되기 때문이다
 		}
 
 		void ResourceModelBase::Invalidate()
 		{
-			renderModel_ = nullptr;
+			renderModelsPerContext_.clear();
 		}
 
 		ResourceModelBase::ResourceModelBase(ResourceModelBase&& c) noexcept
@@ -660,18 +676,21 @@ namespace SMGE
 
 		ResourceModelBase& ResourceModelBase::operator=(ResourceModelBase&& c) noexcept
 		{
-			renderModel_ = c.renderModel_;
+			renderModelsPerContext_ = std::move(c.renderModelsPerContext_);
 			c.Invalidate();
 
 			return *this;
 		}
 
-		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& vertShadPath, const CWString& fragShadPath, const CWString& objPath) : ResourceModelBase()
+		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& objPath, const CWString& vertShadPath, const CWString& fragShadPath) : ResourceModelBase()
 		{
-			texture_.TextureDDS::TextureDDS(textureFilePath);
-			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(vertShadPath, fragShadPath);
-			mesh_.MeshOBJ::MeshOBJ(objPath);
+			texture_.TextureData::TextureData(textureFilePath);
+			mesh_.MeshData::MeshData(objPath);
+
+			vertShadPath_ = vertShadPath;
+			fragShadPath_ = fragShadPath;
 		}
+
 		ResourceModel::ResourceModel(ResourceModel&& c) noexcept
 		{
 			operator=(std::move(c));
@@ -680,20 +699,36 @@ namespace SMGE
 		ResourceModel& ResourceModel::operator=(ResourceModel&& c) noexcept
 		{
 			texture_ = std::move(c.texture_);
-			vfShaderSet_ = std::move(c.vfShaderSet_);
 			mesh_ = std::move(c.mesh_);
+			vertShadPath_ = std::move(vertShadPath_);
+			fragShadPath_ = std::move(fragShadPath_);
 
 			ResourceModelBase::operator=(std::move(c));
 
 			return *this;
 		}
 
-		GLuint ResourceModel::GetShaderID() const
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		GLuint RenderModel::GetTextureID(int texSamp) const
 		{
-			return vfShaderSet_->programID_;
+			return usingTextureID_;
 		}
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		const VertFragShaderSet* RenderModel::GetShaderSet() const
+		{
+			return vfShaderSet_;
+		}
+
+		GLuint RenderModel::GetShaderID() const
+		{
+			return GetShaderSet() ? GetShaderSet()->programID_ : 0;
+		}
+
+		void RenderModel::CallGLDraw(size_t verticesSize) const
+		{
+			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
+		}
+
 		void RenderModel::AddWorldObject(WorldObject* wm) const
 		{
 			ptrWorldObjects_.push_back(wm);
@@ -721,18 +756,28 @@ namespace SMGE
 			Destroy();
 		}
 
-		RenderModel::RenderModel(const ResourceModelBase& asset, GLuint texSamp) : resource_(asset)
+		RenderModel::RenderModel(const ResourceModelBase& asset, GLuint texSamp) : resourceModel_(asset)
 		{
 			Invalidate();
 
+			const auto& resModel = static_cast<const ResourceModel&>(asset);
+			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(resModel.GetVertShaderPath(), resModel.GetFragShaderPath());
+
 			// 임시 코드 - 렌더모델이 메시 관련일 경우에만 아래 코드가 실행되어야한다, 고민해봐라
-			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resource_ 의 내용을 비워도 된다
-			usingTextureID_ = resource_.GetTextureID(texSamp);
-			usingTextureSampleI_ = texSamp;
-			GenOpenGLBuffers(resource_.GetMesh().vertices_, resource_.GetMesh().uvs_, resource_.GetMesh().normals_, resource_.GetMesh().vertexColors_);
+			const auto& textureData = resourceModel_.GetTexture();
+			if (textureData.image_ != nullptr)
+			{
+				usingTextureID_ = GLCreateTextureDDS(textureData.format_, textureData.mipMapCount_, textureData.width_, textureData.height_, textureData.image_);
+				usingTextureSampleI_ = texSamp;
+			}
+
+			const auto& mesh = asset.GetMesh();
+			GenGLMeshDatas(mesh.vertices_, mesh.uvs_, mesh.normals_, mesh.vertexColors_);
+
+			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resourceModel_ 의 내용을 비워도 된다???
 		}
 
-		RenderModel::RenderModel(RenderModel&& c) noexcept : resource_(c.resource_)
+		RenderModel::RenderModel(RenderModel&& c) noexcept : resourceModel_(c.resourceModel_)
 		{
 			verticesSize_ = c.verticesSize_;
 
@@ -743,13 +788,14 @@ namespace SMGE
 			vertexColorBuffer_ = c.vertexColorBuffer_;
 			glDrawType_ = c.glDrawType_;
 
+			vfShaderSet_ = c.vfShaderSet_;
 			usingTextureID_ = c.usingTextureID_;
 			usingTextureSampleI_ = c.usingTextureSampleI_;
 
 			c.Invalidate();
 		}
 
-		bool RenderModel::GenOpenGLBuffers(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
+		bool RenderModel::GenGLMeshDatas(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
 		{
 			if (vertices.size() == 0)
 				return false;
@@ -833,12 +879,12 @@ namespace SMGE
 				const glm::mat4 MVP = VP * wmPtr->GetMatrix(false);
 
 				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
-				if(resource_.GetShaderSet()->unif_MVPMatrixID_ != -1)
-					glUniformMatrix4fv(resource_.GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
-				if (resource_.GetShaderSet()->unif_ModelMatrixID_ != -1)
-					glUniformMatrix4fv(resource_.GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
+				if(GetShaderSet()->unif_MVPMatrixID_ != -1)
+					glUniformMatrix4fv(GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
+				if (GetShaderSet()->unif_ModelMatrixID_ != -1)
+					glUniformMatrix4fv(GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
 
-				resource_.CallDefaultGLDraw(verticesSize_);
+				CallGLDraw(verticesSize_);
 			}
 		}
 
@@ -851,21 +897,15 @@ namespace SMGE
 				glActiveTexture(GL_TEXTURE0 + usingTextureSampleI_);
 				glBindTexture(GL_TEXTURE_2D, usingTextureID_);
 				// Set our "myTextureSampler" sampler to user Texture Unit 0
-				glUniform1i(resource_.GetShaderSet()->unif_TextureSampleI_, usingTextureSampleI_);
+				glUniform1i(GetShaderSet()->unif_TextureSampleI_, usingTextureSampleI_);
 			}
 
 			// 1rst attribute buffer : vertices
 			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
 
-			//if (resource_.IsGizmo())
-			//{
-			//	glLineWidth(4.f);
-			//	glPointSize(4.f);
-			//}			
-
-			glEnableVertexAttribArray(resource_.GetShaderSet()->vertAttrArray_);
+			glEnableVertexAttribArray(GetShaderSet()->vertAttrArray_);
 			glVertexAttribPointer(
-				resource_.GetShaderSet()->vertAttrArray_,                  // attribute
+				GetShaderSet()->vertAttrArray_,                  // attribute
 				3,                  // size
 				GL_FLOAT,           // type
 				GL_FALSE,           // normalized?
@@ -876,9 +916,9 @@ namespace SMGE
 			if (uvBuffer_ != 0)
 			{	// 2nd attribute buffer : UVs
 				glBindBuffer(GL_ARRAY_BUFFER, uvBuffer_);
-				glEnableVertexAttribArray(resource_.GetShaderSet()->uvAttrArray_);
+				glEnableVertexAttribArray(GetShaderSet()->uvAttrArray_);
 				glVertexAttribPointer(
-					resource_.GetShaderSet()->uvAttrArray_,                                // attribute
+					GetShaderSet()->uvAttrArray_,                                // attribute
 					2,                                // size
 					GL_FLOAT,                         // type
 					GL_FALSE,                         // normalized?
@@ -890,9 +930,9 @@ namespace SMGE
 			if (normalBuffer_ != 0)
 			{	// 3rd attribute buffer : normals
 				glBindBuffer(GL_ARRAY_BUFFER, normalBuffer_);
-				glEnableVertexAttribArray(resource_.GetShaderSet()->normAttrArray_);
+				glEnableVertexAttribArray(GetShaderSet()->normAttrArray_);
 				glVertexAttribPointer(
-					resource_.GetShaderSet()->normAttrArray_,                                // attribute
+					GetShaderSet()->normAttrArray_,                                // attribute
 					3,                                // size
 					GL_FLOAT,                         // type
 					GL_FALSE,                         // normalized?
@@ -904,9 +944,9 @@ namespace SMGE
 			if (vertexColorBuffer_ != 0)
 			{
 				glBindBuffer(GL_ARRAY_BUFFER, vertexColorBuffer_);
-				glEnableVertexAttribArray(resource_.GetShaderSet()->vertexColorAttrArray_);
+				glEnableVertexAttribArray(GetShaderSet()->vertexColorAttrArray_);
 				glVertexAttribPointer(
-					resource_.GetShaderSet()->vertexColorAttrArray_,                                // attribute
+					GetShaderSet()->vertexColorAttrArray_,                                // attribute
 					3,                                // size
 					GL_FLOAT,                         // type
 					GL_FALSE,                         // normalized?
@@ -918,25 +958,28 @@ namespace SMGE
 
 		void RenderModel::EndRender()
 		{
-			glDisableVertexAttribArray(resource_.GetShaderSet()->vertAttrArray_);
+			glDisableVertexAttribArray(GetShaderSet()->vertAttrArray_);
 			if (uvBuffer_ != 0)
-				glDisableVertexAttribArray(resource_.GetShaderSet()->uvAttrArray_);
+				glDisableVertexAttribArray(GetShaderSet()->uvAttrArray_);
 			if (normalBuffer_ != 0)
-				glDisableVertexAttribArray(resource_.GetShaderSet()->normAttrArray_);
+				glDisableVertexAttribArray(GetShaderSet()->normAttrArray_);
 			if (vertexColorBuffer_ != 0)
-				glDisableVertexAttribArray(resource_.GetShaderSet()->vertexColorAttrArray_);
+				glDisableVertexAttribArray(GetShaderSet()->vertexColorAttrArray_);
 
 			glBindVertexArray(0);
 		}
 
 		void RenderModel::SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos)
 		{
-			glUseProgram(resource_.GetShaderID());
+			if (GetShaderID() == 0)
+				return;
 
-			if(resource_.GetShaderSet()->unif_ViewMatrixID_ != -1)
-				glUniformMatrix4fv(resource_.GetShaderSet()->unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
-			if(resource_.GetShaderSet()->unif_LightWorldPosition_ != -1)
-				glUniform3f(resource_.GetShaderSet()->unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
+			glUseProgram(GetShaderID());
+
+			if(GetShaderSet()->unif_ViewMatrixID_ != -1)
+				glUniformMatrix4fv(GetShaderSet()->unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
+			if(GetShaderSet()->unif_LightWorldPosition_ != -1)
+				glUniform3f(GetShaderSet()->unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
 		WorldObject::WorldObject(const RenderModel* rm) : renderModel_(nullptr)
@@ -962,138 +1005,6 @@ namespace SMGE
 
 	namespace nsRE
 	{
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		// deprecated
-		//CVector<OldModelAsset*> OldModelAsset::instances_;
-
-		//OldModelAsset::OldModelAsset()
-		//{
-		//	instances_.push_back(this);
-		//}
-		//
-		//OldModelAsset::OldModelAsset(CRenderingEngine* re) : OldModelAsset()
-		//{
-		//	re_ = re;
-		//}
-
-		//OldModelAsset::~OldModelAsset()
-		//{
-		//	destroyBufferObjects();
-
-		//	auto found = std::find(instances_.begin(), instances_.end(), this);
-		//	instances_.erase(found);
-		//}
-
-		//void OldModelAsset::OnScreenResize(int width, int height)
-		//{
-		//	createBufferObject(width, height);
-		//}
-
-		//void OldModelAsset::OnScreenResize_Master(int width, int height)
-		//{
-		//	for (auto inst : instances_)
-		//	{
-		//		inst->OnScreenResize(width, height);
-		//	}
-		//}
-
-		//bool OldModelAsset::m_isInitialized()
-		//{
-		//	return (m_vao != -1);
-		//}
-
-		//void OldModelAsset::initRenderData()
-		//{
-		//	if (m_isInitialized())
-		//		return;
-
-		//	glGenVertexArrays(1, &m_vao);
-		//	glGenBuffers(1, &m_vbo);
-
-		//	// 테스트 코드
-		//	////getShaderCode("../../../../simple_color_vs.glsl"),
-		//	////getShaderCode("../../../../simple_color_fs.glsl")
-		//	//vertShaderPath_ = "simple_color_vs.glsl";
-		//	//fragShaderPath_ = "simple_color_fs.glsl";
-
-		//	//vertices_ = {
-		//	//0.0f, 0.5f, 0.0f,
-		//	//-0.5f, -0.5f, 0.0f,
-		//	//0.5f, -0.5f, 0.0f,
-		//	//};
-		//	//vertexAttribNumber_ = 3;
-		//}
-
-		//void OldModelAsset::initShaders()
-		//{
-		//	if (m_isInitialized())
-		//		return;
-
-		//	initRenderData();
-
-		//	m_prg = glCreateProgram();
-		//	GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(vertShaderPath_).c_str()), GL_VERTEX_SHADER);
-		//	GLUtil::addShader(m_prg, GLUtil::getShaderCode(ToASCII(fragShaderPath_).c_str()), GL_FRAGMENT_SHADER);
-		//	glLinkProgram(m_prg);
-
-		//	glBindVertexArray(m_vao);
-		//	{
-		//		auto dataSize = vertices_.size() * sizeof(decltype(vertices_[0]));
-
-		//		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		//		glBufferData(GL_ARRAY_BUFFER, dataSize, &vertices_[0], GL_STATIC_DRAW);
-		//		glVertexAttribPointer(0, vertexAttribNumber_, GL_FLOAT, GL_FALSE, 0, (void*)0);
-		//		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//	}
-		//	glBindVertexArray(0);
-		//}
-
-		//void OldModelAsset::drawGL(const glm::mat4& worldPos) const
-		//{
-		//	glBindVertexArray(m_vao);
-		//	{
-		//		glUseProgram(m_prg);
-		//		glUniformMatrix4fv(0, 1, GL_FALSE, &worldPos[0][0]);
-		//		//glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(worldPos));
-
-		//		glEnableVertexAttribArray(0);
-		//		glDrawArrays(GL_TRIANGLES, 0, vertexAttribNumber_);
-		//	}
-		//	glBindVertexArray(0);
-		//}
-
-		//void OldModelAsset::createBufferObject(int width, int height)
-		//{
-		//	//destroyBufferObjects();
-
-		//	//glGenFramebuffers(1, &m_fbo);
-		//	//glGenRenderbuffers(1, &m_rbo);
-
-		//	//glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-		//	//glRenderbufferStorage(GL_RENDERBUFFER, GL_BGRA, width, height);
-		//	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-		//	//glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_rbo);
-		//}
-
-		//void OldModelAsset::destroyBufferObjects()
-		//{
-		//	GLUtil::safeDeleteVertexArray(m_vao);
-		//	GLUtil::safeDeleteBuffer(m_vbo);
-		//	GLUtil::safeDeleteProgram(m_prg);
-		//	GLUtil::safeDeleteFramebuffer(m_fbo);
-		//	GLUtil::safeDeleteFramebuffer(m_rbo);
-		//}
-
-		//void OldModelWorld::draw()
-		//{
-		//	modelAsset_.drawGL(modelMat);
-		//}
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 		CRenderingEngine::CRenderingEngine() : m_clearColor(0.8f, 0.8f, 0.6f, 1.0f)
 		{
 		}
@@ -1263,14 +1174,16 @@ namespace SMGE
 			lightRotateMat = glm::rotate(lightRotateMat, theta, glm::vec3(0, 1, 0));
 			lightPos = lightRotateMat * lightPos;
 			
-			for (auto& it : resourceModels_)
+			for (const auto& it : CResourceModelProvider::GetResourceModels())
 			{
-				auto& rm = it.second->GetRenderModel();
-
-				rm.SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
-				rm.BeginRender();
-				rm.Render(VP);
-				rm.EndRender();
+				auto rm = it.second.get()->GetRenderModel(nullptr);
+				if (rm != nullptr && rm->GetShaderID() > 0)
+				{
+					rm->SetWorldInfos(camera_.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
+					rm->BeginRender();
+					rm->Render(VP);
+					rm->EndRender();
+				}
 			}
 
 			// smge_game->GetEngine() <- 얘가 월드오브젝트을 상속한 액터를 갖게 된다
@@ -1292,41 +1205,6 @@ namespace SMGE
 		void CRenderingEngine::Stop()
 		{
 			isRunning = false;
-		}
-
-		bool CRenderingEngine::AddResourceModel(const CString& key, ResourceModelBase* am)
-		{
-			auto already = GetResourceModel(key);
-			if (already == nullptr)
-			{
-				resourceModels_[key] = am;
-				return true;
-			}
-
-			return false;
-		}
-
-		bool CRenderingEngine::RemoveResourceModel(ResourceModelBase* am)
-		{
-			auto found = std::find_if(resourceModels_.begin(), resourceModels_.end(),
-				[am](auto&& pair)
-				{
-					return pair.second == am;
-				});
-
-			if (found == resourceModels_.end())
-			{
-				return false;
-			}
-
-			resourceModels_.erase(found);
-			return true;
-		}
-
-		ResourceModelBase* CRenderingEngine::GetResourceModel(const CString& key)
-		{
-			auto clIt = resourceModels_.find(key);
-			return clIt != resourceModels_.end() ? clIt->second : nullptr;
 		}
 
 		void CRenderingEngine::getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth)

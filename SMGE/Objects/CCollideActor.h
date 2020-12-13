@@ -16,8 +16,8 @@ namespace SMGE
 		CCollideActor(CObject* outer, ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide);
 
 		virtual CVector<CActor*> QueryCollideCheckTargets();
-		virtual void ProcessCollide(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets);
-		virtual void ProcessCollide(CVector<CActor*>& targets);
+		virtual void CheckCollideAndProcess(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets);
+		virtual void CheckCollideAndProcess(CVector<CActor*>& targets);
 
 	protected:
 		ECheckCollideRule rule_;

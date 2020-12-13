@@ -4,16 +4,45 @@
 
 namespace SMGE
 {
+	const bool BoundCheckMatrix[int32(EBoundType::MAX)][int32(EBoundType::MAX)] =
+	{
+		// POINT	SEGMENT	PLANE	TRI		QUAD	CIRC	SPHE	CUBE	AABB
+		{ true,		false,	false,	false,	false,	false,	false,	false,	false	},	// POINT
+		{ true,		true,	true,	true,	true,	true,	true,	true,	false	},	// SEGMENT
+
+		{ true,		false,	false,	false,	false,	false,	false,	false,	false	},	// PLANE
+		{ true,		false,	false,	false,	false,	false,	false,  false,	false	},	// TRIANGLE
+		{ true,		false,	false,	false,	false,	false,	false,  false,	false	},	// QUAD
+		{ true,		false,	false,	false,	false,	false,	false,  false,	false	},	// CIRCLE
+
+		{ true,		false,	true,	true,	true,	true,	true,	true,	false  },	// SPHERE
+		{ true,		false,	false,	false,	false,	false,	false,	true,	false  },	// CUBE
+
+		{ true,		false,	false,	false,	false,	false,	false,	false,	true	},	// AABB
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SBound::operator SAABB() const
 	{
 		return SAABB();
 	}
 
-	bool SPointBound::check(const struct SPointBound& point) const
+	bool SBound::check(const SBound& other, SSegmentBound& outCrossSeg) const
 	{
-		return *this == point;
+		const int32 thisBT = int32(type_), otherBT = int32(other.type_);
+
+		if (BoundCheckMatrix[thisBT][otherBT])
+			return check(other.type_, other, outCrossSeg);
+		else if (BoundCheckMatrix[otherBT][thisBT])
+			return other.check(this->type_, *this, outCrossSeg);
+		else
+		{
+			assert(false && "need to imple this case!");
+			return false;
+		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool SPointBound::operator==(const SPointBound& other) const
 	{
 		return loc_ == other.loc_;
@@ -25,6 +54,24 @@ namespace SMGE
 		return { loc_ - epsilonVec3, loc_ + epsilonVec3 };
 	}
 
+	bool SPointBound::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
+	{
+		switch (otherType)
+		{
+		case EBoundType::POINT:
+			return check(static_cast<const SPointBound&>(other), outCrossSeg);
+		default:
+			return false;
+		}
+	}
+
+	bool SPointBound::check(const struct SPointBound& point, SSegmentBound& outCrossSeg) const
+	{
+		outCrossSeg = SSegmentBound(point);
+		return *this == point;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	void SSegmentBound::reverse()
 	{
 		std::swap(start_, end_);
@@ -47,6 +94,11 @@ namespace SMGE
 		return { min, max };
 	}
 
+	bool SSegmentBound::operator==(const SSegmentBound& other) const
+	{
+		return start_ == other.start_ && end_ == other.end_;
+	}
+
 	float SSegmentBound::getSlope2D_XY() const
 	{
 		auto to = end_ - start_;
@@ -56,7 +108,7 @@ namespace SMGE
 		return to.y / to.x;
 	}
 
-	bool SSegmentBound::check2D_XY(const SSegmentBound& other, glm::vec3& outCross) const
+	bool SSegmentBound::check2D_XY(const SSegmentBound& other, SSegmentBound& outCross) const
 	{
 		const auto a = this->getSlope2D_XY(), c = other.getSlope2D_XY();
 		if (std::isnan(a) && std::isnan(c))
@@ -96,21 +148,21 @@ namespace SMGE
 		if (isInRange(this->start_.x, this->end_.x, crossX) && isInRange(other.start_.x, other.end_.x, crossX) &&
 			isInRange(this->start_.y, this->end_.y, crossY) && isInRange(other.start_.y, other.end_.y, crossY))
 		{
-			outCross.x = crossX;
-			outCross.y = crossY;
+			outCross = SSegmentBound(glm::vec3(crossX, crossY, 0.f));
 			return true;
 		}
 
 		return false;
 	}
 
-	bool SSegmentBound::check2D_XY(const SPointBound& point) const
+	bool SSegmentBound::check2D_XY(const SPointBound& point, SSegmentBound& outCross) const
 	{
 		const auto a = this->getSlope2D_XY();
 		if (std::isnan(a))
 		{
 			if (isNearlyEqual(start_.x, point.loc_.x) && isInRange(start_.y, end_.y, point.loc_.y))
 			{
+				outCross = SSegmentBound(glm::vec3(point.loc_.x, point.loc_.y, 0.f));
 				return true;
 			}
 		}
@@ -119,19 +171,36 @@ namespace SMGE
 			if (isInRange(start_.x, end_.x, point.loc_.x))
 			{
 				const auto y = a * (point.loc_.x - start_.x) + start_.y;
-				return isNearlyEqual(y, point.loc_.y);
+
+				bool ret = isNearlyEqual(y, point.loc_.y);
+				if(ret)
+					outCross = SSegmentBound(glm::vec3(point.loc_.x, point.loc_.y, 0.f));
+
+				return ret;
 			}
 		}
 
 		return false;
 	}
 
-	bool SSegmentBound::operator==(const SSegmentBound& other) const
+	bool SSegmentBound::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
 	{
-		return start_ == other.start_ && end_ == other.end_;
+		switch (otherType)
+		{
+		case EBoundType::POINT:		return check2D_XY(static_cast<const SPointBound&>(other), outCrossSeg);
+		case EBoundType::SEGMENT:	return check2D_XY(static_cast<const SSegmentBound&>(other), outCrossSeg);
+		case EBoundType::PLANE:		return check(static_cast<const SPlaneBound&>(other), outCrossSeg);
+		case EBoundType::TRIANGLE:	return check(static_cast<const STriangleBound&>(other), outCrossSeg);
+		case EBoundType::QUAD:		return check(static_cast<const SQuadBound&>(other), outCrossSeg);
+		//case EBoundType::CIRCLE:	return check(static_cast<const SPlaneBound&>(other), outCrossSeg);
+		case EBoundType::SPHERE:	return check(static_cast<const SSphereBound&>(other), outCrossSeg);
+		case EBoundType::CUBE:		return check(static_cast<const SCubeBound&>(other), outCrossSeg);
+		default:
+			return false;
+		}
 	}
 
-	bool SSegmentBound::check(const SPlaneBound& plane, glm::vec3& outCross) const
+	bool SSegmentBound::check(const SPlaneBound& plane, SSegmentBound& outCross) const
 	{
 		const auto toEnd = end_ - start_;
 		const auto toEndLen = glm::length(toEnd);
@@ -155,11 +224,11 @@ namespace SMGE
 		if (toEndLen < hypotenuseLen)	// 안닿았음
 			return false;
 
-		outCross = start_ + toEndDir * hypotenuseLen;
+		outCross = SSegmentBound(start_, start_ + toEndDir * hypotenuseLen);
 		return true;
 	}
 
-	bool SSegmentBound::check(const struct STriangleBound& tri, glm::vec3& outCross, bool isCheckWithPlane) const
+	bool SSegmentBound::check(const struct STriangleBound& tri, SSegmentBound& outCross, bool isCheckWithPlane) const
 	{
 		if (isCheckWithPlane == true && check(static_cast<const SPlaneBound&>(tri), outCross) == false)
 			return false;
@@ -167,7 +236,7 @@ namespace SMGE
 		const auto d = tri.getP1() - tri.getP0();
 		const auto e = tri.getP2() - tri.getP0();
 
-		const auto g = outCross - tri.getP0();
+		const auto g = outCross.end_ - tri.getP0();
 		
 		const auto gd = glm::dot(g, d);
 		const auto ge = glm::dot(g, e);
@@ -190,7 +259,7 @@ namespace SMGE
 		return true;
 	}
 
-	bool SSegmentBound::check(const struct SQuadBound& quad, glm::vec3& outCross, bool isCheckWithPlane) const
+	bool SSegmentBound::check(const struct SQuadBound& quad, SSegmentBound& outCross, bool isCheckWithPlane) const
 	{
 		if (isCheckWithPlane == true && check(static_cast<const SPlaneBound&>(quad), outCross) == false)
 			return false;
@@ -198,7 +267,7 @@ namespace SMGE
 		const auto d = quad.getP1() - quad.getP0();
 		const auto e = quad.getP2() - quad.getP0();
 
-		const auto g = outCross - quad.getP0();
+		const auto g = outCross.end_ - quad.getP0();
 
 		const auto gd = glm::dot(g, d);
 		const auto ge = glm::dot(g, e);
@@ -218,7 +287,7 @@ namespace SMGE
 		return true;
 	}
 
-	bool SSegmentBound::check(const SSphereBound& sphere, glm::vec3& outCross) const
+	bool SSegmentBound::check(const SSphereBound& sphere, SSegmentBound& outCross) const
 	{
 		const auto radiusSQ = sphere.getRadius() * sphere.getRadius();
 
@@ -233,7 +302,7 @@ namespace SMGE
 			else
 			{	// 종점은 구 밖이다
 				SSegmentBound reversedSeg(*this);
-				reversedSeg.reverse();	// 시점과 종점을 바꿔서 체크한다, 어차피 점으로 결과가 나가니까 괜찮다
+				reversedSeg.reverse();	// 시점과 종점을 바꿔서 체크한다
 				return reversedSeg.check(sphere, outCross);
 			}
 		}
@@ -265,12 +334,12 @@ namespace SMGE
 			if (minT > 1.f)
 				return false;
 
-			outCross = start_ + toEnd * minT;
+			outCross = SSegmentBound(start_, start_ + toEnd * minT);
 			return true;
 		}
 	}
 
-	bool SSegmentBound::check(const SCubeBound& cube, glm::vec3& outCross) const
+	bool SSegmentBound::check(const SCubeBound& cube, SSegmentBound& outCross) const
 	{
 		if(check(static_cast<const SSphereBound&>(cube), outCross) == false)
 			return false;
@@ -294,6 +363,7 @@ namespace SMGE
 		return false;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SPlaneBound::SPlaneBound(const glm::vec3& norm, const glm::vec3& loc) : SPlaneBound()
 	{
 		normal_ = glm::normalize(norm);
@@ -319,12 +389,25 @@ namespace SMGE
 		return getSignedDistanceFromPlane(loc) < 0.f;
 	}
 
-	bool SPlaneBound::check(const SPointBound& point) const
+	bool SPlaneBound::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
 	{
-		return isOnPlane(point.loc_);
+		switch (otherType)
+		{
+		case EBoundType::POINT:	return check(static_cast<const SPointBound&>(other), outCrossSeg);
+		default:
+			return false;
+		}
 	}
 
-	bool SPlaneBound::check(const struct SPlaneBound& plane, glm::vec3& ourCrossVector, glm::vec3& outCrossPoint) const
+	bool SPlaneBound::check(const SPointBound& point, SSegmentBound& outCross) const
+	{
+		bool ret = isOnPlane(point.loc_);
+		if (ret)
+			outCross = point.loc_;
+		return ret;
+	}
+
+	bool SPlaneBound::check(const struct SPlaneBound& plane, SSegmentBound& outCross) const
 	{
 		assert(false && "need to imple");
 		return false;
@@ -335,6 +418,7 @@ namespace SMGE
 		return normal_ == other.normal_ && isNearlyEqual(d_, other.d_);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	STriangleBound::STriangleBound() : SPlaneBound({ 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f })
 	{
 		type_ = EBoundType::TRIANGLE;
@@ -383,6 +467,7 @@ namespace SMGE
 		outSegs[2] = cachedSegments_.get()[2];
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SQuadBound::SQuadBound() : SPlaneBound({ 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f })
 	{
 		type_ = EBoundType::QUAD;
@@ -437,6 +522,7 @@ namespace SMGE
 		outSegs[3] = cachedSegments_.get()[3];
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool SSphereBound::operator==(const SSphereBound& other) const
 	{
 		return loc_ == other.loc_ && isNearlyEqual(radius_, other.getRadius());
@@ -448,10 +534,28 @@ namespace SMGE
 		return { loc_ - radiusVec3, loc_ + radiusVec3 };
 	}
 
-	bool SSphereBound::check(const SPointBound& point) const
+	bool SSphereBound::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
+	{
+		switch (otherType)
+		{
+		case EBoundType::POINT:		return check(static_cast<const SPointBound&>(other), outCrossSeg);
+		case EBoundType::PLANE:		return check(static_cast<const SPlaneBound&>(other), outCrossSeg);
+		case EBoundType::TRIANGLE:	return check(static_cast<const STriangleBound&>(other), outCrossSeg);
+		case EBoundType::QUAD:		return check(static_cast<const SQuadBound&>(other), outCrossSeg);
+		case EBoundType::SPHERE:	return check(static_cast<const SSphereBound&>(other), outCrossSeg);
+		case EBoundType::CUBE:		return check(static_cast<const SCubeBound&>(other), outCrossSeg);
+		default:
+			return false;
+		}
+	}
+
+	bool SSphereBound::check(const SPointBound& point, SSegmentBound& outCrossSegment) const
 	{
 		const auto distSQ = getDistanceSquared(loc_, point.loc_);
-		return distSQ < (radius_* radius_);
+		bool ret = distSQ < (radius_* radius_);
+		if (ret)
+			outCrossSegment = point.loc_;
+		return ret;
 	}
 
 	bool SSphereBound::check(const SPlaneBound& plane, SSegmentBound& outCrossSegment) const
@@ -482,21 +586,22 @@ namespace SMGE
 
 			// 차후 최적화 가능성 - 구를 평면도형에 투영한 넓이와 평면도형의 넓이를 비교하여 평면도형이 더 넓다면 선분의 교차보다 먼저 면과의 교차를 검사하는 것이 빠를 것 같다
 
-			glm::vec3 crossed;
+			SSegmentBound temp;
 			for (auto& seg : segs)
 			{	// 차후 최적화 가능성 - 평면도형의 중심이 구의 밖이라면, 내적을 이용하여 둔각인 것들의 경우 체크 안해도 될 것 같다 - 확실한지는 테스트 해봐야할 듯
 				// 2. 구가 평면도형의 선분과 교차하였는가?
-				if (seg.check(*this, crossed) == true)
+				if (seg.check(*this, temp) == true)
 				{
-					outCrossSegment.start_ = seg.start_;
-					outCrossSegment.end_ = crossed;
+					outCrossSegment = temp;
 					return true;
 				}
 			}
 
 			// 3. 구가 평면도형의 면에 교차하였는가?
-			crossed = outCrossSegment.end_;
-			return outCrossSegment.check(tri, crossed, false);	// 이미 평면과는 체크되었으므로 false
+			bool ret = outCrossSegment.check(tri, temp, false);	// 이미 평면과는 체크되었으므로 false
+			if (ret)
+				outCrossSegment = temp;
+			return ret;
 		}
 
 		return false;
@@ -513,40 +618,41 @@ namespace SMGE
 
 			// 차후 최적화 가능성 - 구를 평면도형에 투영한 넓이와 평면도형의 넓이를 비교하여 평면도형이 더 넓다면 선분의 교차보다 먼저 면과의 교차를 검사하는 것이 빠를 것 같다
 
-			glm::vec3 crossed;
+			SSegmentBound temp;
 			for (auto& seg : segs)
 			{	// 차후 최적화 가능성 - 평면도형의 중심이 구의 밖이라면, 내적을 이용하여 둔각인 것들의 경우 체크 안해도 될 것 같다 - 확실한지는 테스트 해봐야할 듯
 				// 2. 구가 평면도형의 선분과 교차하였는가?
-				if (seg.check(*this, crossed) == true)
+				if (seg.check(*this, temp) == true)
 				{
-					outCrossSegment.start_ = seg.start_;
-					outCrossSegment.end_ = crossed;
+					outCrossSegment = temp;
 					return true;
 				}
 			}
 
 			// 3. 구가 평면도형의 면에 교차하였는가?
-			crossed = outCrossSegment.end_;
-			return outCrossSegment.check(quad, crossed, false);	// 이미 평면과는 체크되었으므로 false
+			bool ret = outCrossSegment.check(quad, temp, false);	// 이미 평면과는 체크되었으므로 false
+			if (ret)
+				outCrossSegment = temp;
+			return ret;
 		}
 
 		return false;
 	}
 
-	bool SSphereBound::check(const SSphereBound& sphere, SSegmentBound& outCrossSegment) const
+	bool SSphereBound::check(const SSphereBound& otherSphere, SSegmentBound& outCrossSegment) const
 	{
-		const auto rr = radius_ + sphere.getRadius();
+		const auto rr = radius_ + otherSphere.getRadius();
 
-		const auto distSQ = getDistanceSquared(loc_, sphere.getCenterPos());
+		const auto distSQ = getDistanceSquared(loc_, otherSphere.getCenterPos());
 		if (distSQ < (rr * rr))
 		{
 			const auto dist = std::sqrtf(distSQ);
 			const auto gap = rr - dist;
 
-			const auto toDir = glm::normalize(loc_ - sphere.getCenterPos());
-			const auto end = sphere.getCenterPos() + toDir * (sphere.getRadius() - gap);
+			const auto toDir = glm::normalize(loc_ - otherSphere.getCenterPos());
+			const auto end = otherSphere.getCenterPos() + toDir * (otherSphere.getRadius() - gap);
 
-			outCrossSegment = SSegmentBound(sphere.getCenterPos(), end);
+			outCrossSegment = SSegmentBound(otherSphere.getCenterPos(), end);
 			return true;
 		}
 
@@ -577,6 +683,7 @@ namespace SMGE
 		return false;
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SCubeBound::SCubeBound() : SSphereBound()
 	{
 		type_ = EBoundType::CUBE;
@@ -631,8 +738,7 @@ namespace SMGE
 
 	bool SCubeBound::operator==(const SCubeBound& other) const
 	{
-		return loc_ == other.loc_ && 
-			size_ == other.size_ &&
+		return loc_ == other.loc_ && size_ == other.size_ &&
 			eulerAxis_[0] == other.eulerAxis_[0] &&
 			eulerAxis_[1] == other.eulerAxis_[1] &&
 			eulerAxis_[2] == other.eulerAxis_[2];
@@ -709,9 +815,20 @@ namespace SMGE
 		outQuads[5] = cachedQuads_.get()[5];
 	}
 
-	bool SCubeBound::check(const SPointBound& point) const
+	bool SCubeBound::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
 	{
-		if(this->SSphereBound::SSphereBound::check(point) == false)
+		switch (otherType)
+		{
+		case EBoundType::POINT:		return check(static_cast<const SPointBound&>(other), outCrossSeg);
+		case EBoundType::CUBE:		return check(static_cast<const SCubeBound&>(other), outCrossSeg);
+		default:
+			return false;
+		}
+	}
+
+	bool SCubeBound::check(const SPointBound& point, SSegmentBound& outCrossSegment) const
+	{
+		if(this->SSphereBound::SSphereBound::check(point, outCrossSegment) == false)
 			return false;
 
 		SQuadBound quads[6];
@@ -723,6 +840,7 @@ namespace SMGE
 				return false;
 		}
 
+		outCrossSegment = point.loc_;
 		return true;
 	}
 
@@ -737,7 +855,6 @@ namespace SMGE
 
 		const auto otherToThisDir = glm::normalize(getCenterPos() - otherCube.getCenterPos());
 
-		glm::vec3 crossed;
 		for (const auto& otherQuad : otherQuads)
 		{
 			const auto otherCosT = glm::dot(otherToThisDir, otherQuad.getNormal());
@@ -757,10 +874,8 @@ namespace SMGE
 
 						for (const auto& seg : otherSegs)
 						{
-							if (seg.check(thisQuad, crossed))
+							if (seg.check(thisQuad, outCrossSegment))
 							{
-								outCrossSegment.start_ = seg.start_;
-								outCrossSegment.end_ = crossed;
 								return true;
 							}
 						}
@@ -772,13 +887,43 @@ namespace SMGE
 		return false;
 	}
 
-	bool SAABB::isIntersect(const SAABB& other) const
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	bool SAABB::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
+	{
+		switch (otherType)
+		{
+		case EBoundType::POINT:		return check(static_cast<const SPointBound&>(other), outCrossSeg);
+		case EBoundType::AABB:		return check(static_cast<const SAABB&>(other), outCrossSeg);
+		default:
+			return false;
+		}
+	}
+
+	bool SAABB::check(const SPointBound& point, SSegmentBound& outCross) const
+	{
+		bool ret = point.loc_.x >= min_.x && point.loc_.x < max_.x&&
+					point.loc_.y >= min_.y && point.loc_.y < max_.y&&
+					point.loc_.z >= min_.z && point.loc_.z < max_.z;
+		if (ret)
+			outCross = point.loc_;
+
+		return ret;
+	}
+
+	bool SAABB::check(const SAABB& other, SSegmentBound& outCross) const
 	{
 		if (isIntersectPoints(other))	// 점이 포함된 경우 또는 this가 other 를 완전히 감싼 경우
+		{
+			outCross = other.center();
 			return true;
+		}
 
 		if (other.isIntersectPoints(*this))	// other 가 this 를 완전히 감싼 경우
+		{
+			outCross = other.center();
 			return true;
+		}
 
 		// 점이 포함이 아니고 선분이 포함인 경우의 체크 : 십자가 같은 경우
 		bool xyCross = (isXContains(other) && other.isYContains(*this)) || other.isXContains(*this) && this->isYContains(other);
@@ -787,6 +932,8 @@ namespace SMGE
 
 			// zx 로 크로스인지 체크
 			bool zxCross = (isZContains(other) && other.isXContains(*this)) || other.isZContains(*this) && this->isXContains(other);
+			if (zxCross)
+				outCross = other.center();
 			return zxCross;
 		}
 
@@ -811,21 +958,15 @@ namespace SMGE
 
 	bool SAABB::isIntersectPoints(const SAABB& other) const
 	{
+		SSegmentBound cross;
+
 		const auto points = other.points();
 		for (auto& p : points)
 		{
-			if (isContains(p))
+			if (check(p, cross))
 				return true;
 		}
 		return false;
-	}
-
-	inline bool SAABB::isContains(const glm::vec3& point) const
-	{
-		return
-			point.x >= min_.x && point.x < max_.x&&
-			point.y >= min_.y && point.y < max_.y&&
-			point.z >= min_.z && point.z < max_.z;
 	}
 
 	inline const glm::vec3& SAABB::min() const
@@ -836,13 +977,17 @@ namespace SMGE
 	{
 		return max_;
 	}
+	inline const glm::vec3& SAABB::center() const
+	{
+		return min() + getSize() * 0.5f;
+	}
 
 	inline glm::vec3 SAABB::getSize() const
 	{
 		return { max().x - min().x, max().y - min().y, max().z - min().z };
 	}
 
-	inline std::initializer_list<glm::vec3> SAABB::points() const
+	inline std::initializer_list<SPointBound> SAABB::points() const
 	{
 		const auto size = getSize();
 		return
@@ -858,3 +1003,64 @@ namespace SMGE
 		return { min() + size / 2.f, size, { 0.f, 0.f, 0.f } };
 	}
 };
+
+/* 구형 컬라이드 체크 식
+	if (checkTarget->GetBoundType() == EBoundType::SPHERE)
+	{
+		outCollidingPoint = nsRE::TransformConst::Vec3_Zero;
+
+		CSphereComponent* sphere = DCast<CSphereComponent*>(checkTarget);
+
+		this->RecalcMatrix();
+		sphere->RecalcMatrix();
+
+		auto rayLoc = this->GetWorldPosition(), sphereLoc = sphere->GetWorldPosition();
+
+		auto ray2sphere = sphereLoc - rayLoc;
+		float r2sLen = glm::distance(sphereLoc, rayLoc);
+
+		// https://m.blog.naver.com/PostView.nhn?blogId=hermet&logNo=68084286&proxyReferer=https:%2F%2Fwww.google.com%2F
+		// 내용을 기준으로 조금 변형 하였다
+
+		const auto rayLength = this->getRayLength();
+		const auto sphereRadius = sphere->GetRadius();
+		const auto rayDirection = this->getRayDirection();
+
+		// 사이즈가 택도 없을 경우를 먼저 걸러낸다
+		float minSize = r2sLen - sphereRadius;
+		if (rayLength < minSize)
+			return false;
+
+		if (r2sLen <= sphereRadius)	// 접하는 것 포함
+		{	// 레이 원점과 원 중심의 거리가 원의 반지름보다 작다 - 레이가 원의 안에서 발사된 것임
+			outCollidingPoint = rayLoc;
+			return true;
+		}
+
+		//auto normR2S = glm::normalize(ray2sphere);
+
+		float cosTheta = glm::dot(ray2sphere, rayDirection) / r2sLen;	// 이거랑
+		//float cosTheta = glm::dot(normR2S, this->direction_);	// 이거랑
+		if (cosTheta <= 0.f)	// 레이의 방향이 원쪽과 반대방향 또는 직각임
+			return false;
+
+		float hypo = r2sLen;
+		//float base = glm::dot(this->direction_, ray2sphere);	// 이거를 똑같이 써도 cosTheta 논리가 동일하지 않을까? 그러면 dot 한번 줄일 수 있다.
+		float base = cosTheta * r2sLen;
+
+		float radiusSQ = sphereRadius * sphereRadius;
+		float heightSQ = hypo * hypo - base * base;
+
+		if (heightSQ <= radiusSQ)
+		{	// 광선과 구의 거리가 구의 반지름보다 작거나 같으면 거리 검사
+			float intersectBase = std::sqrtf(radiusSQ - heightSQ);
+			float distToCollidePoint = (base - intersectBase);
+
+			if (distToCollidePoint <= rayLength)
+			{	//  충돌한 지점과의 거리가 크기보다 작으면 충돌
+				outCollidingPoint = rayLoc + (rayDirection * distToCollidePoint);
+				return true;
+			}
+		}
+	}
+	*/

@@ -32,42 +32,26 @@ namespace SMGE
 	}
 
 
-	void CCollideActor::ProcessCollide(CVector<CActor*>& targets)
+	void CCollideActor::CheckCollideAndProcess(CVector<CActor*>& targets)
 	{
-		ProcessCollide(rule_, isPolygonCheck_, fOnCollide_, targets);
+		CheckCollideAndProcess(rule_, isPolygonCheck_, fOnCollide_, targets);
 	}
 
-	void CCollideActor::ProcessCollide(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
+	void CCollideActor::CheckCollideAndProcess(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
 	{
-		glm::vec3 collidingPoint;
+		SSegmentBound crossSeg;
 
-		auto BoundCheck = [](CBoundComponent* left, CBoundComponent* right, glm::vec3& outCrossPos)
-		{
-			if (left == nullptr || right == nullptr)
-				return false;
-
-			const int32 leftBT = int32(left->GetBoundType()), rightBT = int32(right->GetBoundType());
-
-			// SBound 에서 모든 케이스 인자에 대한 check 구현 필요
-			//if (BoundCheckMatrix[leftBT][rightBT])
-			//	return left->getBound().check(right->getBound(), outCrossPos);
-			//else if (BoundCheckMatrix[rightBT][leftBT])
-			//	return right->getBound().check(left->getBound(), outCrossPos);
-			//else
-			{
-				assert(false && "need to imple this case!");
-				return false;
-			}
-		};
+		auto thisMainBound = this->GetMainBound();
 
 		for (auto& actor : targets)
 		{
-			if (this->GetMainBound()->GetAABB().isIntersect(actor->GetMainBound()->GetAABB()) == true &&	// aabb 체크 넘어가면
-				BoundCheck(this->GetMainBound(), actor->GetMainBound(), collidingPoint) == true)			// 바운드끼리 체크 한다
+			auto otherMainBound = actor->GetMainBound();
+			if (thisMainBound->GetAABB().check(otherMainBound->GetAABB(), crossSeg) == true &&	// aabb 체크 넘어가면
+				thisMainBound->GetBound().check(otherMainBound->GetBound(), crossSeg) == true)	// 바운드끼리 체크 한다
 			{
 				if (isPolygonCheck == false)
 				{
-					fOnCollide(this, actor, this->GetMainBound(), actor->GetMainBound(), collidingPoint);
+					fOnCollide(this, actor, thisMainBound, otherMainBound, crossSeg);
 				}
 				else
 				{

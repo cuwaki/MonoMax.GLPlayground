@@ -44,24 +44,19 @@ namespace SMGE
 	{
 		const auto resmKey = "gizmoK:cube";
 
-		auto gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+		auto gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 		if (gizmorm == nullptr)
 		{
-			GetRenderingEngine()->AddResourceModel(resmKey, std::move(new nsRE::CubeRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-			gizmorm = GetRenderingEngine()->GetResourceModel(resmKey);
+			nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::CubeRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 		}
 
-		gizmorm->GetRenderModel().AddWorldObject(this);
+		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}
 
-	bool CCubeComponent::CheckCollide(CBoundComponent* checkTarget, glm::vec3& outCollidingPoint)
-	{
-		return false;
-	}
-
-	const SBound& CCubeComponent::getBound()
+	const SBound& CCubeComponent::GetBound()
 	{
 		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 

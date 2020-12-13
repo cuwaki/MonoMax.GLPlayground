@@ -43,33 +43,34 @@ namespace SMGE
 			});
 	}
 
+	// 순서 바꾸면 여기저기 수정해야함
 	enum class EBoundType
 	{
 		POINT,
 		SEGMENT,
+
+		// 면
 		PLANE,
 		TRIANGLE,
 		QUAD,
-
+		CIRCLE,
+		
+		// 입체
 		SPHERE,
 		CUBE,
 
+		// 바운딩박스
 		AABB,
-		OBB,
+		//OBB,	OBB 는 자동으로 모델 축에 정렬된 CUBE와 동일하다
 
-		INHERIT_START,
-
-		MAX = 255,
+		MAX,
 	};
 
-	const bool BoundCheckMatrix[int32(EBoundType::CUBE)+1][int32(EBoundType::CUBE)+1] =
-	{
-		{ true, false, false, false, false, false, false },	// POINT
-		{ false, true, true, true, true, true, true },	// SEGMENT
-		{ true, false, false, false, false, false, false },	// SEGMENT
-	};
+	// EBoundType 로 2차원 매트릭스를 만들어서 각 바운드타입이 서로 check 를 실행할 수 있는지 저장
+	extern const bool BoundCheckMatrix[int32(EBoundType::MAX)][int32(EBoundType::MAX)];
 
 	struct SAABB;
+	struct SSegmentBound;
 
 	struct SBound
 	{
@@ -78,27 +79,41 @@ namespace SMGE
 		EBoundType type_ = EBoundType::MAX;
 
 		virtual operator SAABB() const;
+
+		// 메인 check 함수이다, 여기서 type_ 에 따라서 각 객체로 분배시킨다
+		bool check(const SBound& other, SSegmentBound& outCrossSeg) const;
+
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const = 0;
 	};
 
 	struct SPointBound : public SBound
 	{
 		SPointBound() : SBound(EBoundType::POINT) {}
-		SPointBound(const glm::vec3& p) : SPointBound()
-		{
-			loc_ = p;
-		}
+		SPointBound(float x, float y, float z) : SPointBound(glm::vec3(x, y, z)) {}
+		SPointBound(const glm::vec3& p) : SPointBound()	{	loc_ = p;	}
+		SPointBound(glm::vec3&& p) : SPointBound() { loc_ = p; }
 
 		glm::vec3 loc_;
 
-		bool check(const struct SPointBound& point) const;
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
+		bool check(const struct SPointBound& point, SSegmentBound& outCrossSeg) const;
+
 		bool operator==(const SPointBound& other) const;
 
 		virtual operator SAABB() const override;
+
+		operator glm::vec2() const { return glm::vec2(loc_.x, loc_.y); }
+		operator glm::vec3() const { return loc_; }
+		operator glm::vec4() const { return glm::vec4(loc_.x, loc_.y, loc_.z, 1.f); }
 	};
 
 	struct SSegmentBound : public SBound
 	{
-		SSegmentBound() : SBound(EBoundType::SEGMENT) {}
+		SSegmentBound() : SBound(EBoundType::SEGMENT)
+		{
+			start_ = end_ = { 0.f, 0.f, 0.f };
+		}
+		SSegmentBound(const glm::vec3& p) : SSegmentBound() { start_ = end_ = p; }
 		SSegmentBound(const glm::vec3& s, const glm::vec3& e) : SSegmentBound()
 		{
 			start_ = s;
@@ -107,23 +122,24 @@ namespace SMGE
 
 		glm::vec3 start_, end_;
 
+		inline bool isPoint() const { return start_ == end_; }
+		inline bool isNullPoint() const { return start_ == end_ && end_ == glm::vec3(0.f, 0.f, 0.f); }
+
 		void reverse();
-		
 		float getDistanceFromSegment(const glm::vec3& loc) const;
 
 		float getSlope2D_XY() const;
-		bool check2D_XY(const SSegmentBound& other, glm::vec3& outCross) const;
-		bool check2D_XY(const SPointBound& point) const;
-		
-		//bool check3D(const struct SSegmentBound& ...
 		bool operator==(const SSegmentBound& other) const;
 
-		bool check(const struct SPlaneBound& plane, glm::vec3& outCross) const;
-		bool check(const struct STriangleBound& tri, glm::vec3& outCross, bool isCheckWithPlane = true) const;
-		bool check(const struct SQuadBound& quad, glm::vec3& outCross, bool isCheckWithPlane = true) const;
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
 
-		bool check(const struct SSphereBound& sphere, glm::vec3& outCross) const;
-		bool check(const struct SCubeBound& cube, glm::vec3& outCross) const;
+		bool check2D_XY(const SPointBound& point, SSegmentBound& outCross) const;
+		bool check2D_XY(const SSegmentBound& other, SSegmentBound& outCross) const;
+		bool check(const struct SPlaneBound& plane, SSegmentBound& outCross) const;
+		bool check(const struct STriangleBound& tri, SSegmentBound& outCross, bool isCheckWithPlane = true) const;
+		bool check(const struct SQuadBound& quad, SSegmentBound& outCross, bool isCheckWithPlane = true) const;
+		bool check(const struct SSphereBound& sphere, SSegmentBound& outCross) const;
+		bool check(const struct SCubeBound& cube, SSegmentBound& outCross) const;
 
 		virtual operator SAABB() const override;
 	};
@@ -138,9 +154,10 @@ namespace SMGE
 		bool isInFront(const glm::vec3& loc) const;
 		bool isOnPlane(const glm::vec3& loc) const;
 		bool isInBack(const glm::vec3& loc) const;
-		
-		bool check(const SPointBound& point) const;
-		bool check(const struct SPlaneBound& plane, glm::vec3& ourCrossVector, glm::vec3& outCrossPoint) const;
+
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
+		bool check(const SPointBound& point, SSegmentBound& outCross) const;
+		bool check(const struct SPlaneBound& plane, SSegmentBound& outCross) const;
 
 		bool operator==(const SPlaneBound& other) const;
 
@@ -160,8 +177,13 @@ namespace SMGE
 		{
 			*this = other;
 		}
+		STriangleBound(STriangleBound&& other) noexcept
+		{
+			*this = std::move(other);
+		}
 
 		bool operator==(const STriangleBound& other) const;
+		
 		STriangleBound& operator=(const STriangleBound& other) noexcept
 		{
 			this->SPlaneBound::SPlaneBound(other);
@@ -170,6 +192,16 @@ namespace SMGE
 			p1_ = other.p1_;
 			p2_ = other.p2_;
 			cachedSegments_.reset();
+			return *this;
+		}
+		STriangleBound& operator=(STriangleBound&& other) noexcept
+		{
+			this->SPlaneBound::SPlaneBound(std::move(other));
+
+			p0_ = std::move(other.p0_);
+			p1_ = std::move(other.p1_);
+			p2_ = std::move(other.p2_);
+			cachedSegments_ = std::move(other.cachedSegments_);
 			return *this;
 		}
 
@@ -194,8 +226,13 @@ namespace SMGE
 		{
 			*this = other;
 		}
+		SQuadBound(SQuadBound&& other) noexcept
+		{
+			*this = std::move(other);
+		}
 
 		bool operator==(const SQuadBound& other) const;
+
 		SQuadBound& operator=(const SQuadBound& other) noexcept
 		{
 			this->SPlaneBound::SPlaneBound(other);
@@ -205,6 +242,17 @@ namespace SMGE
 			p2_ = other.p2_;
 			p3_ = other.p3_;
 			cachedSegments_.reset();
+			return *this;
+		}
+		SQuadBound& operator=(SQuadBound&& other) noexcept
+		{
+			this->SPlaneBound::SPlaneBound(std::move(other));
+
+			p0_ = std::move(other.p0_);
+			p1_ = std::move(other.p1_);
+			p2_ = std::move(other.p2_);
+			p3_ = std::move(other.p3_);
+			cachedSegments_ = std::move(other.cachedSegments_);
 			return *this;
 		}
 
@@ -233,7 +281,8 @@ namespace SMGE
 
 		bool operator==(const SSphereBound& other) const;
 
-		bool check(const SPointBound& point) const;
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
+		bool check(const SPointBound& point, SSegmentBound& outCrossSegment) const;
 		bool check(const SPlaneBound& plane, SSegmentBound& outCrossSegment) const;
 		bool check(const STriangleBound& tri, SSegmentBound& outCrossSegment) const;
 		bool check(const SQuadBound& quad, SSegmentBound& outCrossSegment) const;
@@ -258,7 +307,9 @@ namespace SMGE
 		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3 (&eulerAxis)[3]);
 
 		bool operator==(const SCubeBound& other) const;
-		bool check(const SPointBound& point) const;
+
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
+		bool check(const SPointBound& point, SSegmentBound& outCrossSegment) const;
 		bool check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const;
 
 		void getQuads(SQuadBound (&outQuads)[6], bool isJustWantFrontAndBack = false) const;
@@ -287,12 +338,14 @@ namespace SMGE
 			max_ = max;
 		}
 
-		bool isIntersect(const SAABB& other) const;
-		inline bool isContains(const glm::vec3& point) const;
+		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
+		bool check(const SPointBound& point, SSegmentBound& outCross) const;
+		bool check(const SAABB& other, SSegmentBound& outCross) const;
 
 		inline const glm::vec3& min() const;
 		inline const glm::vec3& max() const;
-		std::initializer_list<glm::vec3> points() const;
+		inline const glm::vec3& center() const;
+		std::initializer_list<SPointBound> points() const;
 
 		inline glm::vec3 getSize() const;
 

@@ -21,7 +21,7 @@ namespace SMGE
 	static glm::vec3 moveTo(5, 0, 0), moveFrom;
 	static glm::vec3 rotateTo(0, 0, 45), rotateFromEuler;
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
-	static float TestInterpolationTime = 2000;
+	static float TestInterpolationTime = 1000;
 
 	void CMovementComponent::OnBeginPlay(class CObject* parent)
 	{
@@ -32,6 +32,7 @@ namespace SMGE
 
 		targetTransform_ = &actorParent_->getTransform();
 
+		// 테스트 코드 - 인터폴레이션
 		interpTranslation_.setTimer(&actorParent_->getActorTimer());
 		interpRotation_.setTimer(&actorParent_->getActorTimer());
 		interpScale_.setTimer(&actorParent_->getActorTimer());
@@ -39,9 +40,9 @@ namespace SMGE
 		setActive(true);
 
 		{	// 테스트 코드
-			//moveFrom = actorParent_->getLocation();
-			//interpTranslation_.setCurveType(ECurveType::Quad_Out);
-			//interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
+			moveFrom = actorParent_->getLocation();
+			interpTranslation_.setCurveType(ECurveType::Quad_Out);
+			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
 			//rotateFromEuler = actorParent_->getRotationEuler();
 			//interpRotation_.setCurveType(ECurveType::Cos);
@@ -56,7 +57,6 @@ namespace SMGE
 	void CMovementComponent::OnEndPlay()
 	{
 		Super::OnEndPlay();
-
 	}
 
 	void CMovementComponent::Tick(float td)

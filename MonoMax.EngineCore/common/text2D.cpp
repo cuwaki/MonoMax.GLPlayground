@@ -26,7 +26,7 @@ int TextScreen_HalfHeight;
 void initText2D(const wchar_t* texturePath)
 {
 	// Initialize texture
-	Text2DTextureID = loadDDS(texturePath);
+	//Text2DTextureID = loadDDS(texturePath);	// 차후 정상화해라
 
 	// Initialize VBO
 	glGenBuffers(1, &Text2DVertexBufferID);
