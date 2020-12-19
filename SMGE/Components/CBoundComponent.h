@@ -47,6 +47,7 @@ namespace SMGE
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
+		virtual void Tick(float td) override;
 
 		void Ctor();
 
@@ -65,7 +66,10 @@ namespace SMGE
 		virtual const class CCubeComponent* GetOBB() const;
 
 		const SAABB& GetAABB() const;
-		virtual void CacheAABB() { cachedAABB_ = GetBound(); }
+		virtual void CacheAABB();
+
+		glm::vec3 GetGizmoColor() const { return gizmoColor_; }
+		void SetGizmoColor(const glm::vec3& gc) { gizmoColor_ = gc; }
 
 		virtual SGReflection& getReflection() override;
 

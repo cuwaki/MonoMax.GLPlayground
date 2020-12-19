@@ -186,7 +186,8 @@ namespace SMGE
 		
 		STriangleBound& operator=(const STriangleBound& other) noexcept
 		{
-			this->SPlaneBound::SPlaneBound(other);
+			this->normal_ = other.normal_;
+			this->d_ = other.d_;
 
 			p0_ = other.p0_;
 			p1_ = other.p1_;
@@ -196,7 +197,8 @@ namespace SMGE
 		}
 		STriangleBound& operator=(STriangleBound&& other) noexcept
 		{
-			this->SPlaneBound::SPlaneBound(std::move(other));
+			this->normal_ = std::move(other.normal_);
+			this->d_ = std::move(other.d_);
 
 			p0_ = std::move(other.p0_);
 			p1_ = std::move(other.p1_);
@@ -235,7 +237,8 @@ namespace SMGE
 
 		SQuadBound& operator=(const SQuadBound& other) noexcept
 		{
-			this->SPlaneBound::SPlaneBound(other);
+			this->normal_ = other.normal_;
+			this->d_ = other.d_;
 
 			p0_ = other.p0_;
 			p1_ = other.p1_;
@@ -246,7 +249,8 @@ namespace SMGE
 		}
 		SQuadBound& operator=(SQuadBound&& other) noexcept
 		{
-			this->SPlaneBound::SPlaneBound(std::move(other));
+			this->normal_ = std::move(other.normal_);
+			this->d_ = std::move(other.d_);
 
 			p0_ = std::move(other.p0_);
 			p1_ = std::move(other.p1_);
@@ -337,6 +341,8 @@ namespace SMGE
 			min_ = min;
 			max_ = max;
 		}
+
+		bool isValid() const { return min_ != max_; }
 
 		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
 		bool check(const SPointBound& point, SSegmentBound& outCross) const;

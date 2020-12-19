@@ -46,7 +46,9 @@ namespace SMGE
 		for (auto& actor : targets)
 		{
 			auto otherMainBound = actor->GetMainBound();
-			if (thisMainBound->GetAABB().check(otherMainBound->GetAABB(), crossSeg) == true &&	// aabb 체크 넘어가면
+
+			auto aabbTest = thisMainBound->GetAABB().check(otherMainBound->GetAABB(), crossSeg);
+			if (aabbTest &&	// aabb 체크 넘어가면
 				thisMainBound->GetBound().check(otherMainBound->GetBound(), crossSeg) == true)	// 바운드끼리 체크 한다
 			{
 				if (isPolygonCheck == false)

@@ -24,7 +24,7 @@ namespace SMGE
 			auto already = FindResourceModel(key);
 			if (already == nullptr)
 			{
-				ResourceModels.insert(std::make_pair(key, am));
+				ResourceModels.insert(std::make_pair(key, std::move(am)));
 				return true;
 			}
 
@@ -574,7 +574,7 @@ namespace SMGE
 				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
 				//transformMatrix_ = transformMatrix_ * parentMatrix;
 
-				if (parent)
+				if (parent && isAbsoluteTransform_ == false)
 				{
 					assert(parent == parent_);
 

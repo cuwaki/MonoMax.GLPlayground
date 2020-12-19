@@ -88,7 +88,7 @@ namespace SMGE
 	{
 		const glm::vec3 epsilonVec3(Configs::BoundEpsilon);
 
-		glm::vec3 min, max;
+		glm::vec3 min(start_), max(start_);
 		findMinAndMaxVector({ start_ - epsilonVec3, start_ + epsilonVec3, end_ - epsilonVec3, end_ + epsilonVec3 }, min, max);
 
 		return { min, max };
@@ -265,7 +265,7 @@ namespace SMGE
 			return false;
 
 		const auto d = quad.getP1() - quad.getP0();
-		const auto e = quad.getP2() - quad.getP0();
+		const auto e = quad.getP3() - quad.getP0();
 
 		const auto g = outCross.end_ - quad.getP0();
 
@@ -441,7 +441,7 @@ namespace SMGE
 
 	STriangleBound::operator SAABB() const
 	{
-		glm::vec3 min, max;
+		glm::vec3 min(p0_), max(p0_);
 		findMinAndMaxVector({ p0_, p1_, p2_ }, min, max);
 		return { min, max };
 	}
@@ -494,7 +494,7 @@ namespace SMGE
 
 	SQuadBound::operator SAABB() const
 	{
-		glm::vec3 min, max;
+		glm::vec3 min(p0_), max(p0_);
 		findMinAndMaxVector({ p0_, p1_, p2_, p3_ }, min, max);
 		return { min, max };
 	}
@@ -726,7 +726,7 @@ namespace SMGE
 		SQuadBound outQuads[6];
 		getQuads(outQuads, true);
 
-		glm::vec3 min, max;
+		glm::vec3 min(outQuads[0].getP0()), max(outQuads[0].getP0());
 		findMinAndMaxVector(
 			{
 				outQuads[0].getP0(), outQuads[0].getP1(), outQuads[0].getP2(), outQuads[0].getP3(),

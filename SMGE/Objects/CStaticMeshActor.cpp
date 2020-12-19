@@ -20,10 +20,11 @@ namespace SMGE
 	{
 		Super::BeginPlay();
 
-		// 테스트 코드
-		auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
-		getTransientComponents().emplace_back(std::move(moveCompo));
+		//// 테스트 코드 - 움직이도록
+		//auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
+		//getTransientComponents().emplace_back(std::move(moveCompo));
 
-		GetMainBound()->GetOBB();
+		//// 테스트 코드 - GetOBB
+		//GetMainBound()->GetOBB();
 	}
 }

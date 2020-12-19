@@ -70,6 +70,8 @@ namespace SMGE
 
 		void LoadAssetRecursive(CWString filePath)
 		{
+			assert(isReadOnly_ == true && "for read only");
+
 			SGStringStreamIn strIn(CuwakiDevUtils::LoadFromTextFile(filePath));
 			if (strIn.IsValid())
 			{

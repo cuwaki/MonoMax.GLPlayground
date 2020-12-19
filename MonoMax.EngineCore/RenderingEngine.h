@@ -166,8 +166,11 @@ namespace SMGE
 
 		protected:
 			glm::mat4 transformMatrix_;
+
 			Transform* parent_ = nullptr;
 			std::forward_list<Transform*> children_;
+
+			bool isAbsoluteTransform_ = false;
 
 			bool isDirty_ = false;
 
@@ -425,7 +428,7 @@ namespace SMGE
 			static CHashMap<CString, std::unique_ptr<ResourceModelBase>> ResourceModels;
 
 		public:
-			static bool AddResourceModel(const CString& key, ResourceModelBase* am);
+			static bool AddResourceModel(const CString& key, ResourceModelBase* am);	// 여기 - unique 로 쓰기엔 CMeshComponent 에서의 사용법이 걸린다, 셰어드로 수정해야할 듯
 			static bool RemoveResourceModel(ResourceModelBase* am);
 			static ResourceModelBase* FindResourceModel(const CString& key);
 

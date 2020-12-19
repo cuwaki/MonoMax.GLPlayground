@@ -6,6 +6,8 @@
 #include "../Assets/CAssetManager.h"
 #include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
 
+#define DRAW_AABB
+
 namespace SMGE
 {
 	SGRefl_BoundComponent::SGRefl_BoundComponent(TReflectionClass& rc) : Super(rc), 
@@ -54,6 +56,39 @@ namespace SMGE
 
 	void CBoundComponent::OnBeginPlay(CObject* parent)
 	{
+#ifdef DRAW_AABB
+		// 테스트 코드 - AABB 표시하기
+		auto aabbCube = findComponent<CCubeComponent>([](auto compPtr)
+			{
+				return compPtr->GetCObjectTag() == "debug aabb";
+			});
+		if (aabbCube == nullptr && this->GetCObjectTag() != "debug aabb")
+		{
+			auto map = FindOuter<CMap>(this);
+			if (map != nullptr)
+			{
+				getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
+
+				auto aabb = DCast<CCubeComponent*>(getTransientComponents().back().get());
+				if (aabb)
+				{
+					auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
+					aabb->CopyFromTemplate(asset->getContentClass());
+
+					aabb->isAbsoluteTransform_ = true;
+					aabb->isCollideTarget_ = false;
+					aabb->SetCObjectTag("debug aabb");
+					aabb->SetGizmoColor({ 1.f, 0.f, 1.f });
+
+					//registerComponent(aabb);
+
+					//if (map->IsBeganPlay() || map->IsBeginningPlay())
+					//	aabb->OnBeginPlay(this);
+				}
+			}
+		}
+#endif
+
 		Super::OnBeginPlay(parent);
 
 		CacheAABB();
@@ -62,6 +97,24 @@ namespace SMGE
 	void CBoundComponent::OnEndPlay()
 	{
 		Super::OnEndPlay();
+	}
+
+	void CBoundComponent::Tick(float td)
+	{
+		Super::Tick(td);
+
+#ifdef DRAW_AABB
+		// 테스트 코드 - AABB
+		if (cobjectTag_ == "debug aabb")
+		{
+			auto parentBC = static_cast<CBoundComponent*>(parent_);
+			const auto& aabb = parentBC->cachedAABB_;
+
+			RotateEuler({ 0.f, 0.f, 0.f });
+			Translate(aabb.center());
+			Scale(aabb.getSize());
+		}
+#endif
 	}
 
 	bool CBoundComponent::CheckCollide(CBoundComponent* checkTarget, SSegmentBound& outCross)
@@ -75,6 +128,15 @@ namespace SMGE
 	const SAABB& CBoundComponent::GetAABB() const
 	{
 		return cachedAABB_;
+	}
+
+	void CBoundComponent::CacheAABB()
+	{
+#ifdef DRAW_AABB
+		// 테스트 코드 - AABB
+		if (cobjectTag_ != "debug aabb")
+#endif
+			cachedAABB_ = GetBound();
 	}
 
 	const class CCubeComponent* CBoundComponent::GetOBB() const
