@@ -192,7 +192,7 @@ namespace SMGE
 		case EBoundType::PLANE:		return check(static_cast<const SPlaneBound&>(other), outCrossSeg);
 		case EBoundType::TRIANGLE:	return check(static_cast<const STriangleBound&>(other), outCrossSeg);
 		case EBoundType::QUAD:		return check(static_cast<const SQuadBound&>(other), outCrossSeg);
-		//case EBoundType::CIRCLE:	return check(static_cast<const SPlaneBound&>(other), outCrossSeg);
+		case EBoundType::CIRCLE:	return check(static_cast<const SCircleBound&>(other), outCrossSeg);
 		case EBoundType::SPHERE:	return check(static_cast<const SSphereBound&>(other), outCrossSeg);
 		case EBoundType::CUBE:		return check(static_cast<const SCubeBound&>(other), outCrossSeg);
 		default:
@@ -285,6 +285,17 @@ namespace SMGE
 			return false;
 
 		return true;
+	}
+
+	bool SSegmentBound::check(const struct SCircleBound& circle, SSegmentBound& outCross, bool isCheckWithPlane) const
+	{
+		if (isCheckWithPlane == true && check(static_cast<const SPlaneBound&>(circle), outCross) == false)
+			return false;
+
+		const auto rr = circle.getRadius() * circle.getRadius();
+		const auto distSQ = getDistanceSquared(outCross.end_, circle.getCenterPos());
+
+		return distSQ < rr;
 	}
 
 	bool SSegmentBound::check(const SSphereBound& sphere, SSegmentBound& outCross) const
@@ -523,6 +534,74 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	SCircleBound::SCircleBound() : SPlaneBound({ 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f })
+	{
+		type_ = EBoundType::CIRCLE;
+
+		cachePerp();
+	}
+
+	SCircleBound::SCircleBound(const glm::vec3& norm, const glm::vec3& center, float radius)
+	{
+		this->SPlaneBound::SPlaneBound(norm, center);
+
+		type_ = EBoundType::CIRCLE;
+		loc_ = center;
+		radius_ = radius;
+
+		cachePerp();
+	}
+
+	void SCircleBound::cachePerp() const
+	{
+		glm::vec3 axis(0.f, 1.f, 0.f);
+		
+		cachedPerp_ = glm::cross(normal_, axis);
+		if (isNearlyEqual(glm::length(cachedPerp_), 0.f))
+		{
+			axis = { 1.f, 0.f, 0.f };
+
+			cachedPerp_ = glm::cross(normal_, axis);
+			if (isNearlyEqual(glm::length(cachedPerp_), 0.f))
+			{
+				axis = { 0.f, 0.f, 1.f };
+
+				cachedPerp_ = glm::cross(normal_, axis);
+				// 여기까지 왔으면 무조건 성공해야한다
+			}
+		}
+	}
+
+	SCircleBound::operator SAABB() const
+	{
+		const glm::vec3 up = normal_ * Configs::BoundEpsilon, perp = cachedPerp_ * radius_;
+
+		glm::vec3 min = (up * -1.f + perp * -1.f), max = (up * +1.f + perp * +1.f);
+		findMinAndMaxVector({ min, max }, min, max);
+		return { min, max };
+	}
+
+	bool SCircleBound::operator==(const SCircleBound& other) const
+	{
+		return normal_ == other.normal_ && loc_ == other.loc_ && radius_ == other.radius_;
+	}
+
+	void SCircleBound::getSegments(SSegmentBound(&outSegs)[CIRCUMFERENCE_SEGMENT_MAX]) const
+	{
+		// 미구현 - 필요시 구현하라
+		assert(false && "need implements");
+
+		if (cachedSegments_ == false)
+		{
+			cachedSegments_ = std::make_unique<SSegmentBound[]>(CIRCUMFERENCE_SEGMENT_MAX);
+
+			//cachedSegments_.get()[0] = SSegmentBound(p0_, p0_ + (p1_ - p0_));
+		}
+
+		//outSegs[0] = cachedSegments_.get()[0];
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool SSphereBound::operator==(const SSphereBound& other) const
 	{
 		return loc_ == other.loc_ && isNearlyEqual(radius_, other.getRadius());
@@ -702,6 +781,8 @@ namespace SMGE
 		eulerAxis[ETypeAxis::Y] = rotMat[ETypeAxis::Y];
 		eulerAxis[ETypeAxis::Z] = rotMat[ETypeAxis::Z];
 		this->SCubeBound::SCubeBound(centerPos, size, eulerAxis);
+
+		type_ = EBoundType::CUBE;
 	}
 
 	SCubeBound::SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3(&eulerAxis)[3]) : SCubeBound()
@@ -719,6 +800,8 @@ namespace SMGE
 		
 		const auto farthestDistanceFromCenter = std::sqrtf(xHalfLeng * xHalfLeng + yHalfLeng * yHalfLeng + zHalfLeng * zHalfLeng);
 		this->SSphereBound::SSphereBound(centerPos, farthestDistanceFromCenter);
+
+		type_ = EBoundType::CUBE;
 	}
 
 	SCubeBound::operator SAABB() const

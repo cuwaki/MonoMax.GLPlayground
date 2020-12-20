@@ -20,7 +20,7 @@ namespace SMGE
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		void GizmoResourceModel::CreateFrom(const std::vector<glm::vec3>& vertices, bool isFaced)
+		void GizmoResourceModel::CreateFrom(const std::vector<glm::vec3>& vertices, GLuint drawType)
 		{
 			std::vector<glm::vec2> dummy2(0);
 			std::vector<glm::vec3> dummy3(0);
@@ -28,7 +28,7 @@ namespace SMGE
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
 
 			auto gizRendM = static_cast<GizmoRenderModel*>(NewRenderModel(nullptr));
-			gizRendM->isFaced_ = isFaced;
+			gizRendM->drawType_ = drawType;
 		}
 
 		RenderModel* GizmoResourceModel::NewRenderModel(const GLFWwindow* contextWindow) const
@@ -55,42 +55,38 @@ namespace SMGE
 		{
 			RenderModel::BeginRender();
 
-			if (isFaced_ == false)
-			{
-				glEnable(GL_PROGRAM_POINT_SIZE);	// 여기 - 기즈모 렌더링 시스템으로 통합해야함
-				glLineWidth(1.f);					// 여기 - 기즈모 렌더링 시스템으로 통합해야함
-			}
+			if (drawType_ == GL_POINTS)
+				glEnable(GL_PROGRAM_POINT_SIZE);
+			else if (drawType_ == GL_LINES)
+				glLineWidth(1.f);
 		}
 
 		void GizmoRenderModel::CallGLDraw(size_t verticesSize) const
 		{
-			if(isFaced_)
-				glDrawArrays(GL_TRIANGLES, 0, verticesSize);
-			else
-				glDrawArrays(verticesSize == 1 ? GL_POINTS : GL_LINES, 0, verticesSize);
+			glDrawArrays(drawType_, 0, verticesSize);
 		}
 
-		SphereRM::SphereRM() : GizmoResourceModel()
+		SphereResourceModel::SphereResourceModel() : GizmoResourceModel()
 		{
 			const auto divides = 36;
 
 			std::vector<glm::vec3> vertices;
 			vertices = nsRE::makeSimpleSphere3D_Lines<glm::vec3>(divides, 0.5f);
 
-			CreateFrom(vertices, false);
+			CreateFrom(vertices, GL_LINES);
 		}
 
-		CubeRM::CubeRM()
+		CubeResourceModel::CubeResourceModel()
 		{
 			std::vector<glm::vec3> vertices;
 			
 			glm::vec3 centerPos(0);
 			vertices = nsRE::makeSimpleCube3D_Lines<glm::vec3>(centerPos, glm::vec3(1.f));
 
-			CreateFrom(vertices, false);
+			CreateFrom(vertices, GL_LINES);
 		}
 
-		QuadFacedRM::QuadFacedRM() : GizmoResourceModel()
+		QuadFacedResourceModel::QuadFacedResourceModel() : GizmoResourceModel()
 		{
 			std::vector<glm::vec3> vertices;
 
@@ -109,10 +105,10 @@ namespace SMGE
 			vertices.push_back({ xyTri2Base - xySize, 0.f });	// -0.5, -0.5, 0
 			vertices.push_back({ xyTri2Base + glm::vec2{ 0.f, -1.f }, 0.f });	// 0.5, -0.5, 0
 
-			CreateFrom(vertices, true);
+			CreateFrom(vertices, GL_TRIANGLES);
 		}
 
-		QuadRM::QuadRM() : GizmoResourceModel()
+		QuadResourceModel::QuadResourceModel() : GizmoResourceModel()
 		{
 			std::vector<glm::vec3> vertices;
 
@@ -135,10 +131,22 @@ namespace SMGE
 			vertices.push_back({ xyTri1Base + glm::vec2{ 0.f, 1.f }, 0.f });	// -0.5, 0.5, 0
 			vertices.push_back({ xyTri1Base, 0.f });	// -0.5, -0.5, 0
 
-			CreateFrom(vertices, false);
+			CreateFrom(vertices, GL_LINES);
 		}
 
-		SegmentRM::SegmentRM() : GizmoResourceModel()
+		CircleResourceModel::CircleResourceModel(int32 circumferenceSegmentNumber)
+		{
+			auto circleLines = makeCircle2DXY_Lines<glm::vec3>(circumferenceSegmentNumber, 0.5f);	// XY평면의 2D 써클
+			CreateFrom(circleLines, GL_LINES);
+		}
+
+		CircleFacedResourceModel::CircleFacedResourceModel(int32 circumferenceSegmentNumber)
+		{
+			auto circleLines = makeCircle2DXY_Faced<glm::vec3>(circumferenceSegmentNumber, 0.5f);	// XY평면의 2D 써클
+			CreateFrom(circleLines, GL_TRIANGLE_FAN);
+		}
+
+		SegmentResourceModel::SegmentResourceModel() : GizmoResourceModel()
 		{
 			glm::vec3 direction = TransformConst::DefaultModelFrontAxis();
 
@@ -147,15 +155,15 @@ namespace SMGE
 			vertices.emplace_back(0.f, 0.f, 0.f);	// 시점
 			vertices.emplace_back(glm::normalize(direction) * 1.f);	// 종점
 
-			CreateFrom(vertices, false);
+			CreateFrom(vertices, GL_LINES);
 		}
 
-		PointRM::PointRM()
+		PointResourceModel::PointResourceModel()
 		{
 			std::vector<glm::vec3> vertices;
 
 			vertices.emplace_back(0.f, 0.f, 0.f);
-			CreateFrom(vertices, false);
+			CreateFrom(vertices, GL_POINTS);
 		}
 	}
 }

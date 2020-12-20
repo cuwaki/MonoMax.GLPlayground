@@ -33,24 +33,26 @@ namespace SMGE
 		targetTransform_ = &actorParent_->getTransform();
 
 		// 테스트 코드 - 인터폴레이션
+		actorParent_->getActorTimer().setRatio(0.1f);
+
 		interpTranslation_.setTimer(&actorParent_->getActorTimer());
 		interpRotation_.setTimer(&actorParent_->getActorTimer());
 		interpScale_.setTimer(&actorParent_->getActorTimer());
 
 		setActive(true);
 
-		{	// 테스트 코드
+		{	// 테스트 코드 - 인터폴레이션
 			moveFrom = actorParent_->getLocation();
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
-			//rotateFromEuler = actorParent_->getRotationEuler();
-			//interpRotation_.setCurveType(ECurveType::Cos);
-			//interpRotation_.start(rotateFromEuler, rotateFromEuler + rotateTo, TestInterpolationTime);
+			rotateFromEuler = actorParent_->getRotationEuler();
+			interpRotation_.setCurveType(ECurveType::Cos);
+			interpRotation_.start(rotateFromEuler, rotateFromEuler + rotateTo, TestInterpolationTime);
 
-			//scaleFrom = actorParent_->getScale();
-			//interpScale_.setCurveType(ECurveType::Sin);
-			//interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+			scaleFrom = actorParent_->getScales();
+			interpScale_.setCurveType(ECurveType::Sin);
+			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 		}
 	}
 
@@ -65,7 +67,7 @@ namespace SMGE
 
 		if (isActive())
 		{
-			// 테스트 코드
+			// 테스트 코드 - 인터폴레이션
 			{
 				// Translate
 				if (interpTranslation_.isRunning())
@@ -79,24 +81,24 @@ namespace SMGE
 				}
 
 				// Rotate
-				//if (interpRotation_.isRunning())
-				//{
-				//	targetTransform_->RotateEuler(interpRotation_.current());
-				//}
-				//else
-				//{
-				//	interpRotation_.start(rotateFromEuler, rotateFromEuler + rotateTo, TestInterpolationTime);
-				//}
+				if (interpRotation_.isRunning())
+				{
+					targetTransform_->RotateEuler(interpRotation_.current());
+				}
+				else
+				{
+					interpRotation_.start(rotateFromEuler, rotateFromEuler + rotateTo, TestInterpolationTime);
+				}
 
-				//// Scale
-				//if (interpScale_.isRunning())
-				//{
-				//	targetTransform_->Scale(interpScale_.current());
-				//}
-				//else
-				//{
-				//	interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
-				//}
+				// Scale
+				if (interpScale_.isRunning())
+				{
+					targetTransform_->Scale(interpScale_.current());
+				}
+				else
+				{
+					interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+				}
 			}
 		}
 	}

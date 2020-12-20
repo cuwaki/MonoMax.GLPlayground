@@ -122,10 +122,13 @@
     <ClInclude Include="CBoundCheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Components\CQuadComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Components\CSegmentComponent.h">
+      <Filter>Components\Bound</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CQuadComponent.h">
+      <Filter>Components\Bound</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CCircleComponent.h">
       <Filter>Components\Bound</Filter>
     </ClInclude>
   </ItemGroup>
@@ -205,10 +208,13 @@
     <ClCompile Include="CBoundCheck.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Components\CQuadComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Components\CSegmentComponent.cpp">
+      <Filter>Components\Bound</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CQuadComponent.cpp">
+      <Filter>Components\Bound</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CCircleComponent.cpp">
       <Filter>Components\Bound</Filter>
     </ClCompile>
   </ItemGroup>

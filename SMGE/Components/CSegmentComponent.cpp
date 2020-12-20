@@ -90,7 +90,7 @@ namespace SMGE
 		auto gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 		if (gizmorm == nullptr)
 		{
-			nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::SegmentRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::SegmentResourceModel()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 		}
 

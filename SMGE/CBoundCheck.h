@@ -138,6 +138,7 @@ namespace SMGE
 		bool check(const struct SPlaneBound& plane, SSegmentBound& outCross) const;
 		bool check(const struct STriangleBound& tri, SSegmentBound& outCross, bool isCheckWithPlane = true) const;
 		bool check(const struct SQuadBound& quad, SSegmentBound& outCross, bool isCheckWithPlane = true) const;
+		bool check(const struct SCircleBound& quad, SSegmentBound& outCross, bool isCheckWithPlane = true) const;
 		bool check(const struct SSphereBound& sphere, SSegmentBound& outCross) const;
 		bool check(const struct SCubeBound& cube, SSegmentBound& outCross) const;
 
@@ -271,6 +272,67 @@ namespace SMGE
 
 	protected:
 		glm::vec3 p0_, p1_, p2_, p3_;
+		mutable std::unique_ptr<SSegmentBound[]> cachedSegments_;
+	};
+
+	struct SCircleBound : public SPlaneBound
+	{
+		static constexpr int CIRCUMFERENCE_SEGMENT_MAX = 18;	// 원주를 몇분할 하여 세그먼트로 만들지
+
+		SCircleBound();
+		SCircleBound(const glm::vec3& norm, const glm::vec3& center, float radius);
+		SCircleBound(const SCircleBound& other) noexcept
+		{
+			*this = other;
+		}
+		SCircleBound(SCircleBound&& other) noexcept
+		{
+			*this = std::move(other);
+		}
+
+		bool operator==(const SCircleBound& other) const;
+
+		SCircleBound& operator=(const SCircleBound& other) noexcept
+		{
+			this->normal_ = other.normal_;
+			this->d_ = other.d_;
+
+			loc_ = other.loc_;
+			radius_ = other.radius_;
+
+			cachedSegments_.reset();
+			return *this;
+		}
+		SCircleBound& operator=(SCircleBound&& other) noexcept
+		{
+			this->normal_ = std::move(other.normal_);
+			this->d_ = std::move(other.d_);
+
+			loc_ = std::move(other.loc_);
+			radius_ = std::move(other.radius_);
+
+			cachedSegments_ = std::move(other.cachedSegments_);
+			return *this;
+		}
+
+		void getSegments(SSegmentBound(&outSegs)[CIRCUMFERENCE_SEGMENT_MAX]) const;
+		int32 getSegmentMax() const { return CIRCUMFERENCE_SEGMENT_MAX; }
+
+		const glm::vec3& getCenterPos() const { return loc_; }
+		float getRadius() const { return radius_; }
+
+		virtual operator SAABB() const override;
+
+		const glm::vec3 getPerp() const { return cachedPerp_; }
+
+	protected:
+		void cachePerp() const;
+
+		glm::vec3 loc_;
+		float radius_;
+
+		mutable glm::vec3 cachedPerp_;
+
 		mutable std::unique_ptr<SSegmentBound[]> cachedSegments_;
 	};
 

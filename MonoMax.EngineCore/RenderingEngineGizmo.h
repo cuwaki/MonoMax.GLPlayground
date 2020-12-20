@@ -21,7 +21,7 @@ namespace SMGE
 			GizmoResourceModel() : ResourceModel() {}
 
 		protected:
-			virtual void CreateFrom(const std::vector<glm::vec3>& vertices, bool isFaced);
+			virtual void CreateFrom(const std::vector<glm::vec3>& vertices, GLuint drawType);
 			virtual RenderModel* NewRenderModel(const GLFWwindow* contextWindow) const override;
 		};
 
@@ -31,7 +31,7 @@ namespace SMGE
 			GizmoRenderModel(const ResourceModelBase& asset, GLuint texSamp);
 			GizmoShaderSet* GetGizmoShaderSet() const { return static_cast<GizmoShaderSet*>(vfShaderSet_); }
 
-			bool isFaced_ = false;
+			GLuint drawType_ = GL_LINES;
 
 		protected:
 			virtual void CallGLDraw(size_t verticesSize) const override;
@@ -39,42 +39,53 @@ namespace SMGE
 		};
 
 		// 모든 GizmoResourceModel 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.
-		class SphereRM : public GizmoResourceModel
+		class SphereResourceModel : public GizmoResourceModel
 		{
 		public:
-			SphereRM();
+			SphereResourceModel();
 		};
 
-		class CubeRM : public GizmoResourceModel
+		class CubeResourceModel : public GizmoResourceModel
 		{
 		public:
-			CubeRM();
+			CubeResourceModel();
 		};
 
 		// 라인으로 그려지는 평면
-		class QuadRM : public GizmoResourceModel
+		class QuadResourceModel : public GizmoResourceModel
 		{
 		public:
-			QuadRM();
+			QuadResourceModel();
 		};
 
 		// 면으로 그려지는 평면
-		class QuadFacedRM : public GizmoResourceModel
+		class QuadFacedResourceModel : public GizmoResourceModel
 		{
 		public:
-			QuadFacedRM();
+			QuadFacedResourceModel();
 		};
 
-		class SegmentRM : public GizmoResourceModel
+		class CircleResourceModel : public GizmoResourceModel
 		{
 		public:
-			SegmentRM();
+			CircleResourceModel(int32 circumferenceSegmentNumber);
+		};
+		class CircleFacedResourceModel : public GizmoResourceModel
+		{
+		public:
+			CircleFacedResourceModel(int32 circumferenceSegmentNumber);
 		};
 
-		class PointRM : public GizmoResourceModel
+		class SegmentResourceModel : public GizmoResourceModel
 		{
 		public:
-			PointRM();
+			SegmentResourceModel();
+		};
+
+		class PointResourceModel : public GizmoResourceModel
+		{
+		public:
+			PointResourceModel();
 		};
 	}
 }

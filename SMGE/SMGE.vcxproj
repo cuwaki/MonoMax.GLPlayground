@@ -165,6 +165,7 @@
     <ClCompile Include="CEngineBase.cpp" />
     <ClCompile Include="CGameBase.cpp" />
     <ClCompile Include="Components\CBoundComponent.cpp" />
+    <ClCompile Include="Components\CCircleComponent.cpp" />
     <ClCompile Include="Components\CComponent.cpp" />
     <ClCompile Include="Components\CCubeComponent.cpp" />
     <ClCompile Include="Components\CDrawComponent.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="CBoundCheck.h" />
     <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="Components\CBoundComponent.h" />
+    <ClInclude Include="Components\CCircleComponent.h" />
     <ClInclude Include="Components\CCubeComponent.h" />
     <ClInclude Include="Components\CQuadComponent.h" />
     <ClInclude Include="Components\CPointComponent.h" />

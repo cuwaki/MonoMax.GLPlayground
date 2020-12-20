@@ -3,7 +3,7 @@
 #include "Assets/CAsset.h"
 #include "Assets/CAssetManager.h"
 
-// 테스트 코드
+// 테스트 코드 - 테스트를 위한 기본 코드
 #include "CEngineBase.h"
 #include "Objects/CMap.h"
 #include "Assets/CResourceModel.h"
@@ -86,7 +86,7 @@ namespace SMGE
 		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
 
 #ifdef EDITOR_WORKING
-		// 테스트 코드
+		// 테스트 코드 - 스태틱 메시 애셋 로드 테스트
 		//CSharPtr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
 		//auto testActor = new CStaticMeshActor(this);
 		//testActor->CopyFromTemplate(test->getContentClass());

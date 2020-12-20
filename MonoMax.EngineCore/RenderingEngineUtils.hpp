@@ -38,6 +38,30 @@ namespace SMGE
 			return circle;
 		}
 
+		template<typename T>
+		std::vector<T> makeCircle2DXY_Faced(int vertexNumber, float radius)
+		{
+			std::vector<T> circle;
+
+			float angle = 0.f, angleAdd = 2.f * 3.141592f / float(vertexNumber);
+			glm::mat4 identity(1.f);
+			glm::vec4 xDir(radius, 0.f, 0.f, 1.f), zDir(0.f, 0.f, -1.f, 1.f);
+
+			circle.emplace_back(0.f);	// GL_TRIANGLE_FAN 을 위하여
+
+			T vt;
+			do
+			{
+				glm::mat4 rotation = glm::rotate(identity, angle, glm::vec3(zDir));
+				vt = rotation * xDir;
+				circle.emplace_back(vt);
+
+				angle += angleAdd;
+			} while (--vertexNumber > 0);
+
+			return circle;
+		}
+
 		// XYZ축에 평행한 2D써클 3개를 만든다
 		template<typename T>
 		std::vector<T> makeSimpleSphere3D_Lines(int vertexNumber, float radius)

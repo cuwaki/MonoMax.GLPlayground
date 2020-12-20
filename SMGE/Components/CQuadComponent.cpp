@@ -47,7 +47,7 @@ namespace SMGE
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
 			{
-				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadFacedRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadFacedResourceModel()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
 				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			}
 		}
@@ -57,7 +57,7 @@ namespace SMGE
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
 			{
-				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadRM()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadResourceModel()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
 				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			}
 		}
