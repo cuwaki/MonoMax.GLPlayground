@@ -430,7 +430,7 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	STriangleBound::STriangleBound() : SPlaneBound({ 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f })
+	STriangleBound::STriangleBound() : SPlaneBound({ 0.f, 0.f, 1.f }, { 0.f, 0.f, 0.f })
 	{
 		type_ = EBoundType::TRIANGLE;
 	}
@@ -479,7 +479,7 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SQuadBound::SQuadBound() : SPlaneBound({ 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f })
+	SQuadBound::SQuadBound() : SPlaneBound({ 0.f, 0.f, 1.f }, { 0.f, 0.f, 0.f })
 	{
 		type_ = EBoundType::QUAD;
 	}
@@ -534,17 +534,15 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	SCircleBound::SCircleBound() : SPlaneBound({ 0.f, 1.f, 0.f }, { 0.f, 0.f, 0.f })
+	SCircleBound::SCircleBound() : SPlaneBound({ 0.f, 0.f, 1.f }, { 0.f, 0.f, 0.f })
 	{
 		type_ = EBoundType::CIRCLE;
 
 		cachePerp();
 	}
 
-	SCircleBound::SCircleBound(const glm::vec3& norm, const glm::vec3& center, float radius)
+	SCircleBound::SCircleBound(const glm::vec3& norm, const glm::vec3& center, float radius) : SPlaneBound(norm, center)
 	{
-		this->SPlaneBound::SPlaneBound(norm, center);
-
 		type_ = EBoundType::CIRCLE;
 		loc_ = center;
 		radius_ = radius;
@@ -556,27 +554,33 @@ namespace SMGE
 	{
 		glm::vec3 axis(0.f, 1.f, 0.f);
 		
-		cachedPerp_ = glm::cross(normal_, axis);
+		cachedPerp_ = glm::cross(axis, normal_);
 		if (isNearlyEqual(glm::length(cachedPerp_), 0.f))
 		{
 			axis = { 1.f, 0.f, 0.f };
 
-			cachedPerp_ = glm::cross(normal_, axis);
+			cachedPerp_ = glm::cross(axis, normal_);
 			if (isNearlyEqual(glm::length(cachedPerp_), 0.f))
 			{
 				axis = { 0.f, 0.f, 1.f };
 
-				cachedPerp_ = glm::cross(normal_, axis);
+				cachedPerp_ = glm::cross(axis, normal_);
 				// 여기까지 왔으면 무조건 성공해야한다
 			}
 		}
+
+		cachedPerp_ = glm::normalize(cachedPerp_);
 	}
 
 	SCircleBound::operator SAABB() const
 	{
-		const glm::vec3 up = normal_ * Configs::BoundEpsilon, perp = cachedPerp_ * radius_;
+		const glm::vec3 front = normal_ * Configs::BoundEpsilon, 
+			perpU = cachedPerp_ * radius_,
+			perpV = glm::normalize(glm::cross(front, perpU)) * radius_;
 
-		glm::vec3 min = (up * -1.f + perp * -1.f), max = (up * +1.f + perp * +1.f);
+		// 위에서 front = z, perpU = x, perpV = y 라고 치고, 3차원 오른손 좌표계 축을 만든것이다
+
+		glm::vec3 min = (front * -1.f + perpU * -1.f + perpV * -1.f), max = (front * +1.f + perpU * +1.f + perpV * +1.f);
 		findMinAndMaxVector({ min, max }, min, max);
 		return { min, max };
 	}

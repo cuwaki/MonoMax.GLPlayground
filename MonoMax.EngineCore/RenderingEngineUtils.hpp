@@ -15,7 +15,7 @@ namespace SMGE
 			// x축 방향 벡터의 롤을 회전시켜서 만들자
 			float angle = 0.f, angleAdd = 2.f * 3.141592f / float(vertexNumber);
 			glm::mat4 identity(1.f);
-			glm::vec4 xDir(radius, 0.f, 0.f, 1.f), zDir(0.f, 0.f, -1.f, 1.f);
+			glm::vec4 xDir(radius, 0.f, 0.f, 1.f), zDir(0.f, 0.f, 1.f, 1.f);
 
 			bool isFirst = true;
 			T vt;
@@ -45,7 +45,7 @@ namespace SMGE
 
 			float angle = 0.f, angleAdd = 2.f * 3.141592f / float(vertexNumber);
 			glm::mat4 identity(1.f);
-			glm::vec4 xDir(radius, 0.f, 0.f, 1.f), zDir(0.f, 0.f, -1.f, 1.f);
+			glm::vec4 xDir(radius, 0.f, 0.f, 1.f), zDir(0.f, 0.f, 1.f, 1.f);
 
 			circle.emplace_back(0.f);	// GL_TRIANGLE_FAN 을 위하여
 
@@ -58,6 +58,8 @@ namespace SMGE
 
 				angle += angleAdd;
 			} while (--vertexNumber > 0);
+
+			circle.push_back(circle[1]);	// GL_TRIANGLE_FAN 을 위하여
 
 			return circle;
 		}

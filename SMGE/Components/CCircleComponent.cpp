@@ -8,7 +8,7 @@ namespace SMGE
 {
 	CCircleComponent::CCircleComponent(CObject* outer) : Super(outer)
 	{
-		//hasFace_ = true;	// 테스트 코드
+		hasFace_ = true;	// 테스트 코드
 		Ctor();
 	}
 	CCircleComponent::CCircleComponent(CObject* outer, bool hasFace) : CCircleComponent(outer)
