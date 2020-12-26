@@ -33,6 +33,9 @@
     <Filter Include="Components\Bound">
       <UniqueIdentifier>{3c872e05-3b73-43fc-a2d2-3569f2c2992c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\System">
+      <UniqueIdentifier>{15cdd8ec-3987-4ed2-ba7b-1459d0b1364d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GECommonIncludes.h">
@@ -131,6 +134,9 @@
     <ClInclude Include="Components\CCircleComponent.h">
       <Filter>Components\Bound</Filter>
     </ClInclude>
+    <ClInclude Include="Objects\CCameraActor.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -216,6 +222,9 @@
     </ClCompile>
     <ClCompile Include="Components\CCircleComponent.cpp">
       <Filter>Components\Bound</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\CCameraActor.cpp">
+      <Filter>Objects</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -39,7 +39,7 @@ namespace SMGE
 
 		SGRefl_Map(CMap& map);
 
-		TActorLayers<SGRefl_Actor> actorLayersREFL_;
+		TActorLayers<std::reference_wrapper<SGReflection>> actorLayersREFL_;
 
 		virtual operator CWString() const;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted) override;
@@ -75,8 +75,8 @@ namespace SMGE
 		//CActor& SpawnDefaultActor(const CActor& templateActor, bool isDynamic);
 		CActor& FinishSpawnActor(CActor& arrangedActor);
 		CActor* FindActor(TActorKey ak);
-		CSharPtr<CActor>&& RemoveActor(TActorKey ak);
-		const CVector<CSharPtr<CActor>>& GetActors(EActorLayer layer) const;
+		CUniqPtr<CActor>&& RemoveActor(TActorKey ak);
+		const CVector<CUniqPtr<CActor>>& GetActors(EActorLayer layer) const;
 		CVector<CActor*> QueryActors(const SAABB& aabb) const;
 
 		void BeginPlay();
@@ -87,17 +87,17 @@ namespace SMGE
 	protected:
 		CActor& SpawnActorINTERNAL(CObject* newObj, bool isDynamic)
 		{
-			CSharPtr<CActor> newActor(DCast<CActor*>(newObj));
+			CUniqPtr<CActor> newActor(DCast<CActor*>(newObj));
 
 			if (isDynamic == true)
 			{	// DynamicActorKey
 				newActor->actorKey_ = DynamicActorKey++;
 			}
 
-			auto rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
+			auto& rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
 			rb->OnSpawnStarted(this, isDynamic);
 
-			return *std::static_pointer_cast<CActor>(rb);
+			return static_cast<CActor&>(*rb.get());
 		}
 
 	public:
@@ -110,7 +110,7 @@ namespace SMGE
 	protected:
 		// runtime
 		ActorOcTree actorOctree_;
-		TActorLayers<CSharPtr<CActor>> actorLayers_;
+		TActorLayers<CUniqPtr<CActor>> actorLayers_;
 		bool isBeganPlay_ = false;
 		bool isBeginningPlay_ = false;
 

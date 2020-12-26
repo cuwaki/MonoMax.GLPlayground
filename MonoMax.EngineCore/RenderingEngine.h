@@ -447,7 +447,7 @@ namespace SMGE
 			char* GLRenderHandle = nullptr;
 			bool isRunning = false;
 
-			CCamera camera_;
+			CRenderingCamera renderingCamera_;
 
 			void initWindow();
 
@@ -471,7 +471,7 @@ namespace SMGE
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
 			void ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir);
 
-			CCamera* GetCamera() { return &camera_; }
+			CRenderingCamera& GetRenderingCamera() { return renderingCamera_; }
 		};
 	}
 }

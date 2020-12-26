@@ -173,7 +173,7 @@ namespace SMGE
 				const auto y = a * (point.loc_.x - start_.x) + start_.y;
 
 				bool ret = isNearlyEqual(y, point.loc_.y);
-				if(ret)
+				if (ret)
 					outCross = SSegmentBound(glm::vec3(point.loc_.x, point.loc_.y, 0.f));
 
 				return ret;
@@ -580,7 +580,8 @@ namespace SMGE
 
 		// 위에서 front = z, perpU = x, perpV = y 라고 치고, 3차원 오른손 좌표계 축을 만든것이다
 
-		glm::vec3 min = (front * -1.f + perpU * -1.f + perpV * -1.f), max = (front * +1.f + perpU * +1.f + perpV * +1.f);
+		glm::vec3 min = (loc_ + front * -1.f + perpU * -1.f + perpV * -1.f), 
+				max = (loc_ + front * +1.f + perpU * +1.f + perpV * +1.f);
 		findMinAndMaxVector({ min, max }, min, max);
 		return { min, max };
 	}

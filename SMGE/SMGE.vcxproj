@@ -180,6 +180,7 @@
     <ClCompile Include="CTimer.cpp" />
     <ClCompile Include="Interfaces\CInt_Reflection.cpp" />
     <ClCompile Include="Objects\CActor.cpp" />
+    <ClCompile Include="Objects\CCameraActor.cpp" />
     <ClCompile Include="Objects\CCollideActor.cpp" />
     <ClCompile Include="Objects\CMap.cpp" />
     <ClCompile Include="Objects\CObject.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Interfaces\CInt_Component.h" />
     <ClInclude Include="Interfaces\CInt_Reflection.h" />
     <ClInclude Include="Objects\CActor.h" />
+    <ClInclude Include="Objects\CCameraActor.h" />
     <ClInclude Include="Objects\CCollideActor.h" />
     <ClInclude Include="Objects\CMap.h" />
     <ClInclude Include="Objects\CObject.h" />

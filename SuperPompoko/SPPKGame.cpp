@@ -131,7 +131,7 @@ namespace SMGE
 				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
 
-					float rayLength = engine_->GetRenderingEngine()->GetCamera()->GetZFar();
+					float rayLength = engine_->GetRenderingEngine()->GetRenderingCamera().GetZFar();
 					//rayCompo->SetBoundData(rayLength, ray_direction);
 					rayActor->getTransform().Translate(ray_origin);
 					rayActor->getTransform().Scale({ Configs::BoundEpsilon, Configs::BoundEpsilon, Configs::BoundEpsilon });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...

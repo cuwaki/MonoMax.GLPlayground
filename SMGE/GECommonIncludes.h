@@ -104,9 +104,11 @@ namespace SMGE
         else if constexpr (std::is_same_v<T, glm::vec3> || std::is_same_v<T, glm::vec2> || std::is_same_v<T, glm::mat4>)
             return ToTCHAR(glm::to_string(val));    // glm::vec or mat ...
 
-        // 이 코드가 위로 올라가면 지원이 안되는 클래스가 T 로 들어오는 경우 컴파일 오류가 나게 된다, 이거 SFINAE 로 컴파일 오류 안나고 넘어가게 할 수 없나?
-        else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor 등의 자동 처리를 위하여
-			return val;
+        // deprecated 201226 {
+		//// 이 코드가 위로 올라가면 지원이 안되는 클래스가 T 로 들어오는 경우 컴파일 오류가 나게 된다, 이거 SFINAE 로 컴파일 오류 안나고 넘어가게 할 수 없나?
+		//else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor 등의 자동 처리를 위하여
+		//	return val; }
+
         else
             return L"error - not support type!";
     }

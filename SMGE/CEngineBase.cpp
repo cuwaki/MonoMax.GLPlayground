@@ -121,9 +121,9 @@ namespace SMGE
 		{
 			auto EditorProcessCameraMove = [this](const nsGE::CUserInput& userInput)
 			{
-				GetRenderingEngine()->GetCamera()->MoveCamera(
-					userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT),
-					userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
+				auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+
+				renderCam.MoveCamera(userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT),userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
 
 				static glm::vec2 RPressedPos;
 				bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
@@ -134,7 +134,7 @@ namespace SMGE
 				if (isJustRPress == false && isRPress == true)
 				{
 					auto moved = RPressedPos - userInput.GetMousePosition();
-					GetRenderingEngine()->GetCamera()->RotateCamera(moved);
+					renderCam.RotateCamera(moved);
 
 					RPressedPos = userInput.GetMousePosition();
 				}

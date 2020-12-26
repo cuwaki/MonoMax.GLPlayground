@@ -1,0 +1,23 @@
+classRTTIName_$CString$"CCameraActor"
+    reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
+    actorKey_$TActorKey$0
+    classRTTIName_$CString$"SGRefl_Transform"
+        reflectionFilePath_$CWString$""
+        nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+    actorStaticTag_$CString$""
+    persistCompoSize$size_t$1
+		classRTTIName_$CString$"CCubeComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
+			persistCompoSize$size_t$0
+			gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
+    cameraName_$CString$"templateCamera"
+    fov_$float$45.0
+    zNear_$float$1.0
+    zFar_$float$100.0

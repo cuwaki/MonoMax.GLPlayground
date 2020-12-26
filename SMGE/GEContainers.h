@@ -4,15 +4,15 @@
 
 namespace SMGE
 {
-    template<typename T>
+    template<typename T, class _Alloc = std::allocator<T>>
     class CVector : public std::vector<T>
     {
         using ParentVectorT = std::vector<T>;
 
     public:
         CVector() : std::vector<T>() {};
-        CVector(std::initializer_list<T>&& il) : std::vector<T>(std::move(il)) {}
-        CVector(size_t size) : std::vector<T>(size) {};
+        CVector(std::initializer_list<T>&& il) : std::vector<T>(std::forward<std::initializer_list<T>>(il)) {}
+        CVector(const size_t size, const _Alloc& _Al = _Alloc()) : std::vector<T>(size, _Al) {};    // #cvcvuptr_resize - unique_ptr 을 CVector<CVector< 의 T 로 넣을 경우 CVector< 의 resize 가 컴파일 오류가 나서 일단 이렇게 한다
 
         template<typename U>
         T& operator[](const U& index)   // enum class 들을 [] 로 바로 받을 수 있게 하기 위함

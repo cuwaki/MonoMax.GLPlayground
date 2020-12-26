@@ -18,12 +18,16 @@ namespace SMGE
 		using Super = SGReflection;
 
 		SGRefl_Actor(CActor& actor);
-		SGRefl_Actor(const CSharPtr<CActor>& actorPtr);
+		SGRefl_Actor(const CUniqPtr<CActor>& actorPtr);
 		
 		virtual void buildVariablesMap() override;
 		
 		virtual void OnBeforeSerialize() const override;
+
 		virtual operator CWString() const override;
+		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value> &in) override;
+
+		virtual SGReflection& operator=(CVector<CWString>& in) override;
 
 		bool operator==(const SGRefl_Actor& right) const noexcept
 		{
@@ -33,9 +37,6 @@ namespace SMGE
 		{
 			return this->actorKey_ == ak;
 		}
-
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value> &in) override;
-		virtual SGReflection& operator=(CVector<CWString>& in) override;
 
 		TActorKey& actorKey_;
 		SGRefl_Transform sg_actorTransform_;

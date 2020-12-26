@@ -199,8 +199,9 @@ namespace SMGE
 				return ToTCHAR(val.length() == 0 ? "\"\"" : ('"' + val + '"'));
 			else if constexpr (std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>)
 				return ToTCHAR(std::to_string(val));
-			else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor 등의 자동 처리를 위하여
-				return val;
+			// deprecated 201226 {
+			//else if constexpr (std::is_member_function_pointer<decltype(&T::operator CWString)>::value) // for SGRefl_Actor 등의 자동 처리를 위하여
+			//	return static_cast<CWString>(val); }
 
 			return L"error - not support type!";
 		}
@@ -267,8 +268,8 @@ namespace SMGE
 		// template 으로 할지 runtime 에 할지 흠흠... dimension 을 이용하여 runtime 에 하는 게 나을 것 같다
 		// 그리고 그게 끝나맨 매크로로 묶어줘야한다 ret += _TO_REFL_CONTAINER(CVector<SGRefl_Actor>, actorLayers_[1]);
 		// 당연히 다중 컨테이너 읽는 부분도 수정되어야한다
-		template<typename CT, typename KT>
-		CWString ToCVector(const CT& cont, const CWString& contTypeName, const CWString& contVarName, std::optional<KT> contKeyForParent)
+		template<typename ContT, typename KeyT>
+		CWString ToCVector(const ContT& cont, const CWString& contTypeName, const CWString& contVarName, std::optional<KeyT> contKeyForParent)
 		{
 			CWString ret;
 			ret += contVarName;
@@ -303,9 +304,10 @@ namespace SMGE
 
 				for (const auto& it : cont)
 				{
-					if constexpr (std::is_base_of_v<SGReflection, CT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
+					//if constexpr (std::is_base_of_v<SGReflection, ContT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
+					if constexpr (std::is_same_v<std::reference_wrapper<SGReflection>, ContT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
 					{	// SGRefl_Actor 등
-						ret += SCast<CWString>(it);
+						ret += SCast<CWString>(it.get());
 					}
 					else
 					{	// float, glm::vec3...
@@ -377,15 +379,15 @@ namespace SMGE
 			};
 		};
 
-		template<typename REFLECTION, typename INSTANCE>
-		CVector<REFLECTION>& clearAndEmplaceBackINST2REFL(CVector<REFLECTION>& refl, const CVector<INSTANCE>& instance)
+		template<typename SGRefl_REF, typename COBJ_UniqPtr>
+		CVector<SGRefl_REF>& clearAndEmplaceBackINST2REFL(CVector<SGRefl_REF>& refl, const CVector<COBJ_UniqPtr>& instance)
 		{
 			refl.clear();
 			refl.reserve(instance.size());
 
 			for (int i = 0; i < instance.size(); ++i)
 			{
-				refl.emplace_back(instance[i]);
+				refl.emplace_back(instance[i].get()->getReflection());
 			}
 
 			return refl;

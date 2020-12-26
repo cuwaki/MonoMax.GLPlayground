@@ -29,8 +29,8 @@ namespace SMGE
 	{
 		CWString ret = Super::operator CWString();
 
-		ret += ReflectionUtils::ToCVector(actorLayersREFL_[0], L"CVector<SGRefl_Actor>", L"actorLayersREFL_[0]", std::optional<size_t>{});
-		ret += ReflectionUtils::ToCVector(actorLayersREFL_[1], L"CVector<SGRefl_Actor>", L"actorLayersREFL_[1]", std::optional<size_t>{});
+		ret += ReflectionUtils::ToCVector(actorLayersREFL_[0], L"CVector<SGReflection&>", L"actorLayersREFL_[0]", std::optional<size_t>{});
+		ret += ReflectionUtils::ToCVector(actorLayersREFL_[1], L"CVector<SGReflection&>", L"actorLayersREFL_[1]", std::optional<size_t>{});
 
 		return ret;
 	}
@@ -94,7 +94,9 @@ namespace SMGE
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	CMap::CMap(CObject* outer) : CObject(outer)
+	CMap::CMap(CObject* outer) : 
+		actorLayers_(etoi(EActorLayer::Max)),	// #cvcvuptr_resize - unique_ptr 을 CVector<CVector< 의 T 로 넣을 경우 CVector< 의 resize 가 컴파일 오류가 나서 일단 이렇게 한다
+		CObject(outer)
 	{
 		Ctor();
 	}
@@ -103,7 +105,6 @@ namespace SMGE
 	{
 		Super::Ctor();
 
-		actorLayers_.resize(etoi(EActorLayer::Max));
 		actorLayers_[EActorLayer::System].reserve(20);
 		actorLayers_[EActorLayer::Game].reserve(100);
 	}
@@ -122,7 +123,7 @@ namespace SMGE
 				actorOctree_.RemoveByPoint(actor.get(), actor.get()->getLocation());
 				actor->EndPlay();
 
-				actor = nullptr;
+				actor.reset();
 
 				actors.erase(actors.begin() + i);
 			}
@@ -146,7 +147,7 @@ namespace SMGE
 
 			newLoc = sptrActor->getLocation();
 			if(oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
-			{	// 일단 무식하게 한다
+			{	// 여기 - 일단 무식하게 한다
 				actorOctree_.RemoveByPoint(sptrActor.get(), oldLoc);
 				actorOctree_.AddByPoint(sptrActor.get(), newLoc);
 
@@ -216,12 +217,14 @@ namespace SMGE
 		return nullptr;
 	}
 
-	CSharPtr<CActor>&& CMap::RemoveActor(TActorKey ak)
+	CUniqPtr<CActor>&& CMap::RemoveActor(TActorKey ak)
 	{
-		return std::move(actorLayers_[EActorLayer::Game][0]);
+		assert(false && "구현하라");
+		return MakeUniqPtr<CActor>(nullptr);
+		//return std::move(actorLayers_[EActorLayer::Game][0]);
 	}
 
-	const CVector<CSharPtr<CActor>>& CMap::GetActors(EActorLayer layer) const
+	const CVector<CUniqPtr<CActor>>& CMap::GetActors(EActorLayer layer) const
 	{
 		return actorLayers_[layer];
 	}
