@@ -292,7 +292,7 @@ namespace SMGE
 		{
 			translation_ = Vec3_Zero;
 			rotationRadianEuler_ = Vec3_Zero;
-			lookAtDirection_ = Vec3_Zero;
+			directionForQuat_ = Vec3_Zero;
 			scale_ = Vec3_One;
 
 			Dirty();
@@ -308,9 +308,9 @@ namespace SMGE
 		{
 			return rotationRadianEuler_;
 		}
-		const glm::vec3& Transform::GetLookAtDirection() const
+		const glm::vec3& Transform::GetDirectionQuat() const
 		{
-			return lookAtDirection_;
+			return directionForQuat_;
 		}
 
 		const glm::vec3& Transform::GetScales() const
@@ -356,7 +356,7 @@ namespace SMGE
 		{
 			return GetWorldAxis(DefaultAxis_Up);
 		}
-		glm::vec3 Transform::GetWorldLeft() const
+		glm::vec3 Transform::GetWorldLeft() const	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 		{
 			return GetWorldAxis(DefaultAxis_Left);
 		}
@@ -392,9 +392,9 @@ namespace SMGE
 
 			Dirty();
 		}
-		void Transform::RotateQuat(const glm::vec3& lookAtDir)
+		void Transform::RotateQuat(const glm::vec3& dirForQuat)
 		{
-			lookAtDirection_ = lookAtDir;
+			directionForQuat_ = dirForQuat;
 
 			Dirty();
 		}
@@ -560,16 +560,19 @@ namespace SMGE
 				const glm::quat euler2Quat(rotationRadianEuler_);
 				const auto eulerRotMat = glm::toMat4(euler2Quat);
 
+				// 여기 - 쿼터 회전 후 오일러 rotationRadianEuler_ 이것들의 값이 의미가 없어지는 문제가 있다, 어떻게 해야할까??
+
 				// 2. 방향지정으로 회전
 				const auto modelDirAxis = DefaultModelFrontAxis(eulerRotMat);
 				const auto modelUpAxis = DefaultModelUpAxis(eulerRotMat);
 				//const glm::quat qX = glm::angleAxis(glm::degrees(rotationRadianQuat_.x), glm::vec3(eulerRotMat[ETypeAxis::X]));
-				const glm::quat lookAt = OpenGL_Tutorials::LookAt(lookAtDirection_, modelUpAxis, modelDirAxis, WorldYAxis);
-				const auto lookAtRotMat = glm::toMat4(lookAt);
+				const glm::quat lookAt = OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, modelDirAxis, WorldYAxis);
+				//const glm::quat lookAt = OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, WorldZAxis, WorldYAxis);
+				const auto quatRotMat = glm::toMat4(lookAt);
 
 				// 나의 스케일 처리
 				const auto scalMat = glm::scale(Mat4_Identity, scale_);
-				transformMatrix_ = translMat * lookAtRotMat * eulerRotMat * scalMat;
+				transformMatrix_ = translMat * quatRotMat * eulerRotMat * scalMat;
 
 				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
 				//transformMatrix_ = transformMatrix_ * parentMatrix;
@@ -1114,7 +1117,7 @@ namespace SMGE
 			glViewport(0, 0, m_width, m_height);
 
 			//////////////////////////////////////////////////////////////////////////////////////////
-			// 초기 카메라 처리
+			// 테스트 코드 - 초기 카메라 처리
 			float cameraInitialDist = 20;
 			GetRenderingCamera().SetCameraPos({ 0,0,cameraInitialDist });
 			GetRenderingCamera().SetCameraLookAt({ 0,0,0 });
@@ -1267,7 +1270,7 @@ namespace SMGE
 			//glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
 			//lRayDir_world = glm::normalize(lRayDir_world);
 			//outWorldDir = glm::normalize(lRayDir_world);
-			//outWorldDir = GetRenderingCamera().GetCameraDir();
+			//outWorldDir = GetRenderingCamera().GetCameraFront();
 			outWorldDir = glm::normalize(outWorldPos - renderCam.GetCameraPos());
 		}
 

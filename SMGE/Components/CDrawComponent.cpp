@@ -130,17 +130,6 @@ namespace SMGE
 	{
 	}
 
-	class nsRE::CRenderingEngine* CDrawComponent::GetRenderingEngine()
-	{
-		auto to = FindOuter<nsGE::CGameBase>(this);
-		if (to != nullptr)
-		{
-			return to->GetEngine()->GetRenderingEngine();
-		}
-
-		return nullptr;
-	}
-
 	void CDrawComponent::Tick(float td)
 	{
 		Super::Tick(td);

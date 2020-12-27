@@ -38,7 +38,7 @@ namespace SMGE
 		{
 		}
 
-		CEngineBase* CGameBase::GetEngine() const
+		nsGE::CEngineBase* CGameBase::GetEngine() const
 		{
 			return engine_;
 		}

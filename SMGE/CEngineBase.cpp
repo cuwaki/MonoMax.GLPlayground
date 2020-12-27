@@ -2,8 +2,9 @@
 #include "CGameBase.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
 
-// CUserInput
-#include <Windows.h>
+#if IS_EDITOR
+#include <Windows.h>	// for CUserInput
+#endif
 
 namespace SMGE
 {
@@ -119,29 +120,30 @@ namespace SMGE
 	{
 		CEngineBase::CEngineBase(CGameBase* gameBase) : gameBase_(gameBase)
 		{
-			auto EditorProcessCameraMove = [this](const nsGE::CUserInput& userInput)
-			{
-				auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+			// deprecated 201227 - 카메라 액터 구현하면서 안쓰게 됨
+			//auto EditorProcessCameraMove = [this](const nsGE::CUserInput& userInput)
+			//{
+			//	auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
 
-				renderCam.MoveCamera(userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT),userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
+			//	renderCam.MoveCamera(userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT), userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
 
-				static glm::vec2 RPressedPos;
-				bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
-				if (isJustRPress)
-					RPressedPos = userInput.GetMousePosition();
+			//	static glm::vec2 RPressedPos;
+			//	bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
+			//	if (isJustRPress)
+			//		RPressedPos = userInput.GetMousePosition();
 
-				bool isRPress = userInput.IsPressed(VK_RBUTTON);
-				if (isJustRPress == false && isRPress == true)
-				{
-					auto moved = RPressedPos - userInput.GetMousePosition();
-					renderCam.RotateCamera(moved);
+			//	bool isRPress = userInput.IsPressed(VK_RBUTTON);
+			//	if (isJustRPress == false && isRPress == true)
+			//	{
+			//		auto moved = RPressedPos - userInput.GetMousePosition();
+			//		renderCam.RotateCamera(moved);
 
-					RPressedPos = userInput.GetMousePosition();
-				}
+			//		RPressedPos = userInput.GetMousePosition();
+			//	}
 
-				return false;
-			};
-			AddProcessUserInputs(EditorProcessCameraMove);
+			//	return false;
+			//};
+			//AddProcessUserInputs(EditorProcessCameraMove);
 		}
 
 		CEngineBase::~CEngineBase()
@@ -173,7 +175,7 @@ namespace SMGE
 			renderingEngine_ = re;
 		}
 
-		nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine()
+		nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine() const
 		{
 			return renderingEngine_;
 		}

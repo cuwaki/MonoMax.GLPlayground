@@ -1065,7 +1065,7 @@ namespace SMGE
 	{
 		return max_;
 	}
-	inline const glm::vec3& SAABB::center() const
+	inline glm::vec3 SAABB::center() const
 	{
 		return min() + getSize() * 0.5f;
 	}

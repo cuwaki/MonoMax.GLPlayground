@@ -67,8 +67,6 @@ namespace SMGE
 		virtual ComponentVectorWeak& getAllComponents() override;
 
 	protected:
-		class nsRE::CRenderingEngine* GetRenderingEngine();
-
 		// CInt_Component
 		ComponentVector persistentComponents_;
 		ComponentVector transientComponents_;

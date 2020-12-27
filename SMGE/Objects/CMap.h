@@ -84,25 +84,15 @@ namespace SMGE
 		bool IsBeganPlay() const		{ return isBeganPlay_ == true && isBeginningPlay_ == false; }
 		bool IsBeginningPlay() const	{ return isBeginningPlay_ == true && isBeganPlay_ == false; }
 
-	protected:
-		CActor& SpawnActorINTERNAL(CObject* newObj, bool isDynamic)
-		{
-			CUniqPtr<CActor> newActor(DCast<CActor*>(newObj));
-
-			if (isDynamic == true)
-			{	// DynamicActorKey
-				newActor->actorKey_ = DynamicActorKey++;
-			}
-
-			auto& rb = actorLayers_[EActorLayer::Game].emplace_back(std::move(newActor));
-			rb->OnSpawnStarted(this, isDynamic);
-
-			return static_cast<CActor&>(*rb.get());
-		}
-
 	public:
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
+
+	protected:
+		CActor& SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic);
+		void OnPreBeginPlay();
+
+		void changeCurrentlyVisibleCamera(class CCameraActor* camA);
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflMap_;
@@ -114,23 +104,25 @@ namespace SMGE
 		bool isBeganPlay_ = false;
 		bool isBeginningPlay_ = false;
 
+		class CCameraActor* currentlyVisibleCamera_;
+
 		static TActorKey DynamicActorKey;
 
 	public:
 		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용
 		template<typename... Args>
-		CActor& SpawnActorDEFAULT(const std::string& classRTTIName, bool isDynamic, Args&&... args)
+		CActor& SpawnActorDEFAULT(EActorLayer layer, const std::string& classRTTIName, bool isDynamic, Args&&... args)
 		{
 			auto newObj = RTTI_CObject::NewDefault(classRTTIName, std::forward<Args>(args)...);
-			return static_cast<CActor&>(SpawnActorINTERNAL(newObj, isDynamic));
+			return static_cast<CActor&>(SpawnActorINTERNAL(layer, newObj, isDynamic));
 		}
 
 		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
 		template<typename ActorT, typename... Args>
-		ActorT& SpawnActorVARIETY(bool isDynamic, Args&&... args)
+		ActorT& SpawnActorVARIETY(EActorLayer layer, bool isDynamic, Args&&... args)
 		{
 			auto newObj = RTTI_CObject::NewVariety<ActorT>(std::forward<Args>(args)...);
-			return static_cast<ActorT&>(SpawnActorINTERNAL(newObj, isDynamic));
+			return static_cast<ActorT&>(SpawnActorINTERNAL(layer, newObj, isDynamic));
 		}
 	};
 

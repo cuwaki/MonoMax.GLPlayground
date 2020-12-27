@@ -6,7 +6,7 @@
 #include "../Assets/CAssetManager.h"
 #include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
 
-#define DRAW_AABB
+//#define DEBUG_DRAW_AABB
 
 namespace SMGE
 {
@@ -56,7 +56,7 @@ namespace SMGE
 
 	void CBoundComponent::OnBeginPlay(CObject* parent)
 	{
-#ifdef DRAW_AABB
+#ifdef DEBUG_DRAW_AABB
 		// 테스트 코드 - AABB 표시하기
 		auto aabbCube = findComponent<CCubeComponent>([](auto compPtr)
 			{
@@ -103,7 +103,7 @@ namespace SMGE
 	{
 		Super::Tick(td);
 
-#ifdef DRAW_AABB
+#ifdef DEBUG_DRAW_AABB
 		// 테스트 코드 - AABB
 		if (cobjectTag_ == "debug aabb")
 		{
@@ -132,7 +132,7 @@ namespace SMGE
 
 	void CBoundComponent::CacheAABB()
 	{
-#ifdef DRAW_AABB
+#ifdef DEBUG_DRAW_AABB
 		// 테스트 코드 - AABB
 		if (cobjectTag_ != "debug aabb")
 #endif

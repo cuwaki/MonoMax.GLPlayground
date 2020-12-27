@@ -45,7 +45,7 @@ namespace SMGE
 			CGameBase(CObject* outer);
 			virtual ~CGameBase();
 
-			class CEngineBase* GetEngine() const;
+			class nsGE::CEngineBase* GetEngine() const;
 
 			virtual void Tick(float);
 			virtual void Render(float);
@@ -54,7 +54,7 @@ namespace SMGE
 			virtual void Initialize();
 
 		protected:
-			class CEngineBase* engine_;
+			class nsGE::CEngineBase* engine_;
 			SGEGameSettings* gameSettings_;
 
 		public:

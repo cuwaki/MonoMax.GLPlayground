@@ -1,4 +1,7 @@
 #include "CObject.h"
+#include "../CGameBase.h"
+#include "../CEngineBase.h"
+#include "../../MonoMax.EngineCore/RenderingEngine.h"
 
 namespace SMGE
 {
@@ -29,8 +32,30 @@ namespace SMGE
 		return this;
 	}
 
-	bool CObject::IsTopOuter()
+	bool CObject::IsTopOuter() const
 	{
 		return outer_ == nullptr;
+	}
+
+	class nsGE::CEngineBase* CObject::GetEngine() const
+	{
+		const auto to = FindOuter<nsGE::CGameBase>(this);
+		if (to != nullptr)
+		{
+			return to->GetEngine();
+		}
+
+		return nullptr;
+	}
+
+	class nsRE::CRenderingEngine* CObject::GetRenderingEngine() const
+	{
+		const auto to = FindOuter<nsGE::CGameBase>(this);
+		if (to != nullptr)
+		{
+			return to->GetEngine()->GetRenderingEngine();
+		}
+
+		return nullptr;
 	}
 }

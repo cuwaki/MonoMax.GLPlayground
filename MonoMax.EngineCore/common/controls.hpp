@@ -19,7 +19,7 @@ namespace SMGE
 
 			glm::mat4 viewMatrix_;
 			glm::mat4 projectionMatrix_, orthoProjectionMatrix_;
-			glm::vec3 cameraDir_, cameraRight_, cameraUp_;
+			glm::vec3 cameraDir_, cameraLeft_, cameraUp_;
 
 			float horizontalAngle_ = 3.14f;
 			float verticalAngle_ = 0.0f;
@@ -40,8 +40,17 @@ namespace SMGE
 			const glm::vec3& GetCameraPos() const;
 			void SetCameraPos(const glm::vec3& worldPos);
 
-			const glm::vec3& GetCameraDir() const;
+			const glm::vec3& GetCameraFront() const;
 			void SetCameraLookAt(const glm::vec3& lookAtWorldPos);
+
+			const glm::vec3& GetCameraLeft() const;
+			void SetCameraLeft(const glm::vec3& cr);
+
+			const glm::vec3& GetCameraUp() const;
+			void SetCameraUp(const glm::vec3& cu);
+
+			void SetFOV(float fov);
+			float GetFOV() const { return fov_; }
 
 			void SetZNearFar(float n, float f);
 			float GetZFar() const { return zFar_; }

@@ -36,7 +36,11 @@ namespace SMGE
 		CCameraActor(CObject* outer);
 		void Ctor();
 
+		virtual void Tick(float) override;
 		virtual void BeginPlay() override;
+
+		bool isCurrentlyVisible() const;
+		void changeVisible(bool isVisible);
 
 	public:
 		// CInt_Reflection
@@ -49,5 +53,8 @@ namespace SMGE
 		CString cameraName_;
 		float fov_;
 		float zNear_, zFar_;
+
+	private:
+		bool isCurrentlyVisible_ = false;
 	};
 }

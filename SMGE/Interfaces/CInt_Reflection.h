@@ -347,8 +347,8 @@ namespace SMGE
 		//			// CGActors
 		//
 		////_FROM_REFL(actorKey_, variableSplitted);
-		template<typename CT, typename VS, typename FUNC>
-		void FromCVector(CT& cont, VS& variableSplitted, FUNC& func)
+		template<typename CT, typename VS, typename FUNC, typename... FUNCArgs>
+		void FromCVector(CT& cont, VS& variableSplitted, FUNC& func, FUNCArgs&&... funcargs)
 		{
 			size_t contSize = 0;
 			CWString& size_str = std::get<Tuple_Value>(*variableSplitted.cursor());
@@ -364,7 +364,7 @@ namespace SMGE
 
 			for (size_t i = 0; i < contSize; i++)
 			{
-				func(variableSplitted, i);
+				func(variableSplitted, i, std::forward<FUNCArgs>(funcargs)...);
 			}
 		}
 

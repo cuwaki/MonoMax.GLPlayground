@@ -90,7 +90,7 @@ namespace SMGE
 			virtual ~CEngineBase();
 
 			void SetRenderingEngine(class nsRE::CRenderingEngine* re);
-			class nsRE::CRenderingEngine* GetRenderingEngine();
+			class nsRE::CRenderingEngine* GetRenderingEngine() const;
 
 			virtual void Tick(float);
 			virtual void Render(float);

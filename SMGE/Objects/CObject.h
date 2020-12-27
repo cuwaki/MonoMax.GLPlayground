@@ -5,6 +5,15 @@
 
 namespace SMGE
 {
+	namespace nsGE
+	{
+		class CEngineBase;
+	}
+	namespace nsRE
+	{
+		class CRenderingEngine;
+	}
+
 	class CObject
 	{
 	public:
@@ -16,10 +25,13 @@ namespace SMGE
 
 		CObject* GetOuter() const;
 		CObject* GetTopOuter();
-		bool IsTopOuter();
+		bool IsTopOuter() const;
 
 		const CString& GetCObjectTag() const { return cobjectTag_; }
 		void SetCObjectTag(const CString& ot) { cobjectTag_ = ot; }
+
+		class nsGE::CEngineBase* GetEngine() const;
+		class nsRE::CRenderingEngine* GetRenderingEngine() const;
 
 	protected:
 		CObject* outer_ = nullptr;
@@ -29,6 +41,26 @@ namespace SMGE
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Template functions
 	public:
+		template<typename T>
+		const T* FindOuter(const CObject* cur) const
+		{
+			const T* ret = nullptr;
+			//T findingClass{ nullptr };	//if(IsA(outer, findingOuterClassName))	// 차후 작업 - CObject 클래스에 static class name 박아서 template 함수로 찾을 수 있게 하자
+
+			if (DCast<const T*>(cur) != nullptr)
+				ret = SCast<const T*>(cur);
+			else
+			{
+				const CObject* outer = cur->GetOuter();
+				if (outer != nullptr)
+				{
+					ret = FindOuter<T>(outer);
+				}
+			}
+
+			return ret;
+		}
+
 		template<typename T>
 		T* FindOuter(CObject* cur)
 		{

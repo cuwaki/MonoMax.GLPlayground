@@ -412,7 +412,7 @@ namespace SMGE
 
 		inline const glm::vec3& min() const;
 		inline const glm::vec3& max() const;
-		inline const glm::vec3& center() const;
+		inline glm::vec3 center() const;
 		std::initializer_list<SPointBound> points() const;
 
 		inline glm::vec3 getSize() const;

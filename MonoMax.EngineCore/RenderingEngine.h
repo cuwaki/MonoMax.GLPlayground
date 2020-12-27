@@ -52,7 +52,7 @@ namespace SMGE
 
 			const ETypeAxis DefaultAxis_Front = ETypeAxis::Z;
 			const ETypeAxis DefaultAxis_Up = ETypeAxis::Y;
-			const ETypeAxis DefaultAxis_Left = ETypeAxis::X;
+			const ETypeAxis DefaultAxis_Left = ETypeAxis::X;	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 
 			const glm::vec3 DefaultModelFrontAxis();
 			const glm::vec3 DefaultModelFrontAxis(const glm::mat3& currentRotMat);
@@ -61,7 +61,7 @@ namespace SMGE
 			const glm::vec3 DefaultModelUpAxis(const glm::mat3& currentRotMat);
 			const glm::vec3 DefaultModelUpAxis(const glm::mat4& currentRotMat);
 
-			const glm::vec3 DefaultModelLeftAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 DefaultModelLeftAxis(const glm::mat3& currentRotMat);	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 			const glm::vec3 DefaultModelLeftAxis(const glm::mat4& currentRotMat);
 		};
 
@@ -161,7 +161,7 @@ namespace SMGE
 		private:
 			glm::vec3 translation_;
 			glm::vec3 rotationRadianEuler_;
-			glm::vec3 lookAtDirection_;
+			glm::vec3 directionForQuat_;
 			glm::vec3 scale_;
 
 		protected:
@@ -182,7 +182,7 @@ namespace SMGE
 
 			const glm::vec3& GetTranslation() const;
 			const glm::vec3& GetRotationEuler() const;
-			const glm::vec3& GetLookAtDirection() const;
+			const glm::vec3& GetDirectionQuat() const;
 			const glm::vec3& GetScales() const;
 			float GetScale(TransformConst::ETypeAxis aType) const;
 
@@ -197,7 +197,7 @@ namespace SMGE
 			void Translate(glm::vec3 worldPos);
 			void RotateEuler(glm::vec3 rotateDegrees);
 			void RotateEuler(TransformConst::ETypeRot rType, float degrees);
-			void RotateQuat(const glm::vec3& lookAtDir);
+			void RotateQuat(const glm::vec3& dirForQuat);
 			void Scale(float scale);
 			void Scale(glm::vec3 scale);
 			void Scale(TransformConst::ETypeAxis aType, float scale);

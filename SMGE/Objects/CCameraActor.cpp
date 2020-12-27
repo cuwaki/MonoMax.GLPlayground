@@ -1,6 +1,7 @@
 #include "CCameraActor.h"
 #include "../Components/CQuadComponent.h"
 #include "../Components/CMovementComponent.h"
+#include "../../MonoMax.EngineCore/RenderingEngine.h"
 
 namespace SMGE
 {
@@ -57,9 +58,51 @@ namespace SMGE
 		//getPersistentComponents().emplace_back(std::move(quadCompo));
 	}
 
+	void CCameraActor::Tick(float td)
+	{
+		Super::Tick(td);
+
+		if (isCurrentlyVisible())
+		{
+			auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+			renderCam.SetCameraPos(getTransform().GetWorldPosition());
+			renderCam.SetCameraLookAt(getTransform().GetWorldFront() * zFar_);
+		}
+		else
+		{
+
+		}
+	}
+
 	void CCameraActor::BeginPlay()
 	{
 		Super::BeginPlay();
+	}
+
+	bool CCameraActor::isCurrentlyVisible() const
+	{
+		return isCurrentlyVisible_;
+	}
+
+	void CCameraActor::changeVisible(bool isVisible)
+	{
+		isCurrentlyVisible_ = isVisible;
+
+		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+		if (isCurrentlyVisible_)
+		{
+			renderCam.SetFOV(fov_);
+			renderCam.SetZNearFar(zNear_, zFar_);
+			
+			renderCam.SetCameraUp(getTransform().GetWorldUp());
+			renderCam.SetCameraLeft(getTransform().GetWorldLeft());
+
+			renderCam.SetCameraPos(getTransform().GetWorldPosition());
+			renderCam.SetCameraLookAt(getTransform().GetWorldFront() * zFar_);
+		}
+		else
+		{
+		}
 	}
 
 	SGReflection& CCameraActor::getReflection()

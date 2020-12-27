@@ -108,11 +108,11 @@ namespace SMGE
 				glm::vec3 ray_direction;
 				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
-				CCollideActor* rayActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_,
+				CCollideActor* rayActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(EActorLayer::Game, true, currentMap_,
 					ECheckCollideRule::NEAREST, false, 
 					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const SSegmentBound& COLL_SEG)
 					{
-						CCollideActor* pointActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(true, currentMap_);
+						CCollideActor* pointActor = &currentMap_->SpawnActorVARIETY<CCollideActor>(EActorLayer::Game, true, currentMap_);
 
 						auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
 						pointActor->CopyFromTemplate(prefab->getContentClass());

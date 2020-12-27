@@ -1,7 +1,11 @@
 #include "CMap.h"
 #include "../GECommonIncludes.h"
 #include "../Assets/CAssetManager.h"
+#include "../CEngineBase.h"
 #include "../CGameBase.h"
+#include "CCameraActor.h"
+
+#include <windows.h>	// 테스트 코드 - for VK_LEFT ...
 
 namespace SMGE
 {
@@ -43,7 +47,7 @@ namespace SMGE
 
 		// 이거긴 한데 이렇게 쓰면 auto 를 못쓴다...
 		//using REFL_CVECTOR_FUNC = void(CVector<TupleVarName_VarType_Value>& variableSplitted, size_t childKey);
-		auto FuncSpawnActor = [this](auto& variableSplitted, size_t childKey)
+		auto FuncSpawnActor = [this](auto& variableSplitted, size_t childKey, EActorLayer layer)
 		{
 			// 여기서 SGRefl_Actor 가 생성되려면 CActor & 가 필요하다
 
@@ -64,7 +68,7 @@ namespace SMGE
 				//CActor& actorA = outerMap_.SpawnDefaultActor(actorClassRTTIName, false, &outerMap_, actorTemplate->getContentClass());
 
 				// 1. 디폴트로 생성하고
-				CActor& actorA = outerMap_.SpawnActorDEFAULT(actorClassRTTIName, false, &outerMap_);
+				CActor& actorA = outerMap_.SpawnActorDEFAULT(layer, actorClassRTTIName, false, &outerMap_);
 
 				// 2. 애셋 덮어씌우고
 				auto actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
@@ -83,8 +87,8 @@ namespace SMGE
 			}
 		};
 
-		ReflectionUtils::FromCVector(actorLayersREFL_[0], variableSplitted, FuncSpawnActor);
-		ReflectionUtils::FromCVector(actorLayersREFL_[1], variableSplitted, FuncSpawnActor);
+		ReflectionUtils::FromCVector(actorLayersREFL_[EActorLayer::System], variableSplitted, FuncSpawnActor, EActorLayer::System);
+		ReflectionUtils::FromCVector(actorLayersREFL_[EActorLayer::Game], variableSplitted, FuncSpawnActor, EActorLayer::Game);
 
 		// 3단계 - 맵과 나를 레퍼런스로 연결한다
 		linkINST2REFL();
@@ -139,22 +143,25 @@ namespace SMGE
 	{
 		glm::vec3 oldLoc, newLoc;
 
-		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		for (auto& actors : actorLayers_)
 		{
-			oldLoc = sptrActor->getLocation();
+			for (auto& actor : actors)
+			{
+				oldLoc = actor->getLocation();
 
-			sptrActor->Tick(timeDelta);
+				actor->Tick(timeDelta);
 
-			newLoc = sptrActor->getLocation();
-			if(oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
-			{	// 여기 - 일단 무식하게 한다
-				actorOctree_.RemoveByPoint(sptrActor.get(), oldLoc);
-				actorOctree_.AddByPoint(sptrActor.get(), newLoc);
+				newLoc = actor->getLocation();
+				if (oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
+				{	// 여기 - 일단 무식하게 한다
+					actorOctree_.RemoveByPoint(actor.get(), oldLoc);
+					actorOctree_.AddByPoint(actor.get(), newLoc);
 
-				// 역시 일단 무식하게 한다
-				if (sptrActor->GetMainBound() != nullptr)
-				{
-					sptrActor->GetMainBound()->CacheAABB();
+					// 역시 일단 무식하게 한다
+					if (actor->GetMainBound() != nullptr)
+					{
+						actor->GetMainBound()->CacheAABB();
+					}
 				}
 			}
 		}
@@ -162,9 +169,12 @@ namespace SMGE
 
 	void CMap::Render(float timeDelta)
 	{
-		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		for (auto& actors : actorLayers_)
 		{
-			sptrActor->Render(timeDelta);
+			for (auto& actor : actors)
+			{
+				actor->Render(timeDelta);
+			}
 		}
 	}
 
@@ -231,7 +241,96 @@ namespace SMGE
 
 	CVector<CActor*> CMap::QueryActors(const SAABB& aabb) const
 	{
+#undef min	// 테스트 코드 - for VK_LEFT ...
+#undef max	// 테스트 코드 - for VK_LEFT ...
+
 		return actorOctree_.QueryValuesByCube(aabb.min(), aabb.max());
+	}
+
+	void CMap::changeCurrentlyVisibleCamera(CCameraActor* camA)
+	{
+		if (currentlyVisibleCamera_ == camA)
+			return;
+
+		if (currentlyVisibleCamera_)
+			currentlyVisibleCamera_->changeVisible(false);
+
+		currentlyVisibleCamera_ = camA;
+
+		if(currentlyVisibleCamera_)
+			currentlyVisibleCamera_->changeVisible(true);
+	}
+
+	void CMap::OnPreBeginPlay()
+	{
+		currentlyVisibleCamera_ = nullptr;
+
+		for (auto& sysActor : actorLayers_[EActorLayer::System])
+		{
+			auto camActor = DCast<CCameraActor*>(sysActor.get());
+			if (camActor)
+			{
+				changeCurrentlyVisibleCamera(camActor);
+
+#if IS_EDITOR
+				auto InputForCameraActor = [this](const nsGE::CUserInput& userInput)
+				{
+					if (currentlyVisibleCamera_)
+					{
+						constexpr float deltaTime = 1000.f / 60.f;	// 테스트 코드 - 이거 하드코딩이고 다른 데 또 있으니 검색해라
+
+						auto& camTransform = currentlyVisibleCamera_->getTransform();
+						
+						// 이동
+						auto currentPos = camTransform.GetWorldPosition();
+
+						constexpr float moveSpeed = 20.0f / 1000.f;
+
+						if (userInput.IsPressed(VK_LEFT))
+							currentPos += camTransform.GetWorldLeft() * deltaTime * moveSpeed;
+						if (userInput.IsPressed(VK_RIGHT))
+							currentPos -= camTransform.GetWorldLeft() * deltaTime * moveSpeed;
+						if (userInput.IsPressed(VK_UP))
+							currentPos += camTransform.GetWorldFront() * deltaTime * moveSpeed;
+						if (userInput.IsPressed(VK_DOWN))
+							currentPos -= camTransform.GetWorldFront() * deltaTime * moveSpeed;
+
+						camTransform.Translate(currentPos);
+
+						// 회전
+						constexpr float angleSpeed = 3.f / 1000.f;
+
+						static glm::vec2 RPressedPos;
+						bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
+						if (isJustRPress)
+							RPressedPos = userInput.GetMousePosition();
+
+						bool isRPress = userInput.IsPressed(VK_RBUTTON);
+						if (isJustRPress == false && isRPress == true)
+						{
+							auto movedPixel = RPressedPos - userInput.GetMousePosition();
+							movedPixel.y *= -1.f;	// screen to gl
+
+							auto yawDegrees = movedPixel.x * angleSpeed;
+							auto pitchDegrees = movedPixel.y * angleSpeed;
+
+							auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, camTransform.GetWorldUp());
+							auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, camTransform.GetWorldLeft());
+							auto newDir = rotYaw * rotPit * glm::vec4(camTransform.GetWorldFront(), 0.f);
+
+							camTransform.RotateQuat(newDir);
+
+							RPressedPos = userInput.GetMousePosition();
+						}
+					}
+
+					return false;
+				};
+				GetEngine()->AddProcessUserInputs(InputForCameraActor);
+#endif
+				break;
+			}
+		}
 	}
 
 	void CMap::BeginPlay()
@@ -239,14 +338,19 @@ namespace SMGE
 		if (isBeganPlay_ == true)
 			throw SMGEException(wtext("CMap already activated"));
 
+		OnPreBeginPlay();
+
 		isBeginningPlay_ = true;
 		{
 			actorOctree_.Create("actorOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
 
-			for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+			for (auto& actors : actorLayers_)
 			{
-				actorOctree_.AddByPoint(sptrActor.get(), sptrActor->getLocation());
-				sptrActor->BeginPlay();
+				for (auto& actor : actors)
+				{
+					actorOctree_.AddByPoint(actor.get(), actor->getLocation());
+					actor->BeginPlay();
+				}
 			}
 		}
 		isBeginningPlay_ = false;
@@ -259,13 +363,31 @@ namespace SMGE
 		if (isBeganPlay_ == false)
 			return;
 
-		for (auto& sptrActor : actorLayers_[EActorLayer::Game])
+		for (auto& actors : actorLayers_)
 		{
-			actorOctree_.RemoveByPoint(sptrActor.get(), sptrActor->getLocation());
-			sptrActor->EndPlay();
+			for (auto& actor : actors)
+			{
+				actorOctree_.RemoveByPoint(actor.get(), actor->getLocation());
+				actor->EndPlay();
+			}
 		}
 
 		actorLayers_.clear();
 		isBeganPlay_ = false;
+	}
+
+	CActor& CMap::SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic)
+	{
+		CUniqPtr<CActor> newActor(DCast<CActor*>(newObj));
+
+		if (isDynamic == true)
+		{	// DynamicActorKey
+			newActor->actorKey_ = DynamicActorKey++;
+		}
+
+		auto& rb = actorLayers_[layer].emplace_back(std::move(newActor));
+		rb->OnSpawnStarted(this, isDynamic);
+
+		return static_cast<CActor&>(*rb.get());
 	}
 };
