@@ -24,6 +24,8 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
 				persistCompoSize$size_t$0
+				isPickingTarget_$bool$true
+				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$1.000000	1.000000	0.000000	
 			classRTTIName_$CString$"CSegmentComponent"
 				reflectionFilePath_$CWString$""
@@ -33,12 +35,14 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 				persistCompoSize$size_t$0
+				isPickingTarget_$bool$false
+				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$1.000000	1.000000	0.000000	
 		cameraName_$CString$"sub game camera"
 		fov_$float$45.0
 		zNear_$float$1.0
 		zFar_$float$100.0
-		
+
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
 		actorKey_$TActorKey$31
@@ -57,6 +61,8 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
 				persistCompoSize$size_t$0
+				isPickingTarget_$bool$true
+				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
 			classRTTIName_$CString$"CSegmentComponent"
 				reflectionFilePath_$CWString$""
@@ -66,6 +72,8 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 				persistCompoSize$size_t$0
+				isPickingTarget_$bool$false
+				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
 		cameraName_$CString$"main game camera"
 		fov_$float$45.0
@@ -96,6 +104,8 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
 			persistCompoSize$size_t$0
+			isPickingTarget_$bool$true
+			isCollideTarget_$bool$true
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
@@ -118,6 +128,8 @@ classRTTIName_$CString$"CMap"
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	0.001   
 				persistCompoSize$size_t$0
+				isPickingTarget_$bool$true
+				isCollideTarget_$bool$true
 				gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
@@ -156,6 +168,8 @@ classRTTIName_$CString$"CMap"
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
 								persistCompoSize$size_t$0
+							isPickingTarget_$bool$false
+							isCollideTarget_$bool$false
 							gizmoColor_$glm::vec3$0.000000	1.000000	0.000000	
 					drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
 			drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
@@ -167,6 +181,8 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 				persistCompoSize$size_t$0
+			isPickingTarget_$bool$true
+			isCollideTarget_$bool$true
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
@@ -189,6 +205,8 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.00	2.00	2.00
 			persistCompoSize$size_t$0
+			isPickingTarget_$bool$true
+			isCollideTarget_$bool$true
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
@@ -211,6 +229,8 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	1.00	
 			persistCompoSize$size_t$0
+			isPickingTarget_$bool$true
+			isCollideTarget_$bool$true
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
@@ -235,6 +255,8 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 			persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 	classRTTIName_$CString$"CCollideActor"
@@ -255,71 +277,6 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001
 			persistCompoSize$size_t$0
-			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
-
-
-
-
-
-
-
-
-
-	classRTTIName_$CString$"CActor"
-		reflectionFilePath_$CWString$"/templates/CActor.asset"
-		actorKey_$TActorKey$166
-		classRTTIName_$CString$"SGRefl_Transform"
-		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$+5.000000	3.000000	0.000000	
-		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
-		actorStaticTag_$CString$"this is a cube"
-		persistCompoSize$size_t$2
-		classRTTIName_$CString$"CMeshComponent"
-			reflectionFilePath_$CWString$""
-			classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.00000	
-			persistCompoSize$size_t$0
-			drawingModelAssetPath_$CWString$"/models/cube/cube.asset"
-		classRTTIName_$CString$"CQuadComponent"
-			reflectionFilePath_$CWString$"/templates/CQuadComponent.asset"
-			classRTTIName_$CString$"SGRefl_Transform"
-				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	5.000000	0.000000	
-				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-				nsre_transform_.GetScale()$glm::vec3$4.0000	4.0000	0.001    
-				persistCompoSize$size_t$0
-			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
-
-
-	classRTTIName_$CString$"CActor"
-		reflectionFilePath_$CWString$"/templates/CActor.asset"
-		actorKey_$TActorKey$166
-		classRTTIName_$CString$"SGRefl_Transform"
-		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
-		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-		nsre_transform_.GetScale()$glm::vec3$3.000000	0.100000	3.000000	
-		actorStaticTag_$CString$"this is a basement"
-		persistCompoSize$size_t$2
-		classRTTIName_$CString$"CMeshComponent"
-			reflectionFilePath_$CWString$""
-			classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.0000000	
-			persistCompoSize$size_t$0
-			drawingModelAssetPath_$CWString$"/models/cube/cube.asset"
-		classRTTIName_$CString$"CCubeComponent"
-			reflectionFilePath_$CWString$"/templates/CCubeComponent.asset"
-			classRTTIName_$CString$"SGRefl_Transform"
-				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
-				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-				nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
-				persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	

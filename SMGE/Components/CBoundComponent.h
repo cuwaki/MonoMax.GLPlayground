@@ -31,6 +31,8 @@ namespace SMGE
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
+		bool& isPickingTarget_;
+		bool& isCollideTarget_;
 		glm::vec3& gizmoColor_;
 	};
 
@@ -57,9 +59,6 @@ namespace SMGE
 	public:
 		virtual bool CheckCollide(CBoundComponent* checkTarget, SSegmentBound& outCross);
 
-		virtual bool IsPickingTarget() const { return isPickingTarget_; }
-		virtual bool IsCollideTarget() const { return isCollideTarget_; }
-
 		EBoundType GetBoundType() const { return boundType_; }
 		virtual const SBound& GetBound() = 0;
 
@@ -67,6 +66,9 @@ namespace SMGE
 
 		const SAABB& GetAABB() const;
 		virtual void CacheAABB();
+
+		virtual bool IsPickingTarget() const { return isPickingTarget_; }
+		virtual bool IsCollideTarget() const { return isCollideTarget_; }
 
 		glm::vec3 GetGizmoColor() const { return gizmoColor_; }
 		void SetGizmoColor(const glm::vec3& gc) { gizmoColor_ = gc; }
@@ -77,14 +79,15 @@ namespace SMGE
 		virtual class CCubeComponent* CreateOBB();
 
 	protected:
-		bool isPickingTarget_;
-		bool isCollideTarget_;
-
 		EBoundType boundType_ = EBoundType::MAX;
-		glm::vec3 gizmoColor_;
 
 		SAABB cachedAABB_;
 		mutable class CCubeComponent* weakOBB_;
+
+		// reflection
+		bool isPickingTarget_;
+		bool isCollideTarget_;
+		glm::vec3 gizmoColor_;
 
 		CUniqPtr<TReflectionStruct> reflMeshCompo_;
 	};

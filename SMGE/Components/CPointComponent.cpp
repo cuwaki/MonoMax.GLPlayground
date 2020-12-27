@@ -20,9 +20,6 @@ namespace SMGE
 #endif
 
 		boundType_ = EBoundType::POINT;
-
-		isPickingTarget_ = false;	// 포인트는 이게 자연스럽다
-		isCollideTarget_ = false;
 	}
 
 	void CPointComponent::OnBeginPlay(CObject* parent)

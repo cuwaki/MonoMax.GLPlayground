@@ -193,7 +193,9 @@ namespace SMGE
 			// 추가 할 일 - " 검사 및 딜리미터들 그리고 \t을 "\\t"로 바꿔야한다
 			// 탭같은 경우엔 왜 바꾸냐면 .asset 파일의 포맷에 \t으로 들여쓰기가 들어갈 수 있기 때문이다
 
-			if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
+			if constexpr (std::is_same_v<T, bool>)
+				return val ? wtext("true") : wtext("false");
+			else if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
 				return val.length() == 0 ? wtext("\"\"") : (L'"' + val + L'"');	// 
 			else if constexpr (std::is_same_v<T, CString> || std::is_same_v<T, std::string>)
 				return ToTCHAR(val.length() == 0 ? "\"\"" : ('"' + val + '"'));
@@ -206,18 +208,20 @@ namespace SMGE
 			return L"error - not support type!";
 		}
 
-		template<typename L>
-		extern void FromREFL(L& left, const CWString& right)
+		template<typename T>
+		extern void FromREFL(T& left, const CWString& right)
 		{
 			// 문자열들의 경우
 			// 추가 할 일 - 딜리미터들을 원래의 값으로 변경해서 넣기, " 들을 제대로 없애서 넣어주기
-			if constexpr (std::numeric_limits<L>::is_integer)
-				left = SCast<L>(std::atoll(ToASCII(right).c_str()));
-			else if constexpr (std::is_floating_point_v<L>)
-				left = SCast<L>(std::atof(ToASCII(right).c_str()));
-			else if constexpr (std::is_same_v<L, CWString> || std::is_same_v<L, std::wstring>)
+			if constexpr (std::is_same_v<T, bool>)
+				left = (right == wtext("true"));
+			else if constexpr (std::numeric_limits<T>::is_integer)
+				left = SCast<T>(std::atoll(ToASCII(right).c_str()));
+			else if constexpr (std::is_floating_point_v<T>)
+				left = SCast<T>(std::atof(ToASCII(right).c_str()));
+			else if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
 				left = right.substr(1, right.length() - 2);
-			else if constexpr (std::is_same_v<L, CString> || std::is_same_v<L, std::string>)
+			else if constexpr (std::is_same_v<T, CString> || std::is_same_v<T, std::string>)
 				left = ToASCII(right.substr(1, right.length() - 2));
 			else
 			{	// glm::mat ...

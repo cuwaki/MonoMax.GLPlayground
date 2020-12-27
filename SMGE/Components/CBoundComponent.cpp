@@ -11,6 +11,8 @@
 namespace SMGE
 {
 	SGRefl_BoundComponent::SGRefl_BoundComponent(TReflectionClass& rc) : Super(rc), 
+		isPickingTarget_(rc.isPickingTarget_),
+		isCollideTarget_(rc.isCollideTarget_),
 		gizmoColor_(rc.gizmoColor_)
 	{
 	}
@@ -19,6 +21,8 @@ namespace SMGE
 	{
 		auto ret = Super::operator CWString();
 
+		ret += _TO_REFL(bool, isPickingTarget_);
+		ret += _TO_REFL(bool, isCollideTarget_);
 		ret += _TO_REFL(glm::vec3, gizmoColor_);
 
 		return ret;
@@ -28,6 +32,8 @@ namespace SMGE
 	{
 		Super::operator=(variableSplitted);
 
+		_FROM_REFL(isPickingTarget_, variableSplitted);
+		_FROM_REFL(isCollideTarget_, variableSplitted);
 		_FROM_REFL(gizmoColor_, variableSplitted);
 
 		return *this;
@@ -36,15 +42,15 @@ namespace SMGE
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CBoundComponent::CBoundComponent(CObject* outer) : CDrawComponent(outer)
 	{
+		weakOBB_ = nullptr;
+
 		Ctor();
 	}
 
 	void CBoundComponent::Ctor()
 	{
-		weakOBB_ = nullptr;
-
-		isPickingTarget_ = true;
-		isCollideTarget_ = true;
+		//isPickingTarget_ = true;
+		//isCollideTarget_ = true;
 	}
 
 	void CBoundComponent::OnBeforeRendering()
