@@ -18,18 +18,18 @@ namespace SMGE
 
 	void CStaticMeshActor::BeginPlay()
 	{
-		// 테스트 코드 - 움직이도록
-		auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
-		getTransientComponents().emplace_back(std::move(moveCompo));
+		//// 테스트 코드 - 움직이도록
+		//auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
+		//getTransientComponents().emplace_back(std::move(moveCompo));
 
 		Super::BeginPlay();
 
-		// 테스트 코드 - GetOBB - 액터에서
-		GetMainBound()->GetOBB();
+		//// 테스트 코드 - GetOBB - 액터에서
+		//GetMainBound()->GetOBB();
 
-		auto firstMC = findComponent<CMeshComponent>([](auto) {return true; });
-		auto secondMC = firstMC->findComponent<CMeshComponent>([](auto) {return true; });
-		auto secondsSphereBC = secondMC->findComponent<CSphereComponent>([](auto) {return true; });
-		secondsSphereBC->GetOBB();
+		//auto firstMC = findComponent<CMeshComponent>([](auto) {return true; });
+		//auto secondMC = firstMC->findComponent<CMeshComponent>([](auto) {return true; });
+		//auto secondsSphereBC = secondMC->findComponent<CSphereComponent>([](auto) {return true; });
+		//secondsSphereBC->GetOBB();
 	}
 }

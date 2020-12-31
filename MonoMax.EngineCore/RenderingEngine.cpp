@@ -561,6 +561,7 @@ namespace SMGE
 				const auto eulerRotMat = glm::toMat4(euler2Quat);
 
 				// 여기 - 쿼터 회전 후 오일러 rotationRadianEuler_ 이것들의 값이 의미가 없어지는 문제가 있다, 어떻게 해야할까??
+				// 쿼터니언 2 오일러 와 그의 반대 - https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 
 				// 2. 방향지정으로 회전
 				const auto modelDirAxis = DefaultModelFrontAxis(eulerRotMat);
@@ -1118,9 +1119,9 @@ namespace SMGE
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// 테스트 코드 - 초기 카메라 처리
-			float cameraInitialDist = 20;
-			GetRenderingCamera().SetCameraPos({ 0,0,cameraInitialDist });
-			GetRenderingCamera().SetCameraLookAt({ 0,0,0 });
+			//float cameraInitialDist = 20;
+			GetRenderingCamera().SetCameraPos({ 0,0,0 });
+			GetRenderingCamera().SetCameraLookAt({ 0,0,1 });
 			GetRenderingCamera().ComputeMatricesFromInputs(true, m_width, m_height);
 		}
 

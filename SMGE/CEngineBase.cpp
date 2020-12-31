@@ -120,7 +120,7 @@ namespace SMGE
 	{
 		CEngineBase::CEngineBase(CGameBase* gameBase) : gameBase_(gameBase)
 		{
-			// deprecated 201227 - 카메라 액터 구현하면서 안쓰게 됨
+			//// deprecated 201227 - 카메라 액터 구현하면서 안쓰게 됨
 			//auto EditorProcessCameraMove = [this](const nsGE::CUserInput& userInput)
 			//{
 			//	auto& renderCam = GetRenderingEngine()->GetRenderingCamera();

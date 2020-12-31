@@ -90,7 +90,7 @@ namespace SMGE
 
 	protected:
 		CActor& SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic);
-		void OnPreBeginPlay();
+		void OnPostBeginPlay();
 
 		void changeCurrentlyVisibleCamera(class CCameraActor* camA);
 

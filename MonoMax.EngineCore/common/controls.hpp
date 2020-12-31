@@ -3,6 +3,11 @@
 
 #include "../common.h"
 
+#define CAMERA_QUATERNION
+// 쿼터니언 관련 문서
+// http://chanhaeng.blogspot.com/2018/09/quaternion-camera-implementation.html
+// http://graphics.stanford.edu/courses/cs348a-17-winter/Papers/quaternion.pdf
+
 namespace SMGE
 {
 	namespace nsRE
@@ -19,7 +24,12 @@ namespace SMGE
 
 			glm::mat4 viewMatrix_;
 			glm::mat4 projectionMatrix_, orthoProjectionMatrix_;
-			glm::vec3 cameraDir_, cameraLeft_, cameraUp_;
+			glm::vec3 cameraDir_, cameraLeft_, cameraUp_;	// GL 오른손 좌표계에서 +z를 FRONT로 보면 +X는 LEFT 임, 그래서 LEFT라고 칭함
+
+#ifdef CAMERA_QUATERNION
+			glm::quat orientation_;
+			void updateOrientation(float hAngl, float vAngl);
+#endif
 
 			float horizontalAngle_ = 3.14f;
 			float verticalAngle_ = 0.0f;

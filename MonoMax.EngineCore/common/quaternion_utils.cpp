@@ -58,7 +58,6 @@ namespace OpenGL_Tutorials
 	// Beware, the first parameter is a direction, not the target point !
 	quat LookAt(vec3 direction, vec3 desiredUp, vec3 defaultDirectionAxis, vec3 defaultUpAxis)
 	{
-
 		if (length2(direction) < 0.0001f)
 			return quat();
 

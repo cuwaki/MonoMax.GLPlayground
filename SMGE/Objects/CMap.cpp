@@ -261,7 +261,7 @@ namespace SMGE
 			currentlyVisibleCamera_->changeVisible(true);
 	}
 
-	void CMap::OnPreBeginPlay()
+	void CMap::OnPostBeginPlay()
 	{
 		currentlyVisibleCamera_ = nullptr;
 
@@ -311,13 +311,25 @@ namespace SMGE
 							auto movedPixel = RPressedPos - userInput.GetMousePosition();
 							movedPixel.y *= -1.f;	// screen to gl
 
+							// degrees 를 누적하지 않았을 때의 코드
 							auto yawDegrees = movedPixel.x * angleSpeed;
 							auto pitchDegrees = movedPixel.y * angleSpeed;
-
 							auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, camTransform.GetWorldUp());
 							auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, camTransform.GetWorldLeft());
 							auto newDir = rotYaw * rotPit * glm::vec4(camTransform.GetWorldFront(), 0.f);
 
+							// degrees 를 누적할 때의 코드 - 처음 회전이 확 튀고 그 뒤로는 잘 작동하는데 여전히 조금씩 휘어진다
+							//static float yawDegrees = 0.f, pitchDegrees = 0.f;
+							//yawDegrees += movedPixel.x * angleSpeed;
+							//pitchDegrees += movedPixel.y * angleSpeed;
+							//auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, { 0.f, 1.f, 0.f });
+							//auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, { 1.f, 0.f, 0.f });
+							//auto newDir = rotYaw * rotPit * glm::vec4(0.f, 0.f, 1.f, 0.f);
+
+							// 여기 - 
+							// RotateQuat 여기 이후의 쿼터니언 회전의 적용이 문제가 아닐까 싶다, 스탠포드 문서로 쿼터니언 공부를 해봐야하나?
+							// quat LookAt(vec3 direction, vec3 desiredUp, vec3 defaultDirectionAxis, vec3 defaultUpAxis) 여기서 desiredup 을 좀 봐야겠다
+							// 쿼터니언 카메라 - http://chanhaeng.blogspot.com/2018/09/quaternion-camera-implementation.html
 							camTransform.RotateQuat(newDir);
 
 							RPressedPos = userInput.GetMousePosition();
@@ -338,8 +350,6 @@ namespace SMGE
 		if (isBeganPlay_ == true)
 			throw SMGEException(wtext("CMap already activated"));
 
-		OnPreBeginPlay();
-
 		isBeginningPlay_ = true;
 		{
 			actorOctree_.Create("actorOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
@@ -354,6 +364,8 @@ namespace SMGE
 			}
 		}
 		isBeginningPlay_ = false;
+
+		OnPostBeginPlay();
 
 		isBeganPlay_ = true;
 	}
