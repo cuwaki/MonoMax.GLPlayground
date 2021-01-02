@@ -92,7 +92,7 @@ namespace SMGE
 		CActor& SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic);
 		void OnPostBeginPlay();
 
-		void changeCurrentlyVisibleCamera(class CCameraActor* camA);
+		void changeCurrentCamera(class CCameraActor* camA);
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflMap_;
@@ -104,7 +104,7 @@ namespace SMGE
 		bool isBeganPlay_ = false;
 		bool isBeginningPlay_ = false;
 
-		class CCameraActor* currentlyVisibleCamera_;
+		class CCameraActor* currentCamera_;
 
 		static TActorKey DynamicActorKey;
 

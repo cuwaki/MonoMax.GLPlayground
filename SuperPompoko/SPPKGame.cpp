@@ -15,6 +15,8 @@
 #include "Objects/CStaticMeshActor.h"
 #include "CBoundCheck.h"
 
+void testCppStudy();	// 테스트 코드 - cpp 스터디
+
 namespace SMGE
 {
 	namespace Globals
@@ -79,6 +81,8 @@ namespace SMGE
 
 	void SPPKGame::Initialize()
 	{
+		::testCppStudy();	// 테스트 코드 - cpp 공부 ㅋㅋ
+
 		engine_ = new nsGE::CEngineBase(this);
 		gameSettings_ = new nsGE::SGEGameSettings();
 
@@ -302,3 +306,57 @@ namespace SMGE
 		currentMap_->Render(dt);
 	}
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// cpp study - 마구잡이 공부 영역 나중에 날릴 것
+#include <array>
+
+// https://stackoverflow.com/questions/34143943/how-to-fill-const-stdarraysize-t-n-with-values-based-on-function
+// array 등을 인덱스에 의거하여 초기화하는 함수 1
+template<typename T, size_t N, typename Fn>
+std::array<T, N> init_from_f(Fn&& f)
+{
+	Fn&& runF = std::forward<Fn>(f);
+
+	std::array<T, N> ret;
+	for (size_t i = 0; i < N; ++i)
+		ret[i] = runF(i);
+	return ret;
+}
+
+// array 등을 인덱스에 의거하여 초기화하는 함수 2
+template<size_t... ns, typename Fn>
+auto fill_helper(std::integer_sequence<size_t, ns...>, Fn&& fn)
+	-> std::array<decltype(fn(std::size_t())), sizeof...(ns)>	// 후행 리턴값 정의가 반드시 필요하다
+{
+	return { fn(ns)... };	// ... 을 이용한 호출로 코드에서 이니셜라이저 리스트를 만든다 - 신기하네~
+}
+
+template<size_t N, typename Fn>
+auto fill(Fn&& fn)
+{
+	using make_seq = std::make_integer_sequence<size_t, N>;
+
+	// fill_helper 타입을 이렇게 만든다
+	// fill_helper<0, 1, 2, 3, 4, class <lambda_116f7dd254db719f50c299bdfc1a6223>&>(
+
+	// 그리고 이렇게 호출한다
+	//	std::integer_sequence<unsigned __int64, 0, 1, 2, 3, 4> __formal, ? 
+	//	testCppStudy@@$$FYAXXZ::__l2::<lambda_116f7dd254db719f50c299bdfc1a6223>&fn)
+	return fill_helper(make_seq(), std::forward<Fn>(fn));
+}
+
+void testCppStudy()
+{
+	auto c6 = init_from_f<char, 6>([](auto i) { return i + 4; });
+
+	auto plus5 = [](size_t index)
+	{
+		return index + 5;
+	};
+	auto const as = fill<5>(plus5);
+
+	return;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

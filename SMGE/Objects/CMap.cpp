@@ -247,39 +247,39 @@ namespace SMGE
 		return actorOctree_.QueryValuesByCube(aabb.min(), aabb.max());
 	}
 
-	void CMap::changeCurrentlyVisibleCamera(CCameraActor* camA)
+	void CMap::changeCurrentCamera(CCameraActor* camA)
 	{
-		if (currentlyVisibleCamera_ == camA)
+		if (currentCamera_ == camA)
 			return;
 
-		if (currentlyVisibleCamera_)
-			currentlyVisibleCamera_->changeVisible(false);
+		if (currentCamera_)
+			currentCamera_->onChangedCurrent(false);
 
-		currentlyVisibleCamera_ = camA;
+		currentCamera_ = camA;
 
-		if(currentlyVisibleCamera_)
-			currentlyVisibleCamera_->changeVisible(true);
+		if(currentCamera_)
+			currentCamera_->onChangedCurrent(true);
 	}
 
 	void CMap::OnPostBeginPlay()
 	{
-		currentlyVisibleCamera_ = nullptr;
+		currentCamera_ = nullptr;
 
 		for (auto& sysActor : actorLayers_[EActorLayer::System])
 		{
 			auto camActor = DCast<CCameraActor*>(sysActor.get());
 			if (camActor)
 			{
-				changeCurrentlyVisibleCamera(camActor);
+				changeCurrentCamera(camActor);
 
 #if IS_EDITOR
 				auto InputForCameraActor = [this](const nsGE::CUserInput& userInput)
 				{
-					if (currentlyVisibleCamera_)
+					if (currentCamera_)
 					{
 						constexpr float deltaTime = 1000.f / 60.f;	// 테스트 코드 - 이거 하드코딩이고 다른 데 또 있으니 검색해라
 
-						auto& camTransform = currentlyVisibleCamera_->getTransform();
+						auto& camTransform = currentCamera_->getTransform();
 						
 						// 이동
 						auto currentPos = camTransform.GetWorldPosition();

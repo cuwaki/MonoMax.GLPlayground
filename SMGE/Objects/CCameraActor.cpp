@@ -66,7 +66,7 @@ namespace SMGE
 	{
 		Super::Tick(td);
 
-		if (isCurrentlyVisible())
+		if (isCurrentCamera())
 		{
 			auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
 			renderCam.SetCameraPos(getTransform().GetWorldPosition());
@@ -135,6 +135,7 @@ namespace SMGE
 			frustumQuads_[0]->RotateEuler({ 0.f, 180.f, 0.f });	// 눈에 보이라고 일부러 반대로
 			frustumQuads_[0]->SetPickingTarget(false);
 			frustumQuads_[0]->SetCollideTarget(false);
+			frustumQuads_[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
 
 			// Far 평면
 			frustumQuads_[1]->Translate({ 0.f, 0.f, frustumModel.farPlane_[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
@@ -149,7 +150,7 @@ namespace SMGE
 			frustumQuads_[1]->RotateEuler({ 0.f, 180.f, 0.f });
 			frustumQuads_[1]->SetPickingTarget(false);
 			frustumQuads_[1]->SetCollideTarget(false);
-			frustumQuads_[1]->SetGizmoColor({ 1.f, 1.f, 1.f });
+			frustumQuads_[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
 
 			//auto toUp = frustumModel.farPlane_[TransformConst::GL_LT] - frustumModel.nearPlane_[TransformConst::GL_LT];
 			//toUp.x = 0;	// YZ 평면에 투영
@@ -245,17 +246,17 @@ namespace SMGE
 		Super::BeginPlay();
 	}
 
-	bool CCameraActor::isCurrentlyVisible() const
+	bool CCameraActor::isCurrentCamera() const
 	{
-		return isCurrentlyVisible_;
+		return isCurrent_;
 	}
 
-	void CCameraActor::changeVisible(bool isVisible)
+	void CCameraActor::onChangedCurrent(bool isCurrent)
 	{
-		isCurrentlyVisible_ = isVisible;
+		isCurrent_ = isCurrent;
 
 		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
-		if (isCurrentlyVisible_)
+		if (isCurrent_)
 		{
 			renderCam.SetFOV(fovDegrees_);
 			renderCam.SetZNearFar(zNear_, zFar_);

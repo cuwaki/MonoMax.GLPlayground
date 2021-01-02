@@ -40,8 +40,8 @@ namespace SMGE
 		virtual void Tick(float) override;
 		virtual void BeginPlay() override;
 
-		bool isCurrentlyVisible() const;
-		void changeVisible(bool isVisible);
+		bool isCurrentCamera() const;
+		void onChangedCurrent(bool isCurrent);
 
 	public:
 		// CInt_Reflection
@@ -60,6 +60,6 @@ namespace SMGE
 		std::array<class CPlaneComponent*, 6> frustumPlanes_;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
 
 	private:
-		bool isCurrentlyVisible_ = false;
+		bool isCurrent_ = false;
 	};
 }
