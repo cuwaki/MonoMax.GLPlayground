@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CActor.h"
+#include <array>
 
 namespace SMGE
 {
@@ -17,7 +18,7 @@ namespace SMGE
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 
 		CString& cameraName_;
-		float& fov_;
+		float& fovDegrees_;
 		float& zNear_, & zFar_;
 	};
 
@@ -51,8 +52,12 @@ namespace SMGE
 		CUniqPtr<TReflectionStruct> reflCameraActor_;
 
 		CString cameraName_;
-		float fov_;
+		float fovDegrees_;
 		float zNear_, zFar_;
+
+		class CCubeComponent* frustumCube_;
+		std::array<class CQuadComponent *, 2> frustumQuads_;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
+		std::array<class CPlaneComponent*, 6> frustumPlanes_;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
 
 	private:
 		bool isCurrentlyVisible_ = false;

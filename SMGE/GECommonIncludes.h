@@ -35,6 +35,8 @@
 #define text(_STR_) _STR_
 #define wtext(_STR_) L##_STR_
 
+#define ARRAY_COUNT(_a_) (sizeof(_a_) / sizeof(_a_[0]))
+
 namespace SMGE
 {
     using int8 = std::int8_t;

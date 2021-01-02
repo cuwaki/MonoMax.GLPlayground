@@ -375,6 +375,10 @@ namespace SMGE
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	SPlaneBound::SPlaneBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2)
+		: SPlaneBound(glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0))), ccw_p0)
+	{
+	}
 	SPlaneBound::SPlaneBound(const glm::vec3& norm, const glm::vec3& loc) : SPlaneBound()
 	{
 		normal_ = glm::normalize(norm);
@@ -435,16 +439,10 @@ namespace SMGE
 		type_ = EBoundType::TRIANGLE;
 	}
 
-	STriangleBound::STriangleBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2)
+	STriangleBound::STriangleBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2) : SPlaneBound(ccw_p0, ccw_p1, ccw_p2)
 	{
-		const auto norm = glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0)));
-#if DEBUG || _DEBUG
-		if (isNearlyEqual(glm::length(norm), 1.f) == false)
-			assert(false && "it is not a triangle");
-#endif
-		this->SPlaneBound::SPlaneBound(norm, ccw_p0);
-
 		type_ = EBoundType::TRIANGLE;
+
 		p0_ = ccw_p0;
 		p1_ = ccw_p1;
 		p2_ = ccw_p2;

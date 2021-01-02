@@ -1,4 +1,4 @@
-﻿<Window x:Class="MonoMax.GLSandboxApp.MainWindow"
+<Window x:Class="MonoMax.GLSandboxApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,8 +6,9 @@
         xmlns:gl="clr-namespace:SMGE;assembly=MonoMax.SMGE"
         mc:Ignorable="d"
         Title="MainWindow"
-        Height="539" Width="516"
+        Width="489" Height="816"
         KeyDown="OnKeyDown" KeyUp="OnKeyUp" MouseLeftButtonDown="OnLButtonDown" MouseLeftButtonUp="OnLButtonUp" MouseRightButtonUp="OnMouseWheel" WindowStyle="ToolWindow" >
+    <!-- Height="539" Width="516" -->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250*"/>

@@ -170,6 +170,7 @@
     <ClCompile Include="Components\CCubeComponent.cpp" />
     <ClCompile Include="Components\CDrawComponent.cpp" />
     <ClCompile Include="Components\CMeshComponent.cpp" />
+    <ClCompile Include="Components\CPlaneComponent.cpp" />
     <ClCompile Include="Components\CQuadComponent.cpp" />
     <ClCompile Include="Components\CPointComponent.cpp" />
     <ClCompile Include="Components\CSegmentComponent.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Components\CBoundComponent.h" />
     <ClInclude Include="Components\CCircleComponent.h" />
     <ClInclude Include="Components\CCubeComponent.h" />
+    <ClInclude Include="Components\CPlaneComponent.h" />
     <ClInclude Include="Components\CQuadComponent.h" />
     <ClInclude Include="Components\CPointComponent.h" />
     <ClInclude Include="Components\CSegmentComponent.h" />

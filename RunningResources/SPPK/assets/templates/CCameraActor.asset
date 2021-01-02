@@ -31,6 +31,6 @@ classRTTIName_$CString$"CCameraActor"
             isCollideTarget_$bool$false
             gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
     cameraName_$CString$"templateCamera"
-    fov_$float$45.0
+    fov_$float$90.0
     zNear_$float$1.0
-    zFar_$float$100.0
+    zFar_$float$101.0

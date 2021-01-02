@@ -203,4 +203,14 @@ namespace SMGE
 			reflMeshCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
 		return *reflMeshCompo_.get();
 	}
+
+	void CBoundComponent::SetPickingTarget(bool isP)
+	{
+		isPickingTarget_ = isP;
+	}
+	
+	void CBoundComponent::SetCollideTarget(bool isC)
+	{
+		isCollideTarget_ = isC;
+	}
 };

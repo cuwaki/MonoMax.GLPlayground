@@ -9,9 +9,15 @@ namespace SMGE
 {
 	namespace nsRE
 	{
+		// 여기 - 상수들 통합 필요
+		static constexpr glm::vec3 DefaultModelFrontAxis(0, 0, 1);				// DefaultModelFrontAxis() 와 같아야한다
+		static constexpr glm::vec3 DefaultModelUpAxis(0, 1, 0);					// DefaultModelUpAxis() 와 같아야한다
+		static constexpr glm::vec3 DefaultModelLeftAxis(1, 0, 0);				// DefaultModelLeftAxis() 와 같아야한다
+		static constexpr size_t GL_LB = 0, GL_RB = 1, GL_RT = 2, GL_LT = 3;		// TransformConst::GL_LB 와 같아야한다
+
 		CRenderingCamera::CRenderingCamera()
 		{
-			cameraDir_ = { 0.f, 0.f, 1.f };
+			cameraDir_ = DefaultModelFrontAxis;
 			cameraLeft_ = { 1.f, 0.f, 0.f };
 			cameraUp_ = { 0.f, 1.f, 0.f };
 
@@ -19,7 +25,7 @@ namespace SMGE
 			angleSpeed_ = 4.f / 1000.f;
 
 #ifdef CAMERA_QUATERNION
-			orientation_ = glm::quat(0, 0, 0, 1);
+			orientation_ = glm::quat(0, DefaultModelFrontAxis);
 			horizontalAngle_ = 0.f;
 			verticalAngle_ = 0.f;
 			angleSpeed_ = 0.2f;
@@ -101,10 +107,13 @@ namespace SMGE
 			);
 #endif
 
-			float FoV = fov_;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
+			//float FoV = fovDegrees_;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
+
+			windowWidth_ = windowWidth;
+			windowHeight_ = windowHeight;
 
 			// Projection matrix : 45?Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-			projectionMatrix_ = glm::perspective(FoV, windowWidth / (float)windowHeight, zNear_, zFar_);
+			projectionMatrix_ = glm::perspective(fovDegrees_ / 2.f, windowWidth / (float)windowHeight, zNear_, zFar_);
 
 			//orthoProjectionMatrix_ = glm::ortho(windowWidth / -2.f, windowWidth / 2.f, windowHeight / -2.f, windowHeight / 2.f, 0.f, 500.f);
 			//orthoProjectionMatrix_ = glm::ortho(-1.f, 1.f, -1.f, 1.f, 0.f, 500.f);
@@ -132,7 +141,7 @@ namespace SMGE
 #ifdef CAMERA_QUATERNION
 			updateOrientation(xzAngle, yzAngle * -1.f);	// 화면 상하 조절을 반대로 하기 위하여 * -1
 
-			glm::quat quatFront = orientation_ * glm::quat(0, 0, 0, 1) * glm::conjugate(orientation_);
+			glm::quat quatFront = orientation_ * glm::quat(0, DefaultModelFrontAxis) * glm::conjugate(orientation_);
 			cameraDir_ = glm::vec3(quatFront.x, quatFront.y, quatFront.z);
 			auto left = glm::cross({ 0, 1, 0 }, cameraDir_);
 			if (glm::length2(left) < 0.0001f)
@@ -203,9 +212,16 @@ namespace SMGE
 				SetCameraPos(worldPosition_);
 		}
 
-		void CRenderingCamera::SetFOV(float fov)
+		void CRenderingCamera::SetFOV(float fovDegrees)
 		{
-			fov_ = fov;
+			fovDegrees_ = fovDegrees;
+		}
+
+		float CRenderingCamera::GetFOV_Horizontal() const
+		{
+			// https://community.khronos.org/t/how-to-get-the-horizontal-fov/58010
+			const auto aspect = windowWidth_ / windowHeight_;
+			return glm::degrees(std::atanf(aspect * std::tan(glm::radians(fovDegrees_ / 2.f))));
 		}
 
 		void CRenderingCamera::SetZNearFar(float n, float f)
@@ -255,9 +271,9 @@ namespace SMGE
 		{
 #ifdef CAMERA_QUATERNION
 			const auto dir = glm::normalize(lookAtWorldPos - worldPosition_);
-			orientation_ = OpenGL_Tutorials::LookAt(dir, cameraUp_, { 0, 0, 1 }, { 0, 1, 0 });
+			orientation_ = OpenGL_Tutorials::LookAt(dir, cameraUp_, DefaultModelFrontAxis, { 0, 1, 0 });
 
-			glm::quat quatFront = orientation_ * glm::quat(0, 0, 0, 1) * glm::conjugate(orientation_);
+			glm::quat quatFront = orientation_ * glm::quat(0, DefaultModelFrontAxis) * glm::conjugate(orientation_);
 			cameraDir_ = glm::vec3(quatFront.x, quatFront.y, quatFront.z);
 			auto left = glm::cross({ 0, 1, 0 }, cameraDir_);
 			if (glm::length2(left) < 0.0001f)
@@ -292,5 +308,99 @@ namespace SMGE
 			orientation_ = yaw * pitch;
 		}
 #endif
+
+		inline bool isNearlyEqual(const float& l, const float& r, float epsilon = /*Configs::BoundCheckEpsilon*/ 0.001f)	// 여기 - 통합 필요
+		{
+			return std::fabsf(l - r) < epsilon;
+		}
+
+		// license - https://gist.github.com/terryjsmith/7196d8c099e1478ea276bd751925a2f1
+		CRenderingCamera::SFrustum CRenderingCamera::CalculateFrustumWorld(float fovDegrees, float n, float f) const
+		{
+			if (isNearlyEqual(fovDegrees, 0.f))
+				fovDegrees = fovDegrees_;
+			if (isNearlyEqual(n, 0.f))
+				n = zNear_;
+			if (isNearlyEqual(f, 0.f))
+				f = zFar_;
+
+			const float apectR = windowWidth_ / windowHeight_;
+			const float tanFov = std::tanf(glm::radians(fovDegrees / 2.f));
+
+			const float nearHalfHeight = tanFov * n;
+			const float nearHalfWidth = nearHalfHeight * apectR;
+
+			const float farHalfHeight = tanFov * f;
+			const float farHalfWidth = farHalfHeight * apectR;
+
+			const auto nearCenter = worldPosition_ + (cameraDir_ * n);
+			const auto farCenter = worldPosition_ + (cameraDir_ * f);
+
+			SFrustum returnFrustum;
+			returnFrustum.center_ = worldPosition_ + (cameraDir_ * n) + (cameraDir_ * ((f - n) / 2.0f));
+
+			const auto ncuhh = cameraUp_ * nearHalfHeight;
+			const auto nclhw = cameraLeft_ * nearHalfWidth;
+
+			// 카메라가 +z 를 보고 있을 때를 기준으로 평면 점들을 반시계로 내보낸다
+			returnFrustum.nearPlane_[GL_LB] = nearCenter - ncuhh - nclhw;	// lb
+			returnFrustum.nearPlane_[GL_RB] = nearCenter - ncuhh + nclhw;	// rb
+			returnFrustum.nearPlane_[GL_RT] = nearCenter + ncuhh + nclhw;	// rt
+			returnFrustum.nearPlane_[GL_LT] = nearCenter + ncuhh - nclhw;	// lt
+
+			const auto fcuhh = cameraUp_ * farHalfHeight;
+			const auto fclhw = cameraLeft_ * farHalfWidth;
+
+			returnFrustum.farPlane_[GL_LB] = farCenter - fcuhh - fclhw;
+			returnFrustum.farPlane_[GL_RB] = farCenter - fcuhh + fclhw;
+			returnFrustum.farPlane_[GL_RT] = farCenter + fcuhh + fclhw;
+			returnFrustum.farPlane_[GL_LT] = farCenter + fcuhh - fclhw;
+
+			return returnFrustum;
+		}
+
+		CRenderingCamera::SFrustum CRenderingCamera::CalculateFrustumModel(float fovDegrees, float n, float f) const
+		{
+			if (isNearlyEqual(fovDegrees, 0.f))
+				fovDegrees = fovDegrees_;
+			if (isNearlyEqual(n, 0.f))
+				n = zNear_;
+			if (isNearlyEqual(f, 0.f))
+				f = zFar_;
+
+			const float apectR = windowWidth_ / windowHeight_;
+			const float tanFov = std::tanf(glm::radians(fovDegrees / 2.f));
+
+			const float nearHalfHeight = tanFov * n;
+			const float nearHalfWidth = nearHalfHeight * apectR;
+
+			const float farHalfHeight = tanFov * f;
+			const float farHalfWidth = farHalfHeight * apectR;
+
+			const auto nearCenter = (DefaultModelFrontAxis * n);
+			const auto farCenter = (DefaultModelFrontAxis * f);
+
+			SFrustum returnFrustum;
+			returnFrustum.center_ = (DefaultModelFrontAxis * n) + (DefaultModelFrontAxis * ((f - n) / 2.0f));
+
+			const auto ncuhh = DefaultModelUpAxis * nearHalfHeight;
+			const auto nclhw = DefaultModelLeftAxis * nearHalfWidth;
+
+			// 카메라가 +z 를 보고 있을 때를 기준으로 평면 점들을 GL좌표계 기준으로 반시계로 내보낸다
+			returnFrustum.nearPlane_[GL_LB] = nearCenter - ncuhh - nclhw;
+			returnFrustum.nearPlane_[GL_RB] = nearCenter - ncuhh + nclhw;
+			returnFrustum.nearPlane_[GL_RT] = nearCenter + ncuhh + nclhw;
+			returnFrustum.nearPlane_[GL_LT] = nearCenter + ncuhh - nclhw;
+
+			const auto fcuhh = DefaultModelUpAxis * farHalfHeight;
+			const auto fclhw = DefaultModelLeftAxis * farHalfWidth;
+
+			returnFrustum.farPlane_[GL_LB] = farCenter - fcuhh - fclhw;
+			returnFrustum.farPlane_[GL_RB] = farCenter - fcuhh + fclhw;
+			returnFrustum.farPlane_[GL_RT] = farCenter + fcuhh + fclhw;
+			returnFrustum.farPlane_[GL_LT] = farCenter + fcuhh - fclhw;
+
+			return returnFrustum;
+		}
 	}
 }

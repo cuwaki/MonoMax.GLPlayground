@@ -38,6 +38,8 @@ namespace SMGE
 				ETypeAxis_MAX
 			};
 
+			constexpr size_t GL_LB = 0, GL_RB = 1, GL_RT = 2, GL_LT = 3;
+
 			const glm::vec3 Vec3_Zero(0);
 			const glm::vec3 Vec3_OneHalf(0.5);
 			const glm::vec3 Vec3_One(1);

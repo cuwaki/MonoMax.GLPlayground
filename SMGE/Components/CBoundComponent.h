@@ -68,7 +68,9 @@ namespace SMGE
 		virtual void CacheAABB();
 
 		virtual bool IsPickingTarget() const { return isPickingTarget_; }
+		virtual void SetPickingTarget(bool);
 		virtual bool IsCollideTarget() const { return isCollideTarget_; }
+		virtual void SetCollideTarget(bool);
 
 		glm::vec3 GetGizmoColor() const { return gizmoColor_; }
 		void SetGizmoColor(const glm::vec3& gc) { gizmoColor_ = gc; }

@@ -16,6 +16,14 @@ namespace SMGE
 
 		class CRenderingCamera
 		{
+		public:
+			struct SFrustum
+			{
+				glm::vec3 center_;
+				glm::vec3 nearPlane_[4];
+				glm::vec3 farPlane_[4];
+			};
+
 			friend CRenderingEngine;
 
 		protected:
@@ -24,7 +32,7 @@ namespace SMGE
 
 			glm::mat4 viewMatrix_;
 			glm::mat4 projectionMatrix_, orthoProjectionMatrix_;
-			glm::vec3 cameraDir_, cameraLeft_, cameraUp_;	// GL 오른손 좌표계에서 +z를 FRONT로 보면 +X는 LEFT 임, 그래서 LEFT라고 칭함
+			glm::vec3 cameraDir_, cameraLeft_, cameraUp_;	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 
 #ifdef CAMERA_QUATERNION
 			glm::quat orientation_;
@@ -38,7 +46,8 @@ namespace SMGE
 
 		protected:
 			glm::vec3 worldPosition_ = glm::vec3(0, 0, 0);
-			float fov_ = 45.0f, zFar_ = 100.f, zNear_ = 1.f;
+			float fovDegrees_ = 90.0f, zFar_ = 100.f, zNear_ = 1.f;
+			float windowWidth_, windowHeight_;
 
 		public:
 			CRenderingCamera();
@@ -46,6 +55,9 @@ namespace SMGE
 			const glm::mat4& GetViewMatrix() const { return viewMatrix_; }
 			const glm::mat4& GetProjectionMatrix() const { return projectionMatrix_; }
 			const glm::mat4& GetOrthoProjectionMatrix() const { return orthoProjectionMatrix_; }
+			
+			SFrustum CalculateFrustumWorld(float fovDegrees = 0.f, float n = 0.f, float f = 0.f) const;
+			SFrustum CalculateFrustumModel(float fovDegrees = 0.f, float n = 0.f, float f = 0.f) const;
 
 			const glm::vec3& GetCameraPos() const;
 			void SetCameraPos(const glm::vec3& worldPos);
@@ -59,8 +71,9 @@ namespace SMGE
 			const glm::vec3& GetCameraUp() const;
 			void SetCameraUp(const glm::vec3& cu);
 
-			void SetFOV(float fov);
-			float GetFOV() const { return fov_; }
+			void SetFOV(float fovDegrees);
+			float GetFOV() const { return fovDegrees_; }
+			float GetFOV_Horizontal() const;
 
 			void SetZNearFar(float n, float f);
 			float GetZFar() const { return zFar_; }

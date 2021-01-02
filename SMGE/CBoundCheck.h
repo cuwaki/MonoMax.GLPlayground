@@ -7,7 +7,7 @@
 
 namespace SMGE
 {
-	inline bool isNearlyEqual(const float& l, const float& r, const float& epsilon = Configs::BoundCheckEpsilon)
+	inline bool isNearlyEqual(const float& l, const float& r, const float& epsilon = Configs::BoundCheckEpsilon)	// 여기 - 통합 필요
 	{
 		return std::fabsf(l - r) < epsilon;
 	}
@@ -148,6 +148,7 @@ namespace SMGE
 	struct SPlaneBound : public SBound
 	{
 		SPlaneBound() : SBound(EBoundType::PLANE) {}
+		SPlaneBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2);
 		SPlaneBound(const glm::vec3& norm, const glm::vec3& loc);
 
 		float getSignedDistanceFromPlane(const glm::vec3& loc) const;

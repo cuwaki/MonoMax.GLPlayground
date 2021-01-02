@@ -11,7 +11,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$31
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	10.000000	
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	20.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$"main game camera"
@@ -39,9 +39,9 @@ classRTTIName_$CString$"CMap"
 				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
 		cameraName_$CString$"main game camera"
-		fov_$float$45.0
+		fov_$float$90.0
 		zNear_$float$1.0
-		zFar_$float$100.0
+		zFar_$float$101.0
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
@@ -49,9 +49,9 @@ classRTTIName_$CString$"CMap"
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
 			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	225.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
-		actorStaticTag_$CString$"sub game camera"
+		actorStaticTag_$CString$"testCamera"
 		persistCompoSize$size_t$2
 			classRTTIName_$CString$"CCubeComponent"
 				reflectionFilePath_$CWString$""
@@ -75,12 +75,10 @@ classRTTIName_$CString$"CMap"
 				isPickingTarget_$bool$false
 				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$1.000000	1.000000	0.000000	
-		cameraName_$CString$"sub game camera"
-		fov_$float$45.0
-		zNear_$float$1.0
-		zFar_$float$100.0
-
-
+		cameraName_$CString$"testCamera"
+		fov_$float$90.0
+		zNear_$float$2.0
+		zFar_$float$22.0
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

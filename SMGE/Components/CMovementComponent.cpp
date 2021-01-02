@@ -19,7 +19,7 @@ namespace SMGE
 
 	// 테스트 코드
 	static glm::vec3 moveTo(5, 0, 0), moveFrom;
-	static glm::vec3 rotateTo(0, 0, 45), rotateFromEuler;
+	static glm::vec3 rotateTo(0, 45, 0), rotateFromEuler;
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
 	static float TestInterpolationTime = 1000;
 
@@ -70,15 +70,15 @@ namespace SMGE
 			// 테스트 코드 - 인터폴레이션
 			{
 				// Translate
-				if (interpTranslation_.isRunning())
-				{
-					targetTransform_->Translate(interpTranslation_.current());
-				}
-				else
-				{
-					moveTo *= -1.f;
-					interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
-				}
+				//if (interpTranslation_.isRunning())
+				//{
+				//	targetTransform_->Translate(interpTranslation_.current());
+				//}
+				//else
+				//{
+				//	moveTo *= -1.f;
+				//	interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
+				//}
 
 				// Rotate
 				if (interpRotation_.isRunning())
@@ -91,14 +91,14 @@ namespace SMGE
 				}
 
 				// Scale
-				if (interpScale_.isRunning())
-				{
-					targetTransform_->Scale(interpScale_.current());
-				}
-				else
-				{
-					interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
-				}
+				//if (interpScale_.isRunning())
+				//{
+				//	targetTransform_->Scale(interpScale_.current());
+				//}
+				//else
+				//{
+				//	interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+				//}
 			}
 		}
 	}

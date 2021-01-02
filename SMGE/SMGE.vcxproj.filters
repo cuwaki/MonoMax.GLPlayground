@@ -137,6 +137,9 @@
     <ClInclude Include="Objects\CCameraActor.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Components\CPlaneComponent.h">
+      <Filter>Components\Bound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -225,6 +228,9 @@
     </ClCompile>
     <ClCompile Include="Objects\CCameraActor.cpp">
       <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CPlaneComponent.cpp">
+      <Filter>Components\Bound</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

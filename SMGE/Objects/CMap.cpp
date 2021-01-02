@@ -326,10 +326,6 @@ namespace SMGE
 							//auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, { 1.f, 0.f, 0.f });
 							//auto newDir = rotYaw * rotPit * glm::vec4(0.f, 0.f, 1.f, 0.f);
 
-							// 여기 - 
-							// RotateQuat 여기 이후의 쿼터니언 회전의 적용이 문제가 아닐까 싶다, 스탠포드 문서로 쿼터니언 공부를 해봐야하나?
-							// quat LookAt(vec3 direction, vec3 desiredUp, vec3 defaultDirectionAxis, vec3 defaultUpAxis) 여기서 desiredup 을 좀 봐야겠다
-							// 쿼터니언 카메라 - http://chanhaeng.blogspot.com/2018/09/quaternion-camera-implementation.html
 							camTransform.RotateQuat(newDir);
 
 							RPressedPos = userInput.GetMousePosition();
