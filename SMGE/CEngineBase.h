@@ -93,7 +93,6 @@ namespace SMGE
 			class nsRE::CRenderingEngine* GetRenderingEngine() const;
 
 			virtual void Tick(float);
-			virtual void Render(float);
 
 			void AddProcessUserInputs(const DELEGATE_ProcessUserInput& delegPUI);
 

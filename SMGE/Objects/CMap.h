@@ -68,7 +68,6 @@ namespace SMGE
 		void Ctor();
 
 		virtual void Tick(float);
-		virtual void Render(float);
 
 		virtual void ProcessPendingKills();
 
@@ -84,6 +83,8 @@ namespace SMGE
 		bool IsBeganPlay() const		{ return isBeganPlay_ == true && isBeginningPlay_ == false; }
 		bool IsBeginningPlay() const	{ return isBeginningPlay_ == true && isBeganPlay_ == false; }
 
+		class CCameraActor* GetCurrentCamera() const;
+
 	public:
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
@@ -93,6 +94,7 @@ namespace SMGE
 		void OnPostBeginPlay();
 
 		void changeCurrentCamera(class CCameraActor* camA);
+		void cameraFrustumCulling();
 
 	protected:
 		CUniqPtr<TReflectionStruct> reflMap_;
@@ -103,9 +105,13 @@ namespace SMGE
 		TActorLayers<CUniqPtr<CActor>> actorLayers_;
 		bool isBeganPlay_ = false;
 		bool isBeginningPlay_ = false;
+		CVector<CActor*> oldActorsInFrustum_;
 
 		class CCameraActor* currentCamera_;
-
+		bool isFrustumCulling_ = true;
+#ifdef IS_EDITOR
+		class CCameraActor* cullingCamera_;
+#endif
 		static TActorKey DynamicActorKey;
 
 	public:

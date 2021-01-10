@@ -43,6 +43,9 @@ namespace SMGE
 		bool isCurrentCamera() const;
 		void onChangedCurrent(bool isCurrent);
 
+		SAABB GetFrustumAABB() const;
+		bool IsInOrIntersectWithFrustum(CBoundComponent* mainBound) const;
+
 	public:
 		// CInt_Reflection
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }

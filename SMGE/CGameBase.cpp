@@ -46,9 +46,5 @@ namespace SMGE
 		void CGameBase::Tick(float timeDelta)
 		{
 		}
-
-		void CGameBase::Render(float timeDelta)
-		{
-		}
 	}
 };

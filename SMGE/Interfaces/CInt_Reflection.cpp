@@ -146,24 +146,58 @@ namespace SMGE
 		return ret;
 	}
 
-	void RemoveOrCommentForAssetFiles(CWString& str)
+	struct SWhiteSpaceOrCommentForAssetString
 	{
-		// 맨 앞, 시작 부분에 있는 공백들을 제거한다, 탭이 스페이스로 대체된 에디터를 쓰는 경우 이럴 수 있다
-		for (auto it = str.begin(); it != str.end();)
+		bool isStartedMultiLineComments_ = false;
+
+		void operator()(CWString& str)
 		{
-			auto c = *it;
-			if (c == L'\t' || c == L' ' || c == L'\r' || c == L'\n')
-			{	// 들여쓰기
-				str.erase(it);
+			if (isStartedMultiLineComments_)
+			{	// 다중 주석 처리 중
+				for (auto it = str.begin(); it != str.end(); it++)
+				{
+					auto c = *it;
+					if (c == L'*' && (it + 1) != str.end() && *(it + 1) == L'/')
+					{	// 여러 줄 주석 - 끝
+						isStartedMultiLineComments_ = false;
+						str.erase(str.begin(), (it + 2));	// */ 까지 끊고 
+						break;
+					}
+				}
+
+				if (isStartedMultiLineComments_ == false)
+				{	// 주석이 끝났다 - 나머지 처리하기
+				}
+				else
+				{	// 싹다 날림
+					str.clear();
+					return;
+				}
 			}
-			else if (c == L'/' && (it + 1) != str.end() && *(it + 1) == L'/')
-			{	// 주석
-				str.erase(it, str.end());
+
+			// 맨 앞, 시작 부분에 있는 공백들을 제거한다, 탭이 스페이스로 대체된 에디터를 쓰는 경우 이럴 수 있다
+			for (auto it = str.begin(); it != str.end();)
+			{
+				auto c = *it;
+
+				if (c == L'\t' || c == L' ' || c == L'\r' || c == L'\n')
+				{	// 들여쓰기
+					str.erase(it);
+				}
+				else if (c == L'/' && (it + 1) != str.end() && *(it + 1) == L'/')
+				{	// 한줄 주석
+					str.erase(it, str.end());
+				}
+				else if (c == L'/' && (it + 1) != str.end() && *(it + 1) == L'*')
+				{	// 여러 줄 주석 - 시작
+					isStartedMultiLineComments_ = true;
+					str.erase(it, str.end());
+				}
+				else
+					break;
 			}
-			else
-				break;
 		}
-	}
+	};
 
 	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
 	{
@@ -174,10 +208,11 @@ namespace SMGE
 			CVector<TupleVarName_VarType_Value> metaSplitted;	// ##CVector<float> 리플렉션 데이터 최적화
 			metaSplitted.reserve(variableSplitted.size());
 
+			SWhiteSpaceOrCommentForAssetString whiteOrCommentRemover;
 			CVector<CWString> temp;
 			for (int i = 0; i < variableSplitted.size(); ++i)
 			{
-				RemoveOrCommentForAssetFiles(variableSplitted[i]);
+				whiteOrCommentRemover(variableSplitted[i]);
 
 				if (variableSplitted[i].length() == 0)
 					continue;

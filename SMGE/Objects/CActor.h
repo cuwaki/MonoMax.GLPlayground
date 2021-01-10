@@ -65,7 +65,6 @@ namespace SMGE
 		void Dtor();
 
 		virtual void Tick(float);	// 차후 개발 - CGInterf_Tickable 로 빼자
-		virtual void Render(float);	// 차후 개발 - CGInterf_Renderable 로 빼자???
 
 		nsRE::Transform& getTransform();
 		const nsRE::Transform& getTransform() const;
@@ -82,12 +81,16 @@ namespace SMGE
 
 		const glm::vec3& getLocation() const {	return getTransform().GetTranslation(); }
 		const glm::vec3& getRotationEuler() const { return getTransform().GetRotationEuler(); }
+		glm::vec3 getRotationEulerDegrees() const { return getTransform().GetRotationEulerDegrees(); }
 		const glm::vec3& getScales() const { return getTransform().GetScales(); }
 
 		void SetPendingKill();
 		bool IsPendingKill() const;
 
 		void SetLifeTick(int32 t) { lifeTick_ = t; }
+
+		void SetRendering(bool isr);
+		bool IsRendering() const { return isRendering_; }
 
 	public:
 		// CActor interface
@@ -106,6 +109,8 @@ namespace SMGE
 
 	protected:
 		bool isPendingKill_ = false;
+		bool isRendering_ = true;
+
 		int32 lifeTick_ = 0;
 
 		nsRE::Transform actorTransform_;

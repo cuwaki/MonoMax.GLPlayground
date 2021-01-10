@@ -48,7 +48,6 @@ namespace SMGE
 			class nsGE::CEngineBase* GetEngine() const;
 
 			virtual void Tick(float);
-			virtual void Render(float);
 
 		protected:
 			virtual void Initialize();

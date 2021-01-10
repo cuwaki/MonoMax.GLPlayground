@@ -165,11 +165,6 @@ namespace SMGE
 			gameBase_->Tick(timeDelta);
 		}
 
-		void CEngineBase::Render(float timeDelta)
-		{
-			gameBase_->Render(timeDelta);
-		}
-
 		void CEngineBase::SetRenderingEngine(nsRE::CRenderingEngine* re)
 		{
 			renderingEngine_ = re;

@@ -8,6 +8,8 @@
 #include "../../MonoMax.EngineCore/common/controls.hpp"
 #include "../CBoundCheck.h"
 
+#define DRAW_FRUSTUM
+
 namespace SMGE
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -79,16 +81,43 @@ namespace SMGE
 
 	void CCameraActor::BeginPlay()
 	{
-		if (getActorStaticTag() == "testCamera")
+		using namespace nsRE;
+
+		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+		const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
+
+		// AABB용 큐브
+		frustumCube_ = SCast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CCubeComponent>(this))).get());
+		frustumCube_->Translate(frustumModel.center_);
+		frustumCube_->Scale({
+			frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
+			frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
+			frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z });
+		frustumCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
+
+		// 체크용 평면 만들기
+		std::generate(frustumPlanes_.begin(), frustumPlanes_.end(),
+			[this]()
+			{
+				return SCast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CPlaneComponent>(this))).get());
+			});
+
+		// 평면 노멀이 안쪽을 보도록, 현재 카메라는 +Z를 보고 있다
+		frustumPlanes_[0]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RT]);
+		
+		// 문제 - 파 플레인 노멀이 이상하다 - 이게 쿼터니언 회전 문제일 수 있다, 요 회전으로 바꿔서 해보든가 테스트 해보자
+		frustumPlanes_[1]->SetBound(frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RB]);
+		frustumPlanes_[2]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.nearPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[3]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_LB]);
+		frustumPlanes_[4]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.nearPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[5]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
+
+#ifdef DRAW_FRUSTUM
+		if (getActorStaticTag() == "testCamera")	// 테스트 코드 - 프러스텀 컬링
 		{
 			// 테스트 코드 - 카메라 움직이도록
-			//auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
-			//getTransientComponents().emplace_back(std::move(moveCompo));
-
-			using namespace nsRE;
-
-			auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
-			const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
+			auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
+			getTransientComponents().emplace_back(std::move(moveCompo));
 
 			// 이하 모든 처리는 this 와 frustumModel의 모델 좌표계에서 진행되고 있음을 참고
 			CVector<CSegmentComponent*> segs(4);
@@ -217,31 +246,8 @@ namespace SMGE
 			//frustumQuads_[5]->SetPickingTarget(false);
 			//frustumQuads_[5]->SetCollideTarget(false);
 			//frustumQuads_[5]->SetGizmoColor({ 0.f, 1.f, 0.f });
-
-			// AABB용 큐브
-			frustumCube_ = SCast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CCubeComponent>(this))).get());
-			frustumCube_->Translate(frustumModel.center_);
-			frustumCube_->Scale({
-				frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
-				frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
-				frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z });
-			frustumCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
-
-			// 체크용 평면 만들기
-			std::generate(frustumPlanes_.begin(), frustumPlanes_.end(),
-				[this]()
-				{
-					return SCast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CPlaneComponent>(this))).get());
-				});
-
-			// 평면 노멀이 안쪽을 보도록, 현재 카메라는 +Z를 보고 있다
-			frustumPlanes_[0]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RT]);
-			frustumPlanes_[1]->SetBound(frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RB]);
-			frustumPlanes_[2]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.nearPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RT]);
-			frustumPlanes_[3]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_LB]);
-			frustumPlanes_[4]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.nearPlane_[TransformConst::GL_RT]);
-			frustumPlanes_[5]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
 		}
+#endif
 
 		Super::BeginPlay();
 	}
@@ -277,5 +283,47 @@ namespace SMGE
 		if (reflCameraActor_.get() == nullptr)
 			reflCameraActor_ = MakeUniqPtr<TReflectionStruct>(*this);
 		return *reflCameraActor_.get();
+	}
+
+	SAABB CCameraActor::GetFrustumAABB() const
+	{
+		assert(frustumCube_ && "never nullptr");
+		return frustumCube_->GetAABB();
+	}
+
+	bool CCameraActor::IsInOrIntersectWithFrustum(CBoundComponent* mainBound) const
+	{
+		const auto& mainBoundBound = mainBound->GetBound();
+
+		const auto& planeBound0 = SCast<const SPlaneBound&>(frustumPlanes_[0]->GetBound());
+		if (planeBound0.isInFrontOrIntersect(mainBoundBound) == false)
+			return false;
+
+		const auto& planeBound2 = SCast<const SPlaneBound&>(frustumPlanes_[2]->GetBound());
+		if (planeBound2.isInFrontOrIntersect(mainBoundBound) == false)
+			return false;
+
+		const auto& planeBound3 = SCast<const SPlaneBound&>(frustumPlanes_[3]->GetBound());
+		if (planeBound3.isInFrontOrIntersect(mainBoundBound) == false)
+			return false;
+
+		const auto& planeBound4 = SCast<const SPlaneBound&>(frustumPlanes_[4]->GetBound());
+		if (planeBound4.isInFrontOrIntersect(mainBoundBound) == false)
+			return false;
+
+		const auto& planeBound5 = SCast<const SPlaneBound&>(frustumPlanes_[5]->GetBound());
+		if (planeBound5.isInFrontOrIntersect(mainBoundBound) == false)
+			return false;
+
+		// 문제 - 파 플레인 노멀이 이상하다
+		// 문제 - 노멀을 강제로 설정해도 아니라고 한다
+
+		// 테스트 코드 - 프러스텀 컬링
+		//const auto& planeBound1T = SCast<const SPlaneBound&>(frustumPlanes_[1]->GetBound());
+		//SPlaneBound planeBound1(planeBound0.getNormal() * -1.f, frustumPlanes_[1]->GetWorldPosition());
+		//if (planeBound1.isInFrontOrIntersect(mainBoundBound) == false)
+		//	return false;
+
+		return true;
 	}
 }

@@ -18,9 +18,9 @@ namespace SMGE
 
 	void CCircleComponent::Ctor()
 	{
-		isGameVisible_ = false;
+		isGameRendering_ = false;
 #if IS_EDITOR
-		isEditorVisible_ = true;
+		isEditorRendering_ = true;
 #endif
 		boundType_ = EBoundType::CIRCLE;
 

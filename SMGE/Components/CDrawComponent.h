@@ -54,7 +54,6 @@ namespace SMGE
 		void Ctor();
 
 		virtual void Tick(float td) override;
-		virtual void Render(float td);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
 		virtual void OnEndPlay() override;
@@ -72,9 +71,9 @@ namespace SMGE
 		ComponentVector transientComponents_;
 		ComponentVectorWeak allComponents_;
 
-		bool isGameVisible_;
+		bool isGameRendering_;
 #if IS_EDITOR
-		bool isEditorVisible_;
+		bool isEditorRendering_;
 #endif
 	};
 };

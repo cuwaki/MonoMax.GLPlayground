@@ -151,11 +151,16 @@ namespace SMGE
 		SPlaneBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2);
 		SPlaneBound(const glm::vec3& norm, const glm::vec3& loc);
 
-		float getSignedDistanceFromPlane(const glm::vec3& loc) const;
+		inline float getSignedDistanceFromPlane(const glm::vec3& loc) const
+		{
+			return normal_.x * loc.x + normal_.y * loc.y + normal_.z * loc.z + d_;
+		}
 
 		bool isInFront(const glm::vec3& loc) const;
 		bool isOnPlane(const glm::vec3& loc) const;
 		bool isInBack(const glm::vec3& loc) const;
+
+		bool isInFrontOrIntersect(const SBound& other) const;
 
 		virtual bool check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const override;
 		bool check(const SPointBound& point, SSegmentBound& outCross) const;
@@ -279,6 +284,7 @@ namespace SMGE
 	struct SCircleBound : public SPlaneBound
 	{
 		static constexpr int CIRCUMFERENCE_SEGMENT_MAX = 18;	// 원주를 몇분할 하여 세그먼트로 만들지
+		static constexpr int CIRCUMFERENCE_POINT_MAX = CIRCUMFERENCE_SEGMENT_MAX;	// 원이기 때문에 둘레를 나누는 선분과 점의 개수는 같음
 
 		SCircleBound();
 		SCircleBound(const glm::vec3& norm, const glm::vec3& center, float radius);
@@ -318,6 +324,8 @@ namespace SMGE
 
 		void getSegments(SSegmentBound(&outSegs)[CIRCUMFERENCE_SEGMENT_MAX]) const;
 		int32 getSegmentMax() const { return CIRCUMFERENCE_SEGMENT_MAX; }
+
+		void getPoints(SPointBound(&outPoints)[CIRCUMFERENCE_POINT_MAX]) const;
 
 		const glm::vec3& getCenterPos() const { return loc_; }
 		float getRadius() const { return radius_; }
@@ -359,6 +367,8 @@ namespace SMGE
 		const glm::vec3& getCenterPos() const { return loc_; }
 		float getRadius() const { return radius_; }
 
+		void getPoints(const glm::vec3& normal, SPointBound(&outPoints)[2]) const;
+
 		virtual operator SAABB() const override;
 
 	protected:
@@ -380,6 +390,7 @@ namespace SMGE
 		bool check(const SCubeBound& cube, SSegmentBound& outCrossSegment) const;
 
 		void getQuads(SQuadBound (&outQuads)[6], bool isJustWantFrontAndBack = false) const;
+		void getPoints(SPointBound(&outPoints)[8]) const;
 
 		const glm::vec3& getEulerAxis(int axis) const { return eulerAxis_[axis]; }
 		float getSize(int axis) const { return axis == 0 ? size_.x : (axis == 1 ? size_.y : size_.z); }

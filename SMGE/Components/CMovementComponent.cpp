@@ -46,9 +46,9 @@ namespace SMGE
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
-			rotateFromEuler = actorParent_->getRotationEuler();
+			rotateFromEuler = actorParent_->getRotationEulerDegrees();
 			interpRotation_.setCurveType(ECurveType::Cos);
-			interpRotation_.start(rotateFromEuler, rotateFromEuler + rotateTo, TestInterpolationTime);
+			interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
 
 			scaleFrom = actorParent_->getScales();
 			interpScale_.setCurveType(ECurveType::Sin);
@@ -83,11 +83,11 @@ namespace SMGE
 				// Rotate
 				if (interpRotation_.isRunning())
 				{
-					targetTransform_->RotateEuler(interpRotation_.current());
+					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current());
 				}
 				else
 				{
-					interpRotation_.start(rotateFromEuler, rotateFromEuler + rotateTo, TestInterpolationTime);
+					interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
 				}
 
 				// Scale

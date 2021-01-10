@@ -179,16 +179,6 @@ namespace SMGE
 		}
 	}
 
-	void CActor::Render(float timeDelta)
-	{
-		for (auto& comp : getAllComponents())
-		{
-			auto mc = DCast<CDrawComponent*>(comp);
-			if(mc)
-				mc->Render(timeDelta);
-		}
-	}
-
 	void CActor::OnSpawnStarted(CMap* map, bool isDynamic)
 	{
 	}
@@ -242,6 +232,21 @@ namespace SMGE
 	bool CActor::IsPendingKill() const
 	{
 		return isPendingKill_;
+	}
+
+	void CActor::SetRendering(bool isr)
+	{
+		if (isRendering_ == isr)
+			return;
+
+		isRendering_ = isr;
+
+		for (auto comp : getAllComponents())
+		{
+			auto drawComp = DCast<CDrawComponent*>(comp);
+			if(drawComp)
+				drawComp->SetRendering(isr);
+		}
 	}
 
 	class CBoundComponent* CActor::GetMainBound()

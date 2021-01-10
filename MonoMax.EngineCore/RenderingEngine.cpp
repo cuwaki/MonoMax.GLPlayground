@@ -308,6 +308,10 @@ namespace SMGE
 		{
 			return rotationRadianEuler_;
 		}
+		glm::vec3 Transform::GetRotationEulerDegrees() const
+		{
+			return glm::degrees(rotationRadianEuler_);
+		}
 		const glm::vec3& Transform::GetDirectionQuat() const
 		{
 			return directionForQuat_;
@@ -872,7 +876,7 @@ namespace SMGE
 		{
 			for (auto& wmPtr : WorldObjects())
 			{	// 나를 사용하는 모든 월드 오브젝트을 찍는다
-				if (wmPtr->IsVisible() == false)
+				if (wmPtr->IsRendering() == false)
 					continue;
 
 				wmPtr->OnBeforeRendering();
@@ -1004,6 +1008,22 @@ namespace SMGE
 		WorldObject::WorldObject(WorldObject&& c) noexcept : WorldObject(c.renderModel_)
 		{
 			c.~WorldObject();
+		}
+		void WorldObject::SetRendering(bool isv)
+		{
+			if (isRendering_ == isv)
+				return;
+
+			isRendering_ = isv;
+
+			for (auto child : children_)
+			{
+				SCast<WorldObject*>(child)->SetRendering(isv);	// 여기 - 현재는 항상 WorldObject* 지만 차후 아닐 수도 있다
+			}
+		}
+		bool WorldObject::IsRendering() const
+		{
+			return isRendering_;
 		}
 	}
 
@@ -1191,9 +1211,6 @@ namespace SMGE
 					rm->EndRender();
 				}
 			}
-
-			// smge_game->GetEngine() <- 얘가 월드오브젝트을 상속한 액터를 갖게 된다
-			//smge_game->GetEngine()->Render(0.01f);
 
 			if (imgBuffer != nullptr)
 			{

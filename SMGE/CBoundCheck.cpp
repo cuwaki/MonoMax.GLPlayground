@@ -385,12 +385,6 @@ namespace SMGE
 		d_ = -normal_.x * loc.x + -normal_.y * loc.y + -normal_.z * loc.z;
 	}
 
-	float SPlaneBound::getSignedDistanceFromPlane(const glm::vec3& loc) const
-	{
-		const auto distance = normal_.x * loc.x + normal_.y * loc.y + normal_.z * loc.z + d_;
-		return distance;
-	}
-
 	bool SPlaneBound::isInFront(const glm::vec3& loc) const
 	{
 		return getSignedDistanceFromPlane(loc) > 0.f;
@@ -402,6 +396,57 @@ namespace SMGE
 	bool SPlaneBound::isInBack(const glm::vec3& loc) const
 	{
 		return getSignedDistanceFromPlane(loc) < 0.f;
+	}
+
+	bool SPlaneBound::isInFrontOrIntersect(const SBound& other) const
+	{
+		switch (other.type_)
+		{
+		case EBoundType::POINT:
+			return isInFront(static_cast<const SPointBound&>(other).loc_);
+		case EBoundType::SEGMENT:
+			return isInFront(static_cast<const SSegmentBound&>(other).start_) || isInFront(static_cast<const SSegmentBound&>(other).end_);
+			break;
+		case EBoundType::PLANE:
+		{
+			assert(false && "need to implement");	// 평면과 평면은 평행한 상태와 원점과의 거리를 가지고 판단할 수 있겠다
+			return false;
+		}
+		case EBoundType::TRIANGLE:
+		{
+			const auto& tri = static_cast<const STriangleBound&>(other);
+			return isInFront(tri.getP0()) || isInFront(tri.getP1()) || isInFront(tri.getP2());
+		}
+		case EBoundType::QUAD:
+		{
+			const auto& quad = static_cast<const SQuadBound&>(other);
+			return isInFront(quad.getP0()) || isInFront(quad.getP1()) || isInFront(quad.getP2()) || isInFront(quad.getP3());
+		}
+		case EBoundType::CIRCLE:
+		{	// 미구현 - 당분간 무조건 true
+			//assert(false && "need to implement");
+			return true;
+		}
+		case EBoundType::SPHERE:
+		{
+			SPointBound points[2];
+			static_cast<const SSphereBound&>(other).getPoints(this->normal_, points);
+			return isInFront(points[0]) || isInFront(points[1]);
+		}
+		case EBoundType::CUBE:
+		{
+			SPointBound points[8];
+			static_cast<const SCubeBound&>(other).getPoints(points);
+			for (const auto& p : points)
+			{
+				if (isInFront(p))
+					return true;
+			}
+			return true;
+		}
+		default:
+			return false;
+		}
 	}
 
 	bool SPlaneBound::check(EBoundType otherType, const SBound& other, SSegmentBound& outCrossSeg) const
@@ -604,6 +649,14 @@ namespace SMGE
 		//outSegs[0] = cachedSegments_.get()[0];
 	}
 
+	void SCircleBound::getPoints(SPointBound(&outPoints)[CIRCUMFERENCE_POINT_MAX]) const
+	{
+		// 미구현 - 필요시 구현하라
+		assert(false && "need implements");
+
+		return;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool SSphereBound::operator==(const SSphereBound& other) const
 	{
@@ -765,6 +818,13 @@ namespace SMGE
 		return false;
 	}
 
+	void SSphereBound::getPoints(const glm::vec3& normal, SPointBound(&outPoints)[2]) const
+	{
+		const auto normalRadius = normal * getRadius();
+		outPoints[0] = getCenterPos() + normalRadius;
+		outPoints[1] = getCenterPos() - normalRadius;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	SCubeBound::SCubeBound() : SSphereBound()
 	{
@@ -820,6 +880,22 @@ namespace SMGE
 			},
 			min, max);
 		return { min, max };
+	}
+
+	void SCubeBound::getPoints(SPointBound(&outPoints)[8]) const
+	{
+		SQuadBound quads[6];
+		getQuads(quads, true);
+
+		outPoints[0] = quads[0].getP0();
+		outPoints[1] = quads[0].getP1();
+		outPoints[2] = quads[0].getP2();
+		outPoints[3] = quads[0].getP3();
+
+		outPoints[4] = quads[1].getP0();
+		outPoints[5] = quads[1].getP1();
+		outPoints[6] = quads[1].getP2();
+		outPoints[7] = quads[1].getP3();
 	}
 
 	bool SCubeBound::operator==(const SCubeBound& other) const

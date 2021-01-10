@@ -13,9 +13,9 @@ namespace SMGE
 
 	void CPlaneComponent::Ctor()
 	{
-		isGameVisible_ = false;
+		isGameRendering_ = false;
 #if IS_EDITOR
-		isEditorVisible_ = true;
+		isEditorRendering_ = true;
 #endif
 		boundType_ = EBoundType::PLANE;
 
@@ -24,9 +24,18 @@ namespace SMGE
 
 	void CPlaneComponent::ReadyToDrawing()
 	{
-		Super::ReadyToDrawing();
+		const auto resmKey = "gizmoK:plane";
 
-		// 아무것도 그리지 않음 - 나중에 축이나 그리든가
+		auto gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+		if (gizmorm == nullptr)
+		{
+			nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::PlaneResourceModel()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
+			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+		}
+
+		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
+
+		Super::ReadyToDrawing();
 	}
 
 	glm::vec3 CPlaneComponent::getNormal() const
@@ -46,6 +55,8 @@ namespace SMGE
 
 	void CPlaneComponent::SetBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2)
 	{
+		const auto& worldLoc = GetWorldPosition();
+
 		// ccw_p0 와 같이 이름 그대로 평면을 정의하는 점이 순서대로 들어왔다면
 		// ccw_p2 - ccw_p0 의 중점을 평면의 center 로 삼을 수 있고, 이것은 크기를 제한할 경우 SQuadBound 와 같이 사용할 수도 있게 된다
 		const auto center = (ccw_p2 - ccw_p0) / 2.f;

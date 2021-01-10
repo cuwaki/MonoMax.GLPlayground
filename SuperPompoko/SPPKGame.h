@@ -17,7 +17,6 @@ namespace SMGE
 	protected:
 		virtual void Initialize() override;
 		virtual void Tick(float) override;
-		virtual void Render(float) override;
 
 #if IS_EDITOR
 #endif

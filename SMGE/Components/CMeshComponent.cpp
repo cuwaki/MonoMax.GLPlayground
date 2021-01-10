@@ -44,9 +44,9 @@ namespace SMGE
 
 	void CMeshComponent::Ctor()
 	{
-		isGameVisible_ = true;
+		isGameRendering_ = true;
 #if IS_EDITOR
-		isEditorVisible_ = true;
+		isEditorRendering_ = true;
 #endif
 	}
 

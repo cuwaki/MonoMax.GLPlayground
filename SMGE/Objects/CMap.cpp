@@ -127,8 +127,11 @@ namespace SMGE
 				actorOctree_.RemoveByPoint(actor.get(), actor.get()->getLocation());
 				actor->EndPlay();
 
-				actor.reset();
+				auto it = std::find(oldActorsInFrustum_.begin(), oldActorsInFrustum_.end(), actor.get());
+				if(it != oldActorsInFrustum_.end())
+					*it = nullptr;
 
+				actor.reset();
 				actors.erase(actors.begin() + i);
 			}
 
@@ -141,8 +144,9 @@ namespace SMGE
 
 	void CMap::Tick(float timeDelta)
 	{
-		glm::vec3 oldLoc, newLoc;
+		cameraFrustumCulling();
 
+		glm::vec3 oldLoc, newLoc;
 		for (auto& actors : actorLayers_)
 		{
 			for (auto& actor : actors)
@@ -163,17 +167,6 @@ namespace SMGE
 						actor->GetMainBound()->CacheAABB();
 					}
 				}
-			}
-		}
-	}
-
-	void CMap::Render(float timeDelta)
-	{
-		for (auto& actors : actorLayers_)
-		{
-			for (auto& actor : actors)
-			{
-				actor->Render(timeDelta);
 			}
 		}
 	}
@@ -256,7 +249,8 @@ namespace SMGE
 			currentCamera_->onChangedCurrent(false);
 
 		currentCamera_ = camA;
-
+		cullingCamera_ = camA;
+ 
 		if(currentCamera_)
 			currentCamera_->onChangedCurrent(true);
 	}
@@ -265,6 +259,7 @@ namespace SMGE
 	{
 		currentCamera_ = nullptr;
 
+		// 현재 카메라 설정
 		for (auto& sysActor : actorLayers_[EActorLayer::System])
 		{
 			auto camActor = DCast<CCameraActor*>(sysActor.get());
@@ -339,6 +334,51 @@ namespace SMGE
 				break;
 			}
 		}
+
+		// 테스트 코드 - 프러스텀 컬링
+		for (auto& sysActor : actorLayers_[EActorLayer::System])
+		{
+			auto camActor = DCast<CCameraActor*>(sysActor.get());
+			if (camActor->getActorStaticTag() == "testCamera")
+				cullingCamera_ = camActor;
+		}
+
+		//isFrustumCulling_ = false;	// 테스트 코드 - 프러스텀 컬링
+
+		if (isFrustumCulling_)
+		{	// 카메라 설정이 끝났으니 초기 프러스텀 컬링
+			for (auto& gamActor : actorLayers_[EActorLayer::Game])	// 모두 끄고 시작
+				gamActor->SetRendering(false);
+
+			cameraFrustumCulling();
+		}
+	}
+
+	void CMap::cameraFrustumCulling()
+	{
+		if (isFrustumCulling_ == false || cullingCamera_ == nullptr)
+			return;
+
+		for (auto actor : oldActorsInFrustum_)
+		{
+			if (actor)
+				actor->SetRendering(false);
+		}
+		
+		auto checkActors = QueryActors(cullingCamera_->GetFrustumAABB());
+		for (auto& actorPtr : checkActors)
+		{
+			const auto mainBound = actorPtr->GetMainBound();
+			if (mainBound == nullptr)
+			{
+				actorPtr->SetRendering(true);	// 컬링이 불가능하므로 무조건 그린다
+				actorPtr = nullptr;
+			}
+			else
+				actorPtr->SetRendering(cullingCamera_->IsInOrIntersectWithFrustum(mainBound));
+		}
+
+		oldActorsInFrustum_ = std::move(checkActors);
 	}
 
 	void CMap::BeginPlay()
@@ -382,6 +422,11 @@ namespace SMGE
 
 		actorLayers_.clear();
 		isBeganPlay_ = false;
+	}
+
+	class CCameraActor* CMap::GetCurrentCamera() const
+	{
+		return currentCamera_;
 	}
 
 	CActor& CMap::SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic)

@@ -184,6 +184,7 @@ namespace SMGE
 
 			const glm::vec3& GetTranslation() const;
 			const glm::vec3& GetRotationEuler() const;
+			glm::vec3		 GetRotationEulerDegrees() const;
 			const glm::vec3& GetDirectionQuat() const;
 			const glm::vec3& GetScales() const;
 			float GetScale(TransformConst::ETypeAxis aType) const;
@@ -243,11 +244,11 @@ namespace SMGE
 			WorldObject(WorldObject&& c) noexcept;
 			WorldObject& operator=(WorldObject&& c) noexcept = delete;
 
-			void SetVisible(bool isv) { isVisible_ = isv; }
-			bool IsVisible() const { return isVisible_; }
+			void SetRendering(bool isv);
+			bool IsRendering() const;
 
 		protected:
-			bool isVisible_ = true;
+			bool isRendering_ = true;
 		};
 
 		// RenderModel은 GLContext 종속이다

@@ -90,7 +90,7 @@ namespace SMGE
 		{
 			std::vector<glm::vec3> vertices;
 
-			// 평면이므로 두께가 없다, 가로세로 길이가 1인 평면의 면을 삼각형 두개로 만든다
+			// 쿼드이므로 두께가 없다, 가로세로 길이가 1인 쿼드의 면을 삼각형 두개로 만든다
 			glm::vec2 xyOrigin(0), xySize(1);
 
 			auto xySizeHalf = xySize / 2.f;
@@ -112,7 +112,7 @@ namespace SMGE
 		{
 			std::vector<glm::vec3> vertices;
 
-			// 평면이므로 두께가 없다, 가로세로 길이가 1인 평면의 외곽선을 만든다
+			// 쿼드이므로 두께가 없다, 가로세로 길이가 1인 쿼드의 외곽선을 만든다
 			glm::vec2 xyOrigin(0), xySize(1);
 
 			auto xySizeHalf = xySize / 2.f;
@@ -144,6 +144,18 @@ namespace SMGE
 		{
 			auto circleLines = makeCircle2DXY_Faced<glm::vec3>(circumferenceSegmentNumber, 0.5f);	// XY평면의 2D 써클
 			CreateFrom(circleLines, GL_TRIANGLE_FAN);
+		}
+
+		PlaneResourceModel::PlaneResourceModel() : GizmoResourceModel()
+		{
+			glm::vec3 direction = TransformConst::DefaultModelFrontAxis();
+
+			std::vector<glm::vec3> vertices;
+
+			vertices.emplace_back(0.f, 0.f, 0.f);	// 시점
+			vertices.emplace_back(glm::normalize(direction) * 1.f);	// 종점
+
+			CreateFrom(vertices, GL_LINES);
 		}
 
 		SegmentResourceModel::SegmentResourceModel() : GizmoResourceModel()

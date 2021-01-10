@@ -16,8 +16,8 @@ namespace SMGE
 
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetTranslation());
 
-		auto radRot = nsre_transform_.GetRotationEuler();
-		ret += _TO_REFL(glm::vec3, glm::degrees(radRot));
+		auto degRot = nsre_transform_.GetRotationEulerDegrees();
+		ret += _TO_REFL(glm::vec3, degRot);
 
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetScales());
 
@@ -120,9 +120,9 @@ namespace SMGE
 
 	void CDrawComponent::Ctor()
 	{
-		isGameVisible_ = false;
+		isGameRendering_ = false;
 #if IS_EDITOR
-		isEditorVisible_ = false;
+		isEditorRendering_ = false;
 #endif
 	}
 
@@ -140,28 +140,18 @@ namespace SMGE
 		}
 	}
 
-	void CDrawComponent::Render(float td)
-	{
-		for (auto& comp : getAllComponents())
-		{
-			auto mc = DCast<CDrawComponent*>(comp);
-			if (mc)
-				mc->Render(td);
-		}
-	}
-
 	void CDrawComponent::OnBeginPlay(CObject* parent)
 	{
 		assert(parent != nullptr);
 
 		CComponent::OnBeginPlay(parent);
 
-		if (isGameVisible_)
-			SetVisible(isGameVisible_);
+		if (isGameRendering_)
+			SetRendering(isGameRendering_);
 
 #if IS_EDITOR
-		if (isEditorVisible_)	// 게임일 경우 에디터 비지블이 게임 비지블을 덮어써버리도록 하자
-			SetVisible(isEditorVisible_);
+		if (isEditorRendering_)	// 게임일 경우 에디터 비지블이 게임 비지블을 덮어써버리도록 하자
+			SetRendering(isEditorRendering_);
 #endif
 
 		ReadyToDrawing();

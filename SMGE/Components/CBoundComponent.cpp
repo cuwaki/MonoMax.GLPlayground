@@ -173,9 +173,9 @@ namespace SMGE
 			if (obbCube)
 			{
 				// 테스트 코드 - OBB 가 눈에 보이도록
-//				obbCube->isGameVisible_ = false;
+//				obbCube->isGameRendering_ = false;
 //#if IS_EDITOR
-//				obbCube->isEditorVisible_ = false;
+//				obbCube->isEditorRendering_ = false;
 //#endif
 
 				// 여기 - LoadObject 와 같이 new 하고 reflect 까지 한번에 끝내주는 함수 필요

@@ -51,14 +51,14 @@ namespace SMGE
 			CubeResourceModel();
 		};
 
-		// 라인으로 그려지는 평면
+		// 라인으로 그려지는 쿼드
 		class QuadResourceModel : public GizmoResourceModel
 		{
 		public:
 			QuadResourceModel();
 		};
 
-		// 면으로 그려지는 평면
+		// 면으로 그려지는 쿼드
 		class QuadFacedResourceModel : public GizmoResourceModel
 		{
 		public:
@@ -74,6 +74,12 @@ namespace SMGE
 		{
 		public:
 			CircleFacedResourceModel(int32 circumferenceSegmentNumber);
+		};
+
+		class PlaneResourceModel : public GizmoResourceModel
+		{
+		public:
+			PlaneResourceModel();
 		};
 
 		class SegmentResourceModel : public GizmoResourceModel
