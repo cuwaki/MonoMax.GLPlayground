@@ -203,6 +203,29 @@ namespace SMGE
 		}
 	}
 
+	bool CDrawComponent::IsGameRendering() const
+	{
+		return isGameRendering_;
+	}
+	void CDrawComponent::SetGameRendering(bool ir)
+	{
+		isGameRendering_ = ir;
+		SetRendering(ir);
+	}
+
+#if IS_EDITOR
+	bool CDrawComponent::IsEditorRendering() const
+	{
+		return isEditorRendering_;
+	}
+
+	void CDrawComponent::SetEditorRendering(bool ir)
+	{
+		isEditorRendering_ = ir;
+		SetRendering(ir);
+	}
+#endif
+
 	ComponentVector& CDrawComponent::getPersistentComponents()
 	{
 		return persistentComponents_;

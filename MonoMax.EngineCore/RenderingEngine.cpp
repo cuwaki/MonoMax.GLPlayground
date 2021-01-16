@@ -74,29 +74,29 @@ namespace SMGE
 				static_assert(DefaultAxis_Front == ETypeAxis::Z);	// 이거 바꾸면 asset 도 그렇고 바꿀 곳이 많음! 건들지 말 것!
 				return WorldZAxis;
 			}
-			const glm::vec3 DefaultModelFrontAxis(const glm::mat3& currentRotMat)
+			const glm::vec3 GetFrontAxis(const glm::mat3& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Front];
 			}
-			const glm::vec3 DefaultModelFrontAxis(const glm::mat4& currentRotMat)
+			const glm::vec3 GetFrontAxis(const glm::mat4& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Front];
 			}
 
-			const glm::vec3 DefaultModelUpAxis(const glm::mat3& currentRotMat)
+			const glm::vec3 GetUpAxis(const glm::mat3& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Up];
 			}
-			const glm::vec3 DefaultModelUpAxis(const glm::mat4& currentRotMat)
+			const glm::vec3 GetUpAxis(const glm::mat4& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Up];
 			}
 
-			const glm::vec3 DefaultModelLeftAxis(const glm::mat3& currentRotMat)
+			const glm::vec3 GetLeftAxis(const glm::mat3& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Left];
 			}
-			const glm::vec3 DefaultModelLeftAxis(const glm::mat4& currentRotMat)
+			const glm::vec3 GetLeftAxis(const glm::mat4& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Left];
 			}
@@ -556,24 +556,23 @@ namespace SMGE
 
 				const auto translMat = glm::translate(Mat4_Identity, translation_);
 
-				// 쿼터니언 기본 정보
-				// http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
-
 				// 1. 오일러각 조절로 기본 각도를 맞추고
 				// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
 				const glm::quat euler2Quat(rotationRadianEuler_);
 				const auto eulerRotMat = glm::toMat4(euler2Quat);
 
 				// 여기 - 쿼터 회전 후 오일러 rotationRadianEuler_ 이것들의 값이 의미가 없어지는 문제가 있다, 어떻게 해야할까??
+				// 쿼터니언 기본 정보
+				// http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
 				// 쿼터니언 2 오일러 와 그의 반대 - https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 
 				// 2. 방향지정으로 회전
-				const auto modelDirAxis = DefaultModelFrontAxis(eulerRotMat);
-				const auto modelUpAxis = DefaultModelUpAxis(eulerRotMat);
+				const auto modelDirAxis = GetFrontAxis(eulerRotMat);
+				const auto modelUpAxis = GetUpAxis(eulerRotMat);
 				//const glm::quat qX = glm::angleAxis(glm::degrees(rotationRadianQuat_.x), glm::vec3(eulerRotMat[ETypeAxis::X]));
-				const glm::quat lookAt = OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, modelDirAxis, WorldYAxis);
+				const glm::quat lookAt = glm::normalize(OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, modelDirAxis, WorldYAxis));
 				//const glm::quat lookAt = OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, WorldZAxis, WorldYAxis);
-				const auto quatRotMat = glm::toMat4(lookAt);
+				const auto quatRotMat = glm::mat4_cast(lookAt);
 
 				// 나의 스케일 처리
 				const auto scalMat = glm::scale(Mat4_Identity, scale_);

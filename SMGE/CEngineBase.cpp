@@ -24,10 +24,10 @@ namespace SMGE
 			checkKeyboardInputs_.insert(std::make_pair(VK_SPACE, VK_RELEASED));
 			checkKeyboardInputs_.insert(std::make_pair(VK_RETURN, VK_RELEASED));
 			checkKeyboardInputs_.insert(std::make_pair(VK_ESCAPE, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair(VK_LEFT, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair(VK_RIGHT, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair(VK_UP, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair(VK_DOWN, VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair('A', VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair('D', VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair('W', VK_RELEASED));
+			checkKeyboardInputs_.insert(std::make_pair('S', VK_RELEASED));
 #else
 #endif
 		}

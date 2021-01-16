@@ -57,14 +57,15 @@ namespace SMGE
 			const ETypeAxis DefaultAxis_Left = ETypeAxis::X;	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 
 			const glm::vec3 DefaultModelFrontAxis();
-			const glm::vec3 DefaultModelFrontAxis(const glm::mat3& currentRotMat);
-			const glm::vec3 DefaultModelFrontAxis(const glm::mat4& currentRotMat);
 
-			const glm::vec3 DefaultModelUpAxis(const glm::mat3& currentRotMat);
-			const glm::vec3 DefaultModelUpAxis(const glm::mat4& currentRotMat);
+			const glm::vec3 GetFrontAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 GetFrontAxis(const glm::mat4& currentRotMat);
 
-			const glm::vec3 DefaultModelLeftAxis(const glm::mat3& currentRotMat);	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
-			const glm::vec3 DefaultModelLeftAxis(const glm::mat4& currentRotMat);
+			const glm::vec3 GetUpAxis(const glm::mat3& currentRotMat);
+			const glm::vec3 GetUpAxis(const glm::mat4& currentRotMat);
+
+			const glm::vec3 GetLeftAxis(const glm::mat3& currentRotMat);	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
+			const glm::vec3 GetLeftAxis(const glm::mat4& currentRotMat);
 		};
 
 		class VertFragShaderSet

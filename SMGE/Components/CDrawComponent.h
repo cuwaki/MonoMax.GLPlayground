@@ -60,6 +60,13 @@ namespace SMGE
 
 		virtual void ReadyToDrawing();
 
+		bool IsGameRendering() const;
+		void SetGameRendering(bool ir);
+#if IS_EDITOR
+		bool IsEditorRendering() const;
+		void SetEditorRendering(bool ir);
+#endif
+
 		// CInt_Component
 		virtual ComponentVector& getPersistentComponents() override;
 		virtual ComponentVector& getTransientComponents() override;

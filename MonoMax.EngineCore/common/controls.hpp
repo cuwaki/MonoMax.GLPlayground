@@ -71,6 +71,9 @@ namespace SMGE
 			const glm::vec3& GetCameraUp() const;
 			void SetCameraUp(const glm::vec3& cu);
 
+			glm::vec3 GetCameraFrontFromQuat(const glm::quat& orien) const;
+			void SetCameraFront(const glm::vec3& dir);
+
 			void SetFOV(float fovDegrees);
 			float GetFOV() const { return fovDegrees_; }
 			float GetFOV_Horizontal() const;

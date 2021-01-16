@@ -50,7 +50,7 @@ namespace SMGE
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CCameraActor::CCameraActor(CObject* outer) : Super(outer)
 	{
-		frustumCube_ = nullptr;
+		frustumAABBCube_ = nullptr;
 		std::fill(frustumQuads_.begin(), frustumQuads_.end(), nullptr);
 		std::fill(frustumPlanes_.begin(), frustumPlanes_.end(), nullptr);
 
@@ -70,9 +70,12 @@ namespace SMGE
 
 		if (isCurrentCamera())
 		{
-			auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
-			renderCam.SetCameraPos(getTransform().GetWorldPosition());
-			renderCam.SetCameraLookAt(getTransform().GetWorldFront() * zFar_);
+			if (getTransform().IsDirty())	// 여기 - 어? 왜 더티가 안풀리지?
+			{
+				auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+				renderCam.SetCameraPos(getTransform().GetWorldPosition());
+				renderCam.SetCameraFront(getTransform().GetWorldFront());
+			}
 		}
 		else
 		{
@@ -87,13 +90,13 @@ namespace SMGE
 		const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
 
 		// AABB용 큐브
-		frustumCube_ = SCast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CCubeComponent>(this))).get());
-		frustumCube_->Translate(frustumModel.center_);
-		frustumCube_->Scale({
+		frustumAABBCube_ = SCast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CCubeComponent>(this))).get());
+		frustumAABBCube_->Translate(frustumModel.center_);
+		frustumAABBCube_->Scale({
 			frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
 			frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
 			frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z });
-		frustumCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
+		frustumAABBCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
 
 		// 체크용 평면 만들기
 		std::generate(frustumPlanes_.begin(), frustumPlanes_.end(),
@@ -102,47 +105,57 @@ namespace SMGE
 				return SCast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CPlaneComponent>(this))).get());
 			});
 
-		// 평면 노멀이 안쪽을 보도록, 현재 카메라는 +Z를 보고 있다
+		// 평면 노멀이 안쪽을 보도록, 현재 frustumModel은 +Z를 보고 있다
 		frustumPlanes_[0]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RT]);
-		
-		// 문제 - 파 플레인 노멀이 이상하다 - 이게 쿼터니언 회전 문제일 수 있다, 요 회전으로 바꿔서 해보든가 테스트 해보자
+		frustumPlanes_[0]->SetEditorRendering(false);
 		frustumPlanes_[1]->SetBound(frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RB]);
+		frustumPlanes_[1]->SetEditorRendering(false);
 		frustumPlanes_[2]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.nearPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[2]->SetEditorRendering(false);
 		frustumPlanes_[3]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_LB]);
+		frustumPlanes_[3]->SetEditorRendering(false);
 		frustumPlanes_[4]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.nearPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[4]->SetEditorRendering(false);
 		frustumPlanes_[5]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
+		frustumPlanes_[5]->SetEditorRendering(false);
 
 #ifdef DRAW_FRUSTUM
 		if (getActorStaticTag() == "testCamera")	// 테스트 코드 - 프러스텀 컬링
 		{
-			// 테스트 코드 - 카메라 움직이도록
+			//frustumPlanes_[0]->SetEditorRendering(true);
+			//frustumPlanes_[1]->SetEditorRendering(true);
+			//frustumPlanes_[2]->SetEditorRendering(true);
+			//frustumPlanes_[3]->SetEditorRendering(true);
+			//frustumPlanes_[4]->SetEditorRendering(true);
+			//frustumPlanes_[5]->SetEditorRendering(true);
+
+			//// 테스트 코드 - 카메라 움직이도록
 			auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
 			getTransientComponents().emplace_back(std::move(moveCompo));
 
 			// 이하 모든 처리는 this 와 frustumModel의 모델 좌표계에서 진행되고 있음을 참고
-			CVector<CSegmentComponent*> segs(4);
-			std::generate(segs.begin(), segs.end(),
+			CVector<CSegmentComponent*> frustumLines(4);
+			std::generate(frustumLines.begin(), frustumLines.end(),
 				[this]()
 				{
 					return SCast<CSegmentComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CSegmentComponent>(this))).get());
 				});
 
-			auto LB2LB = frustumModel.farPlane_[TransformConst::GL_LB];
-			segs[0]->Scale({ 0.f, 0.f, glm::length(LB2LB) });
-			segs[0]->RotateQuat(glm::normalize(LB2LB));
+			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
+			frustumLines[0]->Scale({ 0.f, 0.f, glm::length(Origin2LB) });
+			frustumLines[0]->RotateQuat(glm::normalize(Origin2LB));
 
-			auto RB2RB = frustumModel.farPlane_[TransformConst::GL_RB];
-			segs[1]->Scale({ 0.f, 0.f, glm::length(RB2RB) });
-			segs[1]->RotateQuat(glm::normalize(RB2RB));
+			auto Origin2RB = frustumModel.farPlane_[TransformConst::GL_RB];
+			frustumLines[1]->Scale({ 0.f, 0.f, glm::length(Origin2RB) });
+			frustumLines[1]->RotateQuat(glm::normalize(Origin2RB));
 
-			auto RT2RT = frustumModel.farPlane_[TransformConst::GL_RT];
-			//RT2RT.y = 0;
-			segs[2]->Scale({ 0.f, 0.f, glm::length(RT2RT) });
-			segs[2]->RotateQuat(glm::normalize(RT2RT));
+			auto Origin2RT = frustumModel.farPlane_[TransformConst::GL_RT];
+			frustumLines[2]->Scale({ 0.f, 0.f, glm::length(Origin2RT) });
+			frustumLines[2]->RotateQuat(glm::normalize(Origin2RT));
 
-			auto LT2LT = frustumModel.farPlane_[TransformConst::GL_LT];
-			segs[3]->Scale({ 0.f, 0.f, glm::length(LT2LT) });
-			segs[3]->RotateQuat(glm::normalize(LT2LT));
+			auto Origin2LT = frustumModel.farPlane_[TransformConst::GL_LT];
+			frustumLines[3]->Scale({ 0.f, 0.f, glm::length(Origin2LT) });
+			frustumLines[3]->RotateQuat(glm::normalize(Origin2LT));
 
 			// 평면 그리기
 			std::generate(frustumQuads_.begin(), frustumQuads_.end(),
@@ -216,7 +229,7 @@ namespace SMGE
 			//// 좌측 평면 - 왜 좌측인데 GL_RB를 쓰냐면 프러스텀은 +Z를 바라보고 있어서 +X가 레프트인데, frustumModel.farPlane_, nearPlane_ 은 GL좌표계의 +z를 기준으로 만들어졌기 때문에 GL_LB가 -X, -Y이기 때문에 프러스텀입장에서 보면 Right bottom 이기 때문이다
 			//auto farPlaneRBY0 = frustumModel.farPlane_[TransformConst::GL_RB];
 			//farPlaneRBY0.y = 0;	// ZX 평면에 투영
-			//const auto horizonFOVHalf = glm::degrees(std::acosf(glm::dot(TransformConst::DefaultModelFrontAxis(), glm::normalize(farPlaneRBY0))));
+			//const auto horizonFOVHalf = glm::degrees(std::acosf(glm::dot(TransformConst::WorldZAxis, glm::normalize(farPlaneRBY0))));
 
 			//auto toLeft = farPlaneRBY0;
 			//frustumQuads_[4]->Translate(toLeft / 2.f);	// 여기 - 이거 완전 중점 아니다, f - n, n 이거 따져야한다
@@ -271,7 +284,7 @@ namespace SMGE
 			renderCam.SetCameraLeft(getTransform().GetWorldLeft());
 
 			renderCam.SetCameraPos(getTransform().GetWorldPosition());
-			renderCam.SetCameraLookAt(getTransform().GetWorldFront() * zFar_);
+			renderCam.SetCameraFront(getTransform().GetWorldFront());
 		}
 		else
 		{
@@ -287,8 +300,8 @@ namespace SMGE
 
 	SAABB CCameraActor::GetFrustumAABB() const
 	{
-		assert(frustumCube_ && "never nullptr");
-		return frustumCube_->GetAABB();
+		assert(frustumAABBCube_ && "never nullptr");
+		return frustumAABBCube_->GetAABB();
 	}
 
 	bool CCameraActor::IsInOrIntersectWithFrustum(CBoundComponent* mainBound) const
@@ -315,14 +328,10 @@ namespace SMGE
 		if (planeBound5.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		// 문제 - 파 플레인 노멀이 이상하다
-		// 문제 - 노멀을 강제로 설정해도 아니라고 한다
-
-		// 테스트 코드 - 프러스텀 컬링
-		//const auto& planeBound1T = SCast<const SPlaneBound&>(frustumPlanes_[1]->GetBound());
-		//SPlaneBound planeBound1(planeBound0.getNormal() * -1.f, frustumPlanes_[1]->GetWorldPosition());
-		//if (planeBound1.isInFrontOrIntersect(mainBoundBound) == false)
-		//	return false;
+		// 가장 마지막에 먼 것을 버리는게 나름 최적인 것 같다
+		const auto& planeBound1 = SCast<const SPlaneBound&>(frustumPlanes_[1]->GetBound());
+		if (planeBound1.isInFrontOrIntersect(mainBoundBound) == false)
+			return false;
 
 		return true;
 	}

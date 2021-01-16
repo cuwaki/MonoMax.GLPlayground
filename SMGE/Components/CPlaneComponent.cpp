@@ -57,9 +57,9 @@ namespace SMGE
 	{
 		const auto& worldLoc = GetWorldPosition();
 
-		// ccw_p0 와 같이 이름 그대로 평면을 정의하는 점이 순서대로 들어왔다면
+		// ccw_p0 와 같이 이름 그대로 평면을 정의하는 점이 사각형의 순서대로 들어왔다면
 		// ccw_p2 - ccw_p0 의 중점을 평면의 center 로 삼을 수 있고, 이것은 크기를 제한할 경우 SQuadBound 와 같이 사용할 수도 있게 된다
-		const auto center = (ccw_p2 - ccw_p0) / 2.f;
+		const auto center = ccw_p0 + (ccw_p2 - ccw_p0) / 2.f;
 		Translate(center);
 
 		const auto normal = glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0)));

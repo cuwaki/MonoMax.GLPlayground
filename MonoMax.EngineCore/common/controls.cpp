@@ -10,14 +10,20 @@ namespace SMGE
 	namespace nsRE
 	{
 		// 여기 - 상수들 통합 필요
-		static constexpr glm::vec3 DefaultModelFrontAxis(0, 0, 1);				// DefaultModelFrontAxis() 와 같아야한다
-		static constexpr glm::vec3 DefaultModelUpAxis(0, 1, 0);					// DefaultModelUpAxis() 와 같아야한다
-		static constexpr glm::vec3 DefaultModelLeftAxis(1, 0, 0);				// DefaultModelLeftAxis() 와 같아야한다
+		static constexpr glm::vec3 WorldZAxis(0, 0, 1);				// WorldZAxis() 와 같아야한다
+		static constexpr glm::vec3 WorldYAxis(0, 1, 0);					// WorldYAxis() 와 같아야한다
+		static constexpr glm::vec3 WorldXAxis(1, 0, 0);				// WorldXAxis() 와 같아야한다
+		static constexpr float BoundCheckEpsilon = 0.0001f;	// 통합해라
 		static constexpr size_t GL_LB = 0, GL_RB = 1, GL_RT = 2, GL_LT = 3;		// TransformConst::GL_LB 와 같아야한다
+
+		inline bool isNearlyEqual(const float& l, const float& r, float epsilon = /*Configs::BoundCheckEpsilon*/ 0.001f)	// 여기 - 통합 필요
+		{
+			return std::fabsf(l - r) < epsilon;
+		}
 
 		CRenderingCamera::CRenderingCamera()
 		{
-			cameraDir_ = DefaultModelFrontAxis;
+			cameraDir_ = WorldZAxis;
 			cameraLeft_ = { 1.f, 0.f, 0.f };
 			cameraUp_ = { 0.f, 1.f, 0.f };
 
@@ -25,7 +31,7 @@ namespace SMGE
 			angleSpeed_ = 4.f / 1000.f;
 
 #ifdef CAMERA_QUATERNION
-			orientation_ = glm::quat(0, DefaultModelFrontAxis);
+			orientation_ = glm::quat(0, WorldZAxis);
 			horizontalAngle_ = 0.f;
 			verticalAngle_ = 0.f;
 			angleSpeed_ = 0.2f;
@@ -68,8 +74,8 @@ namespace SMGE
 #endif
 
 			//glm::mat4 rotateMat(1);
-			//rotateMat = glm::rotate(rotateMat, xzAngle, glm::vec3(0, 1, 0));
-			//rotateMat = glm::rotate(rotateMat, yzAngle, glm::vec3(1, 0, 0));
+			//rotateMat = glm::rotate(rotateMat, xzAngle, WorldYAxis);
+			//rotateMat = glm::rotate(rotateMat, yzAngle, WorldXAxis);
 
 			//glm::vec4 direction4(0, 0, 1, 0), right4(1, 0, 0, 0);
 			//
@@ -127,6 +133,12 @@ namespace SMGE
 #endif
 		}
 
+		glm::vec3 CRenderingCamera::GetCameraFrontFromQuat(const glm::quat& orien) const
+		{
+			auto qf = orien * glm::quat(0, WorldZAxis) * glm::conjugate(orien);
+			return glm::vec3(qf.x, qf.y, qf.z);
+		}
+
 		void CRenderingCamera::RotateCamera(const glm::vec2& moved)
 		{
 			// 테스트 코드 - 이거 하드코딩이고 다른 데 또 있으니 검색해라
@@ -140,16 +152,7 @@ namespace SMGE
 
 #ifdef CAMERA_QUATERNION
 			updateOrientation(xzAngle, yzAngle * -1.f);	// 화면 상하 조절을 반대로 하기 위하여 * -1
-
-			glm::quat quatFront = orientation_ * glm::quat(0, DefaultModelFrontAxis) * glm::conjugate(orientation_);
-			cameraDir_ = glm::vec3(quatFront.x, quatFront.y, quatFront.z);
-			auto left = glm::cross({ 0, 1, 0 }, cameraDir_);
-			if (glm::length2(left) < 0.0001f)
-				left = glm::cross({ 0, 0, 1 }, cameraDir_);
-			if (glm::length2(left) < 0.0001f)
-				left = glm::cross({ 1, 0, 0 }, cameraDir_);
-			cameraLeft_ = glm::normalize(left);
-			cameraUp_ = glm::cross(cameraDir_, cameraLeft_);
+			SetCameraFront(GetCameraFrontFromQuat(orientation_));
 #else
 			cameraDir_ = {
 				cos(yzAngle) * sin(xzAngle),
@@ -271,22 +274,7 @@ namespace SMGE
 		{
 #ifdef CAMERA_QUATERNION
 			const auto dir = glm::normalize(lookAtWorldPos - worldPosition_);
-			orientation_ = OpenGL_Tutorials::LookAt(dir, cameraUp_, DefaultModelFrontAxis, { 0, 1, 0 });
-
-			glm::quat quatFront = orientation_ * glm::quat(0, DefaultModelFrontAxis) * glm::conjugate(orientation_);
-			cameraDir_ = glm::vec3(quatFront.x, quatFront.y, quatFront.z);
-			auto left = glm::cross({ 0, 1, 0 }, cameraDir_);
-			if (glm::length2(left) < 0.0001f)
-				left = glm::cross({ 0, 0, 1 }, cameraDir_);
-			if (glm::length2(left) < 0.0001f)
-				left = glm::cross({ 1, 0, 0 }, cameraDir_);
-			cameraLeft_ = glm::normalize(left);
-			cameraUp_ = glm::cross(cameraDir_, cameraLeft_);
-
-			viewMatrix_ = glm::lookAt(
-				worldPosition_,
-				worldPosition_ + cameraDir_,
-				cameraUp_);
+			SetCameraFront(dir);
 #else
 			cameraDir_ = glm::normalize(lookAtWorldPos - worldPosition_);
 
@@ -299,20 +287,36 @@ namespace SMGE
 #endif
 		}
 
+		void CRenderingCamera::SetCameraFront(const glm::vec3& dir)
+		{
+#if DEBUG || _DEBUG
+			assert(isNearlyEqual(glm::length(dir), 1.f) && "must be normalized!");
+#endif
+			cameraDir_ = dir;
+
+			auto left = glm::cross(WorldYAxis, cameraDir_);
+			if (glm::length2(left) < BoundCheckEpsilon)
+				left = glm::cross(WorldZAxis, cameraDir_);
+			if (glm::length2(left) < BoundCheckEpsilon)
+				left = glm::cross(WorldXAxis, cameraDir_);
+			cameraLeft_ = glm::normalize(left);
+			cameraUp_ = glm::cross(cameraDir_, cameraLeft_);
+
+			viewMatrix_ = glm::lookAt(
+				worldPosition_,
+				worldPosition_ + cameraDir_,
+				cameraUp_);
+		}
+
 #ifdef CAMERA_QUATERNION
 		void CRenderingCamera::updateOrientation(float hAngl, float vAngl)
 		{
-			glm::quat yaw = glm::angleAxis(glm::radians(hAngl), glm::vec3(0.f, 1.f, 0.f));
-			glm::quat pitch = glm::angleAxis(glm::radians(vAngl), glm::vec3(1.f, 0.f, 0.f));
+			glm::quat yaw = glm::angleAxis(glm::radians(hAngl), WorldYAxis);
+			glm::quat pitch = glm::angleAxis(glm::radians(vAngl), WorldXAxis);
 
 			orientation_ = yaw * pitch;
 		}
 #endif
-
-		inline bool isNearlyEqual(const float& l, const float& r, float epsilon = /*Configs::BoundCheckEpsilon*/ 0.001f)	// 여기 - 통합 필요
-		{
-			return std::fabsf(l - r) < epsilon;
-		}
 
 		// license - https://gist.github.com/terryjsmith/7196d8c099e1478ea276bd751925a2f1
 		CRenderingCamera::SFrustum CRenderingCamera::CalculateFrustumWorld(float fovDegrees, float n, float f) const
@@ -377,14 +381,14 @@ namespace SMGE
 			const float farHalfHeight = tanFov * f;
 			const float farHalfWidth = farHalfHeight * apectR;
 
-			const auto nearCenter = (DefaultModelFrontAxis * n);
-			const auto farCenter = (DefaultModelFrontAxis * f);
+			const auto nearCenter = (WorldZAxis * n);
+			const auto farCenter = (WorldZAxis * f);
 
 			SFrustum returnFrustum;
-			returnFrustum.center_ = (DefaultModelFrontAxis * n) + (DefaultModelFrontAxis * ((f - n) / 2.0f));
+			returnFrustum.center_ = (WorldZAxis * n) + (WorldZAxis * ((f - n) / 2.0f));
 
-			const auto ncuhh = DefaultModelUpAxis * nearHalfHeight;
-			const auto nclhw = DefaultModelLeftAxis * nearHalfWidth;
+			const auto ncuhh = WorldYAxis * nearHalfHeight;
+			const auto nclhw = WorldXAxis * nearHalfWidth;
 
 			// 카메라가 +z 를 보고 있을 때를 기준으로 평면 점들을 GL좌표계 기준으로 반시계로 내보낸다
 			returnFrustum.nearPlane_[GL_LB] = nearCenter - ncuhh - nclhw;
@@ -392,8 +396,8 @@ namespace SMGE
 			returnFrustum.nearPlane_[GL_RT] = nearCenter + ncuhh + nclhw;
 			returnFrustum.nearPlane_[GL_LT] = nearCenter + ncuhh - nclhw;
 
-			const auto fcuhh = DefaultModelUpAxis * farHalfHeight;
-			const auto fclhw = DefaultModelLeftAxis * farHalfWidth;
+			const auto fcuhh = WorldYAxis * farHalfHeight;
+			const auto fclhw = WorldXAxis * farHalfWidth;
 
 			returnFrustum.farPlane_[GL_LB] = farCenter - fcuhh - fclhw;
 			returnFrustum.farPlane_[GL_RB] = farCenter - fcuhh + fclhw;

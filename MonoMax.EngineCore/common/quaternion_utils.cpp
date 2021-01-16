@@ -12,7 +12,7 @@ namespace OpenGL_Tutorials
 	// Returns a quaternion such that q*start = dest
 	quat RotationBetweenVectors(vec3 start, vec3 dest)
 	{
-		start = normalize(start);
+		start = normalize(start);	// 최적화 - 이거 보통 노멀라이즈 되서 들어온다
 		dest = normalize(dest);
 
 		float cosTheta = dot(start, dest);
@@ -28,12 +28,12 @@ namespace OpenGL_Tutorials
 			// So guess one; any will do as long as it's perpendicular to start
 			// This implementation favors a rotation around the Up axis,
 			// since it's often what you want to do.
-			rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
+			rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
 			if (length2(rotationAxis) < 0.001f) // bad luck, they were parallel, try again!
-				rotationAxis = cross(vec3(0.0f, 0.0f, 1.0f), start);
+				rotationAxis = cross(vec3(1.0f, 0.0f, 0.0f), start);
 
 			rotationAxis = normalize(rotationAxis);
-			return angleAxis(180.0f, rotationAxis);
+			return angleAxis(3.141592f, rotationAxis);
 		}
 
 		// Implementation from Stan Melax's Game Programming Gems 1 article
@@ -50,7 +50,7 @@ namespace OpenGL_Tutorials
 		);
 	}
 
-
+	static constexpr float BoundCheckEpsilon = 0.0001f;	// 통합해라
 
 	// Returns a quaternion that will make your object looking towards 'direction'.
 	// Similar to RotationBetweenVectors, but also controls the vertical orientation.
@@ -58,7 +58,7 @@ namespace OpenGL_Tutorials
 	// Beware, the first parameter is a direction, not the target point !
 	quat LookAt(vec3 direction, vec3 desiredUp, vec3 defaultDirectionAxis, vec3 defaultUpAxis)
 	{
-		if (length2(direction) < 0.0001f)
+		if (length2(direction) < BoundCheckEpsilon)
 			return quat();
 
 		// Recompute desiredUp so that it's perpendicular to the direction

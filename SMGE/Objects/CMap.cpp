@@ -281,13 +281,13 @@ namespace SMGE
 
 						constexpr float moveSpeed = 20.0f / 1000.f;
 
-						if (userInput.IsPressed(VK_LEFT))
+						if (userInput.IsPressed('A'))
 							currentPos += camTransform.GetWorldLeft() * deltaTime * moveSpeed;
-						if (userInput.IsPressed(VK_RIGHT))
+						if (userInput.IsPressed('D'))
 							currentPos -= camTransform.GetWorldLeft() * deltaTime * moveSpeed;
-						if (userInput.IsPressed(VK_UP))
+						if (userInput.IsPressed('W'))
 							currentPos += camTransform.GetWorldFront() * deltaTime * moveSpeed;
-						if (userInput.IsPressed(VK_DOWN))
+						if (userInput.IsPressed('S'))
 							currentPos -= camTransform.GetWorldFront() * deltaTime * moveSpeed;
 
 						camTransform.Translate(currentPos);
@@ -365,9 +365,9 @@ namespace SMGE
 				actor->SetRendering(false);
 		}
 		
-		auto checkActors = QueryActors(cullingCamera_->GetFrustumAABB());
-		for (auto& actorPtr : checkActors)
-		{
+		oldActorsInFrustum_ = QueryActors(cullingCamera_->GetFrustumAABB());
+		for (auto& actorPtr : oldActorsInFrustum_)
+		{	// 여기 - 메인 바운드 말고 비기스트 바운드 등을 활용하거나 아예 컬링용 바운드를 따로 해야할 것 같으며, 바운드만 있는 기즈모들의 경우에는 자기 자신을 내보내든가 해야할 듯
 			const auto mainBound = actorPtr->GetMainBound();
 			if (mainBound == nullptr)
 			{
@@ -377,8 +377,6 @@ namespace SMGE
 			else
 				actorPtr->SetRendering(cullingCamera_->IsInOrIntersectWithFrustum(mainBound));
 		}
-
-		oldActorsInFrustum_ = std::move(checkActors);
 	}
 
 	void CMap::BeginPlay()
