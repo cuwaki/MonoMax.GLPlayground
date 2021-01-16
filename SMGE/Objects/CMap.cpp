@@ -68,7 +68,7 @@ namespace SMGE
 				//CActor& actorA = outerMap_.SpawnDefaultActor(actorClassRTTIName, false, &outerMap_, actorTemplate->getContentClass());
 
 				// 1. 디폴트로 생성하고
-				CActor& actorA = outerMap_.SpawnActorDEFAULT(layer, actorClassRTTIName, false, &outerMap_);
+				CActor& actorA = outerMap_.StartSpawnActorDEFAULT(layer, actorClassRTTIName, false, &outerMap_);
 
 				// 2. 애셋 덮어씌우고
 				auto actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
@@ -153,7 +153,7 @@ namespace SMGE
 			{
 				oldLoc = actor->getLocation();
 
-				actor->Tick(timeDelta);
+				actor->Tick(timeDelta);	// 여기 - 나에게만 관련된 틱과 다른 액터와 관련된 틱을 분리하면 멀티쓰레드 처리를 할 수 있겠다 / 또는 로직 처리용 컴포넌트를 만들고 컴포넌트별로 멀티쓰레더블과 아닌걸로 나눌까?
 
 				newLoc = actor->getLocation();
 				if (oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
@@ -201,19 +201,6 @@ namespace SMGE
 	//	rb->OnSpawnStarted(this, isDynamic);
 	//	return *rb;
 	//}
-
-	CActor& CMap::FinishSpawnActor(CActor& targetActor)
-	{
-		targetActor.OnSpawnFinished(this);
-
-		if (isBeganPlay_ == true)
-		{
-			actorOctree_.AddByPoint(&targetActor, targetActor.getLocation());
-			targetActor.BeginPlay();
-		}
-
-		return targetActor;
-	}
 
 	CActor* CMap::FindActor(TActorKey ak)
 	{
@@ -335,20 +322,18 @@ namespace SMGE
 			}
 		}
 
-		// 테스트 코드 - 프러스텀 컬링
-		for (auto& sysActor : actorLayers_[EActorLayer::System])
-		{
-			auto camActor = DCast<CCameraActor*>(sysActor.get());
-			if (camActor->getActorStaticTag() == "testCamera")
-				cullingCamera_ = camActor;
-		}
-
-		//isFrustumCulling_ = false;	// 테스트 코드 - 프러스텀 컬링
+		//// 테스트 코드 - 프러스텀 컬링 시각화
+		//for (auto& sysActor : actorLayers_[EActorLayer::System])
+		//{
+		//	auto camActor = DCast<CCameraActor*>(sysActor.get());
+		//	if (camActor->getActorStaticTag() == "testCamera")
+		//		cullingCamera_ = camActor;
+		//}
 
 		if (isFrustumCulling_)
 		{	// 카메라 설정이 끝났으니 초기 프러스텀 컬링
 			for (auto& gamActor : actorLayers_[EActorLayer::Game])	// 모두 끄고 시작
-				gamActor->SetRendering(false);
+				gamActor->SetRendering(false, true);
 
 			cameraFrustumCulling();
 		}
@@ -362,20 +347,47 @@ namespace SMGE
 		for (auto actor : oldActorsInFrustum_)
 		{
 			if (actor)
-				actor->SetRendering(false);
+				actor->SetRendering(false, true);
 		}
 		
-		oldActorsInFrustum_ = QueryActors(cullingCamera_->GetFrustumAABB());
+		oldActorsInFrustum_ = QueryActors(cullingCamera_->GetFrustumAABB());	// 최적화 - ref out 으로 처리할 것
+
+		// 최적화 - 나중에 멀티쓰레드로 바꿀 것
 		for (auto& actorPtr : oldActorsInFrustum_)
-		{	// 여기 - 메인 바운드 말고 비기스트 바운드 등을 활용하거나 아예 컬링용 바운드를 따로 해야할 것 같으며, 바운드만 있는 기즈모들의 경우에는 자기 자신을 내보내든가 해야할 듯
-			const auto mainBound = actorPtr->GetMainBound();
-			if (mainBound == nullptr)
+		{
+			//// 액터 기준 처리 - 이러면 빠르고 편한데 액터에 어태치된 컴포넌트들이 제대로 처리가 안된다
+			//const auto mainBound = actorPtr->GetMainBound();
+			//if (mainBound == nullptr)
+			//{
+			//	actorPtr->SetRendering(true);	// 컬링이 불가능하므로 무조건 그린다
+			//	actorPtr = nullptr;
+			//}
+			//else
+			//	actorPtr->SetRendering(cullingCamera_->IsInOrIntersectWithFrustum(mainBound));
+
+			// 드로 컴포넌트 기준 처리
+			for (auto& comp : actorPtr->getAllComponents())
 			{
-				actorPtr->SetRendering(true);	// 컬링이 불가능하므로 무조건 그린다
-				actorPtr = nullptr;
+				auto drawComp = DCast<CDrawComponent*>(comp);
+				if (drawComp)
+				{
+					auto mbc = drawComp->GetMainBound();
+					if (mbc)
+					{	// 드로 콤포에 바운드가 있는 경우 - 그걸로 판단
+					}
+					else
+					{	// 없는 경우 - 부모의 그것으로 판단
+						mbc = actorPtr->GetMainBound();
+					}
+
+					const auto isRender = cullingCamera_->IsInOrIntersectWithFrustum(mbc);
+					drawComp->SetRendering(isRender, false);
+
+					// 여기 - 여기를 액터로부터 시작해서 자식 콤포들에 대해서 모두 돌아야한다 - cameraFrustumCulling 라는 함수를  액터, 콤포 체인으로 만들어서 한방에 트리 운행으로 처리하도록
+					// 부모가 보이지 않는다고 자식이 보이지 말라는 법이 없다 (propagate)
+					// 그리고 액터를 Transform 상속으로 해야할 것 같다 -> // 여기 수정 - 흠.... 이거 어떻게?
+				}
 			}
-			else
-				actorPtr->SetRendering(cullingCamera_->IsInOrIntersectWithFrustum(mainBound));
 		}
 	}
 
@@ -419,6 +431,8 @@ namespace SMGE
 		}
 
 		actorLayers_.clear();
+		oldActorsInFrustum_.clear();
+
 		isBeganPlay_ = false;
 	}
 
@@ -427,7 +441,7 @@ namespace SMGE
 		return currentCamera_;
 	}
 
-	CActor& CMap::SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic)
+	CActor& CMap::StartSpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic)
 	{
 		CUniqPtr<CActor> newActor(DCast<CActor*>(newObj));
 
@@ -440,5 +454,23 @@ namespace SMGE
 		rb->OnSpawnStarted(this, isDynamic);
 
 		return static_cast<CActor&>(*rb.get());
+	}
+
+	CActor& CMap::FinishSpawnActor(CActor& targetActor)
+	{
+		targetActor.OnSpawnFinished(this);
+
+		if (isBeganPlay_ == true)
+		{
+			actorOctree_.AddByPoint(&targetActor, targetActor.getLocation());
+			targetActor.BeginPlay();
+
+			if (isFrustumCulling_)
+			{	// 안보임으로 시작하며 필요시 보이게 될 것
+				targetActor.SetRendering(false);
+			}
+		}
+
+		return targetActor;
 	}
 };

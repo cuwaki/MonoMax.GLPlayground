@@ -478,37 +478,9 @@ namespace SMGE
 			}
 		}
 
-		Transform* Transform::GetParent()
-		{
-			return parent_;
-		}
-		const Transform* Transform::GetParentConst() const
-		{
-			return parent_;
-		}
-
-		Transform* Transform::GetTopParent()
-		{
-			if (GetParent())
-			{
-				return GetParent()->GetTopParent();
-			}
-
-			return this;
-		}
-		const Transform* Transform::GetTopParentConst() const
-		{
-			if (GetParentConst())
-			{
-				return GetParentConst()->GetTopParentConst();
-			}
-
-			return this;
-		}
-
 		bool Transform::HasParent() const
 		{
-			return GetParentConst() != nullptr;
+			return GetParentConst<Transform>() != nullptr;
 		}
 
 		bool Transform::IsTop() const
@@ -637,7 +609,7 @@ namespace SMGE
 			// 거의 낭비 없이 Recalc 가 처리된다
 			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회 - 최적화 고려
 			
-			auto topParent = GetTopParent();
+			auto topParent = GetTopParent<Transform>();
 			topParent->RecalcMatrix_Internal(nullptr);
 		}
 
@@ -1008,16 +980,19 @@ namespace SMGE
 		{
 			c.~WorldObject();
 		}
-		void WorldObject::SetRendering(bool isv)
+		void WorldObject::SetRendering(bool isv, bool propagate)
 		{
 			if (isRendering_ == isv)
 				return;
 
 			isRendering_ = isv;
 
-			for (auto child : children_)
+			if (propagate)
 			{
-				SCast<WorldObject*>(child)->SetRendering(isv);	// 여기 - 현재는 항상 WorldObject* 지만 차후 아닐 수도 있다
+				for (auto child : children_)
+				{
+					SCast<WorldObject*>(child)->SetRendering(isv, propagate);	// 여기 - 현재는 항상 WorldObject* 지만 차후 아닐 수도 있다
+				}
 			}
 		}
 		bool WorldObject::IsRendering() const

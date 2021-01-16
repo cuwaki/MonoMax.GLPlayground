@@ -214,11 +214,36 @@ namespace SMGE
 
 			void ChangeParent(Transform* p);
 			
-			Transform* GetParent();
-			const Transform* GetParentConst() const;
+			template<typename T>
+			T* GetParent()
+			{
+				return dynamic_cast<T*>(parent_);
+			}
+			template<typename T>
+			const T* GetParentConst() const
+			{
+				return dynamic_cast<const T*>(parent_);
+			}
 
-			Transform* GetTopParent();
-			const Transform* GetTopParentConst() const;
+			template<typename T>
+			T* GetTopParent()
+			{
+				if (GetParent<T>())
+				{
+					return GetParent<T>()->GetTopParent<T>();
+				}
+				return dynamic_cast<T*>(this);
+			}
+			template<typename T>
+			const T* GetTopParentConst() const
+			{
+				if (GetParentConst<T>())
+				{
+					return GetParentConst<T>()->GetTopParentConst<T>();
+				}
+
+				return dynamic_cast<const T*>(this);
+			}
 
 			bool HasParent() const;
 			bool IsTop() const;
@@ -245,7 +270,7 @@ namespace SMGE
 			WorldObject(WorldObject&& c) noexcept;
 			WorldObject& operator=(WorldObject&& c) noexcept = delete;
 
-			void SetRendering(bool isv);
+			void SetRendering(bool isv, bool propagate);
 			bool IsRendering() const;
 
 		protected:

@@ -71,8 +71,6 @@ namespace SMGE
 
 		virtual void ProcessPendingKills();
 
-		//CActor& SpawnDefaultActor(const CActor& templateActor, bool isDynamic);
-		CActor& FinishSpawnActor(CActor& arrangedActor);
 		CActor* FindActor(TActorKey ak);
 		CUniqPtr<CActor>&& RemoveActor(TActorKey ak);
 		const CVector<CUniqPtr<CActor>>& GetActors(EActorLayer layer) const;
@@ -90,7 +88,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		CActor& SpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic);
+		CActor& StartSpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic);
 		void OnPostBeginPlay();
 
 		void changeCurrentCamera(class CCameraActor* camA);
@@ -117,19 +115,21 @@ namespace SMGE
 	public:
 		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용
 		template<typename... Args>
-		CActor& SpawnActorDEFAULT(EActorLayer layer, const std::string& classRTTIName, bool isDynamic, Args&&... args)
+		CActor& StartSpawnActorDEFAULT(EActorLayer layer, const std::string& classRTTIName, bool isDynamic, Args&&... args)
 		{
 			auto newObj = RTTI_CObject::NewDefault(classRTTIName, std::forward<Args>(args)...);
-			return static_cast<CActor&>(SpawnActorINTERNAL(layer, newObj, isDynamic));
+			return static_cast<CActor&>(StartSpawnActorINTERNAL(layer, newObj, isDynamic));
 		}
 
 		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
 		template<typename ActorT, typename... Args>
-		ActorT& SpawnActorVARIETY(EActorLayer layer, bool isDynamic, Args&&... args)
+		ActorT& StartSpawnActorVARIETY(EActorLayer layer, bool isDynamic, Args&&... args)
 		{
 			auto newObj = RTTI_CObject::NewVariety<ActorT>(std::forward<Args>(args)...);
-			return static_cast<ActorT&>(SpawnActorINTERNAL(layer, newObj, isDynamic));
+			return static_cast<ActorT&>(StartSpawnActorINTERNAL(layer, newObj, isDynamic));
 		}
+
+		CActor& FinishSpawnActor(CActor& arrangedActor);
 	};
 
 	namespace Globals

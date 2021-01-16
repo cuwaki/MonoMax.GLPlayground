@@ -72,11 +72,14 @@ namespace SMGE
 		virtual ComponentVector& getTransientComponents() override;
 		virtual ComponentVectorWeak& getAllComponents() override;
 
+		class CBoundComponent* GetMainBound();
+
 	protected:
 		// CInt_Component
 		ComponentVector persistentComponents_;
 		ComponentVector transientComponents_;
 		ComponentVectorWeak allComponents_;
+		mutable class CBoundComponent* mainBoundCompo_;
 
 		bool isGameRendering_;
 #if IS_EDITOR

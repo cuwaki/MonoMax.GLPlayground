@@ -26,7 +26,6 @@ namespace SMGE
 	public:
 		virtual ComponentVector& getPersistentComponents() = 0;	// 저장되는 것들
 		virtual ComponentVector& getTransientComponents() = 0;	// 저장되지 않는 것들
-
 		virtual ComponentVectorWeak& getAllComponents() = 0;
 		virtual const ComponentVectorWeak& getAllComponents() const { return getAllComponents(); }
 
@@ -59,38 +58,38 @@ namespace SMGE
 		template<typename T, class CheckFunc>
 		T* findComponent(CheckFunc& checkFunc)
 		{
-			auto found = std::find_if(getAllComponents().begin(), getAllComponents().end(), [&checkFunc](auto& compo)
+			auto found = std::find_if(getAllComponents().cbegin(), getAllComponents().cend(), [&checkFunc](auto& compo)
 				{
 					if (checkFunc(compo))
 						return true;
 					return false;
 				});
 
-			if (found != getAllComponents().end())
+			if (found != getAllComponents().cend())
 				return DCast<T*>(*found);
 
 			// 아직 비긴 플레이가 불리지 않았다면 밑으로 내려가게 될 것이다
 
 			// 2. persistent
-			auto foundPers = std::find_if(getPersistentComponents().begin(), getPersistentComponents().end(), [&checkFunc](auto& compo)
+			const auto foundPers = std::find_if(getPersistentComponents().cbegin(), getPersistentComponents().cend(), [&checkFunc](auto& compo)
 				{
 					if (checkFunc(compo.get()))
 						return true;
 					return false;
 				});
 
-			if (foundPers != getPersistentComponents().end())
+			if (foundPers != getPersistentComponents().cend())
 				return DCast<T*>((*foundPers).get());
 
 			// 3. transient
-			auto foundTrans = std::find_if(getTransientComponents().begin(), getTransientComponents().end(), [&checkFunc](auto& compo)
+			const auto foundTrans = std::find_if(getTransientComponents().cbegin(), getTransientComponents().cend(), [&checkFunc](auto& compo)
 				{
 					if (checkFunc(compo.get()))
 						return true;
 					return false;
 				});
 
-			if (foundTrans != getTransientComponents().end())
+			if (foundTrans != getTransientComponents().cend())
 				return DCast<T*>((*foundTrans).get());
 
 			return nullptr;

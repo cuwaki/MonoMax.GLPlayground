@@ -89,7 +89,7 @@ namespace SMGE
 
 		void SetLifeTick(int32 t) { lifeTick_ = t; }
 
-		void SetRendering(bool isr);
+		void SetRendering(bool isr, bool propagate);
 		bool IsRendering() const { return isRendering_; }
 
 	public:
@@ -126,7 +126,7 @@ namespace SMGE
 		ComponentVector transientComponents_;
 		ComponentVectorWeak allComponents_;
 
-		class CBoundComponent* mainBoundCompo_;
+		mutable class CBoundComponent* mainBoundCompo_;
 		TActorKey actorKey_ = InvalidActorKey;
 		CTimer timer_;
 

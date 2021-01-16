@@ -3,6 +3,8 @@
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
 
+#include "CBoundComponent.h"
+
 namespace SMGE
 {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,11 +149,11 @@ namespace SMGE
 		CComponent::OnBeginPlay(parent);
 
 		if (isGameRendering_)
-			SetRendering(isGameRendering_);
+			SetRendering(isGameRendering_, true);
 
 #if IS_EDITOR
 		if (isEditorRendering_)	// 게임일 경우 에디터 비지블이 게임 비지블을 덮어써버리도록 하자
-			SetRendering(isEditorRendering_);
+			SetRendering(isEditorRendering_, true);
 #endif
 
 		ReadyToDrawing();
@@ -210,7 +212,7 @@ namespace SMGE
 	void CDrawComponent::SetGameRendering(bool ir)
 	{
 		isGameRendering_ = ir;
-		SetRendering(ir);
+		SetRendering(ir, true);
 	}
 
 #if IS_EDITOR
@@ -222,7 +224,7 @@ namespace SMGE
 	void CDrawComponent::SetEditorRendering(bool ir)
 	{
 		isEditorRendering_ = ir;
-		SetRendering(ir);
+		SetRendering(ir, true);
 	}
 #endif
 
@@ -240,4 +242,26 @@ namespace SMGE
 	{
 		return allComponents_;
 	}
+
+	class CBoundComponent* CDrawComponent::GetMainBound()
+	{
+		CBoundComponent* NOT_FOUND_MARK = reinterpret_cast<CBoundComponent*>(0x4321);
+
+		if (mainBoundCompo_ == nullptr)
+		{	// 여기 - transient 를 메인으로 삼은 경우 문제가 될 수 있는 점이 개선되어야한다
+			mainBoundCompo_ = findComponent<CBoundComponent>([](auto compoPtr)
+				{
+					auto bc = DCast<CBoundComponent*>(compoPtr);
+					if (bc && bc->IsCollideTarget())
+						return true;
+					return false;
+				});
+
+			if (mainBoundCompo_ == nullptr)
+				mainBoundCompo_ = NOT_FOUND_MARK;
+		}
+
+		return mainBoundCompo_ == NOT_FOUND_MARK ? nullptr : mainBoundCompo_;
+	}
+
 };

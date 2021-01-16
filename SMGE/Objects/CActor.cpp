@@ -234,7 +234,7 @@ namespace SMGE
 		return isPendingKill_;
 	}
 
-	void CActor::SetRendering(bool isr)
+	void CActor::SetRendering(bool isr, bool propagate)
 	{
 		if (isRendering_ == isr)
 			return;
@@ -245,12 +245,14 @@ namespace SMGE
 		{
 			auto drawComp = DCast<CDrawComponent*>(comp);
 			if(drawComp)
-				drawComp->SetRendering(isr);
+				drawComp->SetRendering(isr, propagate);
 		}
 	}
 
 	class CBoundComponent* CActor::GetMainBound()
 	{
+		CBoundComponent* NOT_FOUND_MARK = reinterpret_cast<CBoundComponent*>(0x4321);
+
 		if (mainBoundCompo_ == nullptr)
 		{	// 여기 - transient 를 메인으로 삼은 경우 문제가 될 수 있는 점이 개선되어야한다
 			mainBoundCompo_ = findComponent<CBoundComponent>([](auto compoPtr)
@@ -260,8 +262,11 @@ namespace SMGE
 						return true;
 					return false;
 				});
+
+			if (mainBoundCompo_ == nullptr)
+				mainBoundCompo_ = NOT_FOUND_MARK;
 		}
 
-		return mainBoundCompo_;
+		return mainBoundCompo_ == NOT_FOUND_MARK ? nullptr : mainBoundCompo_;
 	}
 };
