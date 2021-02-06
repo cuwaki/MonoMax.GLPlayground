@@ -178,7 +178,11 @@
     <ClCompile Include="Components\CStaticMeshComponent.cpp" />
     <ClCompile Include="Components\CMovementComponent.cpp" />
     <ClCompile Include="CQuadTree.cpp" />
+    <ClCompile Include="CSystemBase.cpp" />
+    <ClCompile Include="CSystemEditor.cpp" />
+    <ClCompile Include="CSystemGame.cpp" />
     <ClCompile Include="CTimer.cpp" />
+    <ClCompile Include="CUserInput.cpp" />
     <ClCompile Include="Interfaces\CInt_Reflection.cpp" />
     <ClCompile Include="Objects\CActor.cpp" />
     <ClCompile Include="Objects\CCameraActor.cpp" />
@@ -204,7 +208,11 @@
     <ClInclude Include="Components\CSphereComponent.h" />
     <ClInclude Include="Components\CMovementComponent.h" />
     <ClInclude Include="CQuadTree.h" />
+    <ClInclude Include="CSystemBase.h" />
+    <ClInclude Include="CSystemEditor.h" />
+    <ClInclude Include="CSystemGame.h" />
     <ClInclude Include="CTimer.h" />
+    <ClInclude Include="CUserInput.h" />
     <ClInclude Include="GEContainers.h" />
     <ClInclude Include="CGameBase.h" />
     <ClInclude Include="Components\CComponent.h" />

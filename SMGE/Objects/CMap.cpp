@@ -5,8 +5,6 @@
 #include "../CGameBase.h"
 #include "CCameraActor.h"
 
-#include <windows.h>	// 테스트 코드 - for VK_LEFT ...
-
 namespace SMGE
 {
 	namespace Globals
@@ -221,9 +219,6 @@ namespace SMGE
 
 	CVector<CActor*> CMap::QueryActors(const SAABB& aabb) const
 	{
-#undef min	// 테스트 코드 - for VK_LEFT ...
-#undef max	// 테스트 코드 - for VK_LEFT ...
-
 		return actorOctree_.QueryValuesByCube(aabb.min(), aabb.max());
 	}
 
@@ -255,7 +250,7 @@ namespace SMGE
 				changeCurrentCamera(camActor);
 
 #if IS_EDITOR
-				auto InputForCameraActor = [this](const nsGE::CUserInput& userInput)
+				auto EditorInputForCameraActor = [this](const CUserInput& userInput)
 				{
 					if (currentCamera_)
 					{
@@ -316,7 +311,7 @@ namespace SMGE
 
 					return false;
 				};
-				GetEngine()->AddProcessUserInputs(InputForCameraActor);
+				GetEngine()->GetSystem()->AddProcessUserInputs(EditorInputForCameraActor);
 #endif
 				break;
 			}

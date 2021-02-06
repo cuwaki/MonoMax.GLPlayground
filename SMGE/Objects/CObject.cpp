@@ -37,9 +37,9 @@ namespace SMGE
 		return outer_ == nullptr;
 	}
 
-	class nsGE::CEngineBase* CObject::GetEngine() const
+	class CEngineBase* CObject::GetEngine() const
 	{
-		const auto to = FindOuter<nsGE::CGameBase>(this);
+		const auto to = FindOuter<CGameBase>(this);
 		if (to != nullptr)
 		{
 			return to->GetEngine();
@@ -50,7 +50,7 @@ namespace SMGE
 
 	class nsRE::CRenderingEngine* CObject::GetRenderingEngine() const
 	{
-		const auto to = FindOuter<nsGE::CGameBase>(this);
+		const auto to = FindOuter<CGameBase>(this);
 		if (to != nullptr)
 		{
 			return to->GetEngine()->GetRenderingEngine();

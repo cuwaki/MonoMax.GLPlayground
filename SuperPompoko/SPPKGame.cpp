@@ -58,7 +58,7 @@ namespace SMGE
 #endif
 	}
 
-	SPPKGame::SPPKGame(CObject* outer) : nsGE::CGameBase(outer)
+	SPPKGame::SPPKGame(CObject* outer) : CGameBase(outer)
 	{
 		Initialize();
 
@@ -83,8 +83,8 @@ namespace SMGE
 	{
 		::testCppStudy();	// 테스트 코드 - cpp 공부 ㅋㅋ
 
-		engine_ = new nsGE::CEngineBase(this);
-		gameSettings_ = new nsGE::SGEGameSettings();
+		engine_ = new CEngineBase(this);
+		gameSettings_ = new SGEGameSettings();
 
 		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
 		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
@@ -101,9 +101,9 @@ namespace SMGE
 
 		Globals::GCurrentMap = currentMap_;
 
-		auto EditorProcessUserInput = [this](const nsGE::CUserInput& userInput)
+		auto EditorProcessUserInput = [this](const CUserInput& userInput)
 		{
-			if (userInput.IsJustPressed(nsGE::CUserInput::LBUTTON))
+			if (userInput.IsJustPressed(CUserInput::LBUTTON))
 			{
 				// 테스트 코드 - 동적 액터 스폰 샘플 코드 {
 				auto mouseScreenPos = userInput.GetMousePosition();
@@ -127,7 +127,7 @@ namespace SMGE
 
 						currentMap_->FinishSpawnActor(*pointActor);
 						
-						pointActor->SetLifeTick(100);
+						pointActor->SetLifeTickCount(100);
 					});
 
 				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
@@ -146,13 +146,13 @@ namespace SMGE
 
 				auto targets = rayActor->QueryCollideCheckTargets();
 				rayActor->CheckCollideAndProcess(targets);
-				rayActor->SetLifeTick(100);
+				rayActor->SetLifeTickCount(100);
 				// }
 			}
 
 			return false;
 		};
-		engine_->AddProcessUserInputs(EditorProcessUserInput);
+		engine_->GetSystem()->AddProcessUserInputs(EditorProcessUserInput);
 #endif
 	}
 

@@ -140,6 +140,18 @@
     <ClInclude Include="Components\CPlaneComponent.h">
       <Filter>Components\Bound</Filter>
     </ClInclude>
+    <ClInclude Include="CSystemBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CSystemEditor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CSystemGame.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CUserInput.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -231,6 +243,18 @@
     </ClCompile>
     <ClCompile Include="Components\CPlaneComponent.cpp">
       <Filter>Components\Bound</Filter>
+    </ClCompile>
+    <ClCompile Include="CSystemBase.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSystemEditor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CSystemGame.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CUserInput.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

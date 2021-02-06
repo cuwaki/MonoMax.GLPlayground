@@ -87,7 +87,8 @@ namespace SMGE
 		void SetPendingKill();
 		bool IsPendingKill() const;
 
-		void SetLifeTick(int32 t) { lifeTick_ = t; }
+		void SetLifeTickCount(int32 t) { lifeTickCount_ = t; }
+		// 여기 - lifetick time 을 만들어야한다
 
 		void SetRendering(bool isr, bool propagate);
 		bool IsRendering() const { return isRendering_; }
@@ -111,7 +112,7 @@ namespace SMGE
 		bool isPendingKill_ = false;
 		bool isRendering_ = true;
 
-		int32 lifeTick_ = 0;
+		int32 lifeTickCount_ = 0;
 
 		nsRE::Transform actorTransform_;
 

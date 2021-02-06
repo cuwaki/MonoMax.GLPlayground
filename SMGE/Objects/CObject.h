@@ -5,10 +5,8 @@
 
 namespace SMGE
 {
-	namespace nsGE
-	{
-		class CEngineBase;
-	}
+	class CEngineBase;
+
 	namespace nsRE
 	{
 		class CRenderingEngine;
@@ -30,7 +28,7 @@ namespace SMGE
 		const CString& GetCObjectTag() const { return cobjectTag_; }
 		void SetCObjectTag(const CString& ot) { cobjectTag_ = ot; }
 
-		class nsGE::CEngineBase* GetEngine() const;
+		class CEngineBase* GetEngine() const;
 		class nsRE::CRenderingEngine* GetRenderingEngine() const;
 
 	protected:

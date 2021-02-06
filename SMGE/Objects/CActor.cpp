@@ -173,7 +173,7 @@ namespace SMGE
 			comp->Tick(timeDelta);
 		}
 
-		if (lifeTick_ > 0 && --lifeTick_ == 0)
+		if (lifeTickCount_ > 0 && --lifeTickCount_ == 0)
 		{
 			SetPendingKill();
 		}

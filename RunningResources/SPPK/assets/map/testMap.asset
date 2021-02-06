@@ -84,7 +84,7 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 게임액터 시작
-actorReflLayers_[1]$CVector<SGReflection&>$4
+actorReflLayers_[1]$CVector<SGReflection&>$1
 
 	classRTTIName_$CString$"CStaticMeshActor"
 		reflectionFilePath_$CWString$"/actor/monkey.asset"

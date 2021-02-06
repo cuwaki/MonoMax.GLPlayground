@@ -2,16 +2,14 @@
 
 #include "GECommonIncludes.h"
 #include "Objects/CObject.h"
+
 namespace SMGE
 {
-	namespace nsGE
-	{
-		class CGameBase;
-	}
+	class CGameBase;
 
 	namespace Globals
 	{
-		extern nsGE::CGameBase* GCurrentGame;
+		extern CGameBase* GCurrentGame;
 
 		CWString GetGameProjectName();
 
@@ -31,33 +29,30 @@ namespace SMGE
 		constexpr float BoundCheckEpsilon = 0.0001f;
 	}
 
-	namespace nsGE
+	struct SGEGameSettings
 	{
-		struct SGEGameSettings
-		{
-			CWString gameProjectName_;
-			CWString gameProjectRootPath_;
-		};
+		CWString gameProjectName_;
+		CWString gameProjectRootPath_;
+	};
 
-		class CGameBase : public CObject
-		{
-		public:
-			CGameBase(CObject* outer);
-			virtual ~CGameBase();
+	class CGameBase : public CObject
+	{
+	public:
+		CGameBase(CObject* outer);
+		virtual ~CGameBase();
 
-			class nsGE::CEngineBase* GetEngine() const;
+		class CEngineBase* GetEngine() const;
 
-			virtual void Tick(float);
+		virtual void Tick(float);
 
-		protected:
-			virtual void Initialize();
+	protected:
+		virtual void Initialize();
 
-		protected:
-			class nsGE::CEngineBase* engine_;
-			SGEGameSettings* gameSettings_;
+	protected:
+		class CEngineBase* engine_;
+		SGEGameSettings* gameSettings_;
 
-		public:
-			static CGameBase* Instance;
-		};
-	}
+	public:
+		static CGameBase* Instance;
+	};
 };

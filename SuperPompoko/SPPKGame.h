@@ -6,9 +6,9 @@
 
 namespace SMGE
 {
-	class SPPKGame : public nsGE::CGameBase
+	class SPPKGame : public CGameBase
 	{
-		using Super = nsGE::CGameBase;
+		using Super = CGameBase;
 
 	public:
 		SPPKGame(CObject* outer);

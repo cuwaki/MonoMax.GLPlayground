@@ -1,5 +1,9 @@
 #pragma once
 
+#include <Windows.h>
+#undef min	// windows.h 의 이것때문에 CBoundCheck 쪽에서 컴파일 오류남
+#undef max	// windows.h 의 이것때문에 CBoundCheck 쪽에서 컴파일 오류남
+
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
@@ -12,6 +16,8 @@
 #include <list>
 #include <queue>
 #include <forward_list>
+#include <map>
+#include <set>
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
@@ -20,6 +26,8 @@
 #include <variant>
 #include <any>
 #include <optional>
+#include <functional>
+#include <numeric>
 
 #include "gl/glew.h"
 #include "glfw/glfw3.h"

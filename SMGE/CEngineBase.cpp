@@ -3,182 +3,63 @@
 #include "../MonoMax.EngineCore/RenderingEngine.h"
 
 #if IS_EDITOR
-#include <Windows.h>	// for CUserInput
+#include "CSystemEditor.h"
+#else
+#include "CSystemGame.h"
 #endif
 
 namespace SMGE
 {
-	namespace nsGE
+	CEngineBase::CEngineBase(CGameBase* gameBase) : gameBase_(gameBase)
 	{
-		CUserInput::TInputKey CUserInput::LBUTTON = VK_LBUTTON;
-		CUserInput::TInputKey CUserInput::RBUTTON = VK_RBUTTON;
-		CUserInput::TInputKey CUserInput::MBUTTON = VK_MBUTTON;
-
-		CUserInput::CUserInput()
-		{
 #if IS_EDITOR
-			checkMouseInputs_.insert(std::make_pair(VK_LBUTTON, VK_RELEASED));
-			checkMouseInputs_.insert(std::make_pair(VK_RBUTTON, VK_RELEASED));
-			checkMouseInputs_.insert(std::make_pair(VK_MBUTTON, VK_RELEASED));
-
-			checkKeyboardInputs_.insert(std::make_pair(VK_SPACE, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair(VK_RETURN, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair(VK_ESCAPE, VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair('A', VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair('D', VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair('W', VK_RELEASED));
-			checkKeyboardInputs_.insert(std::make_pair('S', VK_RELEASED));
+		system_ = MakeUniqPtr<CSystemEditor>(this);
 #else
+		system_ = MakeUniqPtr<CSystemGame>(this);
 #endif
-		}
 
-		bool CUserInput::HasInputFocus()
-		{
-			HWND hwnd = ::GetActiveWindow();
-			if (hwnd == nullptr || ::GetFocus() != hwnd)
-				return false;
-
-			return true;
-		}
-
-		void CUserInput::QueryState()
-		{
-#if IS_EDITOR
-			HWND hwnd = ::GetActiveWindow();
-			if (hwnd != nullptr && ::GetFocus() == hwnd)
-			{
-				POINT pos;
-				::GetCursorPos(&pos);
-				::ScreenToClient(hwnd, &pos);
-
-				mousePos_ = { pos.x, pos.y };
-			}
-
-			// 포커스 없어도 해야한다
-			for (auto& it : checkMouseInputs_)
-			{
-				checkMouseInputsOLD_[it.first] = it.second;
-				it.second = ::GetAsyncKeyState(it.first);
-			}
-			for (auto& it : checkKeyboardInputs_)
-			{
-				checkKeyboardInputsOLD_[it.first] = it.second;
-				it.second = ::GetAsyncKeyState(it.first);
-			}
-#endif
-		}
-
-		bool CUserInput::CheckInputState(TInputKey k, TInputState state) const
-		{
-			const TInputMap* checkInputs[4] = { &checkMouseInputs_, &checkMouseInputsOLD_,
-												&checkKeyboardInputs_, &checkKeyboardInputsOLD_ };
-
-			for (int i = 0; i < 4; i += 2)
-			{
-				auto& neww = checkInputs[i + 0];
-
-				auto found = neww->find(k);
-				if (found != neww->end())
-				{
-					auto& old = checkInputs[i + 1];
-
-					auto oldState = old->find(k)->second, newState = neww->find(k)->second;
-					switch (state)
-					{
-					case VK_JUST_PRESSED:
-						if ((oldState & 0x8000) == 0 && (newState & 0x8000) == 0x8000)
-							return true;
-						else
-							return false;
-
-					case VK_PRESSED:
-						if ((oldState & 0x8000) == 0x8000 && (newState & 0x8000) == 0x8000)
-							return true;
-						else
-							return false;
-
-					case VK_JUST_RELEASED:
-						if ((oldState & 0x8000) == 0x8000 && (newState & 0x8000) == 0)
-							return true;
-						else
-							return false;
-
-					case VK_RELEASED:
-						if ((oldState & 0x8000) == 0 && (newState & 0x8000) == 0)
-							return true;
-						else
-							return false;
-					}
-				}
-			}
-
-			return false;
-		}
+		system_->OnStartSystem();
 	}
 
-	namespace nsGE
+	CEngineBase::~CEngineBase()
 	{
-		CEngineBase::CEngineBase(CGameBase* gameBase) : gameBase_(gameBase)
-		{
-			//// deprecated 201227 - 카메라 액터 구현하면서 안쓰게 됨
-			//auto EditorProcessCameraMove = [this](const nsGE::CUserInput& userInput)
-			//{
-			//	auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+		system_->OnEndSystem();
+	}
 
-			//	renderCam.MoveCamera(userInput.IsPressed(VK_LEFT), userInput.IsPressed(VK_RIGHT), userInput.IsPressed(VK_UP), userInput.IsPressed(VK_DOWN));
+	HWND CEngineBase::HasWindowFocus() const
+	{
+		HWND hwnd = ::GetActiveWindow();
+		if (hwnd == nullptr || ::GetFocus() != hwnd)
+			return nullptr;
 
-			//	static glm::vec2 RPressedPos;
-			//	bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
-			//	if (isJustRPress)
-			//		RPressedPos = userInput.GetMousePosition();
+		return hwnd;
+	}
 
-			//	bool isRPress = userInput.IsPressed(VK_RBUTTON);
-			//	if (isJustRPress == false && isRPress == true)
-			//	{
-			//		auto moved = RPressedPos - userInput.GetMousePosition();
-			//		renderCam.RotateCamera(moved);
+	CUserInput& CEngineBase::GetUserInput()
+	{
+		return userInput_;
+	}
 
-			//		RPressedPos = userInput.GetMousePosition();
-			//	}
+	void CEngineBase::Tick(float timeDelta)
+	{
+		system_->ProcessUserInput();
 
-			//	return false;
-			//};
-			//AddProcessUserInputs(EditorProcessCameraMove);
-		}
+		gameBase_->Tick(timeDelta);
+	}
 
-		CEngineBase::~CEngineBase()
-		{
-		}
+	CSystemBase* CEngineBase::GetSystem() const
+	{
+		return system_.get();
+	}
 
-		void CEngineBase::Tick(float timeDelta)
-		{
-			userInput_.QueryState();
-			if (userInput_.HasInputFocus())
-			{
-				for (auto& pui : delegateUserInputs_)
-				{
-					if (pui(userInput_) == true)
-						break;
-				}
-			}
+	void CEngineBase::SetRenderingEngine(nsRE::CRenderingEngine* re)
+	{
+		renderingEngine_ = re;
+	}
 
-			gameBase_->Tick(timeDelta);
-		}
-
-		void CEngineBase::SetRenderingEngine(nsRE::CRenderingEngine* re)
-		{
-			renderingEngine_ = re;
-		}
-
-		nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine() const
-		{
-			return renderingEngine_;
-		}
-
-		void CEngineBase::AddProcessUserInputs(const DELEGATE_ProcessUserInput& delegPUI)
-		{
-			delegateUserInputs_.push_back(delegPUI);
-		}
+	nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine() const
+	{
+		return renderingEngine_;
 	}
 }
 

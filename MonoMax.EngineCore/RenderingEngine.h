@@ -13,10 +13,7 @@
 
 namespace SMGE
 {
-	namespace nsGE
-	{
-		class CGameBase;
-	}
+	class CGameBase;
 
 	namespace nsRE
 	{
@@ -277,8 +274,12 @@ namespace SMGE
 			bool isRendering_ = true;
 		};
 
+		class GLContextDependency
+		{
+		};
+
 		// RenderModel은 GLContext 종속이다
-		class RenderModel
+		class RenderModel : public GLContextDependency
 		{
 		public:
 			// static datas
@@ -385,67 +386,8 @@ namespace SMGE
 	{
 		class CRenderingEngine;
 
-		// deprecated
-		//class OldModelAsset
-		//{
-		//protected:
-		//	CRenderingEngine* re_ = nullptr;
-
-		//	GLuint m_vao = -1, m_vbo = -1;
-		//	GLuint m_rbo = -1, m_fbo = -1;
-		//	GLuint m_prg = -1;
-
-		//	bool m_isInitialized();
-		//	void initRenderData();
-		//	void createBufferObject(int width, int height);
-		//	void destroyBufferObjects();
-
-		//public:
-		//	CWString vertShaderPath_;
-		//	CWString fragShaderPath_;
-		//	int vertexAttribNumber_ = 0;
-		//	CVector<float> vertices_;
-
-		//	OldModelAsset();
-		//	OldModelAsset(CRenderingEngine* re);
-		//	~OldModelAsset() noexcept;
-
-		//	void initShaders();
-		//	void drawGL(const glm::mat4& worldPos) const;
-		//	void OnScreenResize(int width, int height);
-
-		//public:
-		//	static void OnScreenResize_Master(int width, int height);
-		//	static CVector<OldModelAsset*> instances_;
-		//};
-		//class OldModelWorld
-		//{
-		//protected:
-		//	CRenderingEngine* re_ = nullptr;
-		//	const OldModelAsset& modelAsset_;
-
-		//public:
-		//	glm::mat4 modelMat;
-
-		//	OldModelWorld(const OldModelAsset& ma) : modelAsset_(ma)
-		//	{
-		//		modelMat = glm::mat4(1.0f);
-		//	}
-
-		//	void SetRenderingEngine(CRenderingEngine* re)
-		//	{
-		//		re_ = re;
-		//	}
-
-		//	virtual void draw();
-		//};
-
 		namespace GLUtil
 		{
-			// deprecated
-			//std::string getShaderCode(const char* filename);
-			//void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype);
-
 			void safeDeleteVertexArray(GLuint& vao);
 			void safeDeleteBuffer(GLuint& vbo);
 			void safeDeleteProgram(GLuint& prog);
@@ -464,6 +406,49 @@ namespace SMGE
 			static const CHashMap<CString, std::unique_ptr<ResourceModelBase>>& GetResourceModels();
 		};
 
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 렌더 타겟
+		class CRenderTarget
+		{
+		public:
+			CRenderTarget();
+
+			// gl frame buffer
+		};
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 렌더링 패스
+		enum class ERenderingPass : unsigned int
+		{
+			NONE = 0,
+			
+			WORLD,
+			WORLD_MAX = 6,
+
+			POSTPROCESS,
+			POSTPROCESS_MAX = 11,
+
+			EDITOR,
+			EDITOR_MAX = 16,
+
+			UI,
+			UI_MAX = 21,
+
+			MAX,
+		};
+
+		class CRenderingPass
+		{
+		public:
+			CRenderingPass();
+
+		protected:
+			ERenderingPass type_;
+			CRenderTarget* currentRenderTarget_;
+		};
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 렌더링 엔진
 		class CRenderingEngine
 		{
 		private:
@@ -480,7 +465,7 @@ namespace SMGE
 
 			void initWindow();
 
-			class nsGE::CGameBase* smge_game;
+			class CGameBase* smge_game;
 
 		public:
 			CRenderingEngine();
