@@ -73,7 +73,7 @@ namespace SMGE
 			// 최적화 - 카메라 트랜스폼이 더티일 때만 하면 된다
 
 			// 테스트 코드 - 여기 리턴하면 카메라 파일럿 모드
-			return;
+			//return;
 
 			auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
 			renderCam.SetCameraPos(getTransform().GetWorldPosition());

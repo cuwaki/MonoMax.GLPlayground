@@ -440,7 +440,7 @@ namespace SMGE
 	{
 		return currentCamera_;
 	}
-
+	
 	CActor& CMap::StartSpawnActorINTERNAL(EActorLayer layer, CObject* newObj, bool isDynamic)
 	{
 		CUniqPtr<CActor> newActor(DCast<CActor*>(newObj));
@@ -467,7 +467,7 @@ namespace SMGE
 
 			if (isFrustumCulling_)
 			{	// 안보임으로 시작하며 필요시 보이게 될 것
-				targetActor.SetRendering(false);
+				targetActor.SetRendering(false, true);
 			}
 		}
 
