@@ -3,8 +3,7 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 시스템 액터 시작
-	actorReflLayers_[0]$CVector<SGReflection&>$1
-
+	allActorsW_$CVector<SGReflection&>$3
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
@@ -84,8 +83,6 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 게임액터 시작
-actorReflLayers_[1]$CVector<SGReflection&>$1
-
 	classRTTIName_$CString$"CStaticMeshActor"
 		reflectionFilePath_$CWString$"/actor/monkey.asset"
 		actorKey_$TActorKey$164

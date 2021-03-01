@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <forward_list>
+#include <array>
 #include "../SMGE/GECommonIncludes.h"
 #include "../SMGE/GEContainers.h"
 #include "common/controls.hpp"
@@ -17,6 +18,35 @@ namespace SMGE
 
 	namespace nsRE
 	{
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Utility structures
+		struct SRect3D
+		{
+			glm::vec3 lb_;
+			glm::vec3 rt_;
+		};
+		struct SRect2D
+		{
+			glm::vec2 lb_;
+			glm::vec2 rt_;
+		};
+		struct SVF_V2F_T2F
+		{
+			float vertexX_, vertexY_;
+			float textureU_, textureV_;
+		};
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		namespace ColorConst
+		{
+			const glm::vec3 Gray{ 0.5f, 0.5f, 0.5f };
+			const glm::vec3 Black{ 0.f, 0.f, 0.f };
+			const glm::vec3 White{ 1.f, 1.f, 1.f };
+			const glm::vec3 Red{ 1.f, 0.f, 0.f };
+			const glm::vec3 Green{ 0.f, 1.f, 0.f };
+			const glm::vec3 Blue{ 0.f, 0.f, 1.f };
+		};
+
 		namespace TransformConst
 		{
 			enum ETypeRot
@@ -110,6 +140,57 @@ namespace SMGE
 			~VertFragShaderSet();
 			void Destroy();
 			void Invalidate();
+
+			void Use() const;
+
+			void SetUniform_Bool(std::string_view name, bool value) const
+			{
+				glUniform1i(glGetUniformLocation(programID_, name.data()), (int)value);
+			}
+			void SetUniform_Int(std::string_view name, int value) const
+			{
+				glUniform1i(glGetUniformLocation(programID_, name.data()), value);
+			}
+			void SetUniform_Float(std::string_view name, float value) const
+			{
+				glUniform1f(glGetUniformLocation(programID_, name.data()), value);
+			}			
+			void SetUniform_Vec2(std::string_view name, const glm::vec2& value) const
+			{
+				glUniform2fv(glGetUniformLocation(programID_, name.data()), 1, &value[0]);
+			}
+			void SetUniform_Vec2(std::string_view name, float x, float y) const
+			{
+				glUniform2f(glGetUniformLocation(programID_, name.data()), x, y);
+			}			
+			void SetUniform_Vec3(std::string_view name, const glm::vec3& value) const
+			{
+				glUniform3fv(glGetUniformLocation(programID_, name.data()), 1, &value[0]);
+			}
+			void SetUniform_Vec3(std::string_view name, float x, float y, float z) const
+			{
+				glUniform3f(glGetUniformLocation(programID_, name.data()), x, y, z);
+			}
+			void SetUniform_Vec4(std::string_view name, const glm::vec4& value) const
+			{
+				glUniform4fv(glGetUniformLocation(programID_, name.data()), 1, &value[0]);
+			}
+			void SetUniform_Vec4(std::string_view name, float x, float y, float z, float w) const
+			{
+				glUniform4f(glGetUniformLocation(programID_, name.data()), x, y, z, w);
+			}
+			void SetUniform_Mat2(std::string_view name, const glm::mat2& mat) const
+			{
+				glUniformMatrix2fv(glGetUniformLocation(programID_, name.data()), 1, GL_FALSE, &mat[0][0]);
+			}
+			void SetUniform_Mat3(std::string_view name, const glm::mat3& mat) const
+			{
+				glUniformMatrix3fv(glGetUniformLocation(programID_, name.data()), 1, GL_FALSE, &mat[0][0]);
+			}
+			void SetUniform_Mat4(std::string_view name, const glm::mat4& mat) const
+			{
+				glUniformMatrix4fv(glGetUniformLocation(programID_, name.data()), 1, GL_FALSE, &mat[0][0]);
+			}
 		};
 
 		class TextureData
@@ -254,12 +335,12 @@ namespace SMGE
 		class WorldObject : public Transform
 		{
 		protected:
-			const class RenderModel* renderModel_;
+			class RenderModel* renderModel_;
 
 			friend class RenderModel;
 
 		public:
-			WorldObject(const class RenderModel* rm);
+			WorldObject(class RenderModel* rm);
 			virtual ~WorldObject();
 
 			WorldObject(const WorldObject& c);
@@ -270,12 +351,16 @@ namespace SMGE
 			void SetRendering(bool isv, bool propagate);
 			bool IsRendering() const;
 
+			class RenderModel* GetRenderModel() const;
+
 		protected:
 			bool isRendering_ = true;
 		};
 
 		class GLContextDependency
 		{
+			// 여기 - 이거 멀티컨텍스트 구현할 때 렌더모델 등 중복할당하지 말고 메모리 공유 기능 써볼까??? 아니면 그냥 바로 벌캔으로 변경할까? 이건 시간이 너무 오래 걸린다.
+			// 일단 최소한으로 멀티컨텍스트 구현해서 샘플 게임을 만들도록 하자!!
 		};
 
 		// RenderModel은 GLContext 종속이다
@@ -304,8 +389,8 @@ namespace SMGE
 			GLuint usingTextureSampleI_ = 0;
 
 #pragma region WorldObject
-			mutable std::vector<WorldObject*> ptrWorldObjects_;
-			void AddWorldObject(WorldObject* wm) const;
+			mutable std::vector<WorldObject*> worldObjectsW_;
+			void AddWorldObject(WorldObject* wm);
 			void RemoveWorldObject(WorldObject* wm) const;
 			const std::vector<WorldObject*>& WorldObjects() const;
 #pragma endregion
@@ -316,8 +401,8 @@ namespace SMGE
 
 			RenderModel(const ResourceModelBase& asset, GLuint texSamp);
 
-			RenderModel(const RenderModel& c) = delete;
-			RenderModel& operator=(const RenderModel& c) = delete;
+			DELETE_COPY_CTOR(RenderModel);
+
 			RenderModel(RenderModel&& c) noexcept;
 			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ 때문에 구현 불가
 
@@ -331,7 +416,7 @@ namespace SMGE
 			void Render(const glm::mat4& VP);
 			virtual void BeginRender();
 			virtual void EndRender();
-			void SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos);
+			void UseShader(const glm::mat4& V, const glm::vec3& lightPos);
 		};
 
 		// ResourceModel은 GLContext 종속이 아니라서 여러 GLContext에서 공용으로 쓸 수 있다.
@@ -380,19 +465,8 @@ namespace SMGE
 			ResourceModel(ResourceModel&& c) noexcept;
 			ResourceModel& operator=(ResourceModel&& c) noexcept;
 		};
-	}
-
-	namespace nsRE
-	{
+	
 		class CRenderingEngine;
-
-		namespace GLUtil
-		{
-			void safeDeleteVertexArray(GLuint& vao);
-			void safeDeleteBuffer(GLuint& vbo);
-			void safeDeleteProgram(GLuint& prog);
-			void safeDeleteFramebuffer(GLuint& fbo);
-		}
 
 		class CResourceModelProvider
 		{
@@ -407,44 +481,87 @@ namespace SMGE
 		};
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// 렌더 타겟
-		class CRenderTarget
+		#define SAFE_DELETE_GL(glObjectTypeName, count, ptrGLObjectName)	{ glDelete##glObjectTypeName (count, ptrGLObjectName); memset(ptrGLObjectName, 0, sizeof(*ptrGLObjectName) * count); }
+
+		// 여기 - 아오, 멀티 컨텍스트 지원하려면 이거 바꿔야한다
+		class CGLState : public GLContextDependency
 		{
 		public:
-			CRenderTarget();
+			static void PushState(std::string_view glState);
+			static void PopState(std::string_view glState);
+			static void TopState(std::string_view glState, std::any& out);
 
-			// gl frame buffer
+		protected:
+			static std::stack<GLint> fboStack_;
+		};
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 렌더 타겟
+		class CRenderTarget : public GLContextDependency
+		{
+		protected:
+			DEFAULT_COPY_CTOR(CRenderTarget);	// 이동 생성자에서 나만 쓴다!!
+
+			constexpr static GLsizei QuadVertexNumber = 6;
+
+		public:
+			CRenderTarget();
+			CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC);
+			~CRenderTarget();
+		
+			CRenderTarget(CRenderTarget&& other) noexcept;
+			CRenderTarget& operator=(CRenderTarget&& other) noexcept;
+
+			bool IsUsingBackBuffer() const;
+
+			void BindFrameBuffer() const;
+			void UnbindFrameBuffer() const;
+			void ClearFrameBuffer(glm::vec3 color, GLuint flags = 0) const;
+
+			GLuint GetQuadVAO() const { return quadVAO_; }
+			GLuint GetColorTextureName() const { return colorTextureName_; }
+			GLsizei GetQuadVertexNumber() const { return QuadVertexNumber; }
+
+		protected:
+			CRenderingCamera* renderingCameraW_;
+			
+			SRect2D viewportNDC_;
+			std::array<SVF_V2F_T2F, QuadVertexNumber> quadVertices_;
+			glm::vec2 size_;
+			GLuint colorFormat_ = 0;
+			GLuint depthStencilFormat_ = 0;
+
+			// gl objects
+			GLuint quadVAO_ = 0;
+			GLuint quadVBO_ = 0;
+			GLuint fbo_ = 0, rbo_ = 0, colorTextureName_ = 0;
 		};
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 렌더링 패스
-		enum class ERenderingPass : unsigned int
-		{
-			NONE = 0,
-			
-			WORLD,
-			WORLD_MAX = 6,
-
-			POSTPROCESS,
-			POSTPROCESS_MAX = 11,
-
-			EDITOR,
-			EDITOR_MAX = 16,
-
-			UI,
-			UI_MAX = 21,
-
-			MAX,
-		};
-
 		class CRenderingPass
 		{
 		public:
 			CRenderingPass();
 
+			DELETE_COPY_CTOR(CRenderingPass);
+			DELETE_MOVE_CTOR(CRenderingPass);
+
+			virtual void RenderTo(const glm::mat4& V, const glm::mat4& VP, CRenderTarget*& writeRT, CRenderTarget*& readRT) = 0;
+		};
+
+		class CPostEffectPass : public CRenderingPass
+		{
+		public:
+			CPostEffectPass(std::wstring_view vsFilePath, std::wstring_view fsFilePath);
+
+			DELETE_COPY_CTOR(CPostEffectPass);
+			DELETE_MOVE_CTOR(CPostEffectPass);
+
+			virtual void RenderTo(const glm::mat4& V, const glm::mat4& VP, CRenderTarget*& writeRT, CRenderTarget*& readRT) override;
+
 		protected:
-			ERenderingPass type_;
-			CRenderTarget* currentRenderTarget_;
+			VertFragShaderSet* posteffectShader_ = nullptr;
 		};
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -454,18 +571,22 @@ namespace SMGE
 		private:
 			int m_bufferLengthW, m_bufferLengthF;	// window 기반 버퍼 크기와 frame 기반 버퍼 크기
 			int m_width, m_height;
-			int m_framebufferWith, m_framebufferHeight;
+			int m_framebufferWidth, m_framebufferHeight;
 			int m_colorDepth = 4;	// GL_BGRA, PixelFormats::Pbgr32
 			glm::vec4 m_clearColor;
 			GLFWwindow* m_window = nullptr;
-			char* GLRenderHandle = nullptr;
-			bool isRunning = false;
+			char* m_glRenderHandle = nullptr;
+			bool m_isRunning = false;
 
 			CRenderingCamera renderingCamera_;
+			std::unique_ptr<CRenderTarget> renderTarget0_, renderTarget1_, renderTargetBackBuffer_;
+			std::vector<std::unique_ptr<CRenderingPass>> renderingPasses_;
+			std::unique_ptr<CPostEffectPass> lastRenderingPass_;
 
 			void initWindow();
 
-			class CGameBase* smge_game;
+			// 여기 - 20210214 생각 - 게임 말고 엔진이 들어와야한다, 엔진->게임으로 구조를 바꾸자
+			class CGameBase* gameBase_;
 
 		public:
 			CRenderingEngine();
@@ -473,19 +594,28 @@ namespace SMGE
 
 			const int GetWidth();
 			const int GetHeight();
-			const int GetBufferLenght();
+			const int GetBufferLength();
 			void Init();
 			void DeInit();
 			void Resize(int width, int height);
 			void Stop();
 
 			void Tick();
+#if IS_EDITOR
 			void Render(char* imgBuffer);
-
 			void getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth);
+#else
+			void Render();
+#endif
 			void ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir);
 
+			const CRenderingCamera& GetRenderingCamera() const { return renderingCamera_; }
 			CRenderingCamera& GetRenderingCamera() { return renderingCamera_; }
+
+			std::vector<std::unique_ptr<CRenderingPass>>& GetRenderingPasses() { return renderingPasses_; }
+
+		protected:
+			void ResizeRenderTargets();
 		};
 	}
 }

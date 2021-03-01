@@ -187,15 +187,18 @@
     <ClCompile Include="Objects\CActor.cpp" />
     <ClCompile Include="Objects\CCameraActor.cpp" />
     <ClCompile Include="Objects\CCollideActor.cpp" />
+    <ClCompile Include="Objects\CGizmoActor.cpp" />
     <ClCompile Include="Objects\CMap.cpp" />
     <ClCompile Include="Objects\CObject.cpp" />
     <ClCompile Include="Objects\CStaticMeshActor.cpp" />
     <ClCompile Include="RTTI.cpp" />
+    <ClCompile Include="short_alloc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assets\CAsset.h" />
     <ClInclude Include="Assets\CAssetManager.h" />
     <ClInclude Include="Assets\CResourceModel.h" />
+    <ClInclude Include="CActorInterface.h" />
     <ClInclude Include="CBoundCheck.h" />
     <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="Components\CBoundComponent.h" />
@@ -227,10 +230,12 @@
     <ClInclude Include="Objects\CActor.h" />
     <ClInclude Include="Objects\CCameraActor.h" />
     <ClInclude Include="Objects\CCollideActor.h" />
+    <ClInclude Include="Objects\CGizmoActor.h" />
     <ClInclude Include="Objects\CMap.h" />
     <ClInclude Include="Objects\CObject.h" />
     <ClInclude Include="Objects\CStaticMeshActor.h" />
     <ClInclude Include="RTTI.hpp" />
+    <ClInclude Include="short_alloc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

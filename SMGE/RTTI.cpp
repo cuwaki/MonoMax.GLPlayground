@@ -15,6 +15,7 @@
 #include "Objects/CCollideActor.h"
 #include "Objects/CStaticMeshActor.h"
 #include "Objects/CCameraActor.h"
+#include "Objects/CGizmoActor.h"
 
 #include "Objects/CMap.h"
 
@@ -51,6 +52,8 @@ namespace SMGE
 	DEFINE_RTTI_CObject_VARIETY(CStaticMeshActor, CObject*);
 	DEFINE_RTTI_CObject_DEFAULT(CCameraActor);
 	DEFINE_RTTI_CObject_VARIETY(CCameraActor, CObject*);
+	DEFINE_RTTI_CObject_DEFAULT(CGizmoActorTranslate);
+	DEFINE_RTTI_CObject_VARIETY(CGizmoActorTranslate, CObject*);
 	DEFINE_RTTI_CObject_DEFAULT(CActor);
 	DEFINE_RTTI_CObject_VARIETY(CActor, CObject*);
 

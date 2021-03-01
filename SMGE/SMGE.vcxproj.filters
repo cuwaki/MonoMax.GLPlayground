@@ -152,6 +152,15 @@
     <ClInclude Include="CUserInput.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Objects\CGizmoActor.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="CActorInterface.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="short_alloc.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -254,6 +263,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CUserInput.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\CGizmoActor.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="short_alloc.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

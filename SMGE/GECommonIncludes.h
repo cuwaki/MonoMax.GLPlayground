@@ -18,6 +18,7 @@
 #include <forward_list>
 #include <map>
 #include <set>
+#include <unordered_set>
 #include <unordered_map>
 #include <memory>
 #include <algorithm>
@@ -36,6 +37,10 @@
 #include "../packages/glm.0.9.9.800/build/native/include/glm/ext.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/quaternion.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtc/quaternion.hpp"
+
+#if defined(_DEBUG) || defined(DEBUG)
+#define IS_DEBUG    1
+#endif
 
 #define etoi(_E_) SCast<int32>(_E_)
 #define etos(_E_) SCast<size_t>(_E_)
@@ -317,3 +322,32 @@ namespace SMGE
         CWString exceptionMsg_;
     };
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// c++ helpers
+//
+#define DELETE_COPY_CTOR(classTypeName)\
+		classTypeName(const classTypeName& other) = delete;\
+		classTypeName& operator=(const classTypeName& other) = delete;
+
+#define DELETE_MOVE_CTOR(classTypeName)\
+		classTypeName(classTypeName&& other) = delete;\
+		classTypeName& operator=(classTypeName&& other) = delete;
+
+#define DEFAULT_COPY_CTOR(classTypeName)\
+		classTypeName(const classTypeName& other) = default;\
+		classTypeName& operator=(const classTypeName& other) = default;
+
+#define DEFAULT_MOVE_CTOR(classTypeName)\
+		classTypeName(classTypeName&& other) = default;\
+		classTypeName& operator=(classTypeName&& other) = default;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// https://howardhinnant.github.io/stack_alloc.html
+#include "short_alloc.h"
+
+template <class T, std::size_t BufSize>
+using StackVector = std::vector<T, short_alloc<T, BufSize, alignof(T)>>;
+
+template <class T, std::size_t BufSize>
+using StackSet = std::unordered_set<T, std::hash<T>, std::equal_to<T>, short_alloc<T, BufSize, alignof(T)>>;

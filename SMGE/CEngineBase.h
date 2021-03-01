@@ -17,6 +17,25 @@ namespace SMGE
 		glm::vec2 gameScreenSize_{};
 	};
 
+	enum class ERenderingPass : unsigned int
+	{
+		NONE = 0,
+
+		WORLD,
+		WORLD_MAX = 6,
+
+		POSTPROCESS,
+		POSTPROCESS_MAX = 11,
+
+		EDITOR,
+		EDITOR_MAX = 16,
+
+		UI,
+		UI_MAX = 21,
+
+		MAX,
+	};
+
 	class CEngineBase
 	{
 	public:

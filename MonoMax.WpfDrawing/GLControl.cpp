@@ -30,19 +30,6 @@ namespace SMGE
 			m_textFpsCounter = gcnew TextBlock();
 			m_textFpsCounter->Margin = Thickness(3);
 			m_textFpsCounter->VerticalAlignment = System::Windows::VerticalAlignment::Bottom;
-			
-
-			m_lastUpdate = System::DateTime::Now;
-
-			m_tickTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
-			m_tickTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS * 0.95);	// 렌더보다 약간 빨리 돌게
-			m_tickTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Tick);
-			m_tickTimer->Start();
-
-			m_renderTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
-			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS);
-			m_renderTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Render);
-			m_renderTimer->Start();
 
 			m_ImageControl = gcnew Image();
 			m_ImageControl->RenderTransformOrigin = Point(0.5, 0.5);
@@ -55,22 +42,39 @@ namespace SMGE
 			
 			System::Windows::Controls::Panel::SetZIndex(m_ImageControl, -1);
 
-			m_graphicsEngine = new nsRE::CRenderingEngine();
-			m_graphicsEngine->Init();
+			///////////////////////////////// 1.
+			m_renderingEngine = new nsRE::CRenderingEngine();
+			m_renderingEngine->Init();
 			m_isInitialized = true;
+
+			///////////////////////////////// 2.
+			m_lastUpdate = System::DateTime::Now;
+
+			m_tickTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
+			m_tickTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS * 0.95);	// 렌더보다 약간 빨리 돌게
+			m_tickTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Tick);
+			m_tickTimer->Start();
+
+			m_renderTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
+			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS);
+			m_renderTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Render);
+			m_renderTimer->Start();
+
 		}
 
-		m_graphicsEngine->Resize(m_width, m_height);
+		m_renderingEngine->Resize(m_width, m_height);
 
+#if IS_EDITOR
 		double dpiX, dpiY;
 		int colorDepth;
-		m_graphicsEngine->getWriteableBitmapInfo(dpiX, dpiY, colorDepth);
+		m_renderingEngine->getWriteableBitmapInfo(dpiX, dpiY, colorDepth);
 		
 		// colorDepth == 4 이어야하고 그래서 PixelFormats::Pbgra32 를 쓴다
 		m_writeableImg = gcnew WriteableBitmap(m_width, m_height, dpiX, dpiY, PixelFormats::Pbgra32, nullptr);
 
 		m_WriteableBuffer = (char*)m_writeableImg->BackBuffer.ToPointer();
 		m_ImageControl->Source = m_writeableImg;
+#endif
 	}
 
 	bool GLControl::GetIsRunning(void)
@@ -80,9 +84,9 @@ namespace SMGE
 
 	void GLControl::Destroy(void)
 	{
-		m_graphicsEngine->DeInit();
-		delete m_graphicsEngine;
-		m_graphicsEngine = nullptr;
+		m_renderingEngine->DeInit();
+		delete m_renderingEngine;
+		m_renderingEngine = nullptr;
 	}
 
 	void GLControl::UpdateImageData(void)
@@ -94,7 +98,7 @@ namespace SMGE
 
 	void GLControl::Tick(System::Object^ sender, System::EventArgs^ e)
 	{
-		m_graphicsEngine->Tick();
+		m_renderingEngine->Tick();
 	}
 
 	void GLControl::Render(System::Object^ sender, System::EventArgs^ e)
@@ -107,7 +111,7 @@ namespace SMGE
 			m_lastUpdate = System::DateTime::Now;
 		}
 
-		m_graphicsEngine->Render(m_WriteableBuffer);
+		m_renderingEngine->Render(m_WriteableBuffer);
 		m_ImageControl->Dispatcher->Invoke(gcnew System::Action(this, &GLControl::UpdateImageData));
 
 		m_fpsCounter++;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CObject.h"
+#include "../CActorInterface.h"
 #include "../Interfaces/CInt_Reflection.h"
 #include "../Interfaces/CInt_Component.h"
 #include "../Components/CDrawComponent.h"
@@ -46,7 +47,7 @@ namespace SMGE
 		CActor& outerActor_;
 	};
 
-	class CActor : public CObject, public CInt_Reflection, public CInt_Component
+	class CActor : public CObject, public CInt_Reflection, public CInt_Component, public CActorInterface
 	{
 		DECLARE_RTTI_CObject(CActor)
 
@@ -90,6 +91,7 @@ namespace SMGE
 		void SetLifeTickCount(int32 t) { lifeTickCount_ = t; }
 		// 여기 - lifetick time 을 만들어야한다
 
+		// nsRE::WorldObject 와의 연동을 위하여 존재함
 		void SetRendering(bool isr, bool propagate);
 		bool IsRendering() const { return isRendering_; }
 
@@ -131,7 +133,6 @@ namespace SMGE
 		TActorKey actorKey_ = InvalidActorKey;
 		CTimer timer_;
 
-		// DynamicActorKey
-		friend class CMap;
+		friend class CSystemBase;	// for DynamicActorKey
 	};
 };

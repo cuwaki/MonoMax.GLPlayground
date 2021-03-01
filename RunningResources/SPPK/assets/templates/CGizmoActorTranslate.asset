@@ -1,0 +1,58 @@
+classRTTIName_$CString$"CGizmoActorTranslate"
+    reflectionFilePath_$CWString$"/templates/CGizmoActorTranslate.asset"
+    actorKey_$TActorKey$0
+    classRTTIName_$CString$"SGRefl_Transform"
+        reflectionFilePath_$CWString$""
+        nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+        nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+    actorStaticTag_$CString$"gizmo_transform"
+    persistCompoSize$size_t$4
+			// 바운드 스피어
+		classRTTIName_$CString$"CSphereComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+			persistCompoSize$size_t$0
+			isPickingTarget_$bool$true
+			isCollideTarget_$bool$false
+			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
+			// X축 - Red
+        classRTTIName_$CString$"CSegmentComponent"
+            reflectionFilePath_$CWString$""
+            classRTTIName_$CString$"SGRefl_Transform"
+            reflectionFilePath_$CWString$""
+            nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+            nsre_transform_.GetRotation()$glm::vec3$0.000000	90.000000	0.000000	
+            nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+            persistCompoSize$size_t$0
+            isPickingTarget_$bool$true
+            isCollideTarget_$bool$false
+            gizmoColor_$glm::vec3$1.000000	0.000000	0.000000	
+			// Y축 - Green
+        classRTTIName_$CString$"CSegmentComponent"
+            reflectionFilePath_$CWString$""
+            classRTTIName_$CString$"SGRefl_Transform"
+            reflectionFilePath_$CWString$""
+            nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+            nsre_transform_.GetRotation()$glm::vec3$-90.000000	0.000000	0.000000	
+            nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+            persistCompoSize$size_t$0
+            isPickingTarget_$bool$true
+            isCollideTarget_$bool$false
+            gizmoColor_$glm::vec3$0.000000	1.000000	0.000000	
+			// Z축 - Blue
+        classRTTIName_$CString$"CSegmentComponent"
+            reflectionFilePath_$CWString$""
+            classRTTIName_$CString$"SGRefl_Transform"
+            reflectionFilePath_$CWString$""
+            nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+            nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+            nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+            persistCompoSize$size_t$0
+            isPickingTarget_$bool$true
+            isCollideTarget_$bool$false
+            gizmoColor_$glm::vec3$0.000000	0.000000	1.000000	

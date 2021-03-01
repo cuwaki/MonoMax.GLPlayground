@@ -9,7 +9,7 @@ namespace SMGE
 	public ref class GLControl : public System::Windows::Controls::UserControl
 	{
 	private:
-		nsRE::CRenderingEngine* m_graphicsEngine;
+		nsRE::CRenderingEngine* m_renderingEngine;
 
 		bool m_isInitialized = false;
 		int m_width, m_height, m_fpsCounter;

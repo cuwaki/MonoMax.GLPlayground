@@ -6,11 +6,12 @@ namespace SMGE
 	{
 	}
 
-	void CSystemGame::OnStartSystem()
+	void CSystemGame::OnLinkWithRenderingEngine()
 	{
+		CSystemBase::OnLinkWithRenderingEngine();
 	}
 
-	void CSystemGame::OnEndSystem()
+	void CSystemGame::OnDestroyingGameEngine()
 	{
 
 	}

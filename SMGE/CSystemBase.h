@@ -2,9 +2,16 @@
 
 #include "GECommonIncludes.h"
 #include "CUserInput.h"
+#include "Objects/CActor.h"
+#include "RTTI.hpp"
 
 namespace SMGE
 {
+	namespace nsRE
+	{
+		class CRenderingEngine;
+	}
+
 	/*
 	* 시스템
 	* 
@@ -20,17 +27,77 @@ namespace SMGE
 	public:
 		CSystemBase(class CEngineBase *engine);
 
-		virtual void OnStartSystem();
-		virtual void OnEndSystem();
+		virtual void Tick(float timeDelta);
+
+		virtual void OnLinkWithRenderingEngine();
+		virtual void OnDestroyingGameEngine();
 
 		virtual bool ProcessUserInput();
 		virtual void AddProcessUserInputs(const DELEGATE_ProcessUserInput& delegPUI);
 
 		virtual void OnChangedSystemState(const CString& stateName);
 
+		///////////////////////////////////////////////////////////////////////////////////////////////////////
+		// CActor 관리
+		CVector<CUniqPtr<CActor>>& GetAllActors() { return allActors_; }
+		const CVector<CUniqPtr<CActor>>& GetAllActors() const { return allActors_; }
+
+		virtual void ProcessPendingKill(class CActor* actor);
+		virtual void ProcessPendingKills();
+		virtual CActor& StartSpawnActorINTERNAL(class CMap* targetMap, class CObject* newObj, bool isDynamic);
+
+		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용
+		template<typename... Args>
+		CActor& StartSpawnActorDEFAULT(class CMap* targetMap, const std::string& classRTTIName, bool isDynamic, Args_START Args&&... args)
+		{
+			auto newObj = RTTI_CObject::NewDefault(classRTTIName, Args_START std::forward<Args>(args)...);
+			return static_cast<CActor&>(StartSpawnActorINTERNAL(targetMap, newObj, isDynamic));
+		}
+
+		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
+		template<typename ActorT, typename... Args>
+		ActorT& StartSpawnActorVARIETY(class CMap* targetMap, bool isDynamic, Args_START Args&&... args)
+		{
+			auto newObj = RTTI_CObject::NewVariety<ActorT>(Args_START std::forward<Args>(args)...);
+			return static_cast<ActorT&>(StartSpawnActorINTERNAL(targetMap, newObj, isDynamic));
+		}
+
+		CActor* FinishSpawnActor(class CMap* targetMap, CActor* arrangedActor);
+
+		//CUniqPtr<CActor>&& RemoveActor(TActorKey ak);
+
 	protected:
 		class CEngineBase* engine_;
+		class nsRE::CRenderingEngine* renderingEngine_;
+
+		CVector<CUniqPtr<CActor>> allActors_;
+		CHashMap<CActor*, class CMap*> actorsMap_;
 
 		std::vector<DELEGATE_ProcessUserInput> delegateUserInputs_;
+
+	protected:
+		static TActorKey DynamicActorKey;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	class CRenderPassWithSystem : public nsRE::CRenderingPass
+	{
+	public:
+		CRenderPassWithSystem(CSystemBase* system) : system_(system)
+		{
+		}
+
+		CSystemBase* GetSystem() const { return system_; }
+
+	protected:
+		CSystemBase* system_ = nullptr;
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	class CRenderPassWorld : public CRenderPassWithSystem
+	{
+	public:
+		CRenderPassWorld(CSystemBase* system);
+		virtual void RenderTo(const glm::mat4& V, const glm::mat4& VP, nsRE::CRenderTarget*& writeRT, nsRE::CRenderTarget*& readRT) override;
 	};
 };

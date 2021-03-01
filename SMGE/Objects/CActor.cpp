@@ -239,14 +239,20 @@ namespace SMGE
 		if (isRendering_ == isr)
 			return;
 
-		isRendering_ = isr;
+		auto hasDrawCompo = false;
 
+		// 액터에서 바로 밑 콤포넌트들에게는 무조건 해야한다 - 액터가 WorldObject 가 아니기 때문
 		for (auto comp : getAllComponents())
 		{
 			auto drawComp = DCast<CDrawComponent*>(comp);
-			if(drawComp)
+			if (drawComp)
+			{
 				drawComp->SetRendering(isr, propagate);
+				hasDrawCompo = true;
+			}
 		}
+
+		isRendering_ = hasDrawCompo;	// 드로콤포가 하나도 없다면 플래그를 꺼야 CRenderingPass 에서 빠른 처리가 가능하다
 	}
 
 	class CBoundComponent* CActor::GetMainBound()

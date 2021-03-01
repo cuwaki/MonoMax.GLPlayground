@@ -17,13 +17,11 @@ namespace SMGE
 #else
 		system_ = MakeUniqPtr<CSystemGame>(this);
 #endif
-
-		system_->OnStartSystem();
 	}
 
 	CEngineBase::~CEngineBase()
 	{
-		system_->OnEndSystem();
+		system_->OnDestroyingGameEngine();
 	}
 
 	HWND CEngineBase::HasWindowFocus() const
@@ -42,9 +40,7 @@ namespace SMGE
 
 	void CEngineBase::Tick(float timeDelta)
 	{
-		system_->ProcessUserInput();
-
-		gameBase_->Tick(timeDelta);
+		system_->Tick(timeDelta);
 	}
 
 	CSystemBase* CEngineBase::GetSystem() const
@@ -55,6 +51,15 @@ namespace SMGE
 	void CEngineBase::SetRenderingEngine(nsRE::CRenderingEngine* re)
 	{
 		renderingEngine_ = re;
+
+		if (renderingEngine_)
+		{
+			system_->OnLinkWithRenderingEngine();
+		}
+		else
+		{
+			assert(false && "never null");	// 현재로서는 이렇다 20210214
+		}
 	}
 
 	nsRE::CRenderingEngine* CEngineBase::GetRenderingEngine() const

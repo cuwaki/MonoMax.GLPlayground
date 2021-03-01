@@ -9,8 +9,8 @@ namespace SMGE
 	public:
 		CSystemGame(class CEngineBase* engine);
 
-		virtual void OnStartSystem() override;
-		virtual void OnEndSystem() override;
+		virtual void OnLinkWithRenderingEngine() override;
+		virtual void OnDestroyingGameEngine() override;
 
 		virtual bool ProcessUserInput() override;
 		virtual void OnChangedSystemState(const CString& stateName) override;

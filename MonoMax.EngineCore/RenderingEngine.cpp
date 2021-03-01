@@ -150,6 +150,12 @@ namespace SMGE
 			vertAttrArray_ = -1, uvAttrArray_ = -1, normAttrArray_ = -1, vertexColorAttrArray_ = -1;
 		}
 
+		void VertFragShaderSet::Use() const
+		{
+			assert(programID_ != 0);
+			glUseProgram(programID_);
+		}
+
 		std::map<CWString, std::unique_ptr<VertFragShaderSet>> VertFragShaderSet::Cache;
 
 		VertFragShaderSet::VertFragShaderSet(VertFragShaderSet&& c) noexcept
@@ -708,9 +714,9 @@ namespace SMGE
 			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
 		}
 
-		void RenderModel::AddWorldObject(WorldObject* wm) const
+		void RenderModel::AddWorldObject(WorldObject* wm)
 		{
-			ptrWorldObjects_.push_back(wm);
+			worldObjectsW_.push_back(wm);
 
 			assert(wm->renderModel_ == nullptr);	// 이렇지 않으면 이전 거에서 빼주는 처리가 필요하다
 
@@ -720,14 +726,14 @@ namespace SMGE
 
 		void RenderModel::RemoveWorldObject(WorldObject* wm) const
 		{
-			auto it = std::find(ptrWorldObjects_.begin(), ptrWorldObjects_.end(), wm);
-			if (it != ptrWorldObjects_.end())
-				ptrWorldObjects_.erase(it);
+			auto it = std::find(worldObjectsW_.begin(), worldObjectsW_.end(), wm);
+			if (it != worldObjectsW_.end())
+				worldObjectsW_.erase(it);
 		}
 
 		const std::vector<WorldObject*>& RenderModel::WorldObjects() const
 		{
-			return ptrWorldObjects_;
+			return worldObjectsW_;
 		}
 
 		RenderModel::~RenderModel()
@@ -843,6 +849,7 @@ namespace SMGE
 			usingTextureSampleI_ = 0;
 		}
 
+		// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
 		void RenderModel::Render(const glm::mat4& VP)
 		{
 			for (auto& wmPtr : WorldObjects())
@@ -855,7 +862,7 @@ namespace SMGE
 				//glm::mat4 ModelMatrix = glm::mat4(1);
 				//ModelMatrix = glm::translate(ModelMatrix, worldPos);
 
-				const glm::mat4 MVP = VP * wmPtr->GetMatrix(false);
+				const auto MVP = VP * wmPtr->GetMatrix(false);
 
 				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
 				if(GetShaderSet()->unif_MVPMatrixID_ != -1)
@@ -948,20 +955,20 @@ namespace SMGE
 			glBindVertexArray(0);
 		}
 
-		void RenderModel::SetWorldInfos(const glm::mat4& viewMatrix, const glm::vec3& lightPos)
+		void RenderModel::UseShader(const glm::mat4& V, const glm::vec3& lightPos)
 		{
 			if (GetShaderID() == 0)
 				return;
 
-			glUseProgram(GetShaderID());
+			GetShaderSet()->Use();
 
 			if(GetShaderSet()->unif_ViewMatrixID_ != -1)
-				glUniformMatrix4fv(GetShaderSet()->unif_ViewMatrixID_, 1, GL_FALSE, &viewMatrix[0][0]);
+				glUniformMatrix4fv(GetShaderSet()->unif_ViewMatrixID_, 1, GL_FALSE, &V[0][0]);
 			if(GetShaderSet()->unif_LightWorldPosition_ != -1)
 				glUniform3f(GetShaderSet()->unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
-		WorldObject::WorldObject(const RenderModel* rm) : renderModel_(nullptr)
+		WorldObject::WorldObject(RenderModel* rm) : renderModel_(nullptr)
 		{
 			if(rm != nullptr)
 				rm->AddWorldObject(this);
@@ -999,11 +1006,17 @@ namespace SMGE
 		{
 			return isRendering_;
 		}
+
+		class RenderModel* WorldObject::GetRenderModel() const
+		{
+			return renderModel_;
+		}
 	}
 
 	namespace nsRE
 	{
-		CRenderingEngine::CRenderingEngine() : m_clearColor(0.8f, 0.8f, 0.6f, 1.0f)
+		CRenderingEngine::CRenderingEngine() :
+			m_clearColor(0.8f, 0.8f, 0.6f, 1.0f)
 		{
 		}
 		
@@ -1048,7 +1061,7 @@ namespace SMGE
 			//}
 
 			// But on MacOS X with a retina screen it'll be m_width*2 and m_windowHeight*2, so we get the actual framebuffer size:
-			glfwGetFramebufferSize(m_window, &m_framebufferWith, &m_framebufferHeight);
+			glfwGetFramebufferSize(m_window, &m_framebufferWidth, &m_framebufferHeight);
 
 			// Initialize GLEW
 			glewExperimental = true; // Needed for core profile
@@ -1086,6 +1099,8 @@ namespace SMGE
 			//glEnable(GL_PROGRAM_POINT_SIZE);
 
 			//glEnable(GL_MULTISAMPLE);
+
+			lastRenderingPass_ = std::make_unique<CPostEffectPass>(L"renderTargetNDC.vs", L"renderTargetOverwrite.fs");
 		}
 
 		// 테스트 코드 ㅡ 실제 width, height 를 정확히 맞추려면 .xaml 에서 w = 16, h = 39 더 추가해줘야한다
@@ -1099,27 +1114,37 @@ namespace SMGE
 			m_bufferLengthW = m_width * m_height * m_colorDepth;
 
 			// 체크 사항 - 이거 다시 체크해야하려나??
-			//glfwGetFramebufferSize(m_window, &m_framebufferWith, &m_framebufferHeight);
-			m_bufferLengthF = m_framebufferWith * m_framebufferHeight * m_colorDepth;
+			//glfwGetFramebufferSize(m_window, &m_framebufferWidth, &m_framebufferHeight);
+			m_bufferLengthF = m_framebufferWidth * m_framebufferHeight * m_colorDepth;
 
 			// 체크 사항 - 이거 없어도 되는데 왜 하는걸까?
-			//free(GLRenderHandle);
-			//GLRenderHandle = (char*)malloc(m_bufferLengthW);
+			//free(m_glRenderHandle);
+			//m_glRenderHandle = (char*)malloc(m_bufferLengthW);
 
 			// deprecated
 			//OldModelAsset::OnScreenResize_Master(m_width, m_height);
 
 			glViewport(0, 0, m_width, m_height);
 
-			//////////////////////////////////////////////////////////////////////////////////////////
-			// 테스트 코드 - 초기 카메라 처리
-			//float cameraInitialDist = 20;
-			GetRenderingCamera().SetCameraPos({ 0,0,0 });
-			GetRenderingCamera().SetCameraLookAt({ 0,0,1 });
-			GetRenderingCamera().ComputeMatricesFromInputs(true, m_width, m_height);
+			ResizeRenderTargets();
 		}
 
-		const int CRenderingEngine::GetBufferLenght()
+		void CRenderingEngine::ResizeRenderTargets()
+		{
+			const SRect2D ndc = { { -1.f, -1.f }, { 1.f, 1.f } };
+
+			// 1920 * 1080 * RGBA 32BIT + 1920 * 1080 * D24_S8
+			// 이렇게 되니까 RT 하나당 16메가 정도 먹는다
+			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc);
+
+			// 현재 포스트 프로세스가 없어서 renderTarget1_ 는 쓰일 일이 없지만 일단 만들어둠
+			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc);
+
+			// 기본 렌더타겟으로 생성하면 백버퍼를 가리키게 된다
+			renderTargetBackBuffer_ = std::make_unique<CRenderTarget>();
+		}
+
+		const int CRenderingEngine::GetBufferLength()
 		{
 			return m_bufferLengthW;
 		}
@@ -1132,20 +1157,27 @@ namespace SMGE
 			initWindow();
 
 			//////////////////////////////////////////////////////////////////////////////////////////
+			// 테스트 코드 - 초기 카메라 처리
+			//float cameraInitialDist = 20;
+			GetRenderingCamera().SetCameraPos({ 0,0,0 });
+			GetRenderingCamera().SetCameraLookAt({ 0,0,1 });
+			GetRenderingCamera().ComputeMatricesFromInputs(true, m_width, m_height);
+
+			//////////////////////////////////////////////////////////////////////////////////////////
 			// 게임 처리
-			smge_game = new SMGE::SPPKGame(nullptr);
-			smge_game->GetEngine()->SetRenderingEngine(this);
+			gameBase_ = new SMGE::SPPKGame(nullptr);
+			gameBase_->GetEngine()->SetRenderingEngine(this);
 		}
 
 		void CRenderingEngine::DeInit()
 		{
-			delete smge_game;
+			delete gameBase_;
 		}
 
 		void CRenderingEngine::Tick()
 		{
-			// 테스트 코드 - 대강 느낌만 맞춰둠
-			smge_game->GetEngine()->Tick(0.01f);
+			// 테스트 코드 - 0.01f - 대강 느낌만 맞춰둠
+			gameBase_->Tick(0.01f);
 			//double currentTime = glfwGetTime();
 			//float theta = currentTime * 2.f;
 
@@ -1156,13 +1188,20 @@ namespace SMGE
 			//}
 		}
 
+//#define OLD_RENDER_PASS
+
+#if IS_EDITOR
 		void CRenderingEngine::Render(char* imgBuffer)
+#else
+		void CRenderingEngine::Render()
+#endif
 		{
+			const auto& renderCam = GetRenderingCamera();
+			const auto V = renderCam.GetProjectionMatrix() * renderCam.GetViewMatrix();
+			const auto VP = V * renderCam.GetViewMatrix();
+
+#ifdef OLD_RENDER_PASS
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			auto& renderCam = GetRenderingCamera();
-
-			glm::mat4 VP = renderCam.GetProjectionMatrix() * renderCam.GetViewMatrix();
 
 			// 테스트 코드 - 라이트를 회전시키자
 			const float lightRotateRadius = 4;
@@ -1174,26 +1213,40 @@ namespace SMGE
 			lightRotateMat = glm::rotate(lightRotateMat, theta, glm::vec3(0, 1, 0));
 			lightPos = lightRotateMat * lightPos;
 			
+			// 리소스 모델 -> 월드 오브젝트들
 			for (const auto& it : CResourceModelProvider::GetResourceModels())
 			{
 				auto rm = it.second.get()->GetRenderModel(nullptr);
 				if (rm != nullptr && rm->GetShaderID() > 0)
 				{
-					rm->SetWorldInfos(renderCam.GetViewMatrix(), glm::vec3(lightPos));	// 셰이더 마다 1회
+					rm->UseShader(V, glm::vec3(lightPos));	// 셰이더 마다 1회
 					rm->BeginRender();
 					rm->Render(VP);
 					rm->EndRender();
 				}
 			}
-
-			if (imgBuffer != nullptr)
+#else
+			auto writeRT = renderTarget0_.get(), readRT = renderTarget1_.get();
+			for (auto& rp : renderingPasses_)
 			{
+				rp->RenderTo(V, VP, OUT writeRT, OUT readRT);
+			}
+
+			auto backBuffer = renderTargetBackBuffer_.get();
+			auto finalResult = writeRT;
+			lastRenderingPass_->RenderTo(V, VP, backBuffer, finalResult);
+#endif
+
+#if IS_EDITOR
+			if (imgBuffer != nullptr)
+			{	// 개느려!
 				glFlush();
 				glFinish();
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 				glReadPixels(0, 0, m_width, m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgBuffer);	// m_colorDepth, PixelFormats::Pbgr32
 			}
+#endif
 
 			glfwSwapBuffers(m_window);
 			glfwPollEvents();
@@ -1201,15 +1254,17 @@ namespace SMGE
 
 		void CRenderingEngine::Stop()
 		{
-			isRunning = false;
+			m_isRunning = false;
 		}
 
+#if IS_EDITOR
 		void CRenderingEngine::getWriteableBitmapInfo(double& outDpiX, double& outDpiY, int& outColorDepth)
 		{
 			outDpiX = 96;
 			outDpiY = 96;
 			outColorDepth = m_colorDepth;	// 4 for PixelFormats::Pbgr32
 		}
+#endif
 
 		void CRenderingEngine::ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir)
 		{
@@ -1269,82 +1324,202 @@ namespace SMGE
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		namespace GLUtil
+		std::stack<GLint> CGLState::fboStack_;
+
+		void CGLState::PushState(std::string_view glState)
 		{
-			// deprecated
-			//std::string getShaderCode(const char* filename)
-			//{
-			//	std::string shaderCode;
-			//	std::ifstream file(filename, std::ios::in);
-
-			//	if (!file.good())
-			//	{
-			//		throw new std::exception();
-			//	}
-
-			//	file.seekg(0, std::ios::end);
-			//	shaderCode.resize((unsigned int)file.tellg());
-			//	file.seekg(0, std::ios::beg);
-			//	file.read(&shaderCode[0], shaderCode.size());
-			//	file.close();
-
-			//	return shaderCode;
-			//}
-
-			//void addShader(GLuint prgId, const std::string shadercode, GLenum shadertype)
-			//{
-			//	if (prgId < 0)
-			//		throw new std::exception();
-
-			//	GLuint id = glCreateShader(shadertype);
-
-			//	if (id < 0)
-			//		throw new std::exception();
-
-			//	const char* code = shadercode.c_str();
-
-			//	glShaderSource(id, 1, &code, NULL);
-			//	glCompileShader(id);
-			//	glAttachShader(prgId, id);
-			//	glDeleteShader(id);
-			//}
-
-			void safeDeleteVertexArray(GLuint& vao)
+			if (glState == "glst:fbo")
 			{
-				if (vao != 0)
-					glDeleteVertexArrays(1, &vao);
-				vao = 0;
+				GLint cur;
+				glGetIntegerv(GL_FRAMEBUFFER_BINDING, &cur);
+				fboStack_.push(cur);
 			}
-
-			void safeDeleteBuffer(GLuint& vbo)
+		}
+		void CGLState::PopState(std::string_view glState)
+		{
+			if (glState == "glst:fbo")
 			{
-				if (vbo != 0)
-					glDeleteBuffers(1, &vbo);
-				vbo = 0;
+				if (fboStack_.size() > 0)
+				{
+					fboStack_.pop();
+				}
 			}
+		}
+		void CGLState::TopState(std::string_view glState, std::any& out)
+		{
+			out = std::any();
 
-			void safeDeleteProgram(GLuint& prog)
+			if (glState == "glst:fbo")
 			{
-				if (prog != 0)
-					glDeleteProgram(prog);
-				prog = 0;
-			}
-
-			void safeDeleteFramebuffer(GLuint& fbo)
-			{
-				if (fbo != 0)
-					glDeleteFramebuffers(1, &fbo);
-				fbo = 0;
+				if (fboStack_.size() > 0)
+					out = fboStack_.top();
+				else
+					out = 0;	// using back buffer
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		CRenderTarget::CRenderTarget()
 		{
+			// using back buffer!
 		}
 
+		CRenderTarget::CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC)
+		{
+			size_ = size;
+			colorFormat_ = colorFormat;
+			viewportNDC_ = viewportNDC;
+			depthStencilFormat_ = depthStencil;
+
+			///////////////////////////////////////////////////////////////////////////////////////////////
+			// viewportNDC
+			glGenVertexArrays(1, &quadVAO_);
+			glGenBuffers(1, &quadVBO_);
+			glBindVertexArray(quadVAO_);
+			glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
+
+			// 제대로 구현 - viewportNDC 로부터 vertices 생성하기
+			quadVertices_ =
+			{				// positions   // texCoords
+				SVF_V2F_T2F{ -1.0f,   1.0f,  0.0f, 1.0f, },
+				SVF_V2F_T2F{ -1.0f,  -1.0f,  0.0f, 0.0f, },
+				SVF_V2F_T2F{  1.0f,  -1.0f,  1.0f, 0.0f, },
+
+				SVF_V2F_T2F{  1.0f,   1.0f,  1.0f, 1.0f, },
+				SVF_V2F_T2F{  1.0f,  -1.0f,  1.0f, 0.0f, },
+				SVF_V2F_T2F{ -1.0f,  -1.0f,  0.0f, 0.0f	 }
+			};
+
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices_), &quadVertices_, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+			///////////////////////////////////////////////////////////////////////////////////////////////
+			// frameBuffer
+			glGenFramebuffers(1, &fbo_);
+			BindFrameBuffer();
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+
+				glGenTextures(1, &colorTextureName_);
+				glBindTexture(GL_TEXTURE_2D, colorTextureName_);
+				glTexImage2D(GL_TEXTURE_2D, 0, colorFormat_, size_.x, size_.y, 0, colorFormat_, GL_UNSIGNED_BYTE, NULL);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureName_, 0);
+
+				if (depthStencilFormat_ != 0)
+				{	// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+					glGenRenderbuffers(1, &rbo_);
+					glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+					glRenderbufferStorage(GL_RENDERBUFFER, depthStencilFormat_, size_.x, size_.y); // use a single renderbuffer object for both a depth AND stencil buffer.
+					glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_); // now actually attach it
+				}
+
+				// now that we actually created the fbo_ and added all attachments we want to check if it is actually complete now
+				assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+			}
+			UnbindFrameBuffer();
+		}
+
+		bool CRenderTarget::IsUsingBackBuffer() const
+		{
+			return fbo_ == 0;
+		}
+
+		CRenderTarget::~CRenderTarget()
+		{
+			SAFE_DELETE_GL(Renderbuffers, 1, &rbo_);
+			SAFE_DELETE_GL(Framebuffers, 1, &fbo_);
+			SAFE_DELETE_GL(Buffers, 1, &quadVBO_);
+			SAFE_DELETE_GL(VertexArrays, 1, &quadVAO_);
+			SAFE_DELETE_GL(Textures, 1, &colorTextureName_);
+		}
+		
+		CRenderTarget::CRenderTarget(CRenderTarget&& other) noexcept
+		{
+			operator=(std::move(other));
+		}
+
+		CRenderTarget& CRenderTarget::operator=(CRenderTarget&& other) noexcept
+		{
+			*this = other;	// 일단 복사로 넘기고
+
+			// other 를 invalidate
+			other.renderingCameraW_ = nullptr;
+			other.quadVAO_ = 0;
+			other.quadVBO_ = 0;
+			other.fbo_ = 0;
+			other.rbo_ = 0;
+			other.colorTextureName_ = 0;
+
+			return *this;
+		}
+
+		void CRenderTarget::BindFrameBuffer() const
+		{
+			//assert(fbo_ != 0);	// 일부러 - 0번인 백버퍼를 바인드해야할 때가 있으므로
+
+			std::any currentFbo;
+			CGLState::TopState("glst:fbo", currentFbo);
+			if (std::any_cast<GLint>(currentFbo) == fbo_)
+				return;	// already
+
+			CGLState::PushState("glst:fbo");
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+		}
+		void CRenderTarget::UnbindFrameBuffer() const
+		{
+			//assert(fbo_ != 0);	// 일부러 - 0번인 백버퍼를 바인드해야할 때가 있으므로
+
+#if IS_DEBUG
+			// 푸시 팝이 뒤섞이는 케이스의 검증이 필요할까? 이게 뒤섞인 것 자체가 문제인 것 같긴 하다
+			std::any currentFbo;
+			CGLState::TopState("glst:fbo", currentFbo);
+			assert(std::any_cast<GLint>(currentFbo) == fbo_);
+#endif
+			CGLState::PopState("glst:fbo");
+		}
+		void CRenderTarget::ClearFrameBuffer(glm::vec3 color, GLuint flags) const
+		{
+			glClearColor(color.r, color.g, color.b, 1.0f);
+
+			if(flags == 0)
+				glClear(GL_COLOR_BUFFER_BIT | (depthStencilFormat_ == 0 ? 0 : (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)));
+			else
+				glClear(flags);
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		CRenderingPass::CRenderingPass()
 		{
+		}
+
+		CPostEffectPass::CPostEffectPass(std::wstring_view vsFilePath, std::wstring_view fsFilePath) : CRenderingPass()
+		{
+			posteffectShader_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(vsFilePath.data(), fsFilePath.data());
+		}
+
+		void CPostEffectPass::RenderTo(const glm::mat4& V, const glm::mat4& VP, CRenderTarget*& writeRT, CRenderTarget*& readRT)
+		{
+			posteffectShader_->Use();
+
+			constexpr auto TexSampleIndex = 0;
+			posteffectShader_->SetUniform_Int("readColorTexture", TexSampleIndex);	// 여기 - 현재 0번으로 고정
+
+			writeRT->BindFrameBuffer();
+			{
+				glBindVertexArray(writeRT->GetQuadVAO());
+				glActiveTexture(GL_TEXTURE0 + TexSampleIndex);
+				glBindTexture(GL_TEXTURE_2D, readRT->GetColorTextureName());
+				glDrawArrays(GL_TRIANGLES, 0, writeRT->GetQuadVertexNumber());
+			}
+			writeRT->UnbindFrameBuffer();
+
+			// write 와 read 를 스왑해서 리턴한다 - for 핑퐁 렌더링
+			std::swap<CRenderTarget*>(writeRT, readRT);
 		}
 	}
 }

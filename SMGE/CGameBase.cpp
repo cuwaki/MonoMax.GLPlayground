@@ -43,5 +43,6 @@ namespace SMGE
 
 	void CGameBase::Tick(float timeDelta)
 	{
+		engine_->Tick(timeDelta);
 	}
 };

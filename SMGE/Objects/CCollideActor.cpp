@@ -16,12 +16,17 @@ namespace SMGE
 
 	CVector<CActor*> CCollideActor::QueryCollideCheckTargets()
 	{
-		auto aabb = GetMainBound()->GetAABB();
-
 		CVector<CActor*> ret;
+
+		auto outerMap = FindOuter<CMap>(this);
+		if (outerMap == nullptr)
+			return ret;
+
 		ret.reserve(10);
 
-		auto actorWeaks = Globals::GCurrentMap->QueryActors(aabb);
+		const auto& aabb = GetMainBound()->GetAABB();
+		
+		auto actorWeaks = outerMap->QueryActors(aabb);
 		for (size_t i = 0; i < actorWeaks.size(); ++i)
 		{
 			if (actorWeaks[i] != nullptr && actorWeaks[i]->GetMainBound() != nullptr && actorWeaks[i] != this)
@@ -32,13 +37,16 @@ namespace SMGE
 	}
 
 
-	void CCollideActor::CheckCollideAndProcess(CVector<CActor*>& targets)
+	bool CCollideActor::CheckCollideAndProcess(CVector<CActor*>& targets)
 	{
-		CheckCollideAndProcess(rule_, isPolygonCheck_, fOnCollide_, targets);
+		const auto hasCollide = CheckCollideAndProcess(rule_, isPolygonCheck_, fOnCollide_, targets);
+		return hasCollide;
 	}
 
-	void CCollideActor::CheckCollideAndProcess(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
+	bool CCollideActor::CheckCollideAndProcess(ECheckCollideRule rule, bool isPolygonCheck, const DELEGATE_OnCollide& fOnCollide, CVector<CActor*>& targets)
 	{
+		bool hasCollide = false;
+
 		SSegmentBound crossSeg;
 
 		auto thisMainBound = this->GetMainBound();
@@ -51,6 +59,8 @@ namespace SMGE
 			if (aabbTest &&	// aabb 체크 넘어가면
 				thisMainBound->GetBound().check(otherMainBound->GetBound(), crossSeg) == true)	// 바운드끼리 체크 한다
 			{
+				hasCollide = true;
+
 				if (isPolygonCheck == false)
 				{
 					fOnCollide(this, actor, thisMainBound, otherMainBound, crossSeg);
@@ -62,5 +72,7 @@ namespace SMGE
 				}
 			}
 		}
+
+		return hasCollide;
 	}
 }

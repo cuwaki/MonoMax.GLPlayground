@@ -270,7 +270,7 @@ namespace SMGE
 		// 하던 일 정리
 		// 다중 컨테이너를 다룰 수 있게 해야한다 L"CVector<CVector<SGRefl_Actor>>";
 		// template 으로 할지 runtime 에 할지 흠흠... dimension 을 이용하여 runtime 에 하는 게 나을 것 같다
-		// 그리고 그게 끝나맨 매크로로 묶어줘야한다 ret += _TO_REFL_CONTAINER(CVector<SGRefl_Actor>, actorLayers_[1]);
+		// 그리고 그게 끝나맨 매크로로 묶어줘야한다 ret += _TO_REFL_CONTAINER(CVector<SGRefl_Actor>, mapActorsW_);
 		// 당연히 다중 컨테이너 읽는 부분도 수정되어야한다
 		template<typename ContT, typename KeyT>
 		CWString ToCVector(const ContT& cont, const CWString& contTypeName, const CWString& contVarName, std::optional<KeyT> contKeyForParent)
@@ -342,14 +342,10 @@ namespace SMGE
 
 		// 하던 일 정리
 		//// 다중 컨테이너 읽을 때 
-		//// actorLayers_.resize
-		//	// actorLayers_[0
-		//		// actorLayers_[0.resize
+		//// mapActorsW_.resize
+		//	// mapActorsW_
+		//		// mapActorsW_.resize
 		//			// CGActors
-		//	// actorLayers_[1
-		//		// actorLayers_[0.resize
-		//			// CGActors
-		//
 		////_FROM_REFL(actorKey_, variableSplitted);
 		template<typename CT, typename VS, typename FUNC, typename... FUNCArgs>
 		void FromCVector(CT& cont, VS& variableSplitted, FUNC& func, FUNCArgs&&... funcargs)
@@ -358,7 +354,7 @@ namespace SMGE
 			CWString& size_str = std::get<Tuple_Value>(*variableSplitted.cursor());
 			ReflectionUtils::FromREFL(contSize, size_str);
 
-			variableSplitted.cursorNext();	// [2] = (L"actorLayers_[1]", L"CVector<SGRefl_Actor>", L"2") 를 먹어치운다
+			variableSplitted.cursorNext();	// [2] = (L"mapActorsW_", L"CVector<SGRefl_Actor>", L"2") 를 먹어치운다
 
 			if (contSize == 0)
 				return;
@@ -391,7 +387,7 @@ namespace SMGE
 
 			for (int i = 0; i < instance.size(); ++i)
 			{
-				refl.emplace_back(instance[i].get()->getReflection());
+				refl.emplace_back(instance[i]->getReflection());
 			}
 
 			return refl;

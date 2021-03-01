@@ -21,6 +21,7 @@ namespace SMGE
 {
 	namespace Globals
 	{
+		// 테스트 코드 - sppk 를 위한 하드코딩
 		CWString GetGameProjectName()
 		{
 			return wtext("SPPK");
@@ -81,79 +82,14 @@ namespace SMGE
 
 	void SPPKGame::Initialize()
 	{
-		::testCppStudy();	// 테스트 코드 - cpp 공부 ㅋㅋ
+		// 테스트 코드 - cpp 공부 ㅋㅋ
+		//::testCppStudy();
 
 		engine_ = new CEngineBase(this);
 		gameSettings_ = new SGEGameSettings();
 
 		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
 		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
-
-#ifdef EDITOR_WORKING
-		// 테스트 코드 - 스태틱 메시 애셋 로드 테스트
-		//CSharPtr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
-		//auto testActor = new CStaticMeshActor(this);
-		//testActor->CopyFromTemplate(test->getContentClass());
-
-		CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
-		currentMap_ = new CMap(this);
-		currentMap_->CopyFromTemplate(testMapTemplate->getContentClass());
-
-		Globals::GCurrentMap = currentMap_;
-
-		auto EditorProcessUserInput = [this](const CUserInput& userInput)
-		{
-			if (userInput.IsJustPressed(CUserInput::LBUTTON))
-			{
-				// 테스트 코드 - 동적 액터 스폰 샘플 코드 {
-				auto mouseScreenPos = userInput.GetMousePosition();
-
-				glm::vec3 ray_origin;
-				glm::vec3 ray_direction;
-				engine_->GetRenderingEngine()->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
-
-				CCollideActor* rayActor = &currentMap_->StartSpawnActorVARIETY<CCollideActor>(EActorLayer::Game, true, currentMap_,
-					ECheckCollideRule::NEAREST, false, 
-					[this](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const SSegmentBound& COLL_SEG)
-					{
-						CCollideActor* pointActor = &currentMap_->StartSpawnActorVARIETY<CCollideActor>(EActorLayer::Game, true, currentMap_);
-
-						auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
-						pointActor->CopyFromTemplate(prefab->getContentClass());
-						{
-							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-							pointActor->getTransform().Translate(COLL_SEG.end_);
-						}
-
-						currentMap_->FinishSpawnActor(*pointActor);
-						
-						pointActor->SetLifeTickCount(100);
-					});
-
-				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
-				rayActor->CopyFromTemplate(prefab->getContentClass());
-				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
-
-					float rayLength = engine_->GetRenderingEngine()->GetRenderingCamera().GetZFar();
-					//rayCompo->SetBoundData(rayLength, ray_direction);
-					rayActor->getTransform().Translate(ray_origin);
-					rayActor->getTransform().Scale({ Configs::BoundEpsilon, Configs::BoundEpsilon, Configs::BoundEpsilon });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
-					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
-					rayActor->getTransform().RotateQuat(ray_direction);
-				}
-				currentMap_->FinishSpawnActor(*rayActor);
-
-				auto targets = rayActor->QueryCollideCheckTargets();
-				rayActor->CheckCollideAndProcess(targets);
-				rayActor->SetLifeTickCount(100);
-				// }
-			}
-
-			return false;
-		};
-		engine_->GetSystem()->AddProcessUserInputs(EditorProcessUserInput);
-#endif
 	}
 
 	void SPPKGame::Tick(float dt)
@@ -161,13 +97,28 @@ namespace SMGE
 		Super::Tick(dt);
 
 #ifdef EDITOR_WORKING
-		if (currentMap_->IsBeganPlay() == false)
-		{
-			currentMap_->BeginPlay();
+		if (currentMap_ == nullptr)
+		{	// 테스트 코드 ㅡ 개발용
+			// 테스트 코드 - 스태틱 메시 애셋 로드 테스트
+			//CSharPtr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
+			//auto testActor = new CStaticMeshActor(this);
+			//testActor->CopyFromTemplate(test->getContentClass());
+
+			CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
+			currentMap_ = new CMap(this);
+			
+			// 테스트 코드 ㅡ 맵 리플렉션 전역 변수 안쓰게 수정 필요
+			Globals::GCurrentMap = currentMap_;
+
+			currentMap_->CopyFromTemplate(testMapTemplate->getContentClass());
+
+			if (currentMap_->IsBeganPlay() == false)
+			{
+				currentMap_->BeginPlay();
+			}
 		}
 
 		currentMap_->Tick(dt);
-		currentMap_->ProcessPendingKills();
 #else
 		CWString assetRoot = PathAssetRoot();
 
