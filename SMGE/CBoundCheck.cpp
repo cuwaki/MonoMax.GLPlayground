@@ -89,7 +89,7 @@ namespace SMGE
 		const glm::vec3 epsilonVec3(Configs::BoundEpsilon);
 
 		glm::vec3 min(start_), max(start_);
-		findMinAndMaxVector({ start_ - epsilonVec3, start_ + epsilonVec3, end_ - epsilonVec3, end_ + epsilonVec3 }, min, max);
+		FindMinMax({ start_ - epsilonVec3, start_ + epsilonVec3, end_ - epsilonVec3, end_ + epsilonVec3 }, min, max);
 
 		return { min, max };
 	}
@@ -102,7 +102,7 @@ namespace SMGE
 	float SSegmentBound::getSlope2D_XY() const
 	{
 		auto to = end_ - start_;
-		if (isNearlyEqual(to.x, 0.f))
+		if (IsNearlyEqual(to.x, 0.f))
 			return NAN;
 
 		return to.y / to.x;
@@ -135,7 +135,7 @@ namespace SMGE
 		}
 		else
 		{	// a(x - x0) + y0 == c(x - x1) + y1
-			if (isNearlyEqual(a, c))
+			if (IsNearlyEqual(a, c))
 				return false;
 
 			const auto x0 = this->start_.x, x1 = other.start_.x;
@@ -145,8 +145,8 @@ namespace SMGE
 			crossY = a * (crossX - x0) + y0;
 		}
 
-		if (isInRange(this->start_.x, this->end_.x, crossX) && isInRange(other.start_.x, other.end_.x, crossX) &&
-			isInRange(this->start_.y, this->end_.y, crossY) && isInRange(other.start_.y, other.end_.y, crossY))
+		if (IsInRange(this->start_.x, this->end_.x, crossX) && IsInRange(other.start_.x, other.end_.x, crossX) &&
+			IsInRange(this->start_.y, this->end_.y, crossY) && IsInRange(other.start_.y, other.end_.y, crossY))
 		{
 			outCross = SSegmentBound(glm::vec3(crossX, crossY, 0.f));
 			return true;
@@ -160,7 +160,7 @@ namespace SMGE
 		const auto a = this->getSlope2D_XY();
 		if (std::isnan(a))
 		{
-			if (isNearlyEqual(start_.x, point.loc_.x) && isInRange(start_.y, end_.y, point.loc_.y))
+			if (IsNearlyEqual(start_.x, point.loc_.x) && IsInRange(start_.y, end_.y, point.loc_.y))
 			{
 				outCross = SSegmentBound(glm::vec3(point.loc_.x, point.loc_.y, 0.f));
 				return true;
@@ -168,11 +168,11 @@ namespace SMGE
 		}
 		else
 		{
-			if (isInRange(start_.x, end_.x, point.loc_.x))
+			if (IsInRange(start_.x, end_.x, point.loc_.x))
 			{
 				const auto y = a * (point.loc_.x - start_.x) + start_.y;
 
-				bool ret = isNearlyEqual(y, point.loc_.y);
+				bool ret = IsNearlyEqual(y, point.loc_.y);
 				if (ret)
 					outCross = SSegmentBound(glm::vec3(point.loc_.x, point.loc_.y, 0.f));
 
@@ -207,7 +207,7 @@ namespace SMGE
 		const auto toEndDir = toEnd / toEndLen;
 		
 		auto baseLineLen = plane.getSignedDistanceFromPlane(start_);
-		if (isNearlyEqual(baseLineLen, 0.f))
+		if (IsNearlyEqual(baseLineLen, 0.f))
 			return false;
 
 		bool isUnderOfPlane = std::signbit(baseLineLen);
@@ -217,7 +217,7 @@ namespace SMGE
 			;	// 평면 위에서 쏜 경우
 
 		const auto cosT = glm::dot(plane.getNormal() * (isUnderOfPlane ? 1.f : -1.f), toEndDir);
-		if (isInRange(-1.f, 0.f + Configs::BoundCheckEpsilon, cosT))	// 평행 또는 반대방향
+		if (IsInRange(-1.f, 0.f + Configs::BoundCheckEpsilon, cosT))	// 평행 또는 반대방향
 			return false;
 
 		const auto hypotenuseLen = baseLineLen * 1.f / cosT;	// 삼각비를 이용
@@ -293,7 +293,7 @@ namespace SMGE
 			return false;
 
 		const auto rr = circle.getRadius() * circle.getRadius();
-		const auto distSQ = getDistanceSquared(outCross.end_, circle.getCenterPos());
+		const auto distSQ = GetDistanceSquared(outCross.end_, circle.getCenterPos());
 
 		return distSQ < rr;
 	}
@@ -302,10 +302,10 @@ namespace SMGE
 	{
 		const auto radiusSQ = sphere.getRadius() * sphere.getRadius();
 
-		auto distanceSQ = getDistanceSquared(start_, sphere.getCenterPos());
+		auto distanceSQ = GetDistanceSquared(start_, sphere.getCenterPos());
 		if (distanceSQ < radiusSQ)
 		{	// 시점이 구 안에 있는 경우
-			distanceSQ = getDistanceSquared(end_, sphere.getCenterPos());
+			distanceSQ = GetDistanceSquared(end_, sphere.getCenterPos());
 			if (distanceSQ < radiusSQ)
 			{	// 종점도 구 안에 있는 경우
 				return false;
@@ -363,7 +363,7 @@ namespace SMGE
 		for (const auto& quad : quads)
 		{
 			const auto cosT = glm::dot(segDirInverse, quad.getNormal());
-			const auto isInFront = isInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, cosT);
+			const auto isInFront = IsInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, cosT);
 
 			if (isInFront && check(quad, outCross) == true)
 			{	// 선분의 방향의 역이 quad 의 앞쪽이 아니라면 체크할 필요가 없다, cube 는 입체이고 입체라면 앞에서 오는 충돌이 뒷면에 닿을 일이 없기 때문이다
@@ -391,7 +391,7 @@ namespace SMGE
 	}
 	bool SPlaneBound::isOnPlane(const glm::vec3& loc) const
 	{
-		return isNearlyEqual(getSignedDistanceFromPlane(loc), 0.f);
+		return IsNearlyEqual(getSignedDistanceFromPlane(loc), 0.f);
 	}
 	bool SPlaneBound::isInBack(const glm::vec3& loc) const
 	{
@@ -475,7 +475,7 @@ namespace SMGE
 
 	bool SPlaneBound::operator==(const SPlaneBound& other) const
 	{
-		return normal_ == other.normal_ && isNearlyEqual(d_, other.d_);
+		return normal_ == other.normal_ && IsNearlyEqual(d_, other.d_);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -496,7 +496,7 @@ namespace SMGE
 	STriangleBound::operator SAABB() const
 	{
 		glm::vec3 min(p0_), max(p0_);
-		findMinAndMaxVector({ p0_, p1_, p2_ }, min, max);
+		FindMinMax({ p0_, p1_, p2_ }, min, max);
 		return { min, max };
 	}
 
@@ -531,7 +531,7 @@ namespace SMGE
 	{
 		const auto norm = glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0)));
 #if DEBUG || _DEBUG
-		if (isNearlyEqual(glm::length(norm), 1.f) == false)
+		if (IsNearlyEqual(glm::length(norm), 1.f) == false)
 			assert(false && "it is not a quad - normal");
 #endif
 		this->SPlaneBound::SPlaneBound(norm, ccw_p0);
@@ -549,7 +549,7 @@ namespace SMGE
 	SQuadBound::operator SAABB() const
 	{
 		glm::vec3 min(p0_), max(p0_);
-		findMinAndMaxVector({ p0_, p1_, p2_, p3_ }, min, max);
+		FindMinMax({ p0_, p1_, p2_, p3_ }, min, max);
 		return { min, max };
 	}
 
@@ -598,12 +598,12 @@ namespace SMGE
 		glm::vec3 axis(0.f, 1.f, 0.f);
 		
 		cachedPerp_ = glm::cross(axis, normal_);
-		if (isNearlyEqual(glm::length(cachedPerp_), 0.f))
+		if (IsNearlyEqual(glm::length(cachedPerp_), 0.f))
 		{
 			axis = { 1.f, 0.f, 0.f };
 
 			cachedPerp_ = glm::cross(axis, normal_);
-			if (isNearlyEqual(glm::length(cachedPerp_), 0.f))
+			if (IsNearlyEqual(glm::length(cachedPerp_), 0.f))
 			{
 				axis = { 0.f, 0.f, 1.f };
 
@@ -625,7 +625,7 @@ namespace SMGE
 
 		glm::vec3 min = (loc_ + front * -1.f + perpU * -1.f + perpV * -1.f), 
 				max = (loc_ + front * +1.f + perpU * +1.f + perpV * +1.f);
-		findMinAndMaxVector({ min, max }, min, max);
+		FindMinMax({ min, max }, min, max);
 		return { min, max };
 	}
 
@@ -660,7 +660,7 @@ namespace SMGE
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool SSphereBound::operator==(const SSphereBound& other) const
 	{
-		return loc_ == other.loc_ && isNearlyEqual(radius_, other.getRadius());
+		return loc_ == other.loc_ && IsNearlyEqual(radius_, other.getRadius());
 	}
 
 	SSphereBound::operator SAABB() const
@@ -686,7 +686,7 @@ namespace SMGE
 
 	bool SSphereBound::check(const SPointBound& point, SSegmentBound& outCrossSegment) const
 	{
-		const auto distSQ = getDistanceSquared(loc_, point.loc_);
+		const auto distSQ = GetDistanceSquared(loc_, point.loc_);
 		bool ret = distSQ < (radius_* radius_);
 		if (ret)
 			outCrossSegment = point.loc_;
@@ -778,7 +778,7 @@ namespace SMGE
 	{
 		const auto rr = radius_ + otherSphere.getRadius();
 
-		const auto distSQ = getDistanceSquared(loc_, otherSphere.getCenterPos());
+		const auto distSQ = GetDistanceSquared(loc_, otherSphere.getCenterPos());
 		if (distSQ < (rr * rr))
 		{
 			const auto dist = std::sqrtf(distSQ);
@@ -807,7 +807,7 @@ namespace SMGE
 		for (const auto& quad : quads)
 		{
 			const auto cosT = glm::dot(cubeToSphereDir, quad.getNormal());
-			const auto isSameDir = isInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, cosT);
+			const auto isSameDir = IsInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, cosT);
 
 			if (isSameDir && check(quad, outCrossSegment))
 			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
@@ -873,7 +873,7 @@ namespace SMGE
 		getQuads(outQuads, true);
 
 		glm::vec3 min(outQuads[0].getP0()), max(outQuads[0].getP0());
-		findMinAndMaxVector(
+		FindMinMax(
 			{
 				outQuads[0].getP0(), outQuads[0].getP1(), outQuads[0].getP2(), outQuads[0].getP3(),
 				outQuads[1].getP0(), outQuads[1].getP1(), outQuads[1].getP2(), outQuads[1].getP3()
@@ -1020,14 +1020,14 @@ namespace SMGE
 		for (const auto& otherQuad : otherQuads)
 		{
 			const auto otherCosT = glm::dot(otherToThisDir, otherQuad.getNormal());
-			const auto isSameDir = isInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, otherCosT);
+			const auto isSameDir = IsInRange(0.f + Configs::BoundCheckEpsilon, 1.f + Configs::BoundCheckEpsilon, otherCosT);
 
 			if (isSameDir)
 			{	// 큐브는 입체이므로 방향이 다른 면들은 충돌체크 할 필요가 없다
 				for (const auto& thisQuad : thisQuads)
 				{
 					const auto thisCosT = glm::dot(otherToThisDir, thisQuad.getNormal());
-					const auto isOppositeDir = isInRange(-1.f, 0.f, thisCosT);
+					const auto isOppositeDir = IsInRange(-1.f, 0.f, thisCosT);
 
 					if (isOppositeDir)
 					{	// 역시 큐브는 입체...
@@ -1171,7 +1171,7 @@ namespace SMGE
 	{
 		outCollidingPoint = nsRE::TransformConst::Vec3_Zero;
 
-		CSphereComponent* sphere = DCast<CSphereComponent*>(checkTarget);
+		CSphereComponent* sphere = dynamic_cast<CSphereComponent*>(checkTarget);
 
 		this->RecalcMatrix();
 		sphere->RecalcMatrix();

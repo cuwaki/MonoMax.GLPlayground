@@ -183,6 +183,7 @@
     <ClCompile Include="CSystemGame.cpp" />
     <ClCompile Include="CTimer.cpp" />
     <ClCompile Include="CUserInput.cpp" />
+    <ClCompile Include="GECommonIncludes.cpp" />
     <ClCompile Include="Interfaces\CInt_Reflection.cpp" />
     <ClCompile Include="Objects\CActor.cpp" />
     <ClCompile Include="Objects\CCameraActor.cpp" />
@@ -198,7 +199,6 @@
     <ClInclude Include="Assets\CAsset.h" />
     <ClInclude Include="Assets\CAssetManager.h" />
     <ClInclude Include="Assets\CResourceModel.h" />
-    <ClInclude Include="CActorInterface.h" />
     <ClInclude Include="CBoundCheck.h" />
     <ClInclude Include="CInterpolation.h" />
     <ClInclude Include="Components\CBoundComponent.h" />
@@ -216,7 +216,6 @@
     <ClInclude Include="CSystemGame.h" />
     <ClInclude Include="CTimer.h" />
     <ClInclude Include="CUserInput.h" />
-    <ClInclude Include="GEContainers.h" />
     <ClInclude Include="CGameBase.h" />
     <ClInclude Include="Components\CComponent.h" />
     <ClInclude Include="Components\CDrawComponent.h" />

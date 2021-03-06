@@ -61,7 +61,7 @@ namespace SMGE
 	protected:
 		bool IsTemplateAssetPath(CWString filePath)
 		{
-			return SMGE::GlobalUtils::IsStartsWith(filePath, wtext("/templates/")) || SMGE::GlobalUtils::IsStartsWith(filePath, wtext("templates/"));
+			return SMGE::IsStartsWith(filePath, wtext("/templates/")) || SMGE::IsStartsWith(filePath, wtext("templates/"));
 		}
 		bool IsEmptyAssetPath(CWString filePath)
 		{
@@ -72,7 +72,7 @@ namespace SMGE
 		{
 			assert(isReadOnly_ == true && "for read only");
 
-			SGStringStreamIn strIn(CuwakiDevUtils::LoadFromTextFile(filePath));
+			SGStringStreamIn strIn(LoadFromTextFile(filePath));
 			if (strIn.IsValid())
 			{
 				// 부모 클래스로 계속 올라간다 - 예) slime.asset -> CAMonster -> CAPawn -> CActor

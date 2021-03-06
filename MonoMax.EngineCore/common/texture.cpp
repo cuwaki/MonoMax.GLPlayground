@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <memory>
 
 #include "../common.h"
 
@@ -17,8 +18,6 @@ GLuint loadBMP_custom(const wchar_t* imagepath)
 	unsigned int dataPos;
 	unsigned int imageSize;
 	unsigned int width, height;
-	// Actual RGB data
-	unsigned char* data;
 
 	// Open the file
 	FILE* file = nullptr;
@@ -52,10 +51,11 @@ GLuint loadBMP_custom(const wchar_t* imagepath)
 	if (dataPos == 0)      dataPos = 54; // The BMP header is done that way
 
 	// Create a buffer
-	data = new unsigned char[imageSize];
+	// Actual RGB data
+	auto data = std::make_unique<unsigned char[]>(imageSize);
 
 	// Read the actual data from the file into the buffer
-	fread(data, 1, imageSize, file);
+	fread(data.get(), 1, imageSize, file);
 
 	// Everything is in memory now, the file wan be closed
 	fclose(file);
@@ -68,10 +68,10 @@ GLuint loadBMP_custom(const wchar_t* imagepath)
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
 	// Give the image to OpenGL
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data.get());
 
 	// OpenGL has now copied the data. Free our own version
-	delete[] data;
+	//delete[] data;
 
 	// Poor filtering, or ...
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

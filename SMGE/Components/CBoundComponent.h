@@ -91,6 +91,6 @@ namespace SMGE
 		bool isCollideTarget_;
 		glm::vec3 gizmoColor_;
 
-		CUniqPtr<TReflectionStruct> reflMeshCompo_;
+		std::unique_ptr<TReflectionStruct> reflMeshCompo_;
 	};
 };

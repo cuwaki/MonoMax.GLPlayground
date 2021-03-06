@@ -19,7 +19,7 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_CameraActor::SGRefl_CameraActor(const CSharPtr<CCameraActor>& actorPtr) : SGRefl_CameraActor(*actorPtr)
+	SGRefl_CameraActor::SGRefl_CameraActor(const std::shared_ptr<CCameraActor>& actorPtr) : SGRefl_CameraActor(*actorPtr)
 	{
 	}
 
@@ -60,7 +60,7 @@ namespace SMGE
 	void CCameraActor::Ctor()
 	{
 		// 프러스텀 컬링을 위한 것
-		//auto quadCompo = MakeUniqPtr<CQuadComponent>(this);
+		//auto quadCompo = std::make_unique<CQuadComponent>(this);
 		//getPersistentComponents().emplace_back(std::move(quadCompo));
 	}
 
@@ -92,7 +92,7 @@ namespace SMGE
 		const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
 
 		// AABB용 큐브
-		frustumAABBCube_ = SCast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CCubeComponent>(this))).get());
+		frustumAABBCube_ = static_cast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CCubeComponent>(this))).get());
 		frustumAABBCube_->Translate(frustumModel.center_);
 		frustumAABBCube_->Scale({
 			frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
@@ -104,7 +104,7 @@ namespace SMGE
 		std::generate(frustumPlanes_.begin(), frustumPlanes_.end(),
 			[this]()
 			{
-				return SCast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CPlaneComponent>(this))).get());
+				return static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
 			});
 
 		// 평면 노멀이 안쪽을 보도록, 현재 frustumModel은 +Z를 보고 있다
@@ -134,7 +134,7 @@ namespace SMGE
 			//frustumPlanes_[5]->SetEditorRendering(true);
 
 			// 테스트 코드 - 카메라 움직이도록
-			//auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
+			//auto moveCompo = std::make_unique<CMovementComponent>(this);
 			//getTransientComponents().emplace_back(std::move(moveCompo));
 
 			// 이하 모든 처리는 this 와 frustumModel의 모델 좌표계에서 진행되고 있음을 참고
@@ -143,7 +143,7 @@ namespace SMGE
 			std::generate(frustumLines.begin(), frustumLines.end(),
 				[this]()
 				{
-					return SCast<CSegmentComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CSegmentComponent>(this))).get());
+					return static_cast<CSegmentComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CSegmentComponent>(this))).get());
 				});
 
 			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
@@ -167,7 +167,7 @@ namespace SMGE
 			std::generate(frustumQuads_.begin(), frustumQuads_.end(),
 				[this]()
 				{
-					return SCast<CQuadComponent*>(getTransientComponents().emplace_back(std::move(MakeUniqPtr<CQuadComponent>(this, true))).get());
+					return static_cast<CQuadComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CQuadComponent>(this, true))).get());
 				});
 
 			// Near 평면
@@ -303,7 +303,7 @@ namespace SMGE
 	SGReflection& CCameraActor::getReflection()
 	{
 		if (reflCameraActor_.get() == nullptr)
-			reflCameraActor_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflCameraActor_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflCameraActor_.get();
 	}
 
@@ -320,28 +320,28 @@ namespace SMGE
 
 		const auto& mainBoundBound = mainBound->GetBound();
 
-		const auto& planeBound0 = SCast<const SPlaneBound&>(frustumPlanes_[0]->GetBound());
+		const auto& planeBound0 = static_cast<const SPlaneBound&>(frustumPlanes_[0]->GetBound());
 		if (planeBound0.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound2 = SCast<const SPlaneBound&>(frustumPlanes_[2]->GetBound());
+		const auto& planeBound2 = static_cast<const SPlaneBound&>(frustumPlanes_[2]->GetBound());
 		if (planeBound2.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound3 = SCast<const SPlaneBound&>(frustumPlanes_[3]->GetBound());
+		const auto& planeBound3 = static_cast<const SPlaneBound&>(frustumPlanes_[3]->GetBound());
 		if (planeBound3.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound4 = SCast<const SPlaneBound&>(frustumPlanes_[4]->GetBound());
+		const auto& planeBound4 = static_cast<const SPlaneBound&>(frustumPlanes_[4]->GetBound());
 		if (planeBound4.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound5 = SCast<const SPlaneBound&>(frustumPlanes_[5]->GetBound());
+		const auto& planeBound5 = static_cast<const SPlaneBound&>(frustumPlanes_[5]->GetBound());
 		if (planeBound5.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
 		// 가장 마지막에 먼 것을 버리는게 나름 최적인 것 같다
-		const auto& planeBound1 = SCast<const SPlaneBound&>(frustumPlanes_[1]->GetBound());
+		const auto& planeBound1 = static_cast<const SPlaneBound&>(frustumPlanes_[1]->GetBound());
 		if (planeBound1.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 

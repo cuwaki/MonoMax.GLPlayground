@@ -7,42 +7,6 @@
 
 namespace SMGE
 {
-	inline bool isNearlyEqual(const float& l, const float& r, const float& epsilon = Configs::BoundCheckEpsilon)	// 여기 - 통합 필요
-	{
-		return std::fabsf(l - r) < epsilon;
-	}
-	inline bool isInRange(const float& rangeL, const float& rangeR, const float& value)
-	{
-		if (rangeL < rangeR)
-			return value >= rangeL && value < rangeR;
-		return value >= rangeR && value < rangeL;
-	}
-	inline float getDistanceSquared(const glm::vec3& l, const glm::vec3& r)
-	{
-		const auto x = (l.x - r.x), y = (l.y - r.y), z = (l.z - r.z);
-		return x * x + y * y + z * z;
-	}
-	template<typename VecT>
-	void findMinAndMaxVector(const std::initializer_list<VecT>& points, VecT& outMin, VecT& outMax)
-	{
-		std::for_each(points.begin(), points.end(), [&outMin, &outMax](const auto& point)
-			{
-				if (point.x < outMin.x)
-					outMin.x = point.x;
-				if (point.y < outMin.y)
-					outMin.y = point.y;
-				if (point.z < outMin.z)
-					outMin.z = point.z;
-
-				if (point.x > outMax.x)
-					outMax.x = point.x;
-				if (point.y > outMax.y)
-					outMax.y = point.y;
-				if (point.z > outMax.z)
-					outMax.z = point.z;
-			});
-	}
-
 	// 순서 바꾸면 여기저기 수정해야함
 	enum class EBoundType
 	{

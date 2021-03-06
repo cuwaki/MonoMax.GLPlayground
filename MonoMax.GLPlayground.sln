@@ -11,6 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{424308
 		RunningResources\default.vert = RunningResources\default.vert
 		RunningResources\gizmo.frag = RunningResources\gizmo.frag
 		RunningResources\gizmo.vert = RunningResources\gizmo.vert
+		RunningResources\renderTargetMask.frag = RunningResources\renderTargetMask.frag
+		RunningResources\renderTargetNDC.vert = RunningResources\renderTargetNDC.vert
+		RunningResources\renderTargetOverwrite.frag = RunningResources\renderTargetOverwrite.frag
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonoMax.SMGE", "MonoMax.WpfDrawing\MonoMax.SceneGraphCLR.vcxproj", "{1BCDF537-15FB-4C65-9993-4C6874F98EAF}"

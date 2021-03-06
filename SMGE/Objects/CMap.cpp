@@ -61,7 +61,7 @@ namespace SMGE
 				//		낭비인데... 방법을 찾자! - 실제 인스턴스에게 std::move 를 시켜줄까?? 또는 템플릿의 경우에는 스폰을 안하면 되잖아?
 
 				// 1. 애셋을 이용하여 맵에 액터 스폰하기 - RTTI
-				//CSharPtr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
+				//std::shared_ptr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
 				//CActor& actorA = outerMap_.SpawnDefaultActor(actorClassRTTIName, false, &outerMap_, actorTemplate->getContentClass());
 
 				// 1. 디폴트로 생성하고
@@ -136,7 +136,7 @@ namespace SMGE
 	{
 		if (reflMap_.get() == nullptr)
 		{
-			reflMap_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflMap_ = std::make_unique<TReflectionStruct>(*this);
 		}
 		else
 		{	// 차후 this->mapActorsW_ 에 변경이 있는 경우에만 바뀌어야한다
@@ -183,7 +183,7 @@ namespace SMGE
 		// 현재 카메라 설정
 		for (auto& actor : mapActorsW_)
 		{
-			auto firstCamActor = DCast<CCameraActor*>(actor);
+			auto firstCamActor = dynamic_cast<CCameraActor*>(actor);
 			if (firstCamActor)
 			{
 				changeCurrentCamera(firstCamActor);
@@ -194,7 +194,7 @@ namespace SMGE
 		//// 테스트 코드 - 프러스텀 컬링 시각화
 		//for (auto& actor : mapActorsW_)
 		//{
-		//	auto testCamActor = DCast<CCameraActor*>(actor);
+		//	auto testCamActor = dynamic_cast<CCameraActor*>(actor);
 		//	if (testCamActor->getActorStaticTag() == "testCamera")
 		//		cullingCamera_ = testCamActor;
 		//}
@@ -237,7 +237,7 @@ namespace SMGE
 			// 드로 컴포넌트 기준 처리
 			for (auto& comp : actorPtr->getAllComponents())
 			{
-				auto drawComp = DCast<CDrawComponent*>(comp);
+				auto drawComp = dynamic_cast<CDrawComponent*>(comp);
 				if (drawComp)
 				{
 					auto mbc = drawComp->GetMainBound();

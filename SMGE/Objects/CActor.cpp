@@ -23,7 +23,7 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_Actor::SGRefl_Actor(const CUniqPtr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr)
+	SGRefl_Actor::SGRefl_Actor(const std::unique_ptr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr)
 	{
 		classRTTIName_ = actorPtr->getReflection().getClassRTTIName();	// 이미 로드된 액터로부터 사본으로 생기는 경우라서 이걸 수동으로 복사해줘야한다
 		reflectionFilePath_ = actorPtr->getReflection().getReflectionFilePath();
@@ -48,7 +48,7 @@ namespace SMGE
 		CWString ret = Super::operator CWString();
 
 		ret += _TO_REFL(TActorKey, actorKey_);
-		ret += SCast<CWString>(sg_actorTransform_);
+		ret += static_cast<CWString>(sg_actorTransform_);
 		ret += _TO_REFL(CString, actorStaticTag_);
 
 		auto persistCompoSize = outerActor_.getPersistentComponents().size();
@@ -57,7 +57,7 @@ namespace SMGE
 		auto& pcomps = outerActor_.getPersistentComponents();
 		for (size_t i = 0; i < pcomps.size(); ++i)
 		{
-			ret += SCast<CWString>(pcomps[i]->getReflection());
+			ret += static_cast<CWString>(pcomps[i]->getReflection());
 		}
 
 		return ret;
@@ -145,7 +145,7 @@ namespace SMGE
 	SGReflection& CActor::getReflection()
 	{
 		if (reflActor_.get() == nullptr)
-			reflActor_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflActor_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflActor_.get();
 	}
 
@@ -244,7 +244,7 @@ namespace SMGE
 		// 액터에서 바로 밑 콤포넌트들에게는 무조건 해야한다 - 액터가 WorldObject 가 아니기 때문
 		for (auto comp : getAllComponents())
 		{
-			auto drawComp = DCast<CDrawComponent*>(comp);
+			auto drawComp = dynamic_cast<CDrawComponent*>(comp);
 			if (drawComp)
 			{
 				drawComp->SetRendering(isr, propagate);
@@ -263,7 +263,7 @@ namespace SMGE
 		{	// 여기 - transient 를 메인으로 삼은 경우 문제가 될 수 있는 점이 개선되어야한다
 			mainBoundCompo_ = findComponent<CBoundComponent>([](auto compoPtr)
 				{
-					auto bc = DCast<CBoundComponent*>(compoPtr);
+					auto bc = dynamic_cast<CBoundComponent*>(compoPtr);
 					if (bc && bc->IsCollideTarget())
 						return true;
 					return false;

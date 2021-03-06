@@ -90,7 +90,7 @@ namespace SMGE
 		void cameraFrustumCulling();
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflMap_;
+		std::unique_ptr<TReflectionStruct> reflMap_;
 
 	protected:
 		// runtime

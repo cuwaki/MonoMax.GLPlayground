@@ -34,7 +34,7 @@ namespace SMGE
 		template<>
 		extern void FromREFL(glm::mat4& gv, const CWString& valuesStr)
 		{
-			auto spl = GlobalUtils::SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
+			auto spl = SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
 			for (int r = 0; r < 4; ++r)
 			{
 				for (int c = 0; c < 4; ++c)
@@ -59,7 +59,7 @@ namespace SMGE
 		template<>
 		extern void FromREFL(glm::vec3& gv, const CWString& valuesStr)
 		{
-			auto spl = GlobalUtils::SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
+			auto spl = SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
 			for (int c = 0; c < 3; ++c)
 			{
 				FromREFL(gv[c], spl[c]);
@@ -81,7 +81,7 @@ namespace SMGE
 		template<>
 		extern void FromREFL(glm::vec2& gv, const CWString& valuesStr)
 		{
-			auto spl = GlobalUtils::SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
+			auto spl = SplitStringToVector(valuesStr, SGReflection::VALUE_DELIM);
 			for (int c = 0; c < 2; ++c)
 			{
 				FromREFL(gv[c], spl[c]);
@@ -201,7 +201,7 @@ namespace SMGE
 
 	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
 	{
-		CVector<CWString> variableSplitted = GlobalUtils::SplitStringToVector(fullReflectedStr, VARIABLE_DELIM);
+		CVector<CWString> variableSplitted = SplitStringToVector(fullReflectedStr, VARIABLE_DELIM);
 
 		if (isFast_ == false)
 		{
@@ -217,7 +217,7 @@ namespace SMGE
 				if (variableSplitted[i].length() == 0)
 					continue;
 
-				temp = GlobalUtils::SplitStringToVector(variableSplitted[i], META_DELIM);
+				temp = SplitStringToVector(variableSplitted[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));
 			}	
 

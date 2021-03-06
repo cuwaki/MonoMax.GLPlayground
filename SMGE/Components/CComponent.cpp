@@ -5,7 +5,7 @@ namespace SMGE
 	SGRefl_Component::SGRefl_Component(TReflectionClass& rc) : Super(rc)
 	{
 	}
-	//SGRefl_Component::SGRefl_Component(const CUniqPtr<CComponent>& uptr) : Super(*uptr.get())
+	//SGRefl_Component::SGRefl_Component(const std::unique_ptr<CComponent>& uptr) : Super(*uptr.get())
 	//{
 	//}
 
@@ -24,7 +24,7 @@ namespace SMGE
 	SGReflection& CComponent::getReflection()
 	{
 		if (reflCompo_.get() == nullptr)
-			reflCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflCompo_.get();
 	}
 };

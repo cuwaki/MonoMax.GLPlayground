@@ -9,7 +9,7 @@ namespace SMGE
 
 	void CGizmoActor::Ctor()
 	{
-		//auto meshCompo = MakeUniqPtr<CMeshComponent>(this);
+		//auto meshCompo = std::make_unique<CMeshComponent>(this);
 		//getPersistentComponents().emplace_back(std::move(meshCompo));
 	}
 

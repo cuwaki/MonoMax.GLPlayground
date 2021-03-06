@@ -8,8 +8,8 @@
 #include <map>
 #include <forward_list>
 #include <array>
+#include <memory>
 #include "../SMGE/GECommonIncludes.h"
-#include "../SMGE/GEContainers.h"
 #include "common/controls.hpp"
 
 namespace SMGE
@@ -22,18 +22,18 @@ namespace SMGE
 		// Utility structures
 		struct SRect3D
 		{
-			glm::vec3 lb_;
-			glm::vec3 rt_;
+			glm::vec3 lb_{ 0.f, 0.f, 0.f };
+			glm::vec3 rt_{ 0.f, 0.f, 0.f };
 		};
 		struct SRect2D
 		{
-			glm::vec2 lb_;
-			glm::vec2 rt_;
+			glm::vec2 lb_{ 0.f, 0.f };
+			glm::vec2 rt_{ 0.f, 0.f };
 		};
 		struct SVF_V2F_T2F
 		{
-			float vertexX_, vertexY_;
-			float textureU_, textureV_;
+			float vertexX_ = 0, vertexY_ = 0;
+			float textureU_ = 0, textureV_ = 0;
 		};
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,8 +505,8 @@ namespace SMGE
 			constexpr static GLsizei QuadVertexNumber = 6;
 
 		public:
-			CRenderTarget();
-			CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC);
+			CRenderTarget(SRect2D viewportNDC, glm::vec3 clearColor);
+			CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC, glm::vec3 clearColor);
 			~CRenderTarget();
 		
 			CRenderTarget(CRenderTarget&& other) noexcept;
@@ -516,7 +516,9 @@ namespace SMGE
 
 			void BindFrameBuffer() const;
 			void UnbindFrameBuffer() const;
-			void ClearFrameBuffer(glm::vec3 color, GLuint flags = 0) const;
+			void ClearFrameBuffer(GLuint flags = 0) const;
+
+			void SetClearColor(glm::vec3 cc) { clearColor_ = cc; }
 
 			GLuint GetQuadVAO() const { return quadVAO_; }
 			GLuint GetColorTextureName() const { return colorTextureName_; }
@@ -530,6 +532,7 @@ namespace SMGE
 			glm::vec2 size_;
 			GLuint colorFormat_ = 0;
 			GLuint depthStencilFormat_ = 0;
+			glm::vec3 clearColor_{ 1.f, 0.f, 1.f };
 
 			// gl objects
 			GLuint quadVAO_ = 0;
@@ -586,7 +589,7 @@ namespace SMGE
 			void initWindow();
 
 			// 여기 - 20210214 생각 - 게임 말고 엔진이 들어와야한다, 엔진->게임으로 구조를 바꾸자
-			class CGameBase* gameBase_;
+			std::unique_ptr<class CGameBase> gameBase_;
 
 		public:
 			CRenderingEngine();

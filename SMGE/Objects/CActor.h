@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CObject.h"
-#include "../CActorInterface.h"
 #include "../Interfaces/CInt_Reflection.h"
 #include "../Interfaces/CInt_Component.h"
 #include "../Components/CDrawComponent.h"
@@ -19,7 +18,7 @@ namespace SMGE
 		using Super = SGReflection;
 
 		SGRefl_Actor(CActor& actor);
-		SGRefl_Actor(const CUniqPtr<CActor>& actorPtr);
+		SGRefl_Actor(const std::unique_ptr<CActor>& actorPtr);
 		
 		virtual void buildVariablesMap() override;
 		
@@ -47,7 +46,7 @@ namespace SMGE
 		CActor& outerActor_;
 	};
 
-	class CActor : public CObject, public CInt_Reflection, public CInt_Component, public CActorInterface
+	class CActor : public CObject, public CInt_Reflection, public CInt_Component
 	{
 		DECLARE_RTTI_CObject(CActor)
 
@@ -96,7 +95,6 @@ namespace SMGE
 		bool IsRendering() const { return isRendering_; }
 
 	public:
-		// CActor interface
 		virtual class CBoundComponent* GetMainBound();
 
 	public:
@@ -122,7 +120,7 @@ namespace SMGE
 		CString actorTag_;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflActor_;
+		std::unique_ptr<TReflectionStruct> reflActor_;
 
 		// CInt_Component
 		ComponentVector persistentComponents_;
@@ -134,5 +132,9 @@ namespace SMGE
 		CTimer timer_;
 
 		friend class CSystemBase;	// for DynamicActorKey
+
+	public:
+		// interfaces for CSystemBase
+		virtual bool AmIEditorActor() const { return false; };
 	};
 };

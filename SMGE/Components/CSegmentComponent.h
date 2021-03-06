@@ -38,7 +38,7 @@ namespace SMGE
 		glm::vec3 getRayDirection() const;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflRayCompo_;
+		std::unique_ptr<TReflectionStruct> reflRayCompo_;
 		SSegmentBound segBound_;
 	};
 };

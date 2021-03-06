@@ -46,7 +46,7 @@ namespace SMGE
 	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc, rc), outerDrawCompo_(rc)
 	{
 	}
-	//SGRefl_DrawComponent::SGRefl_DrawComponent(const CUniqPtr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
+	//SGRefl_DrawComponent::SGRefl_DrawComponent(const std::unique_ptr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
 	//{
 	//}
 
@@ -77,7 +77,7 @@ namespace SMGE
 		*/
 		auto ret = Super::operator CWString();
 		
-		ret += SCast<CWString>(sg_transform_);
+		ret += static_cast<CWString>(sg_transform_);
 
 		const auto persistCompoSize = outerDrawCompo_.getPersistentComponents().size();
 		ret += _TO_REFL(size_t, persistCompoSize);
@@ -85,7 +85,7 @@ namespace SMGE
 		auto& pcomps = outerDrawCompo_.getPersistentComponents();
 		for (int i = 0; i < pcomps.size(); ++i)
 		{
-			ret += SCast<CWString>(pcomps[i]->getReflection());
+			ret += static_cast<CWString>(pcomps[i]->getReflection());
 		}
 
 		return ret;
@@ -161,11 +161,11 @@ namespace SMGE
 		nsRE::Transform* parentTransf = nullptr;
 
 		// 여기 수정 - 흠.... 이거 어떻게?
-		CActor* actorParent = DCast<CActor*>(parent);
+		CActor* actorParent = dynamic_cast<CActor*>(parent);
 		if(actorParent)
 			parentTransf = &actorParent->getTransform();
 		else
-			parentTransf = DCast<nsRE::Transform*>(parent);
+			parentTransf = dynamic_cast<nsRE::Transform*>(parent);
 
 		ChangeParent(parentTransf);
 
@@ -251,7 +251,7 @@ namespace SMGE
 		{	// 여기 - transient 를 메인으로 삼은 경우 문제가 될 수 있는 점이 개선되어야한다
 			mainBoundCompo_ = findComponent<CBoundComponent>([](auto compoPtr)
 				{
-					auto bc = DCast<CBoundComponent*>(compoPtr);
+					auto bc = dynamic_cast<CBoundComponent*>(compoPtr);
 					if (bc && bc->IsCollideTarget())
 						return true;
 					return false;

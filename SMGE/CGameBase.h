@@ -23,12 +23,6 @@ namespace SMGE
 #endif
 	}
 
-	namespace Configs
-	{
-		constexpr float BoundEpsilon = 0.001f;			// 점이나 선, 면 등을 사용할 때 어떤 두께가 필요한 경우가 있어서 정의된 상수, OpenGL 단위 기준 1 을 1미터로 놓고 1000으로 나눴다 - 즉 1미리미터임
-		constexpr float BoundCheckEpsilon = 0.0001f;
-	}
-
 	struct SGEGameSettings
 	{
 		CWString gameProjectName_;
@@ -49,8 +43,11 @@ namespace SMGE
 		virtual void Initialize();
 
 	protected:
-		class CEngineBase* engine_;
-		SGEGameSettings* gameSettings_;
+		std::unique_ptr<class CEngineBase> engine_;
+		std::unique_ptr<SGEGameSettings> gameSettings_;
+
+		// 아키텍트적으로는 맵을 감싸는 게임서버 객체가 필요하겠지만 이는 차후에 처리하자
+		std::unique_ptr<class CMap> currentMap_;
 
 	public:
 		static CGameBase* Instance;

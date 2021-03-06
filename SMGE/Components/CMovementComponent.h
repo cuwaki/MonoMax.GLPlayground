@@ -30,7 +30,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflTransformCompo_;
+		std::unique_ptr<TReflectionStruct> reflTransformCompo_;
 
 		class CActor* actorParent_;
 		nsRE::Transform* targetTransform_ = nullptr;

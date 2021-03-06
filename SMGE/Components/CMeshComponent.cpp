@@ -11,7 +11,7 @@ namespace SMGE
 		drawingModelAssetPath_(meshc.drawingModelAssetPath_)
 	{
 	}
-	//SGRefl_MeshComponent::SGRefl_MeshComponent(const CUniqPtr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
+	//SGRefl_MeshComponent::SGRefl_MeshComponent(const std::unique_ptr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
 	//{
 	//}
 
@@ -88,7 +88,7 @@ namespace SMGE
 	SGReflection& CMeshComponent::getReflection()
 	{
 		if (reflMeshCompo_.get() == nullptr)
-			reflMeshCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflMeshCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflMeshCompo_.get();
 	}
 };

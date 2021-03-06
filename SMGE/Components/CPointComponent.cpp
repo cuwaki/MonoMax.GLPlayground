@@ -35,7 +35,7 @@ namespace SMGE
 	SGReflection& CPointComponent::getReflection()
 	{
 		if (reflPointCompo_.get() == nullptr)
-			reflPointCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflPointCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflPointCompo_.get();
 	}
 

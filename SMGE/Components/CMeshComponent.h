@@ -48,10 +48,10 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflMeshCompo_;
+		std::unique_ptr<TReflectionStruct> reflMeshCompo_;
 		CWString drawingModelAssetPath_;
 
 	protected:
-		CSharPtr<CAsset<CResourceModel>> drawingModelAsset_;
+		std::shared_ptr<CAsset<CResourceModel>> drawingModelAsset_;
 	};
 };

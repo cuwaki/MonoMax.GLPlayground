@@ -73,9 +73,9 @@ namespace SMGE
 			auto map = FindOuter<CMap>(this);
 			if (map != nullptr)
 			{
-				getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
+				getTransientComponents().push_back(std::make_unique<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
 
-				auto aabb = DCast<CCubeComponent*>(getTransientComponents().back().get());
+				auto aabb = dynamic_cast<CCubeComponent*>(getTransientComponents().back().get());
 				if (aabb)
 				{
 					auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
@@ -155,7 +155,7 @@ namespace SMGE
 
 	class CCubeComponent* CBoundComponent::CreateOBB()
 	{
-		auto thisCube = DCast<CCubeComponent*>(this);
+		auto thisCube = dynamic_cast<CCubeComponent*>(this);
 		if (thisCube)
 		{	// 나 자신이 OBB이다
 			return thisCube;
@@ -167,9 +167,9 @@ namespace SMGE
 			// 이렇게 단위 크기의 큐브콤포넌트를 만들어서 자식 콤포넌트로 붙이면 현재의 루트객체의 트랜스폼을 따라서 자동으로 트랜스폼 조정이 되게 된다.
 			// 점, 레이 같이 몇몇 특수한 케이스 외에는 추가 처리가 필요없다.
 
-			getTransientComponents().push_back(MakeUniqPtr<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
+			getTransientComponents().push_back(std::make_unique<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
 
-			auto obbCube = DCast<CCubeComponent*>(getTransientComponents().back().get());
+			auto obbCube = dynamic_cast<CCubeComponent*>(getTransientComponents().back().get());
 			if (obbCube)
 			{
 				// 테스트 코드 - OBB 가 눈에 보이도록
@@ -200,7 +200,7 @@ namespace SMGE
 	SGReflection& CBoundComponent::getReflection()
 	{
 		if (reflMeshCompo_.get() == nullptr)
-			reflMeshCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflMeshCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflMeshCompo_.get();
 	}
 

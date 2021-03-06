@@ -16,7 +16,8 @@ namespace SMGE
 		auto lightPos = glm::vec3(0);
 
 		// 중복 코드 정리 필요
-		writeRT->ClearFrameBuffer(nsRE::ColorConst::Red);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
+		writeRT->SetClearColor(nsRE::ColorConst::Red);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
+		writeRT->ClearFrameBuffer();
 		writeRT->BindFrameBuffer();
 		{
 			const auto system = GetSystem();
@@ -37,7 +38,7 @@ namespace SMGE
 				{
 					for (auto comp : actor->getAllComponents())
 					{
-						auto drawComp = DCast<CDrawComponent*>(comp);
+						auto drawComp = dynamic_cast<CDrawComponent*>(comp);
 						if (drawComp && drawComp->IsRendering())
 						{
 							renderModels.insert(drawComp->GetRenderModel());
@@ -176,7 +177,7 @@ namespace SMGE
 	{
 		assert(targetMap != nullptr && "never null");
 
-		auto newActor = DCast<CActor*>(newObj);
+		auto newActor = dynamic_cast<CActor*>(newObj);
 
 		if (isDynamic == true)
 		{	// DynamicActorKey
@@ -201,10 +202,10 @@ namespace SMGE
 		return targetActor;
 	}
 
-	//CUniqPtr<CActor>&& CSystemBase::RemoveActor(TActorKey ak)
+	//std::unique_ptr<CActor>&& CSystemBase::RemoveActor(TActorKey ak)
 	//{
 	//	assert(false && "구현하라");
-	//	return MakeUniqPtr<CActor>(nullptr);
+	//	return std::make_unique<CActor>(nullptr);
 	//	//return std::move(allActors_[EActorLayer::Game][0]);
 	//}	
 };

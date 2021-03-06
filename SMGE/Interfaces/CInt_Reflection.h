@@ -178,7 +178,7 @@ namespace SMGE
 		#define _TO_REFL(_vartype_, _varname_) ((isFast_ == false? CWString(L""#_varname_ + META_DELIM + L""#_vartype_ + META_DELIM) : CWString()) + ReflectionUtils::ToREFL(_varname_) + VARIABLE_DELIM)
 		#define _FROM_REFL(_varname_, _in_vec_) ReflectionUtils::FromREFL_SOURCEVECTOR(_varname_, _in_vec_)
 		#define _ADD_REFL_VARIABLE(_varname_) variablesMap_[L""#_varname_] = &_varname_
-		#define _REF_REFL_VARIABLE(_varname_) (*SCast<decltype(&_varname_)>(variablesMap_[L""#_varname_]))
+		#define _REF_REFL_VARIABLE(_varname_) (*static_cast<decltype(&_varname_)>(variablesMap_[L""#_varname_]))
 
 		CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted);
 		CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted);
@@ -216,9 +216,9 @@ namespace SMGE
 			if constexpr (std::is_same_v<T, bool>)
 				left = (right == wtext("true"));
 			else if constexpr (std::numeric_limits<T>::is_integer)
-				left = SCast<T>(std::atoll(ToASCII(right).c_str()));
+				left = static_cast<T>(std::atoll(ToASCII(right).c_str()));
 			else if constexpr (std::is_floating_point_v<T>)
-				left = SCast<T>(std::atof(ToASCII(right).c_str()));
+				left = static_cast<T>(std::atof(ToASCII(right).c_str()));
 			else if constexpr (std::is_same_v<T, CWString> || std::is_same_v<T, std::wstring>)
 				left = right.substr(1, right.length() - 2);
 			else if constexpr (std::is_same_v<T, CString> || std::is_same_v<T, std::string>)
@@ -311,7 +311,7 @@ namespace SMGE
 					//if constexpr (std::is_base_of_v<SGReflection, ContT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
 					if constexpr (std::is_same_v<std::reference_wrapper<SGReflection>, ContT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
 					{	// SGRefl_Actor 등
-						ret += SCast<CWString>(it.get());
+						ret += static_cast<CWString>(it.get());
 					}
 					else
 					{	// float, glm::vec3...
@@ -398,7 +398,7 @@ namespace SMGE
 		{
 			auto rttiName = ReflectionUtils::GetClassRTTIName(variableSplitted);
 
-			auto newObj = DCast<TargetClass*>(RTTI_CObject::NewDefault(rttiName, outer));
+			auto newObj = dynamic_cast<TargetClass*>(RTTI_CObject::NewDefault(rttiName, outer));
 			newObj->getReflection() = variableSplitted;
 
 			return newObj;

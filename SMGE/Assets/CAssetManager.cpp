@@ -4,11 +4,11 @@
 
 namespace SMGE
 {
-	CHashMap<CWString, CSharPtr<CAssetBase>> CAssetManager::cachedAssets_;
+	CHashMap<CWString, std::shared_ptr<CAssetBase>> CAssetManager::cachedAssets_;
 
 	CWString CAssetManager::GetTemplateAssetPath(CWString className)
 	{
-		CuwakiDevUtils::ReplaceInline(className, wtext("SMGE::"), wtext(""));
+		ReplaceInline(className, wtext("SMGE::"), wtext(""));
 
 		auto templateAssetPath = wtext("/templates/") + className + wtext(".asset");
 

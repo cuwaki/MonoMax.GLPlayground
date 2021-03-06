@@ -150,7 +150,7 @@ namespace SMGE
                 return;
 
             endTime_ = duration + usingTimer_->current();
-            duration_ = SCast<DurationT>(duration);
+            duration_ = static_cast<DurationT>(duration);
 
             startValue_ = sv;
             endValue_ = ev;

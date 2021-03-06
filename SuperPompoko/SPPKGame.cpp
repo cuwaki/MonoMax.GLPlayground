@@ -46,9 +46,9 @@ namespace SMGE
 		CWString GetGameProjectRoot()
 		{
 			auto ret = Path::GetNormalizedPath(Path::GetDirectoryCurrent());
-			CuwakiDevUtils::ReplaceInline(ret, wtext("/Debug"), wtext(""));
-			CuwakiDevUtils::ReplaceInline(ret, wtext("/Release"), wtext(""));
-			CuwakiDevUtils::ReplaceInline(ret, wtext("/Shipping"), wtext(""));
+			ReplaceInline(ret, wtext("/Debug"), wtext(""));
+			ReplaceInline(ret, wtext("/Release"), wtext(""));
+			ReplaceInline(ret, wtext("/Shipping"), wtext(""));
 			return ret;
 		}
 #else
@@ -69,10 +69,6 @@ namespace SMGE
 	SPPKGame::~SPPKGame()
 	{
 		currentMap_->FinishPlaying();
-		delete currentMap_;
-
-		delete gameSettings_;
-		delete engine_;
 
 		Globals::GCurrentGame = nullptr;
 		Globals::GCurrentMap = nullptr;
@@ -85,8 +81,8 @@ namespace SMGE
 		// 테스트 코드 - cpp 공부 ㅋㅋ
 		//::testCppStudy();
 
-		engine_ = new CEngineBase(this);
-		gameSettings_ = new SGEGameSettings();
+		engine_ = std::make_unique<CEngineBase>(this);
+		gameSettings_ = std::make_unique<SGEGameSettings>();
 
 		gameSettings_->gameProjectName_ = Globals::GetGameProjectName();
 		gameSettings_->gameProjectRootPath_ = Globals::GetGameProjectRoot();
@@ -100,15 +96,15 @@ namespace SMGE
 		if (currentMap_ == nullptr)
 		{	// 테스트 코드 ㅡ 개발용
 			// 테스트 코드 - 스태틱 메시 애셋 로드 테스트
-			//CSharPtr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
+			//std::shared_ptr<CAsset<CActor>> test = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/monkey.asset")));
 			//auto testActor = new CStaticMeshActor(this);
 			//testActor->CopyFromTemplate(test->getContentClass());
 
-			CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
-			currentMap_ = new CMap(this);
+			std::shared_ptr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(Globals::GetGameAssetPath(wtext("/map/testMap.asset")));
+			currentMap_ = std::make_unique<CMap>(this);
 			
 			// 테스트 코드 ㅡ 맵 리플렉션 전역 변수 안쓰게 수정 필요
-			Globals::GCurrentMap = currentMap_;
+			Globals::GCurrentMap = currentMap_.get();
 
 			currentMap_->CopyFromTemplate(testMapTemplate->getContentClass());
 
@@ -144,14 +140,14 @@ namespace SMGE
 			CAssetManager::SaveAsset(actorAssetPath, actorAssetWriter);
 
 			// 액터 강제 로드 테스트		
-			CSharPtr<CAsset<CActor>> loadingActorTemplate = CAssetManager::LoadAsset<CActor>(actorAssetPath);
+			std::shared_ptr<CAsset<CActor>> loadingActorTemplate = CAssetManager::LoadAsset<CActor>(actorAssetPath);
 			auto loadedActor = new CActor(this, *loadingActorTemplate->getContentClass());
 		// 여기까지 액터 저장 및 로드
 
 
 
 		//// 맵 템플릿 애셋 테스트 코드 - CActor 를 맵에 저장하기 - 맵에 배치한 후 수정한 값으로, 맵이 로드된 후 액터가 배치된 후 이 값으로 덮어씌우게 된다
-		//CSharPtr<CAsset<CActor>> testActorTemplate = CAssetManager::LoadAsset<CActor>(assetRoot + wtext("testActorTemplate.asset"));
+		//std::shared_ptr<CAsset<CActor>> testActorTemplate = CAssetManager::LoadAsset<CActor>(assetRoot + wtext("testActorTemplate.asset"));
 		//const auto& actorTemplate = *testActorTemplate->getContentClass();
 
 		//CMap testMap;
@@ -239,11 +235,11 @@ namespace SMGE
 		modelData.vertexColors_ = cubeVertexColors;
 
 		CAssetManager::SaveAsset(assetRoot + wtext("/models/cube/cube.asset"), modelDataAsset);
-		CSharPtr<CAsset<CResourceModel>> amA = CAssetManager::LoadAsset<CResourceModel>(assetRoot + wtext("/models/cube/cube.asset"));
+		std::shared_ptr<CAsset<CResourceModel>> amA = CAssetManager::LoadAsset<CResourceModel>(assetRoot + wtext("/models/cube/cube.asset"));
 		애셋모델 저장하기 */
 
 	//	// 맵 로드하고 액터들 다시 복구하기
-	//	CSharPtr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetRoot + wtext("/map/testMapTemplate.asset"));
+	//	std::shared_ptr<CAsset<CMap>> testMapTemplate = CAssetManager::LoadAsset<CMap>(assetRoot + wtext("/map/testMapTemplate.asset"));
 	//	CMap loadedMap(*testMapTemplate->getContentClass());
 	//	loadedMap.Activate();
 	//	// }

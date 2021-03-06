@@ -1,5 +1,6 @@
 #include "CGameBase.h"
 #include "CEngineBase.h"
+#include "Objects/CMap.h"
 
 namespace SMGE
 {
@@ -24,11 +25,6 @@ namespace SMGE
 
 	CGameBase::~CGameBase()
 	{
-		if (engine_)
-			delete engine_;
-		if (gameSettings_)
-			delete gameSettings_;
-
 		CGameBase::Instance = nullptr;
 	}
 
@@ -38,7 +34,7 @@ namespace SMGE
 
 	CEngineBase* CGameBase::GetEngine() const
 	{
-		return engine_;
+		return engine_.get();
 	}
 
 	void CGameBase::Tick(float timeDelta)

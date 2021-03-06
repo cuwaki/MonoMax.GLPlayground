@@ -11,7 +11,7 @@ namespace SMGE
 		static CWString GetTemplateAssetPath(CWString className);
 
 		template<typename C>
-		static CSharPtr<CAsset<C>> FindAsset(CWString filePath)
+		static std::shared_ptr<CAsset<C>> FindAsset(CWString filePath)
 		{
 			ToLowerInline(filePath);
 
@@ -23,7 +23,7 @@ namespace SMGE
 		}
 
 		template<typename C>
-		static CSharPtr<CAsset<C>> LoadAsset(CWString filePath)
+		static std::shared_ptr<CAsset<C>> LoadAsset(CWString filePath)
 		{
 			ToLowerInline(filePath);
 
@@ -31,8 +31,8 @@ namespace SMGE
 			if (res)
 				return res;
 
-			cachedAssets_[filePath] = std::move(MakeSharPtr<CAsset<C>>(filePath));
-			return SPtrCast<CAsset<C>>(cachedAssets_[filePath]);
+			cachedAssets_[filePath] = std::move(std::make_shared<CAsset<C>>(filePath));
+			return std::static_pointer_cast<CAsset<C>>(cachedAssets_[filePath]);
 		}
 
 		template<typename C>
@@ -40,10 +40,10 @@ namespace SMGE
 		{
 			SGStringStreamOut strOut(target.getContentClass()->getReflection());
 
-			return CuwakiDevUtils::SaveToTextFile(filePath, strOut.out_);
+			return SaveToTextFile(filePath, strOut.out_);
 		}
 
 	protected:
-		static CHashMap<CWString, CSharPtr<CAssetBase> > cachedAssets_;
+		static CHashMap<CWString, std::shared_ptr<CAssetBase> > cachedAssets_;
 	};
 }

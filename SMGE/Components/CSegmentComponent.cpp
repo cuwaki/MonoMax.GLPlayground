@@ -76,7 +76,7 @@ namespace SMGE
 	SGReflection& CSegmentComponent::getReflection()
 	{
 		if (reflRayCompo_.get() == nullptr)
-			reflRayCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflRayCompo_ = std::make_unique<TReflectionStruct>(*this);
 
 		// 세그먼트는 Z 로만 만들어져야한다, X, Y 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 

@@ -615,7 +615,7 @@ namespace SMGE
 			// 거의 낭비 없이 Recalc 가 처리된다
 			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회 - 최적화 고려
 			
-			auto topParent = GetTopParent<Transform>();
+			auto topParent = GetTopParent<Transform>();	// 최적화 - 탑패런트 이거 캐시해두자
 			topParent->RecalcMatrix_Internal(nullptr);
 		}
 
@@ -998,7 +998,7 @@ namespace SMGE
 			{
 				for (auto child : children_)
 				{
-					SCast<WorldObject*>(child)->SetRendering(isv, propagate);	// 여기 - 현재는 항상 WorldObject* 지만 차후 아닐 수도 있다
+					static_cast<WorldObject*>(child)->SetRendering(isv, propagate);	// 여기 - 현재는 항상 WorldObject* 지만 차후 아닐 수도 있다
 				}
 			}
 		}
@@ -1100,7 +1100,7 @@ namespace SMGE
 
 			//glEnable(GL_MULTISAMPLE);
 
-			lastRenderingPass_ = std::make_unique<CPostEffectPass>(L"renderTargetNDC.vs", L"renderTargetOverwrite.fs");
+			lastRenderingPass_ = std::make_unique<CPostEffectPass>(L"renderTargetNDC.vert", L"renderTargetOverwrite.frag");
 		}
 
 		// 테스트 코드 ㅡ 실제 width, height 를 정확히 맞추려면 .xaml 에서 w = 16, h = 39 더 추가해줘야한다
@@ -1135,13 +1135,15 @@ namespace SMGE
 
 			// 1920 * 1080 * RGBA 32BIT + 1920 * 1080 * D24_S8
 			// 이렇게 되니까 RT 하나당 16메가 정도 먹는다
-			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc);
+			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
+				glm::vec3{ 0.f, 1.f, 0.f });	// 테스트 코드 - 일부러 빨간 색
 
 			// 현재 포스트 프로세스가 없어서 renderTarget1_ 는 쓰일 일이 없지만 일단 만들어둠
-			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc);
+			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc, 
+				glm::vec3{ 1.f, 0.f, 0.f });	// 테스트 코드 - 일부러 빨간 색
 
 			// 기본 렌더타겟으로 생성하면 백버퍼를 가리키게 된다
-			renderTargetBackBuffer_ = std::make_unique<CRenderTarget>();
+			renderTargetBackBuffer_ = std::make_unique<CRenderTarget>(SRect2D(), m_clearColor);
 		}
 
 		const int CRenderingEngine::GetBufferLength()
@@ -1165,13 +1167,12 @@ namespace SMGE
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// 게임 처리
-			gameBase_ = new SMGE::SPPKGame(nullptr);
+			gameBase_ = std::make_unique<SMGE::SPPKGame>(nullptr);
 			gameBase_->GetEngine()->SetRenderingEngine(this);
 		}
 
 		void CRenderingEngine::DeInit()
 		{
-			delete gameBase_;
 		}
 
 		void CRenderingEngine::Tick()
@@ -1197,8 +1198,8 @@ namespace SMGE
 #endif
 		{
 			const auto& renderCam = GetRenderingCamera();
-			const auto V = renderCam.GetProjectionMatrix() * renderCam.GetViewMatrix();
-			const auto VP = V * renderCam.GetViewMatrix();
+			const auto V = renderCam.GetViewMatrix();
+			const auto VP = renderCam.GetProjectionMatrix() * renderCam.GetViewMatrix();
 
 #ifdef OLD_RENDER_PASS
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1359,26 +1360,18 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		CRenderTarget::CRenderTarget()
+		CRenderTarget::CRenderTarget(SRect2D viewportNDC, glm::vec3 clearColor)
 		{
-			// using back buffer!
-		}
+			SetClearColor(clearColor);
 
-		CRenderTarget::CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC)
-		{
-			size_ = size;
-			colorFormat_ = colorFormat;
+			// 제대로 구현 - viewportNDC 로부터 vertices 생성하기
 			viewportNDC_ = viewportNDC;
-			depthStencilFormat_ = depthStencil;
 
-			///////////////////////////////////////////////////////////////////////////////////////////////
-			// viewportNDC
 			glGenVertexArrays(1, &quadVAO_);
 			glGenBuffers(1, &quadVBO_);
 			glBindVertexArray(quadVAO_);
 			glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
 
-			// 제대로 구현 - viewportNDC 로부터 vertices 생성하기
 			quadVertices_ =
 			{				// positions   // texCoords
 				SVF_V2F_T2F{ -1.0f,   1.0f,  0.0f, 1.0f, },
@@ -1395,33 +1388,47 @@ namespace SMGE
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+		}
+
+		CRenderTarget::CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC, glm::vec3 clearColor) : CRenderTarget(viewportNDC, clearColor)
+		{
+			size_ = size;
+			colorFormat_ = colorFormat;
+			depthStencilFormat_ = depthStencil;
 
 			///////////////////////////////////////////////////////////////////////////////////////////////
 			// frameBuffer
-			glGenFramebuffers(1, &fbo_);
-			BindFrameBuffer();
+			if (size_ != glm::vec2(0.f, 0.f))
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+				glGenFramebuffers(1, &fbo_);
+				BindFrameBuffer();
+				{
+					glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
 
-				glGenTextures(1, &colorTextureName_);
-				glBindTexture(GL_TEXTURE_2D, colorTextureName_);
-				glTexImage2D(GL_TEXTURE_2D, 0, colorFormat_, size_.x, size_.y, 0, colorFormat_, GL_UNSIGNED_BYTE, NULL);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureName_, 0);
+					glGenTextures(1, &colorTextureName_);
+					glBindTexture(GL_TEXTURE_2D, colorTextureName_);
+					glTexImage2D(GL_TEXTURE_2D, 0, colorFormat_, size_.x, size_.y, 0, colorFormat_, GL_UNSIGNED_BYTE, NULL);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureName_, 0);
 
-				if (depthStencilFormat_ != 0)
-				{	// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-					glGenRenderbuffers(1, &rbo_);
-					glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
-					glRenderbufferStorage(GL_RENDERBUFFER, depthStencilFormat_, size_.x, size_.y); // use a single renderbuffer object for both a depth AND stencil buffer.
-					glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_); // now actually attach it
+					if (depthStencilFormat_ != 0)
+					{	// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+						glGenRenderbuffers(1, &rbo_);
+						glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+						glRenderbufferStorage(GL_RENDERBUFFER, depthStencilFormat_, size_.x, size_.y); // use a single renderbuffer object for both a depth AND stencil buffer.
+						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_); // now actually attach it
+					}
+
+					// now that we actually created the fbo_ and added all attachments we want to check if it is actually complete now
+					assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 				}
-
-				// now that we actually created the fbo_ and added all attachments we want to check if it is actually complete now
-				assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+				UnbindFrameBuffer();
 			}
-			UnbindFrameBuffer();
+			else
+			{
+				// then it's using back buffer!
+			}
 		}
 
 		bool CRenderTarget::IsUsingBackBuffer() const
@@ -1462,10 +1469,11 @@ namespace SMGE
 		{
 			//assert(fbo_ != 0);	// 일부러 - 0번인 백버퍼를 바인드해야할 때가 있으므로
 
-			std::any currentFbo;
-			CGLState::TopState("glst:fbo", currentFbo);
-			if (std::any_cast<GLint>(currentFbo) == fbo_)
-				return;	// already
+			// 하면 안된다, 나중에 팝할 때 조건 체크가 어려워짐
+			//std::any currentFbo;
+			//CGLState::TopState("glst:fbo", currentFbo);
+			//if (std::any_cast<GLint>(currentFbo) == fbo_)
+			//	return;	// already
 
 			CGLState::PushState("glst:fbo");
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
@@ -1474,17 +1482,15 @@ namespace SMGE
 		{
 			//assert(fbo_ != 0);	// 일부러 - 0번인 백버퍼를 바인드해야할 때가 있으므로
 
-#if IS_DEBUG
-			// 푸시 팝이 뒤섞이는 케이스의 검증이 필요할까? 이게 뒤섞인 것 자체가 문제인 것 같긴 하다
-			std::any currentFbo;
-			CGLState::TopState("glst:fbo", currentFbo);
-			assert(std::any_cast<GLint>(currentFbo) == fbo_);
-#endif
+			std::any prevFbo;
+			CGLState::TopState("glst:fbo", prevFbo);
+
 			CGLState::PopState("glst:fbo");
+			glBindFramebuffer(GL_FRAMEBUFFER, std::any_cast<GLint>(prevFbo));
 		}
-		void CRenderTarget::ClearFrameBuffer(glm::vec3 color, GLuint flags) const
+		void CRenderTarget::ClearFrameBuffer(GLuint flags) const
 		{
-			glClearColor(color.r, color.g, color.b, 1.0f);
+			glClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1.0f);
 
 			if(flags == 0)
 				glClear(GL_COLOR_BUFFER_BIT | (depthStencilFormat_ == 0 ? 0 : (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)));
@@ -1499,14 +1505,20 @@ namespace SMGE
 
 		CPostEffectPass::CPostEffectPass(std::wstring_view vsFilePath, std::wstring_view fsFilePath) : CRenderingPass()
 		{
-			posteffectShader_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(vsFilePath.data(), fsFilePath.data());
+			auto peVert= SMGE::Globals::GetEngineAssetPath(vsFilePath.data()), peFrag = SMGE::Globals::GetEngineAssetPath(fsFilePath.data());
+
+			posteffectShader_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(peVert, peFrag);
 		}
 
 		void CPostEffectPass::RenderTo(const glm::mat4& V, const glm::mat4& VP, CRenderTarget*& writeRT, CRenderTarget*& readRT)
 		{
+			writeRT->ClearFrameBuffer();
+
 			posteffectShader_->Use();
 
 			constexpr auto TexSampleIndex = 0;
+			posteffectShader_->SetUniform_Mat4("V", V);
+			posteffectShader_->SetUniform_Mat4("VP", VP);
 			posteffectShader_->SetUniform_Int("readColorTexture", TexSampleIndex);	// 여기 - 현재 0번으로 고정
 
 			writeRT->BindFrameBuffer();

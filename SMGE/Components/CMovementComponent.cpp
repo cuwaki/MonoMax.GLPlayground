@@ -13,7 +13,7 @@ namespace SMGE
 	SGReflection& CMovementComponent::getReflection()
 	{
 		if (reflTransformCompo_.get() == nullptr)
-			reflTransformCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflTransformCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflTransformCompo_.get();
 	}
 
@@ -28,7 +28,7 @@ namespace SMGE
 		Super::OnBeginPlay(parent);
 
 		// 여기 수정 - 현재는 액터만 가능!! 콤포넌트에도 붙일 수 있게해야한다?? 아니면 오브젝트 말고 트랜스폼을 연결시키자? 이게 맞는듯!
-		actorParent_ = SCast<CActor*>(parent);
+		actorParent_ = static_cast<CActor*>(parent);
 
 		targetTransform_ = &actorParent_->getTransform();
 

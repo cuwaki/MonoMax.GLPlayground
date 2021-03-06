@@ -6,7 +6,8 @@
 #include <functional>
 #include <string>
 #include <forward_list>
-#include "GEContainers.h"
+#include <memory>
+#include "GECommonIncludes.h"
 
 namespace SMGE
 {
@@ -90,10 +91,6 @@ namespace SMGE
 		CQuadTreeNode()
 		{
 		}
-		~CQuadTreeNode()
-		{
-			if(children_) delete children_;	// c2460 에러 때문에 이렇게 한다
-		}
 		CQuadTreeNode(SizeType startW, SizeType startH, SizeType maxW, SizeType maxH) : rect_(startW, startH, maxW, maxH)
 		{
 		}
@@ -111,8 +108,8 @@ namespace SMGE
 
 		bool HasChildren() const { return children_ != nullptr; }
 
-		TChild& GetChild(size_t i) { AllocChildren(); return (*children_)[i]; }
-		const TChild& GetChild(size_t i) const { AllocChildren(); return (*children_)[i]; }
+		TChild& GetChild(size_t i) { AllocChildren(); return (*children_.get())[i]; }
+		const TChild& GetChild(size_t i) const { AllocChildren(); return (*children_.get())[i]; }
 
 		auto& GetRect() { return rect_; }
 		const auto& GetRect() const { return rect_; }
@@ -130,14 +127,14 @@ namespace SMGE
 		void AllocChildren()
 		{
 			if(children_ == nullptr)
-				children_ = new TChildren;
+				children_ = std::make_unique<TChildren>();
 		}
 
 	protected:
 		ContainerT container_;
 		SRect2D<SizeType> rect_;
 
-		TChildren* children_ = nullptr;
+		std::unique_ptr<TChildren> children_;
 	};
 
 	// 모든 좌표와 좌표계는 GL 오른손 좌표계를 사용한다.

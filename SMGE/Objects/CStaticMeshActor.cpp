@@ -12,14 +12,14 @@ namespace SMGE
 
 	void CStaticMeshActor::Ctor()
 	{
-		auto meshCompo = MakeUniqPtr<CMeshComponent>(this);
+		auto meshCompo = std::make_unique<CMeshComponent>(this);
 		getPersistentComponents().emplace_back(std::move(meshCompo));
 	}
 
 	void CStaticMeshActor::BeginPlay()
 	{
 		//// 테스트 코드 - 움직이도록
-		//auto moveCompo = MakeUniqPtr<CMovementComponent>(this);
+		//auto moveCompo = std::make_unique<CMovementComponent>(this);
 		//getTransientComponents().emplace_back(std::move(moveCompo));
 
 		Super::BeginPlay();

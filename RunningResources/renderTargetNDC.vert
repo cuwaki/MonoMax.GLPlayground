@@ -7,6 +7,9 @@ layout (location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
 
+uniform mat4 V;
+uniform mat4 VP;
+
 void main()
 {
     TexCoords = aTexCoords;

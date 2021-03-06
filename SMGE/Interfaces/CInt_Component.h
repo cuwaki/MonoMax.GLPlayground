@@ -6,7 +6,7 @@
 
 namespace SMGE
 {
-	using ComponentVector = CVector<CUniqPtr<CComponent>>;
+	using ComponentVector = CVector<std::unique_ptr<CComponent>>;
 	using ComponentVectorWeak = CVector<CComponent*>;
 
 	/*
@@ -35,7 +35,7 @@ namespace SMGE
 		}
 		virtual bool unregisterComponent(CComponent* weakCompo)
 		{
-			auto it = SMGE::GlobalUtils::FindIt(getAllComponents(), weakCompo);
+			auto it = SMGE::FindIt(getAllComponents(), weakCompo);
 			if (it != getAllComponents().end())
 			{
 				getAllComponents().erase(it);
@@ -66,7 +66,7 @@ namespace SMGE
 				});
 
 			if (found != getAllComponents().cend())
-				return DCast<T*>(*found);
+				return dynamic_cast<T*>(*found);
 
 			// 아직 비긴 플레이가 불리지 않았다면 밑으로 내려가게 될 것이다
 
@@ -79,7 +79,7 @@ namespace SMGE
 				});
 
 			if (foundPers != getPersistentComponents().cend())
-				return DCast<T*>((*foundPers).get());
+				return dynamic_cast<T*>((*foundPers).get());
 
 			// 3. transient
 			const auto foundTrans = std::find_if(getTransientComponents().cbegin(), getTransientComponents().cend(), [&checkFunc](auto& compo)
@@ -90,7 +90,7 @@ namespace SMGE
 				});
 
 			if (foundTrans != getTransientComponents().cend())
-				return DCast<T*>((*foundTrans).get());
+				return dynamic_cast<T*>((*foundTrans).get());
 
 			return nullptr;
 		}

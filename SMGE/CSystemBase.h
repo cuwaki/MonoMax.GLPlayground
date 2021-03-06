@@ -39,8 +39,8 @@ namespace SMGE
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// CActor 관리
-		CVector<CUniqPtr<CActor>>& GetAllActors() { return allActors_; }
-		const CVector<CUniqPtr<CActor>>& GetAllActors() const { return allActors_; }
+		CVector<std::unique_ptr<CActor>>& GetAllActors() { return allActors_; }
+		const CVector<std::unique_ptr<CActor>>& GetAllActors() const { return allActors_; }
 
 		virtual void ProcessPendingKill(class CActor* actor);
 		virtual void ProcessPendingKills();
@@ -64,13 +64,13 @@ namespace SMGE
 
 		CActor* FinishSpawnActor(class CMap* targetMap, CActor* arrangedActor);
 
-		//CUniqPtr<CActor>&& RemoveActor(TActorKey ak);
+		//std::unique_ptr<CActor>&& RemoveActor(TActorKey ak);
 
 	protected:
 		class CEngineBase* engine_;
 		class nsRE::CRenderingEngine* renderingEngine_;
 
-		CVector<CUniqPtr<CActor>> allActors_;
+		CVector<std::unique_ptr<CActor>> allActors_;
 		CHashMap<CActor*, class CMap*> actorsMap_;
 
 		std::vector<DELEGATE_ProcessUserInput> delegateUserInputs_;

@@ -16,7 +16,7 @@ namespace SMGE
 		static constexpr float BoundCheckEpsilon = 0.0001f;	// 통합해라
 		static constexpr size_t GL_LB = 0, GL_RB = 1, GL_RT = 2, GL_LT = 3;		// TransformConst::GL_LB 와 같아야한다
 
-		inline bool isNearlyEqual(const float& l, const float& r, float epsilon = /*Configs::BoundCheckEpsilon*/ 0.001f)	// 여기 - 통합 필요
+		inline bool IsNearlyEqual(float l, float r, float epsilon = /*Configs::BoundCheckEpsilon*/ 0.001f)	// 여기 - 통합 필요
 		{
 			return std::fabsf(l - r) < epsilon;
 		}
@@ -290,7 +290,7 @@ namespace SMGE
 		void CRenderingCamera::SetCameraFront(const glm::vec3& dir)
 		{
 #if DEBUG || _DEBUG
-			assert(isNearlyEqual(glm::length(dir), 1.f) && "must be normalized!");
+			assert(IsNearlyEqual(glm::length(dir), 1.f) && "must be normalized!");
 #endif
 			cameraDir_ = dir;
 
@@ -321,11 +321,11 @@ namespace SMGE
 		// license - https://gist.github.com/terryjsmith/7196d8c099e1478ea276bd751925a2f1
 		CRenderingCamera::SFrustum CRenderingCamera::CalculateFrustumWorld(float fovDegrees, float n, float f) const
 		{
-			if (isNearlyEqual(fovDegrees, 0.f))
+			if (IsNearlyEqual(fovDegrees, 0.f))
 				fovDegrees = fovDegrees_;
-			if (isNearlyEqual(n, 0.f))
+			if (IsNearlyEqual(n, 0.f))
 				n = zNear_;
-			if (isNearlyEqual(f, 0.f))
+			if (IsNearlyEqual(f, 0.f))
 				f = zFar_;
 
 			const float apectR = windowWidth_ / windowHeight_;
@@ -365,11 +365,11 @@ namespace SMGE
 
 		CRenderingCamera::SFrustum CRenderingCamera::CalculateFrustumModel(float fovDegrees, float n, float f) const
 		{
-			if (isNearlyEqual(fovDegrees, 0.f))
+			if (IsNearlyEqual(fovDegrees, 0.f))
 				fovDegrees = fovDegrees_;
-			if (isNearlyEqual(n, 0.f))
+			if (IsNearlyEqual(n, 0.f))
 				n = zNear_;
-			if (isNearlyEqual(f, 0.f))
+			if (IsNearlyEqual(f, 0.f))
 				f = zFar_;
 
 			const float apectR = windowWidth_ / windowHeight_;

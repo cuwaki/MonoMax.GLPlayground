@@ -1,11 +1,10 @@
 #pragma once
 
 #include "CActor.h"
-#include "../CActorInterface.h"
 
 namespace SMGE
 {
-	class CGizmoActor : public CActor, public CActorInterfaceEditor
+	class CGizmoActor : public CActor
 	{
 		//DECLARE_RTTI_CObject(CGizmoActor)
 
@@ -19,6 +18,9 @@ namespace SMGE
 
 	protected:
 		CActor* linkedActorW_ = nullptr;
+
+	public:
+		virtual bool AmIEditorActor() const { return true; };
 	};
 
 	class CGizmoActorTranslate : public CGizmoActor

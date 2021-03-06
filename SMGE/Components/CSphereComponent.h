@@ -34,7 +34,7 @@ namespace SMGE
 		float GetRadius() const;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflSphereCompo_;
+		std::unique_ptr<TReflectionStruct> reflSphereCompo_;
 		SSphereBound sphereBound_;
 	};
 };

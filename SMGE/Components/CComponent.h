@@ -44,7 +44,7 @@ namespace SMGE
 		virtual void OnAfterDeserialized() override {}
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflCompo_;
+		std::unique_ptr<TReflectionStruct> reflCompo_;
 		bool isActive_ = false;
 	};
 }

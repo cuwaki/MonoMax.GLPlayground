@@ -45,8 +45,8 @@ namespace SMGE
 			const T* ret = nullptr;
 			//T findingClass{ nullptr };	//if(IsA(outer, findingOuterClassName))	// 차후 작업 - CObject 클래스에 static class name 박아서 template 함수로 찾을 수 있게 하자
 
-			if (DCast<const T*>(cur) != nullptr)
-				ret = SCast<const T*>(cur);
+			if (dynamic_cast<const T*>(cur) != nullptr)
+				ret = static_cast<const T*>(cur);
 			else
 			{
 				const CObject* outer = cur->GetOuter();
@@ -65,8 +65,8 @@ namespace SMGE
 			T* ret = nullptr;
 			//T findingClass{ nullptr };	//if(IsA(outer, findingOuterClassName))	// 차후 작업 - CObject 클래스에 static class name 박아서 template 함수로 찾을 수 있게 하자
 
-			if (DCast<T*>(cur) != nullptr)
-				ret = SCast<T*>(cur);
+			if (dynamic_cast<T*>(cur) != nullptr)
+				ret = static_cast<T*>(cur);
 			else
 			{
 				CObject* outer = cur->GetOuter();
@@ -91,4 +91,6 @@ private:\
 
 #define DEFINE_RTTI_CObject_DEFAULT(CRN) CString CRN::ClassRTTIName = ""#CRN; RTTI_CObject _staticRTTI_DEFAULT_##CRN(""#CRN, [](CObject* outer) {return new CRN(outer); }); 
 #define DEFINE_RTTI_CObject_VARIETY(CRN, ...) RTTI_CObject _staticRTTI_VARIETY_##CRN(""#CRN, CRttiNewFunctorVariety<CObject, CRN, __VA_ARGS__>{});
+
+#define IsA(__cobjectInst__, classRTTIName) (__cobjectInst__ && __cobjectInst__->getClassRTTIName() == wtext(#classRTTIName))
 };

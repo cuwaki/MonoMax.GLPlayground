@@ -43,7 +43,7 @@ namespace SMGE
 			System::Windows::Controls::Panel::SetZIndex(m_ImageControl, -1);
 
 			///////////////////////////////// 1.
-			m_renderingEngine = new nsRE::CRenderingEngine();
+			m_renderingEngine = new nsRE::CRenderingEngine();	// Managed 라서 std::unique_ptr 못씀
 			m_renderingEngine->Init();
 			m_isInitialized = true;
 

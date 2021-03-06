@@ -33,7 +33,7 @@ namespace SMGE
 	SGReflection& CSphereComponent::getReflection()
 	{
 		if (reflSphereCompo_.get() == nullptr)
-			reflSphereCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflSphereCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflSphereCompo_.get();
 	}
 

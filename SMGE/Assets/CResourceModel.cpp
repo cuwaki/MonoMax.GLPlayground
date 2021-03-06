@@ -60,7 +60,7 @@ namespace SMGE
 	SGReflection& CResourceModel::getReflection()
 	{
 		if (reflData_.get() == nullptr)
-			reflData_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflData_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflData_.get();
 	}
 

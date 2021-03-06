@@ -68,9 +68,6 @@
     <ClInclude Include="Assets\CAsset.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="GEContainers.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Objects\CActor.h">
       <Filter>Objects</Filter>
     </ClInclude>
@@ -154,9 +151,6 @@
     </ClInclude>
     <ClInclude Include="Objects\CGizmoActor.h">
       <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="CActorInterface.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="short_alloc.h">
       <Filter>헤더 파일</Filter>
@@ -269,6 +263,9 @@
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="short_alloc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GECommonIncludes.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

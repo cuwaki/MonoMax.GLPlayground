@@ -47,7 +47,7 @@ namespace SMGE
 		virtual void OnAfterDeserialized() override;
 
 	protected:
-		CUniqPtr<TReflectionStruct> reflData_;
+		std::unique_ptr<TReflectionStruct> reflData_;
 
 	public:
 		CWString vertShaderPath_;

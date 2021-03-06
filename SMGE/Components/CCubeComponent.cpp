@@ -36,7 +36,7 @@ namespace SMGE
 	SGReflection& CCubeComponent::getReflection()
 	{
 		if (reflCubeCompo_.get() == nullptr)
-			reflCubeCompo_ = MakeUniqPtr<TReflectionStruct>(*this);
+			reflCubeCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflCubeCompo_.get();
 	}
 

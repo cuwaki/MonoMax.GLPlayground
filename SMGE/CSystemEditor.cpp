@@ -6,6 +6,7 @@
 #include "Objects/CGizmoActor.h"
 #include "Assets/CAssetManager.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
+#include <experimental/map>
 
 namespace SMGE
 {
@@ -19,7 +20,8 @@ namespace SMGE
 		auto dummy = glm::vec3(0);	// 여기선 라이트 안씀
 
 		// 중복 코드 정리 필요
-		writeRT->ClearFrameBuffer(nsRE::ColorConst::Blue);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
+		writeRT->SetClearColor(nsRE::ColorConst::Blue);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
+		writeRT->ClearFrameBuffer();
 		writeRT->BindFrameBuffer();
 		{
 			const auto system = GetSystem();
@@ -40,7 +42,7 @@ namespace SMGE
 				{
 					for (auto comp : actor->getAllComponents())
 					{
-						auto drawComp = DCast<CDrawComponent*>(comp);
+						auto drawComp = dynamic_cast<CDrawComponent*>(comp);
 						if (drawComp && drawComp->IsRendering())
 						{
 							renderModels.insert(drawComp->GetRenderModel());
@@ -79,9 +81,9 @@ namespace SMGE
 		auto& renderingPasses = re->GetRenderingPasses();
 
 		// 월드 렌더 패스 등록
-		auto& worldPass = renderingPasses.emplace_back(MakeUniqPtr<CRenderPassWorld>(this));
+		auto& worldPass = renderingPasses.emplace_back(std::make_unique<CRenderPassWorld>(this));
 		// 기즈모용 렌더 패스 등록
-		auto& gizmoPass = renderingPasses.emplace_back(MakeUniqPtr<CRenderPassGizmo>(this));
+		auto& gizmoPass = renderingPasses.emplace_back(std::make_unique<CRenderPassGizmo>(this));
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 입력 처리 등록
@@ -271,11 +273,15 @@ namespace SMGE
 	{
 		for (auto it = gizmoActors_.lower_bound(actor); it != gizmoActors_.upper_bound(actor); it++)
 		{
-			auto gizmo = it->second;			
+			auto gizmo = it->second;
 			gizmo->SetPendingKill();
-
-			gizmoActors_.erase(it);
 		}
+
+		std::experimental::erase_if(gizmoActors_, [](const auto& it)
+			{
+				auto gizmo = it.second;
+				return gizmo->IsPendingKill();
+			});
 
 		selectedActors_.remove(actor);
 	}
