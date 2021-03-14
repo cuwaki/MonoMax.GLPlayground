@@ -17,18 +17,25 @@ namespace SMGE
 {
 	namespace nsRE
 	{
-		CHashMap<CString, std::unique_ptr<nsRE::ResourceModelBase>> CResourceModelProvider::ResourceModels;
+		CHashMap<CString, std::shared_ptr<nsRE::ResourceModelBase>> CResourceModelProvider::ResourceModels;
 
-		bool CResourceModelProvider::AddResourceModel(const CString& key, ResourceModelBase* am)
+		std::shared_ptr<nsRE::ResourceModelBase> CResourceModelProvider::AddResourceModel(const CString& key, std::shared_ptr<ResourceModelBase> am)
 		{
 			auto already = FindResourceModel(key);
 			if (already == nullptr)
-			{
 				ResourceModels.insert(std::make_pair(key, std::move(am)));
-				return true;
-			}
 
-			return false;
+			return FindResourceModel(key);
+		}
+
+		bool CResourceModelProvider::RemoveResourceModel(const CString& key)
+		{
+			auto found = ResourceModels.find(key);
+			if (found == ResourceModels.end())
+				return false;
+
+			ResourceModels.erase(found);
+			return true;
 		}
 
 		bool CResourceModelProvider::RemoveResourceModel(ResourceModelBase* am)
@@ -40,21 +47,19 @@ namespace SMGE
 				});
 
 			if (found == ResourceModels.end())
-			{
 				return false;
-			}
 
 			ResourceModels.erase(found);
 			return true;
 		}
 
-		ResourceModelBase* CResourceModelProvider::FindResourceModel(const CString& key)
+		std::shared_ptr<ResourceModelBase> CResourceModelProvider::FindResourceModel(const CString& key)
 		{
 			auto clIt = ResourceModels.find(key);
-			return clIt != ResourceModels.end() ? clIt->second.get() : nullptr;
+			return clIt != ResourceModels.end() ? clIt->second : nullptr;
 		}
 
-		const CHashMap<CString, std::unique_ptr<ResourceModelBase>>& CResourceModelProvider::GetResourceModels()
+		const CHashMap<CString, std::shared_ptr<ResourceModelBase>>& CResourceModelProvider::GetResourceModels()
 		{
 			return ResourceModels;
 		}
@@ -184,13 +189,19 @@ namespace SMGE
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		TextureData::TextureData(const CWString& texPath)
 		{
-			if (texPath.length() > 0)
-				loadDDS(texPath.c_str(), format_, mipMapCount_, width_, height_, image_);
+			loadFromFile(texPath);
 		}
 
 		TextureData::~TextureData()
 		{
 			Destroy();
+		}
+
+		bool TextureData::loadFromFile(const CWString& texPath)
+		{
+			if (texPath.length() > 0)
+				return loadDDS(texPath.c_str(), format_, mipMapCount_, width_, height_, image_);
+			return false;
 		}
 
 		void TextureData::Destroy()
@@ -217,13 +228,12 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		MeshData::MeshData(const CWString& objPath)
+		MeshData::MeshData(const CWString& objPath) : MeshData()
 		{
-			Invalidate();
-			loadFromOBJFile(objPath);
+			loadFromFile(objPath);
 		}
 
-		bool MeshData::loadFromOBJFile(const CWString& objPath)
+		bool MeshData::loadFromFile(const CWString& objPath)
 		{
 			bool ret = false;
 
@@ -620,21 +630,29 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		RenderModel* ResourceModelBase::NewRenderModel(const GLFWwindow* contextWindow) const
+#if IS_DEBUG
+		ResourceModelBase::~ResourceModelBase()
+		{
+			return;	// 테스트 코드 ㅡ 디버깅용
+		}
+#endif
+
+		void ResourceModelBase::NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const
 		{
 			auto newOne = std::make_unique<RenderModel>(*this, 0);
 			renderModelsPerContext_.insert( std::make_pair(contextWindow, std::move(newOne)) );
-			
-			return GetRenderModel(contextWindow);
 		}
 
 		class RenderModel* ResourceModelBase::GetRenderModel(const GLFWwindow* contextWindow) const
 		{
 			auto found = renderModelsPerContext_.find(contextWindow);
-			if (found != renderModelsPerContext_.end())
-				return found->second.get();
+			if (found == renderModelsPerContext_.end())
+			{
+				NewAndRegisterRenderModel(contextWindow);	// 없으면 만들고
+				return GetRenderModel(contextWindow);
+			}
 
-			return nullptr;
+			return found->second.get();
 		}
 
 		const MeshData& ResourceModelBase::GetMesh() const
@@ -667,13 +685,13 @@ namespace SMGE
 			return *this;
 		}
 
-		ResourceModel::ResourceModel(const CWString& textureFilePath, const CWString& objPath, const CWString& vertShadPath, const CWString& fragShadPath) : ResourceModelBase()
+		void ResourceModel::LoadFromFiles(const CWString& textureFilePath, const CWString& objPath, const CWString& vertShadPath, const CWString& fragShadPath)
 		{
-			texture_.TextureData::TextureData(textureFilePath);
-			mesh_.MeshData::MeshData(objPath);
+			texture_.loadFromFile(textureFilePath);
+			mesh_.loadFromFile(objPath);
 
-			vertShadPath_ = vertShadPath;
-			fragShadPath_ = fragShadPath;
+			vertShaderPath_ = vertShadPath;
+			fragShaderPath_ = fragShadPath;
 		}
 
 		ResourceModel::ResourceModel(ResourceModel&& c) noexcept
@@ -685,8 +703,8 @@ namespace SMGE
 		{
 			texture_ = std::move(c.texture_);
 			mesh_ = std::move(c.mesh_);
-			vertShadPath_ = std::move(vertShadPath_);
-			fragShadPath_ = std::move(fragShadPath_);
+			vertShaderPath_ = std::move(vertShaderPath_);
+			fragShaderPath_ = std::move(fragShaderPath_);
 
 			ResourceModelBase::operator=(std::move(c));
 
@@ -1016,7 +1034,7 @@ namespace SMGE
 	namespace nsRE
 	{
 		CRenderingEngine::CRenderingEngine() :
-			m_clearColor(0.8f, 0.8f, 0.6f, 1.0f)
+			m_clearColor(0.f, 0.f, 0.f, 1.0f)
 		{
 		}
 		
@@ -1135,20 +1153,16 @@ namespace SMGE
 
 			// 1920 * 1080 * RGBA 32BIT + 1920 * 1080 * D24_S8
 			// 이렇게 되니까 RT 하나당 16메가 정도 먹는다
-			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
+			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(m_width, m_height), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
 				glm::vec3{ 0.f, 1.f, 0.f });	// 테스트 코드 - 일부러 빨간 색
 
 			// 현재 포스트 프로세스가 없어서 renderTarget1_ 는 쓰일 일이 없지만 일단 만들어둠
-			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(m_framebufferWidth, m_framebufferHeight), GL_RGBA, GL_DEPTH24_STENCIL8, ndc, 
+			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(m_width, m_height), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
 				glm::vec3{ 1.f, 0.f, 0.f });	// 테스트 코드 - 일부러 빨간 색
 
 			// 기본 렌더타겟으로 생성하면 백버퍼를 가리키게 된다
-			renderTargetBackBuffer_ = std::make_unique<CRenderTarget>(SRect2D(), m_clearColor);
-		}
-
-		const int CRenderingEngine::GetBufferLength()
-		{
-			return m_bufferLengthW;
+			renderTargetBackBuffer_ = std::make_unique<CRenderTarget>(glm::vec2(0, 0), GL_ColorType, GL_DEPTH24_STENCIL8, ndc,
+				m_clearColor);
 		}
 
 		void CRenderingEngine::Init()
@@ -1202,7 +1216,7 @@ namespace SMGE
 			const auto VP = renderCam.GetProjectionMatrix() * renderCam.GetViewMatrix();
 
 #ifdef OLD_RENDER_PASS
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			// 테스트 코드 - 라이트를 회전시키자
 			const float lightRotateRadius = 4;
@@ -1232,10 +1246,13 @@ namespace SMGE
 			{
 				rp->RenderTo(V, VP, OUT writeRT, OUT readRT);
 			}
+			
+			auto finalResult = writeRT;
 
 			auto backBuffer = renderTargetBackBuffer_.get();
-			auto finalResult = writeRT;
+			glDisable(GL_DEPTH_TEST);	// CGLState 적용 필요
 			lastRenderingPass_->RenderTo(V, VP, backBuffer, finalResult);
+			glEnable(GL_DEPTH_TEST);	// CGLState 적용 필요
 #endif
 
 #if IS_EDITOR
@@ -1245,7 +1262,7 @@ namespace SMGE
 				glFinish();
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-				glReadPixels(0, 0, m_width, m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgBuffer);	// m_colorDepth, PixelFormats::Pbgr32
+				glReadPixels(0, 0, m_width, m_height, GL_ColorType, GL_UNSIGNED_BYTE, imgBuffer);
 			}
 #endif
 
@@ -1332,7 +1349,7 @@ namespace SMGE
 			if (glState == "glst:fbo")
 			{
 				GLint cur;
-				glGetIntegerv(GL_FRAMEBUFFER_BINDING, &cur);
+				glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &cur);	// 최적화 - 성능에 안좋다고 한다, 초기값이 0이므로 그냥 외부에서 관리해도 될 듯
 				fboStack_.push(cur);
 			}
 		}
@@ -1360,41 +1377,41 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		CRenderTarget::CRenderTarget(SRect2D viewportNDC, glm::vec3 clearColor)
-		{
-			SetClearColor(clearColor);
-
-			// 제대로 구현 - viewportNDC 로부터 vertices 생성하기
-			viewportNDC_ = viewportNDC;
-
-			glGenVertexArrays(1, &quadVAO_);
-			glGenBuffers(1, &quadVBO_);
-			glBindVertexArray(quadVAO_);
-			glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-
-			quadVertices_ =
-			{				// positions   // texCoords
-				SVF_V2F_T2F{ -1.0f,   1.0f,  0.0f, 1.0f, },
-				SVF_V2F_T2F{ -1.0f,  -1.0f,  0.0f, 0.0f, },
-				SVF_V2F_T2F{  1.0f,  -1.0f,  1.0f, 0.0f, },
-
-				SVF_V2F_T2F{  1.0f,   1.0f,  1.0f, 1.0f, },
-				SVF_V2F_T2F{  1.0f,  -1.0f,  1.0f, 0.0f, },
-				SVF_V2F_T2F{ -1.0f,  -1.0f,  0.0f, 0.0f	 }
-			};
-
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices_), &quadVertices_, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-		}
-
-		CRenderTarget::CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC, glm::vec3 clearColor) : CRenderTarget(viewportNDC, clearColor)
+		CRenderTarget::CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC, glm::vec3 clearColor)
 		{
 			size_ = size;
 			colorFormat_ = colorFormat;
 			depthStencilFormat_ = depthStencil;
+			SetClearColor(clearColor);
+
+			///////////////////////////////////////////////////////////////////////////////////////////////
+			// ndc vertices
+			glGenVertexArrays(1, &quadVAO_);
+			glBindVertexArray(quadVAO_);
+
+			glGenBuffers(1, &quadVBO_);
+			glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
+
+			viewportNDC_ = viewportNDC;
+
+			const auto left = viewportNDC_.lb_.x, top = viewportNDC_.rt_.y, right = viewportNDC_.rt_.x, bottom = viewportNDC_.lb_.y;
+			std::array<SVF_V2F_T2F, QuadVertexNumber> quadVertices =
+			{				// positions   // texCoords
+				SVF_V2F_T2F{ left, top, 0.0f, 1.0f, },	// 좌상
+				SVF_V2F_T2F{ left, bottom, 0.0f, 0.0f, },	// 좌하
+				SVF_V2F_T2F{ right, bottom, 1.0f, 0.0f, },	// 우하
+
+				SVF_V2F_T2F{ right, top, 1.0f, 1.0f, },	// 우상
+				SVF_V2F_T2F{ left, top,  0.0f, 1.0f, },		// 좌상
+				SVF_V2F_T2F{ right, bottom, 1.0f, 0.0f	 }	// 우하
+			};
+
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(SVF_V2F_T2F), (void*)offsetof(SVF_V2F_T2F, vertexX_));
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SVF_V2F_T2F), (void*)offsetof(SVF_V2F_T2F, textureU_));
+			glBindVertexArray(0);
 
 			///////////////////////////////////////////////////////////////////////////////////////////////
 			// frameBuffer
@@ -1403,13 +1420,13 @@ namespace SMGE
 				glGenFramebuffers(1, &fbo_);
 				BindFrameBuffer();
 				{
-					glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-
 					glGenTextures(1, &colorTextureName_);
 					glBindTexture(GL_TEXTURE_2D, colorTextureName_);
 					glTexImage2D(GL_TEXTURE_2D, 0, colorFormat_, size_.x, size_.y, 0, colorFormat_, GL_UNSIGNED_BYTE, NULL);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// 여기 - 리니어? 니얼스트? 생각해볼 것
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureName_, 0);
 
 					if (depthStencilFormat_ != 0)
@@ -1512,8 +1529,6 @@ namespace SMGE
 
 		void CPostEffectPass::RenderTo(const glm::mat4& V, const glm::mat4& VP, CRenderTarget*& writeRT, CRenderTarget*& readRT)
 		{
-			writeRT->ClearFrameBuffer();
-
 			posteffectShader_->Use();
 
 			constexpr auto TexSampleIndex = 0;
@@ -1523,10 +1538,14 @@ namespace SMGE
 
 			writeRT->BindFrameBuffer();
 			{
+				//writeRT->SetClearColor(glm::vec3(1.f, 0.f, 0.f));	// 테스트 코드
+				writeRT->ClearFrameBuffer();	// 테스트 코드 ㅡ 현재 백버퍼로 오버라이트 하는 것만 구현되어있기 때문
+
 				glBindVertexArray(writeRT->GetQuadVAO());
 				glActiveTexture(GL_TEXTURE0 + TexSampleIndex);
 				glBindTexture(GL_TEXTURE_2D, readRT->GetColorTextureName());
 				glDrawArrays(GL_TRIANGLES, 0, writeRT->GetQuadVertexNumber());
+				glBindVertexArray(0);
 			}
 			writeRT->UnbindFrameBuffer();
 

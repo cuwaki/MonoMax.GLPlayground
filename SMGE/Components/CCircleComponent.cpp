@@ -40,26 +40,20 @@ namespace SMGE
 	void CCircleComponent::ReadyToDrawing()
 	{
 		CString resmKey;
-		nsRE::ResourceModelBase* gizmorm = nullptr;
+		std::shared_ptr<nsRE::ResourceModelBase> gizmorm;
 		if (hasFace_)
 		{
 			resmKey = "gizmoK:circle_faced";
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			if (gizmorm == nullptr)
-			{
-				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::CircleFacedResourceModel(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX)));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			}
+			if(gizmorm == nullptr)
+				gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleFacedResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
 		}
 		else
 		{
 			resmKey = "gizmoK:circle";
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
-			{
-				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::CircleResourceModel(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX)));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			}
+				gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
 		}
 
 		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);

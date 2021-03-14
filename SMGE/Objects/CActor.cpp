@@ -149,10 +149,6 @@ namespace SMGE
 		return *reflActor_.get();
 	}
 
-	void CActor::OnAfterDeserialized()
-	{
-	}
-
 	ComponentVector& CActor::getPersistentComponents()
 	{
 		return persistentComponents_;

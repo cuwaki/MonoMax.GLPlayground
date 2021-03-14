@@ -15,52 +15,52 @@ namespace SMGE
 		// 여기 - 라이트 액터 구현 필요함
 		auto lightPos = glm::vec3(0);
 
-		// 중복 코드 정리 필요
-		writeRT->SetClearColor(nsRE::ColorConst::Red);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
-		writeRT->ClearFrameBuffer();
-		writeRT->BindFrameBuffer();
+		const auto system = GetSystem();
+		const auto& allActors = system->GetAllActors();
+
+		constexpr auto setSize = 1024;
+
+		using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
+		TStackSetRenderModels::allocator_type::arena_type stackArean;
+		TStackSetRenderModels renderModels(stackArean);
+		renderModels.reserve(setSize);
+
+		// 1. 그려질 렌더모델 수집
+		for (const auto& actor : allActors)
 		{
-			const auto system = GetSystem();
-			const auto& allActors = system->GetAllActors();
-
-			constexpr auto setSize = 1024;
-
-			using TVectorRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-			TVectorRenderModels::allocator_type::arena_type stackArean;
-			TVectorRenderModels renderModels(stackArean);
-			renderModels.reserve(setSize);
-
-			// 1. 그려질 렌더모델 수집
-			for (const auto& actor : allActors)
+			if (actor->IsRendering() == true &&
+				actor->AmIEditorActor() == false)
 			{
-				if (actor->IsRendering() == true &&
-					actor->AmIEditorActor() == false)
+				for (auto comp : actor->getAllComponents())
 				{
-					for (auto comp : actor->getAllComponents())
+					auto drawComp = dynamic_cast<CDrawComponent*>(comp);	// 최적화 - isdrawable 같은 함수 만들어서 대체하자
+					if (drawComp && drawComp->IsRendering())
 					{
-						auto drawComp = dynamic_cast<CDrawComponent*>(comp);
-						if (drawComp && drawComp->IsRendering())
-						{
-							renderModels.insert(drawComp->GetRenderModel());
-						}
+						renderModels.insert(drawComp->GetRenderModel());
 					}
 				}
 			}
+		}
+
+		// 2. 실제로 렌더링
+		if (renderModels.size() > 0)
+		{	// 중복 코드 정리 필요
+			writeRT->BindFrameBuffer();
+
+			// 여기 - 일단 가장 첫번째 패스이기 때문에 지워야한다
+			writeRT->SetClearColor(nsRE::ColorConst::Gray);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
+			writeRT->ClearFrameBuffer();
 
 			// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
-			// 2. 실제로 렌더링
-			for(auto rm : renderModels)
+			for (auto rm : renderModels)
 			{
-				if (rm->GetShaderID() > 0)
-				{
-					rm->UseShader(V, lightPos);	// 셰이더 마다 1회
-					rm->BeginRender();
-					rm->Render(VP);
-					rm->EndRender();
-				}
+				rm->UseShader(V, lightPos);	// 셰이더 마다 1회
+				rm->BeginRender();
+				rm->Render(VP);
+				rm->EndRender();
 			}
-		}
-		writeRT->UnbindFrameBuffer();
+			writeRT->UnbindFrameBuffer();
+		}	
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

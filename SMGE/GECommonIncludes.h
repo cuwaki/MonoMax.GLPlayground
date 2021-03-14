@@ -86,11 +86,15 @@ namespace SMGE
         template<typename U>
         T& operator[](const U& index)   // enum class 들을 [] 로 바로 받을 수 있게 하기 위함
         {
+            static_assert(std::is_enum_v<U> || std::is_integral_v<U>);
+
             return ParentVectorT::operator[](etoi(index));
         }
         template<typename U>
         const T& operator[](const U& index) const
         {
+            static_assert(std::is_enum_v<U> || std::is_integral_v<U>);
+
             return ParentVectorT::operator[](etoi(index));
         }
 

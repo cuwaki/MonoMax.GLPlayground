@@ -18,7 +18,7 @@ namespace SMGE
 		virtual operator CWString() const override;
 		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
 		
-		CWString& drawingModelAssetPath_;
+		CWString& resourceModelAssetPath_;
 	};
 
 	class CMeshComponent : public CDrawComponent
@@ -35,7 +35,6 @@ namespace SMGE
 	public:
 		CMeshComponent(CObject* outer);
 		CMeshComponent(CObject* outer, const CWString& modelAssetPath);
-		~CMeshComponent();
 
 		void Ctor();
 
@@ -49,9 +48,9 @@ namespace SMGE
 
 	protected:
 		std::unique_ptr<TReflectionStruct> reflMeshCompo_;
-		CWString drawingModelAssetPath_;
+		CWString resourceModelAssetPath_;
 
 	protected:
-		std::shared_ptr<CAsset<CResourceModel>> drawingModelAsset_;
+		std::shared_ptr<CAsset<CResourceModel>> resourceModelAsset_;
 	};
 };

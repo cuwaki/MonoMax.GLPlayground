@@ -19,40 +19,43 @@ namespace SMGE
 	{
 		auto dummy = glm::vec3(0);	// 여기선 라이트 안씀
 
-		// 중복 코드 정리 필요
-		writeRT->SetClearColor(nsRE::ColorConst::Blue);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
-		writeRT->ClearFrameBuffer();
-		writeRT->BindFrameBuffer();
+		const auto system = GetSystem();
+		const auto& allActors = system->GetAllActors();
+
+		constexpr auto setSize = 1024;
+
+		using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
+		TStackSetRenderModels::allocator_type::arena_type stackArean;
+		TStackSetRenderModels renderModels(stackArean);
+		renderModels.reserve(setSize);
+
+		// 1. 그려질 렌더모델 수집
+		for (const auto& actor : allActors)
 		{
-			const auto system = GetSystem();
-			const auto& allActors = system->GetAllActors();
-
-			constexpr auto setSize = 1024;
-
-			using TVectorRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-			TVectorRenderModels::allocator_type::arena_type stackArean;
-			TVectorRenderModels renderModels(stackArean);
-			renderModels.reserve(setSize);
-
-			// 1. 그려질 렌더모델 수집
-			for (const auto& actor : allActors)
+			if (actor->IsRendering() == true &&
+				actor->AmIEditorActor() == true)	// 기즈모는 에디터 액터이다!!!
 			{
-				if (actor->IsRendering() == true &&
-					actor->AmIEditorActor() == true)	// 기즈모는 에디터 액터이다!!!
+				for (auto comp : actor->getAllComponents())
 				{
-					for (auto comp : actor->getAllComponents())
+					auto drawComp = dynamic_cast<CDrawComponent*>(comp);
+					if (drawComp && drawComp->IsRendering())
 					{
-						auto drawComp = dynamic_cast<CDrawComponent*>(comp);
-						if (drawComp && drawComp->IsRendering())
-						{
-							renderModels.insert(drawComp->GetRenderModel());
-						}
+						renderModels.insert(drawComp->GetRenderModel());
 					}
 				}
 			}
+		}
+
+		// 2. 실제로 렌더링
+		if (renderModels.size() > 0)
+		{	// 중복 코드 정리 필요
+			writeRT->BindFrameBuffer();
+
+			// 여기 - 월드 그려진 후에 그 위에 그려야하는 것이므로 지우면 안된다, 자동화 할 수 있는 판단이 필요하다
+			//writeRT->SetClearColor(nsRE::ColorConst::Blue);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
+			//writeRT->ClearFrameBuffer();
 
 			// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
-			// 2. 실제로 렌더링
 			for (auto rm : renderModels)
 			{
 				if (rm->GetShaderID() > 0)
@@ -63,8 +66,8 @@ namespace SMGE
 					rm->EndRender();
 				}
 			}
+			writeRT->UnbindFrameBuffer();
 		}
-		writeRT->UnbindFrameBuffer();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +180,7 @@ namespace SMGE
 					{
 						/* 포인트 표시
 						CCollideActor* pointActor = &StartSpawnActorVARIETY<CCollideActor>(currentMap, true, currentMap);
-						auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
+						auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
 						pointActor->CopyFromTemplate(prefab->getContentClass());
 						{
 							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
@@ -190,7 +193,7 @@ namespace SMGE
 						AddSelectedActor(currentMap, TAR);
 					});
 
-				auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
+				auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
 				rayActor->CopyFromTemplate(prefab->getContentClass());
 				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
@@ -257,7 +260,7 @@ namespace SMGE
 
 		if (gizmo != nullptr)
 		{
-			auto prefab = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(wtext("/templates/CGizmoActorTranslate.asset")));
+			auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/templates/CGizmoActorTranslate.asset")));
 			gizmo->CopyFromTemplate(prefab->getContentClass());
 			gizmo->getTransform().Translate(selActor->getLocation());
 			gizmo->getTransform().RotateEuler(selActor->getRotationEulerDegrees());	// 여기 - 쿼터니언회전까지 반영된 것을 적용해야한다

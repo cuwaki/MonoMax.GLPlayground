@@ -40,26 +40,20 @@ namespace SMGE
 	void CQuadComponent::ReadyToDrawing()
 	{
 		CString resmKey;
-		nsRE::ResourceModelBase* gizmorm = nullptr;
+		std::shared_ptr<nsRE::ResourceModelBase> gizmorm;
 		if (hasFace_)
 		{
 			resmKey = "gizmoK:quad_faced";
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
-			{
-				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadFacedResourceModel()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			}
+				gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::QuadFacedResourceModel>());
 		}
 		else
 		{
 			resmKey = "gizmoK:quad";
 			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
 			if (gizmorm == nullptr)
-			{
-				nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::move(new nsRE::QuadResourceModel()));	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-				gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			}
+				gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::QuadResourceModel>());
 		}
 
 		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);

@@ -27,16 +27,14 @@ namespace SMGE
 
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
 
-			auto gizRendM = static_cast<GizmoRenderModel*>(NewRenderModel(nullptr));
+			auto gizRendM = static_cast<GizmoRenderModel*>(GetRenderModel(nullptr));
 			gizRendM->drawType_ = drawType;
 		}
 
-		RenderModel* GizmoResourceModel::NewRenderModel(const GLFWwindow* contextWindow) const
+		void GizmoResourceModel::NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const
 		{
 			auto newOne = std::make_unique<GizmoRenderModel>(*this, 0);
 			renderModelsPerContext_.insert(std::make_pair(contextWindow, std::move(newOne)));
-
-			return GetRenderModel(contextWindow);
 		}
 
 		GizmoRenderModel::GizmoRenderModel(const ResourceModelBase& asset, GLuint texSamp) : RenderModel(asset, texSamp)

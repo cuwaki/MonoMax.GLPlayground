@@ -205,6 +205,7 @@ namespace SMGE
 			TextureData(const CWString& texPath);
 			~TextureData();
 
+			bool loadFromFile(const CWString& texPath);
 			void Destroy();
 
 			TextureData(const TextureData& c) = delete;
@@ -225,7 +226,7 @@ namespace SMGE
 			MeshData(const CWString& objPath);
 			~MeshData() { Destroy(); }
 
-			bool loadFromOBJFile(const CWString& objPath);
+			bool loadFromFile(const CWString& objPath);
 			bool loadFromPlainData(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals);
 			bool setVertexColors(const std::vector<glm::vec3>& vertexColors);
 			void Destroy();
@@ -420,26 +421,30 @@ namespace SMGE
 		};
 
 		// ResourceModel은 GLContext 종속이 아니라서 여러 GLContext에서 공용으로 쓸 수 있다.
-		class ResourceModelBase
+		class ResourceModelBase : public std::enable_shared_from_this<ResourceModelBase>
 		{
 		protected:
 			mutable std::map<const GLFWwindow*, std::unique_ptr<RenderModel>> renderModelsPerContext_;
 
 		public:
 			ResourceModelBase() {}
-			
+#if IS_DEBUG
+			~ResourceModelBase();
+#endif
 			virtual void Invalidate();
 
-			virtual class RenderModel* NewRenderModel(const GLFWwindow* contextWindow) const;
 			class RenderModel* GetRenderModel(const GLFWwindow* contextWindow) const;
 
 			virtual const MeshData& GetMesh() const;
 			virtual const TextureData& GetTexture() const;
 
-			ResourceModelBase(const ResourceModelBase& c) = delete;
-			ResourceModelBase& operator=(const ResourceModelBase& c) = delete;
+			DELETE_COPY_CTOR(ResourceModelBase);
+
 			ResourceModelBase(ResourceModelBase&& c) noexcept;
 			ResourceModelBase& operator=(ResourceModelBase&& c) noexcept;
+
+		protected:
+			virtual void NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const;
 		};
 
 		class ResourceModel : public ResourceModelBase
@@ -447,20 +452,21 @@ namespace SMGE
 		protected:
 			TextureData texture_;
 			MeshData mesh_;
-			CWString vertShadPath_;
-			CWString fragShadPath_;
+			CWString vertShaderPath_;
+			CWString fragShaderPath_;
 
 		public:
 			ResourceModel() {}
-			ResourceModel(const CWString& textureFilePath, const CWString& objPath, const CWString& vertShadPath, const CWString& fragShadPath);
+
+			virtual void LoadFromFiles(const CWString& textureFilePath, const CWString& objPath, const CWString& vertShadPath, const CWString& fragShadPath);
 
 			virtual const MeshData& GetMesh() const override { return mesh_; }
 			virtual MeshData& GetMesh() { return mesh_; }
 			virtual const TextureData& GetTexture() const override { return texture_; }
 			virtual TextureData& GetTexture() { return texture_; }
 
-			const CWString& GetVertShaderPath() const { return vertShadPath_; }
-			const CWString& GetFragShaderPath() const { return fragShadPath_; }
+			const CWString& GetVertShaderPath() const { return vertShaderPath_; }
+			const CWString& GetFragShaderPath() const { return fragShaderPath_; }
 
 			ResourceModel(ResourceModel&& c) noexcept;
 			ResourceModel& operator=(ResourceModel&& c) noexcept;
@@ -470,14 +476,15 @@ namespace SMGE
 
 		class CResourceModelProvider
 		{
-			static CHashMap<CString, std::unique_ptr<ResourceModelBase>> ResourceModels;
+			static CHashMap<CString, std::shared_ptr<ResourceModelBase>> ResourceModels;
 
 		public:
-			static bool AddResourceModel(const CString& key, ResourceModelBase* am);	// 여기 - unique 로 쓰기엔 CMeshComponent 에서의 사용법이 걸린다, 셰어드로 수정해야할 듯
+			static std::shared_ptr<nsRE::ResourceModelBase> AddResourceModel(const CString& key, std::shared_ptr<ResourceModelBase> am);
+			static bool RemoveResourceModel(const CString& key);
 			static bool RemoveResourceModel(ResourceModelBase* am);
-			static ResourceModelBase* FindResourceModel(const CString& key);
+			static std::shared_ptr<ResourceModelBase> FindResourceModel(const CString& key);
 
-			static const CHashMap<CString, std::unique_ptr<ResourceModelBase>>& GetResourceModels();
+			static const CHashMap<CString, std::shared_ptr<ResourceModelBase>>& GetResourceModels();
 		};
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,7 +512,6 @@ namespace SMGE
 			constexpr static GLsizei QuadVertexNumber = 6;
 
 		public:
-			CRenderTarget(SRect2D viewportNDC, glm::vec3 clearColor);
 			CRenderTarget(glm::vec2 size, GLuint colorFormat, GLuint depthStencil, SRect2D viewportNDC, glm::vec3 clearColor);
 			~CRenderTarget();
 		
@@ -521,6 +527,7 @@ namespace SMGE
 			void SetClearColor(glm::vec3 cc) { clearColor_ = cc; }
 
 			GLuint GetQuadVAO() const { return quadVAO_; }
+			GLuint GetQuadVBO() const { return quadVBO_; }
 			GLuint GetColorTextureName() const { return colorTextureName_; }
 			GLsizei GetQuadVertexNumber() const { return QuadVertexNumber; }
 
@@ -528,7 +535,6 @@ namespace SMGE
 			CRenderingCamera* renderingCameraW_;
 			
 			SRect2D viewportNDC_;
-			std::array<SVF_V2F_T2F, QuadVertexNumber> quadVertices_;
 			glm::vec2 size_;
 			GLuint colorFormat_ = 0;
 			GLuint depthStencilFormat_ = 0;
@@ -572,10 +578,12 @@ namespace SMGE
 		class CRenderingEngine
 		{
 		private:
+			const GLint GL_ColorType = GL_BGRA;	// PixelFormats::Pbgr32
+			const int m_colorDepth = 4;			// GL_ColorType == GL_BGRA
+
 			int m_bufferLengthW, m_bufferLengthF;	// window 기반 버퍼 크기와 frame 기반 버퍼 크기
 			int m_width, m_height;
 			int m_framebufferWidth, m_framebufferHeight;
-			int m_colorDepth = 4;	// GL_BGRA, PixelFormats::Pbgr32
 			glm::vec4 m_clearColor;
 			GLFWwindow* m_window = nullptr;
 			char* m_glRenderHandle = nullptr;
@@ -597,7 +605,6 @@ namespace SMGE
 
 			const int GetWidth();
 			const int GetHeight();
-			const int GetBufferLength();
 			void Init();
 			void DeInit();
 			void Resize(int width, int height);

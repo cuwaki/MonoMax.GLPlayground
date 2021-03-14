@@ -101,7 +101,6 @@ namespace SMGE
 		// CInt_Reflection
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
-		virtual void OnAfterDeserialized() override;
 
 		// CInt_Component
 		virtual ComponentVector& getPersistentComponents() override;

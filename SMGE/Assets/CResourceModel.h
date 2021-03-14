@@ -30,7 +30,7 @@ namespace SMGE
 		CVector<glm::vec3>& vertexColors_;
 	};
 
-	class CResourceModel : virtual public nsRE::ResourceModel, public CObject, public CInt_Reflection
+	class CResourceModel : public CObject, public CInt_Reflection, public nsRE::ResourceModel
 	{
 		DECLARE_RTTI_CObject(CResourceModel)
 
@@ -44,14 +44,16 @@ namespace SMGE
 	public:
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
-		virtual void OnAfterDeserialized() override;
+
+		//virtual void OnAfterDeserialized() override;	// 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+		void OnAfterDeserialized2();	// 테스트 코드
 
 	protected:
 		std::unique_ptr<TReflectionStruct> reflData_;
 
 	public:
-		CWString vertShaderPath_;
-		CWString fragShaderPath_;
+		//CWString vertShaderPath_;
+		//CWString fragShaderPath_;
 		CWString objFilePath_;
 		CWString textureFilePath_;
 

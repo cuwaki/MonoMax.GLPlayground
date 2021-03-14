@@ -78,7 +78,7 @@ namespace SMGE
 				auto aabb = dynamic_cast<CCubeComponent*>(getTransientComponents().back().get());
 				if (aabb)
 				{
-					auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
+					auto asset = CAssetManager::LoadAssetDefault<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
 					aabb->CopyFromTemplate(asset->getContentClass());
 
 					aabb->isAbsoluteTransform_ = true;
@@ -179,7 +179,7 @@ namespace SMGE
 //#endif
 
 				// 여기 - LoadObject 와 같이 new 하고 reflect 까지 한번에 끝내주는 함수 필요
-				auto asset = CAssetManager::LoadAsset<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
+				auto asset = CAssetManager::LoadAssetDefault<CComponent>(Globals::GetGameAssetPath(wtext("/templates/CCubeComponent.asset")));
 				obbCube->CopyFromTemplate(asset->getContentClass());
 
 				// 여기 - new and register and beginplay 함수 필요 - 한방에 처리 되도록

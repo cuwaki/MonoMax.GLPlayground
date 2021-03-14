@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../GECommonIncludes.h"
+#include "../Objects/CObject.h"
 #include "CAsset.h"
 
 namespace SMGE
@@ -22,8 +23,8 @@ namespace SMGE
 			return nullptr;
 		}
 
-		template<typename C>
-		static std::shared_ptr<CAsset<C>> LoadAsset(CWString filePath)
+		template<typename C, typename ...Args>
+		static std::shared_ptr<CAsset<C>> LoadAssetDefault(CWString filePath, Args&&... contentClassCtorArgs)
 		{
 			ToLowerInline(filePath);
 
@@ -31,7 +32,24 @@ namespace SMGE
 			if (res)
 				return res;
 
-			cachedAssets_[filePath] = std::move(std::make_shared<CAsset<C>>(filePath));
+			auto newAsset = std::make_shared<CAsset<C>>(filePath, std::forward<Args>(contentClassCtorArgs)...);
+			cachedAssets_[filePath] = std::move(newAsset);
+
+			return std::static_pointer_cast<CAsset<C>>(cachedAssets_[filePath]);
+		}
+
+		template<typename C, typename NewF, typename DeleteF, typename ...Args>
+		static std::shared_ptr<CAsset<C>> LoadAssetCustom(CWString filePath, NewF&& nf, DeleteF&& df, Args&&... contentClassCtorArgs)
+		{
+			ToLowerInline(filePath);
+
+			auto res = FindAsset<C>(filePath);
+			if (res)
+				return res;
+
+			auto newAsset = std::make_shared<CAsset<C>>(filePath, std::forward<NewF>(nf), std::forward<DeleteF>(df), std::forward<Args>(contentClassCtorArgs)...);
+			cachedAssets_[filePath] = std::move(newAsset);
+
 			return std::static_pointer_cast<CAsset<C>>(cachedAssets_[filePath]);
 		}
 
@@ -39,11 +57,10 @@ namespace SMGE
 		static bool SaveAsset(CWString filePath, CAsset<C>& target)
 		{
 			SGStringStreamOut strOut(target.getContentClass()->getReflection());
-
 			return SaveToTextFile(filePath, strOut.out_);
 		}
 
 	protected:
-		static CHashMap<CWString, std::shared_ptr<CAssetBase> > cachedAssets_;
+		static CHashMap<CWString, std::shared_ptr<CAssetBase>> cachedAssets_;
 	};
 }

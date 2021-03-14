@@ -70,6 +70,7 @@ namespace SMGE
 		m_renderingEngine->getWriteableBitmapInfo(dpiX, dpiY, colorDepth);
 		
 		// colorDepth == 4 이어야하고 그래서 PixelFormats::Pbgra32 를 쓴다
+		// GL_ColorType == GL_BGRA 여야한다
 		m_writeableImg = gcnew WriteableBitmap(m_width, m_height, dpiX, dpiY, PixelFormats::Pbgra32, nullptr);
 
 		m_WriteableBuffer = (char*)m_writeableImg->BackBuffer.ToPointer();

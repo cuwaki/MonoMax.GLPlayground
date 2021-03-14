@@ -224,8 +224,8 @@ namespace SMGE
 			metaSplitted.cursorBegin();
 
 			auto& ret = operator=(metaSplitted);
-			if(pair_ != nullptr)
-				pair_->OnAfterDeserialized();
+			//if(pair_ != nullptr)	// 여기서 부르면 asset 계층에 따라서 여러번 불리우게 된다! 그래서 막아둠 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+			//	pair_->OnAfterDeserialized();
 			return ret;
 		}
 		else
@@ -233,8 +233,8 @@ namespace SMGE
 			variableSplitted.cursorBegin();
 
 			auto& ret = operator=(variableSplitted);
-			if (pair_ != nullptr)
-				pair_->OnAfterDeserialized();
+			//if(pair_ != nullptr)	// 여기서 부르면 asset 계층에 따라서 여러번 불리우게 된다! 그래서 막아둠 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+			//	pair_->OnAfterDeserialized();
 			return ret;
 		}
 	}

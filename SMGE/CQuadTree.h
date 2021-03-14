@@ -209,8 +209,8 @@ namespace SMGE
 			h += halfHeight_;	// -5000 ~ 0 ~ 5000 -> 0 ~ 10000
 			w += halfWidth_;
 
-			auto v = h / heightGap_;	// 10000 / 1250
-			auto u = w / widthGap_;
+			size_t v = h / heightGap_;	// 10000 / 1250
+			size_t u = w / widthGap_;
 
 			// 범위 넘어가면 터진다!
 

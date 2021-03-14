@@ -61,7 +61,7 @@ namespace SMGE
 				//		낭비인데... 방법을 찾자! - 실제 인스턴스에게 std::move 를 시켜줄까?? 또는 템플릿의 경우에는 스폰을 안하면 되잖아?
 
 				// 1. 애셋을 이용하여 맵에 액터 스폰하기 - RTTI
-				//std::shared_ptr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
+				//std::shared_ptr<CAsset<CActor>>& actorTemplate = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(actorAssetPath));
 				//CActor& actorA = outerMap_.SpawnDefaultActor(actorClassRTTIName, false, &outerMap_, actorTemplate->getContentClass());
 
 				// 1. 디폴트로 생성하고
@@ -69,7 +69,7 @@ namespace SMGE
 				auto actorA = &system->StartSpawnActorDEFAULT(&outerMap_, actorClassRTTIName, false, Args_START &outerMap_);
 
 				// 2. 애셋 덮어씌우고
-				auto actorTemplate = CAssetManager::LoadAsset<CActor>(Globals::GetGameAssetPath(actorAssetPath));
+				auto actorTemplate = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(actorAssetPath));
 				actorA->CopyFromTemplate(actorTemplate->getContentClass());
 
 				// 3. 맵에 저장된 값으로 한번 더 덮어쓴다 - 위치나 맵에서 박은 콤포넌트 등등

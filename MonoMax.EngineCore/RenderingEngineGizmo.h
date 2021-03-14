@@ -19,10 +19,13 @@ namespace SMGE
 		{
 		public:
 			GizmoResourceModel() : ResourceModel() {}
+			
+			// 귀찮아서 일단 수동 등록만 가능하도록 해둠
+			//GizmoResourceModel(const CString rmKey);
 
 		protected:
 			virtual void CreateFrom(const std::vector<glm::vec3>& vertices, GLuint drawType);
-			virtual RenderModel* NewRenderModel(const GLFWwindow* contextWindow) const override;
+			virtual void NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const override;
 		};
 
 		class GizmoRenderModel : public RenderModel

@@ -8,7 +8,7 @@
 namespace SMGE
 {
 	SGRefl_MeshComponent::SGRefl_MeshComponent(TReflectionClass& meshc) : Super(meshc), 
-		drawingModelAssetPath_(meshc.drawingModelAssetPath_)
+		resourceModelAssetPath_(meshc.resourceModelAssetPath_)
 	{
 	}
 	//SGRefl_MeshComponent::SGRefl_MeshComponent(const std::unique_ptr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
@@ -19,7 +19,7 @@ namespace SMGE
 	{
 		CWString ret = Super::operator CWString();
 
-		ret += _TO_REFL(CWString, drawingModelAssetPath_);
+		ret += _TO_REFL(CWString, resourceModelAssetPath_);
 		return ret;
 	}
 
@@ -27,7 +27,7 @@ namespace SMGE
 	{
 		Super::operator=(variableSplitted);
 
-		_FROM_REFL(drawingModelAssetPath_, variableSplitted);
+		_FROM_REFL(resourceModelAssetPath_, variableSplitted);
 		return *this;
 	}
 
@@ -39,7 +39,7 @@ namespace SMGE
 
 	CMeshComponent::CMeshComponent(CObject* outer, const CWString& modelAssetPath) : CMeshComponent(outer)
 	{
-		drawingModelAssetPath_ = modelAssetPath;
+		resourceModelAssetPath_ = modelAssetPath;
 	}
 
 	void CMeshComponent::Ctor()
@@ -50,36 +50,46 @@ namespace SMGE
 #endif
 	}
 
-	CMeshComponent::~CMeshComponent()
-	{
-		if (drawingModelAsset_ != nullptr)
-		{	// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-			auto smgeMA = drawingModelAsset_->getContentClass();
-			nsRE::CResourceModelProvider::RemoveResourceModel(smgeMA);
-		}
-	}
-
 	void CMeshComponent::SetDrawingModelAsset(const CWString& modelAssetPath)
 	{
-		drawingModelAssetPath_ = modelAssetPath;
+		resourceModelAssetPath_ = modelAssetPath;
 	}
 
 	void CMeshComponent::ReadyToDrawing()
 	{
-		if (drawingModelAssetPath_.length() > 0)
+		if (resourceModelAssetPath_.length() > 0)
 		{
-			if (drawingModelAsset_ != nullptr)
+			if (resourceModelAsset_ != nullptr)
 				throw SMGEException(wtext("already ReadyToDrawing("));
 
-			// 모델 애셋 로드
-			drawingModelAsset_ = CAssetManager::LoadAsset<CResourceModel>(Globals::GetGameAssetPath(drawingModelAssetPath_));
+			CResourceModel *resModel = nullptr;
 
-			auto rm = drawingModelAsset_->getContentClass();
+			const auto assetKey = Globals::GetGameAssetPath(resourceModelAssetPath_);
 
-			// 여기 수정 - 이거 CResourceModel 로 내리든가, 게임엔진에서 렌더링을 하도록 하자
-			nsRE::CResourceModelProvider::AddResourceModel(ToASCII(drawingModelAssetPath_), rm);
+			resourceModelAsset_ = CAssetManager::FindAsset<CResourceModel>(assetKey);
+			if (resourceModelAsset_ == nullptr)
+			{	// 없으면 로드
+				//resourceModelAsset_ = CAssetManager::LoadAssetDefault<CResourceModel>(assetKey);
+				resourceModelAsset_ = CAssetManager::LoadAssetCustom<CResourceModel>(assetKey,
+					[asciiAssetKey = ToASCII(assetKey)]()
+					{	// 커스텀 생성자
+						auto resm = nsRE::CResourceModelProvider::FindResourceModel(asciiAssetKey);
+						if (resm == nullptr)
+							resm = nsRE::CResourceModelProvider::AddResourceModel(asciiAssetKey, std::make_shared<CResourceModel>(nullptr));
+						return static_cast<CResourceModel*>(resm.get());
+					},
+					[]()
+					{	// 커스텀 파괴자
+						// 캐시에 그냥 남겨둠
+					});
 
-			rm->GetRenderModel(nullptr)->AddWorldObject(this);
+				resModel = resourceModelAsset_->getContentClass();
+				resModel->OnAfterDeserialized2();	// 테스트 코드 - 임시 하드코드 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+			}
+			else
+				resModel = resourceModelAsset_->getContentClass();
+
+			resModel->GetRenderModel(nullptr)->AddWorldObject(this);
 		}
 
 		Super::ReadyToDrawing();

@@ -14,12 +14,12 @@ namespace SMGE
 {
 	CWString ToTCHAR(const CString& astr)
 	{
-		return CWString(astr.begin(), astr.end());
+		return CWString(astr.begin(), astr.end());	// 여기 - 제대로 된 처리 필요
 	}
 
 	CString ToASCII(const CWString& wstr)
 	{
-		return CString(wstr.begin(), wstr.end());
+		return CString(wstr.begin(), wstr.end());	// 여기 - 제대로 된 처리 필요
 	}
 
 	void Quat2Euler(glm::quat& q, float& pitch, float& yaw, float& roll)
