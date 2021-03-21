@@ -349,8 +349,6 @@ namespace SMGE
         return false;
     }
 
-    void Quat2Euler(glm::quat& q, float& pitch, float& yaw, float& roll);
-
     template<typename Container, typename T>
     auto FindIt(const Container& container, const T& val)
     {

@@ -1173,8 +1173,8 @@ namespace SMGE
 
 		CSphereComponent* sphere = dynamic_cast<CSphereComponent*>(checkTarget);
 
-		this->RecalcMatrix();
-		sphere->RecalcMatrix();
+		this->RecalcFinal();
+		sphere->RecalcFinal();
 
 		auto rayLoc = this->GetWorldPosition(), sphereLoc = sphere->GetWorldPosition();
 

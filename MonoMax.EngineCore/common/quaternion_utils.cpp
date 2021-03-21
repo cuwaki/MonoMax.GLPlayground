@@ -15,7 +15,7 @@ namespace OpenGL_Tutorials
 		start = normalize(start);	// 최적화 - 이거 보통 노멀라이즈 되서 들어온다
 		dest = normalize(dest);
 
-		float cosTheta = dot(start, dest);
+		const float cosTheta = dot(start, dest);
 		vec3 rotationAxis;
 
 		// 원래의 코드 - 여기서 엡실론을 작게 하면 할 수록 튀는 시간이 짧다
@@ -42,12 +42,7 @@ namespace OpenGL_Tutorials
 		float s = sqrt((1.f + cosTheta) * 2.f);
 		float invs = 1.f / s;
 
-		return quat(
-			s * 0.5f,
-			rotationAxis.x * invs,
-			rotationAxis.y * invs,
-			rotationAxis.z * invs
-		);
+		return quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
 	}
 
 	static constexpr float BoundCheckEpsilon = 0.0001f;	// 통합해라
@@ -56,7 +51,7 @@ namespace OpenGL_Tutorials
 	// Similar to RotationBetweenVectors, but also controls the vertical orientation.
 	// This assumes that at rest, the object faces +Z.
 	// Beware, the first parameter is a direction, not the target point !
-	quat LookAt(vec3 direction, vec3 desiredUp, vec3 defaultDirectionAxis, vec3 defaultUpAxis)
+	quat LookAt(vec3 direction, vec3 desiredUp, const vec3 defaultDirectionAxis, const vec3 defaultUpAxis)
 	{
 		if (length2(direction) < BoundCheckEpsilon)
 			return quat();
@@ -123,7 +118,28 @@ namespace OpenGL_Tutorials
 
 	}
 
-
+	void Quat2Euler(glm::quat& q, float& pitch, float& yaw, float& roll)
+	{
+		float test = q.x * q.y + q.z * q.w;
+		if (test > 0.499) { // singularity at north pole
+			yaw = 2 * atan2f(q.x, q.w);
+			roll = 3.141592f / 2;
+			pitch = 0;
+			return;
+		}
+		if (test < -0.499) { // singularity at south pole
+			yaw = -2 * atan2f(q.x, q.w);
+			roll = -3.141592f / 2;
+			pitch = 0;
+			return;
+		}
+		float sqx = q.x * q.x;
+		float sqy = q.y * q.y;
+		float sqz = q.z * q.z;
+		yaw = atan2f(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * sqy - 2 * sqz);
+		roll = asinf(2 * test);
+		pitch = atan2f(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * sqx - 2 * sqz);
+	}
 
 
 

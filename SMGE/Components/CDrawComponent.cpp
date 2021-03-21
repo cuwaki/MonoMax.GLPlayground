@@ -36,7 +36,11 @@ namespace SMGE
 		_FROM_REFL(scale, variableSplitted);
 
 		nsre_transform_.Translate(translation);
+#ifdef REFACTORING_TRNASFORM
+		nsre_transform_.RotateEuler(rotation, true);
+#else
 		nsre_transform_.RotateEuler(rotation);
+#endif
 		nsre_transform_.Scale(scale);
 
 		return *this;

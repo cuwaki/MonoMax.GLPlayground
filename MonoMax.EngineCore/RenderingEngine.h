@@ -12,6 +12,8 @@
 #include "../SMGE/GECommonIncludes.h"
 #include "common/controls.hpp"
 
+#define REFACTORING_TRNASFORM	// 20210321 회전 리팩토링
+
 namespace SMGE
 {
 	class CGameBase;
@@ -83,16 +85,132 @@ namespace SMGE
 			const ETypeAxis DefaultAxis_Up = ETypeAxis::Y;
 			const ETypeAxis DefaultAxis_Left = ETypeAxis::X;	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 
-			const glm::vec3 DefaultModelFrontAxis();
+			glm::vec3 DefaultModelFrontAxis();
 
-			const glm::vec3 GetFrontAxis(const glm::mat3& currentRotMat);
-			const glm::vec3 GetFrontAxis(const glm::mat4& currentRotMat);
+			glm::vec3 GetFrontAxis(const glm::mat3& currentRotMat);
+			glm::vec3 GetFrontAxis(const glm::mat4& currentRotMat);
 
-			const glm::vec3 GetUpAxis(const glm::mat3& currentRotMat);
-			const glm::vec3 GetUpAxis(const glm::mat4& currentRotMat);
+			glm::vec3 GetUpAxis(const glm::mat3& currentRotMat);
+			glm::vec3 GetUpAxis(const glm::mat4& currentRotMat);
 
-			const glm::vec3 GetLeftAxis(const glm::mat3& currentRotMat);	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
-			const glm::vec3 GetLeftAxis(const glm::mat4& currentRotMat);
+			glm::vec3 GetLeftAxis(const glm::mat3& currentRotMat);	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
+			glm::vec3 GetLeftAxis(const glm::mat4& currentRotMat);
+
+			glm::vec3 GetXAxis(const glm::mat3& currentRotMat);
+			glm::vec3 GetYAxis(const glm::mat3& currentRotMat);
+			glm::vec3 GetZAxis(const glm::mat3& currentRotMat);
+		};
+
+
+		class Transform
+		{
+		private:
+			glm::vec3 translation_;
+			glm::vec3 scale_;
+
+#ifdef REFACTORING_TRNASFORM
+			glm::mat4 rotationMatrix_;
+#else
+			glm::vec3 rotationRadianEuler_;
+			glm::vec3 directionForQuat_;
+#endif
+			mutable glm::vec3 inheritedScale_;	// 여기 - 이것도 리팩토링하자
+
+		protected:
+			glm::mat4 finalMatrix_;
+
+			Transform* parent_ = nullptr;
+			std::forward_list<Transform*> children_;
+
+			bool isAbsoluteTransform_ = false;
+			bool isDirty_ = false;
+
+		public:
+			Transform();
+
+			const glm::mat4& FinalMatrix(bool isRecalc);
+			const glm::mat4& FinalMatrixNoRecalc() const;
+
+			const glm::vec3& GetTranslation() const;
+			const glm::vec3& GetScales() const;
+			float GetScale(TransformConst::ETypeAxis aType) const;
+
+			// REFACTORING_TRNASFORM - 여기 - 이름이 World 가 아니고 Final 이 맞다
+			glm::vec3 GetWorldPosition() const;
+			float GetWorldScale(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetWorldScales() const;
+
+			glm::vec3 GetWorldAxis(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetWorldFront() const;
+			glm::vec3 GetWorldUp() const;
+			glm::vec3 GetWorldLeft() const;
+
+			void Translate(glm::vec3 worldPos);
+			void Scale(float scale);
+			void Scale(glm::vec3 scale);
+			void Scale(TransformConst::ETypeAxis aType, float scale);
+
+			glm::vec3 GetRotationEulerDegrees() const;
+
+#ifdef REFACTORING_TRNASFORM
+			const glm::mat4& CurrentRotationMatrix() const { return rotationMatrix_; }
+			void Rotate(const glm::mat4& newRotMat);
+			void RotateEuler(glm::vec3 rotateDegrees, bool isWorld);
+			void Rotate(const glm::vec3& basisAxis, float degrees);
+			void RotateDirection(const glm::vec3& newDirNormalized, glm::vec3 newUpNormalized, bool isSecurePerp = true);
+#else
+			const glm::vec3& GetRotationEuler() const;
+			const glm::vec3& GetDirectionQuat() const;
+
+			void RotateEuler(glm::vec3 rotateDegrees);
+			void RotateEuler(TransformConst::ETypeRot rType, float degrees);
+			void RotateQuat(const glm::vec3& dirForQuat);
+#endif
+
+			virtual void OnBeforeRendering();
+
+			void Dirty();
+			bool IsDirty() const;
+			void RecalcFinal();
+
+			void ChangeParent(Transform* p);
+
+			template<typename T>
+			T* GetParent()
+			{
+				return dynamic_cast<T*>(parent_);
+			}
+			template<typename T>
+			const T* GetParentConst() const
+			{
+				return dynamic_cast<const T*>(parent_);
+			}
+
+			template<typename T>
+			T* GetTopParent()
+			{
+				if (GetParent<T>())
+				{
+					return GetParent<T>()->GetTopParent<T>();
+				}
+				return dynamic_cast<T*>(this);
+			}
+			template<typename T>
+			const T* GetTopParentConst() const
+			{
+				if (GetParentConst<T>())
+				{
+					return GetParentConst<T>()->GetTopParentConst<T>();
+				}
+
+				return dynamic_cast<const T*>(this);
+			}
+
+			bool HasParent() const;
+			bool IsTop() const;
+
+		private:
+			void RecalcFinal_Internal(const Transform* parent);
 		};
 
 		class VertFragShaderSet
@@ -236,101 +354,6 @@ namespace SMGE
 			MeshData& operator=(const MeshData& c) = delete;
 			MeshData(MeshData&& c) noexcept;
 			MeshData& operator=(MeshData&& c) noexcept;
-		};
-
-		class Transform
-		{
-		private:
-			glm::vec3 translation_;
-			glm::vec3 rotationRadianEuler_;
-			glm::vec3 directionForQuat_;
-			glm::vec3 scale_;
-
-		protected:
-			glm::mat4 transformMatrix_;
-
-			Transform* parent_ = nullptr;
-			std::forward_list<Transform*> children_;
-
-			bool isAbsoluteTransform_ = false;
-
-			bool isDirty_ = false;
-
-		public:
-			Transform();
-
-			const glm::mat4& GetMatrix(bool forceRecalc);
-			const glm::mat4& GetMatrixNoRecalc() const;
-
-			const glm::vec3& GetTranslation() const;
-			const glm::vec3& GetRotationEuler() const;
-			glm::vec3		 GetRotationEulerDegrees() const;
-			const glm::vec3& GetDirectionQuat() const;
-			const glm::vec3& GetScales() const;
-			float GetScale(TransformConst::ETypeAxis aType) const;
-
-			glm::vec3 GetWorldPosition() const;
-			glm::vec3 GetWorldAxis(TransformConst::ETypeAxis aType) const;
-			glm::vec3 GetWorldFront() const;
-			glm::vec3 GetWorldUp() const;
-			glm::vec3 GetWorldLeft() const;
-			float GetWorldScale(TransformConst::ETypeAxis aType) const;
-			glm::vec3 GetWorldScales() const;
-
-			void Translate(glm::vec3 worldPos);
-			void RotateEuler(glm::vec3 rotateDegrees);
-			void RotateEuler(TransformConst::ETypeRot rType, float degrees);
-			void RotateQuat(const glm::vec3& dirForQuat);
-			void Scale(float scale);
-			void Scale(glm::vec3 scale);
-			void Scale(TransformConst::ETypeAxis aType, float scale);
-
-			virtual void OnBeforeRendering();
-
-			void Dirty();
-			bool IsDirty() const;
-			void RecalcMatrix();
-
-			void ChangeParent(Transform* p);
-			
-			template<typename T>
-			T* GetParent()
-			{
-				return dynamic_cast<T*>(parent_);
-			}
-			template<typename T>
-			const T* GetParentConst() const
-			{
-				return dynamic_cast<const T*>(parent_);
-			}
-
-			template<typename T>
-			T* GetTopParent()
-			{
-				if (GetParent<T>())
-				{
-					return GetParent<T>()->GetTopParent<T>();
-				}
-				return dynamic_cast<T*>(this);
-			}
-			template<typename T>
-			const T* GetTopParentConst() const
-			{
-				if (GetParentConst<T>())
-				{
-					return GetParentConst<T>()->GetTopParentConst<T>();
-				}
-
-				return dynamic_cast<const T*>(this);
-			}
-
-			bool HasParent() const;
-			bool IsTop() const;
-
-		private:
-			void RecalcMatrix_Internal(const Transform* parent);
-
-			mutable glm::vec3 inheritedScale_;
 		};
 
 		class WorldObject : public Transform

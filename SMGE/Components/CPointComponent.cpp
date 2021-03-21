@@ -54,7 +54,7 @@ namespace SMGE
 
 	const SBound& CPointComponent::GetBound()
 	{
-		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
 		pointBound_ = SPointBound(GetWorldPosition());
 		return pointBound_;

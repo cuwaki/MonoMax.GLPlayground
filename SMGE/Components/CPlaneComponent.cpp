@@ -42,7 +42,7 @@ namespace SMGE
 
 	const SBound& CPlaneComponent::GetBound()
 	{
-		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
 		// 평면는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
@@ -60,7 +60,11 @@ namespace SMGE
 		Translate(center);
 
 		const auto normal = glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0)));
+#ifdef REFACTORING_TRNASFORM
+		RotateDirection(normal, nsRE::TransformConst::WorldYAxis);	// up 은 자동 계산되도록
+#else
 		RotateQuat(normal);
+#endif
 		
 		//auto pb = SPlaneBound(ccw_p0, ccw_p1, ccw_p2);
 	}

@@ -123,33 +123,42 @@ namespace SMGE
 				constexpr float angleSpeed = 3.f / 1000.f;
 
 				static glm::vec2 RPressedPos;
-				bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
+
+				const bool isJustRPress = userInput.IsJustPressed(VK_RBUTTON);
+				const bool isRPress = userInput.IsPressed(VK_RBUTTON);
+
 				if (isJustRPress)
 					RPressedPos = userInput.GetMousePosition();
-
-				bool isRPress = userInput.IsPressed(VK_RBUTTON);
+				
 				if (isJustRPress == false && isRPress == true)
 				{
-					auto movedPixel = RPressedPos - userInput.GetMousePosition();
-					movedPixel.y *= -1.f;	// screen to gl
+					auto mouseMoved = RPressedPos - userInput.GetMousePosition();
+					mouseMoved.y *= -1.f;	// screen to gl
 
 					// degrees 를 누적하지 않았을 때의 코드
-					auto yawDegrees = movedPixel.x * angleSpeed;
-					auto pitchDegrees = movedPixel.y * angleSpeed;
-					auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, camTransform.GetWorldUp());
-					auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, camTransform.GetWorldLeft());
-					auto newDir = rotYaw * rotPit * glm::vec4(camTransform.GetWorldFront(), 0.f);
+					const auto yawDegrees = mouseMoved.x * angleSpeed;
+					const auto pitchDegrees = mouseMoved.y * angleSpeed;
+
+					const auto rotYaw = glm::rotate(nsRE::TransformConst::Mat4_Identity, yawDegrees, camTransform.GetWorldUp());
+					const auto rotPit = glm::rotate(nsRE::TransformConst::Mat4_Identity, pitchDegrees, camTransform.GetWorldLeft());
+
+					const auto ypMat = rotPit * rotYaw;
+					const auto newDir = ypMat * glm::vec4(camTransform.GetWorldFront(), 0.f);
+					const auto newUp = ypMat * glm::vec4(camTransform.GetWorldUp(), 0.f);
 
 					// degrees 를 누적할 때의 코드 - 처음 회전이 확 튀고 그 뒤로는 잘 작동하는데 여전히 조금씩 휘어진다
 					//static float yawDegrees = 0.f, pitchDegrees = 0.f;
-					//yawDegrees += movedPixel.x * angleSpeed;
-					//pitchDegrees += movedPixel.y * angleSpeed;
+					//yawDegrees += mouseMoved.x * angleSpeed;
+					//pitchDegrees += mouseMoved.y * angleSpeed;
 					//auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, { 0.f, 1.f, 0.f });
 					//auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, { 1.f, 0.f, 0.f });
 					//auto newDir = rotYaw * rotPit * glm::vec4(0.f, 0.f, 1.f, 0.f);
 
+#ifdef REFACTORING_TRNASFORM
+					camTransform.RotateDirection(newDir, newUp);
+#else
 					camTransform.RotateQuat(newDir);
-
+#endif
 					RPressedPos = userInput.GetMousePosition();
 				}
 			}
@@ -203,7 +212,11 @@ namespace SMGE
 					rayActor->getTransform().Translate(ray_origin);
 					rayActor->getTransform().Scale({ Configs::BoundEpsilon, Configs::BoundEpsilon, Configs::BoundEpsilon });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
 					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
+#ifdef REFACTORING_TRNASFORM
+					rayActor->getTransform().RotateDirection(ray_direction, nsRE::TransformConst::WorldYAxis);
+#else
 					rayActor->getTransform().RotateQuat(ray_direction);
+#endif
 				}
 				FinishSpawnActor(currentMap, rayActor);
 
@@ -262,9 +275,9 @@ namespace SMGE
 		{
 			auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/templates/CGizmoActorTranslate.asset")));
 			gizmo->CopyFromTemplate(prefab->getContentClass());
-			gizmo->getTransform().Translate(selActor->getLocation());
-			gizmo->getTransform().RotateEuler(selActor->getRotationEulerDegrees());	// 여기 - 쿼터니언회전까지 반영된 것을 적용해야한다
-			gizmo->getTransform().Scale(selActor->getScales());
+			gizmo->getTransform().Translate(selActor->getTransform().GetTranslation());
+			gizmo->getTransform().Rotate(selActor->getTransform().CurrentRotationMatrix());	// 액터에 곧바로 붙어있음
+			gizmo->getTransform().Scale(selActor->getTransform().GetScales());
 			FinishSpawnActor(itsMap, gizmo);
 
 			gizmoActors_.insert(std::make_pair(selActor, gizmo));

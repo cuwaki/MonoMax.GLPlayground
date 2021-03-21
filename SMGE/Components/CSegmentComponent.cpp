@@ -17,11 +17,15 @@ namespace SMGE
 	void CSegmentComponent::SetBoundDataComponent(float size, const glm::vec3& direction)
 	{
 		Scale(nsRE::TransformConst::DefaultAxis_Front, size);
+#ifdef REFACTORING_TRNASFORM
+		RotateDirection(glm::normalize(direction), nsRE::TransformConst::WorldYAxis);
+#else
 		RotateQuat(glm::normalize(direction));
+#endif
 
 		// 세그먼트는 Z 로만 만들어져야한다, X, Y 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
-		RecalcMatrix();
+		RecalcFinal();
 	}
 
 	float CSegmentComponent::getRayLength() const
@@ -66,7 +70,7 @@ namespace SMGE
 
 	const SBound& CSegmentComponent::GetBound()
 	{
-		RecalcMatrix();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
 		const auto start = GetWorldPosition();
 		segBound_ = SSegmentBound(start, start + getRayDirection() * getRayLength());

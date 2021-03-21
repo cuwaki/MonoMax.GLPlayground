@@ -22,29 +22,6 @@ namespace SMGE
 		return CString(wstr.begin(), wstr.end());	// 여기 - 제대로 된 처리 필요
 	}
 
-	void Quat2Euler(glm::quat& q, float& pitch, float& yaw, float& roll)
-	{
-		float test = q.x * q.y + q.z * q.w;
-		if (test > 0.499) { // singularity at north pole
-			yaw = 2 * atan2f(q.x, q.w);
-			roll = 3.141592f / 2;
-			pitch = 0;
-			return;
-		}
-		if (test < -0.499) { // singularity at south pole
-			yaw = -2 * atan2f(q.x, q.w);
-			roll = -3.141592f / 2;
-			pitch = 0;
-			return;
-		}
-		float sqx = q.x * q.x;
-		float sqy = q.y * q.y;
-		float sqz = q.z * q.z;
-		yaw = atan2f(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * sqy - 2 * sqz);
-		roll = asinf(2 * test);
-		pitch = atan2f(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * sqx - 2 * sqz);
-	}
-
 	namespace Path
 	{
 		CWString GetNormalizedPath(const CWString& path)

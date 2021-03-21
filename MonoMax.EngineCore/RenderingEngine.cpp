@@ -74,36 +74,49 @@ namespace SMGE
 
 				nsRE::Transform 에서 회전 처리를 할 때 DefaultModelFrontAxis() 를 default 로 이용하여 처리하기 때문이다.
 			*/
-			const glm::vec3 DefaultModelFrontAxis()
+			glm::vec3 DefaultModelFrontAxis()
 			{
 				static_assert(DefaultAxis_Front == ETypeAxis::Z);	// 이거 바꾸면 asset 도 그렇고 바꿀 곳이 많음! 건들지 말 것!
 				return WorldZAxis;
 			}
-			const glm::vec3 GetFrontAxis(const glm::mat3& currentRotMat)
+			glm::vec3 GetFrontAxis(const glm::mat3& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Front];
 			}
-			const glm::vec3 GetFrontAxis(const glm::mat4& currentRotMat)
+			glm::vec3 GetFrontAxis(const glm::mat4& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Front];
 			}
 
-			const glm::vec3 GetUpAxis(const glm::mat3& currentRotMat)
+			glm::vec3 GetUpAxis(const glm::mat3& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Up];
 			}
-			const glm::vec3 GetUpAxis(const glm::mat4& currentRotMat)
+			glm::vec3 GetUpAxis(const glm::mat4& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Up];
 			}
 
-			const glm::vec3 GetLeftAxis(const glm::mat3& currentRotMat)
+			glm::vec3 GetLeftAxis(const glm::mat3& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Left];
 			}
-			const glm::vec3 GetLeftAxis(const glm::mat4& currentRotMat)
+			glm::vec3 GetLeftAxis(const glm::mat4& currentRotMat)
 			{
 				return currentRotMat[DefaultAxis_Left];
+			}
+
+			glm::vec3 GetXAxis(const glm::mat4& currentRotMat)
+			{
+				return currentRotMat[ETypeAxis::X];
+			}
+			glm::vec3 GetYAxis(const glm::mat4& currentRotMat)
+			{
+				return currentRotMat[ETypeAxis::Y];
+			}
+			glm::vec3 GetZAxis(const glm::mat4& currentRotMat)
+			{
+				return currentRotMat[ETypeAxis::Z];
 			}
 		}
 		using namespace TransformConst;
@@ -307,32 +320,22 @@ namespace SMGE
 		Transform::Transform()
 		{
 			translation_ = Vec3_Zero;
-			rotationRadianEuler_ = Vec3_Zero;
-			directionForQuat_ = Vec3_Zero;
 			scale_ = Vec3_One;
 
+#ifdef REFACTORING_TRNASFORM
+			rotationMatrix_ = Mat4_Identity;
+#else
+			rotationRadianEuler_ = Vec3_Zero;
+			directionForQuat_ = Vec3_Zero;
+#endif
 			Dirty();
-			RecalcMatrix();
+			RecalcFinal();
 		}
 
 		const glm::vec3& Transform::GetTranslation() const
 		{
 			return translation_;
 		}
-
-		const glm::vec3& Transform::GetRotationEuler() const
-		{
-			return rotationRadianEuler_;
-		}
-		glm::vec3 Transform::GetRotationEulerDegrees() const
-		{
-			return glm::degrees(rotationRadianEuler_);
-		}
-		const glm::vec3& Transform::GetDirectionQuat() const
-		{
-			return directionForQuat_;
-		}
-
 		const glm::vec3& Transform::GetScales() const
 		{
 			return scale_;
@@ -343,60 +346,84 @@ namespace SMGE
 			return scale_[aType];
 		}
 
-		const glm::mat4& Transform::GetMatrix(bool forceRecalc)
+		glm::vec3 Transform::GetRotationEulerDegrees() const
 		{
-			if(forceRecalc == true && isDirty_ == true)
-				RecalcMatrix();
+#ifdef REFACTORING_TRNASFORM
+			glm::vec3 ret;
 
-			return transformMatrix_;
-		}
-		const glm::mat4& Transform::GetMatrixNoRecalc() const
-		{
-			return transformMatrix_;
-		}
+			ret.y = glm::degrees(glm::acos(rotationMatrix_[ETypeAxis::Y][1]));
+			ret.z = glm::degrees(glm::acos(rotationMatrix_[ETypeAxis::Z][2]));
+			ret.x = glm::degrees(glm::acos(rotationMatrix_[ETypeAxis::X][0]));
 
-		glm::vec3 Transform::GetWorldPosition() const
-		{
-			const auto& mat = GetMatrixNoRecalc();
-			return mat[3];
+			return ret;
+#else
+			return glm::degrees(rotationRadianEuler_);
+#endif
 		}
 
-		glm::vec3 Transform::GetWorldAxis(TransformConst::ETypeAxis aType) const
+#ifdef REFACTORING_TRNASFORM
+		void Transform::Rotate(const glm::mat4& newRotMat)
 		{
-			const auto& mat = GetMatrixNoRecalc();
-			
-			glm::vec3 ret = mat[aType] / GetWorldScale(aType);
-			return glm::normalize(ret);
-		}
-		glm::vec3 Transform::GetWorldFront() const
-		{
-			return GetWorldAxis(DefaultAxis_Front);
-		}
-		glm::vec3 Transform::GetWorldUp() const
-		{
-			return GetWorldAxis(DefaultAxis_Up);
-		}
-		glm::vec3 Transform::GetWorldLeft() const	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
-		{
-			return GetWorldAxis(DefaultAxis_Left);
-		}
-
-		float Transform::GetWorldScale(TransformConst::ETypeAxis aType) const
-		{
-			return inheritedScale_[aType];
-		}
-		glm::vec3 Transform::GetWorldScales() const
-		{
-			return inheritedScale_;
-		}
-		
-		void Transform::Translate(glm::vec3 worldPos)
-		{
-			translation_ = worldPos;
+			rotationMatrix_ = newRotMat;
 
 			Dirty();
 		}
 
+		void Transform::RotateEuler(glm::vec3 rotateDegrees, bool isWorld)
+		{			
+			// YZX 순서로 - http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
+			if (isWorld)
+			{
+				rotationMatrix_ = Mat4_Identity;
+				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.y), WorldAxis[ETypeAxis::Y]);
+				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.z), WorldAxis[ETypeAxis::Z]);
+				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.x), WorldAxis[ETypeAxis::X]);
+			}
+			else
+			{	// 모델 축 기준으로 - 왠만하면 안써야한다, 짐벌락 일어남...
+				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.y), GetYAxis(rotationMatrix_));
+				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.z), GetZAxis(rotationMatrix_));
+				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.x), GetXAxis(rotationMatrix_));
+			}
+
+			Dirty();
+		}
+
+		void Transform::Rotate(const glm::vec3& basisAxis, float degrees)
+		{
+			const auto halfRadians = glm::radians(degrees) * 0.5f;
+			
+			glm::quat q;
+			q.x = basisAxis.x * glm::sin(halfRadians);
+			q.y = basisAxis.y * glm::sin(halfRadians);
+			q.z = basisAxis.z * glm::sin(halfRadians);
+			q.w = glm::cos(halfRadians);
+
+			rotationMatrix_ = glm::mat4_cast(q);
+
+			Dirty();
+		}
+
+		void Transform::RotateDirection(const glm::vec3& newDirNormalized, glm::vec3 newUpNormalized, bool isSecurePerp)
+		{
+			if (isSecurePerp == true)
+			{
+				const auto right = glm::cross(newDirNormalized, newUpNormalized);
+				newUpNormalized = glm::cross(right, newDirNormalized);
+			}
+
+			const auto currentDir = GetFrontAxis(rotationMatrix_);
+			const auto newDirQ = OpenGL_Tutorials::RotationBetweenVectors(currentDir, newDirNormalized);
+
+			//auto currentUp = GetUpAxis(rotationMatrix_);
+			auto rotatedDefaultUp = newDirQ * WorldAxis[DefaultAxis_Up];
+			const auto newUpQ = OpenGL_Tutorials::RotationBetweenVectors(rotatedDefaultUp, newUpNormalized);
+
+			rotationMatrix_ = glm::mat4_cast(newUpQ * newDirQ);
+
+			Dirty();
+		}
+#else
 		void Transform::RotateEuler(glm::vec3 rotateDegrees)
 		{
 			rotationRadianEuler_.x = glm::radians(rotateDegrees.x);
@@ -415,6 +442,69 @@ namespace SMGE
 		void Transform::RotateQuat(const glm::vec3& dirForQuat)
 		{
 			directionForQuat_ = dirForQuat;
+
+			Dirty();
+		}
+		glm::vec3 Transform::GetRotationEuler() const
+		{
+			return rotationRadianEuler_;
+		}
+		const glm::vec3& Transform::GetDirectionQuat() const
+		{
+			return directionForQuat_;
+		}
+#endif
+
+		const glm::mat4& Transform::FinalMatrix(bool isRecalc)
+		{
+			if(isRecalc == true && isDirty_ == true)
+				RecalcFinal();
+
+			return finalMatrix_;
+		}
+		const glm::mat4& Transform::FinalMatrixNoRecalc() const
+		{
+			return finalMatrix_;
+		}
+
+		glm::vec3 Transform::GetWorldPosition() const
+		{
+			const auto& mat = FinalMatrixNoRecalc();
+			return mat[3];
+		}
+		float Transform::GetWorldScale(TransformConst::ETypeAxis aType) const
+		{
+			return inheritedScale_[aType];
+		}
+		glm::vec3 Transform::GetWorldScales() const
+		{
+			return inheritedScale_;
+		}
+
+		glm::vec3 Transform::GetWorldAxis(TransformConst::ETypeAxis aType) const
+		{
+			const auto& mat = FinalMatrixNoRecalc();
+
+			const glm::vec3 ret = mat[aType] / GetWorldScale(aType);
+			return glm::normalize(ret);
+		}
+		glm::vec3 Transform::GetWorldFront() const
+		{
+			return GetWorldAxis(DefaultAxis_Front);
+		}
+		glm::vec3 Transform::GetWorldUp() const
+		{
+			return GetWorldAxis(DefaultAxis_Up);
+		}
+		glm::vec3 Transform::GetWorldLeft() const	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
+		{
+			return GetWorldAxis(DefaultAxis_Left);
+		}
+
+		
+		void Transform::Translate(glm::vec3 worldPos)
+		{
+			translation_ = worldPos;
 
 			Dirty();
 		}
@@ -441,20 +531,18 @@ namespace SMGE
 
 		void Transform::Dirty()
 		{
-			bool wasClean = (isDirty_ == false);
+			if (isDirty_)
+				return;
 
 			isDirty_ = true;
 
-			if (wasClean)
-			{
-				// 부모가 더티될 때 자식들도 더티가 되어야한다 - 그래야 RecalcMatrix 가 제대로 작동함
-				std::for_each(children_.begin(), children_.end(),
-					[](auto child)
-					{
-						child->Dirty();
-					}
-				);
-			}
+			// 부모가 더티될 때 자식들도 더티가 되어야한다 - 그래야 RecalcFinal 가 제대로 작동함
+			std::for_each(children_.begin(), children_.end(),
+				[](auto child)
+				{
+					child->Dirty();
+				}
+			);
 		}
 
 		bool Transform::IsDirty() const
@@ -469,7 +557,7 @@ namespace SMGE
 
 		void Transform::OnBeforeRendering()
 		{
-			RecalcMatrix();
+			RecalcFinal();
 		}
 
 		void Transform::ChangeParent(Transform* p)
@@ -490,7 +578,8 @@ namespace SMGE
 			if (oldParent != nullptr)
 			{	// 옛 부모에서는 제거
 				auto found = std::find(oldParent->children_.begin(), oldParent->children_.end(), this);
-				oldParent->children_.erase_after(found);
+				if(found != oldParent->children_.end())
+					oldParent->children_.remove(*found);
 			}
 		}
 
@@ -504,25 +593,31 @@ namespace SMGE
 			return HasParent() == false;
 		}
 
-		void Transform::RecalcMatrix_Internal(const Transform* parent)
+		void Transform::RecalcFinal_Internal(const Transform* parent)
 		{
 			if (IsDirty())
 			{	// 나의 트랜스폼을 계산
+#ifdef REFACTORING_TRNASFORM
+				const auto translMat = glm::translate(Mat4_Identity, translation_);
+				const auto scalMat = glm::scale(Mat4_Identity, scale_);
+
+				finalMatrix_ = translMat * rotationMatrix_ * scalMat;
+#else
 				//if (parent)
 				//{	// 자식일 경우 - 부모의 트랜스폼 먼저 반영해야 의도대로 작동한다 / 이 코드에는 부모의 부모 것이 적용안되는 버그가 있다
-				//	//transformMatrix_ = glm::rotate(Mat4_Identity, glm::radians(parent->rotationRadianEuler_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
-				//	//transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
-				//	//transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
+				//	//finalMatrix_ = glm::rotate(Mat4_Identity, glm::radians(parent->rotationRadianEuler_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
+				//	//finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
+				//	//finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
 
-				//	transformMatrix_ = glm::translate(Mat4_Identity, parent->translation_);
-				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
-				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
-				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
-				//	transformMatrix_ = glm::scale(transformMatrix_, parent->scale_);
+				//	finalMatrix_ = glm::translate(Mat4_Identity, parent->translation_);
+				//	finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::PITCH]), WorldAxis[ETypeRot::PITCH]);
+				//	finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::YAW]), WorldAxis[ETypeRot::YAW]);
+				//	finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(parent->rotationRadianEuler_[ETypeRot::ROLL]), WorldAxis[ETypeRot::ROLL]);
+				//	finalMatrix_ = glm::scale(finalMatrix_, parent->scale_);
 				//}
 				//else
 				//{
-				//	transformMatrix_ = Mat4_Identity;
+				//	finalMatrix_ = Mat4_Identity;
 				//}
 
 				// 풀어서 조합하는 경우는 아래와 같이 되는데
@@ -530,17 +625,17 @@ namespace SMGE
 				// mat4 ModelMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
 				// 이렇게 된다고 한다
 				// http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
-				//transformMatrix_ = glm::translate(transformMatrix_, translation_);
+				//finalMatrix_ = glm::translate(finalMatrix_, translation_);
 
 				// 일반적으로 Y X Z순서로 한다고 한다 - 요 피치 롤  흠...
 				//if(rotationRadianEuler_[ETypeRot::PITCH] != 0.f)
-				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationRadianEuler_[ETypeRot::PITCH]), WorldAxis[ETypeAxis::X]);
+				//	finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(rotationRadianEuler_[ETypeRot::PITCH]), WorldAxis[ETypeAxis::X]);
 				//if (rotationRadianEuler_[ETypeRot::YAW] != 0.f)
-				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationRadianEuler_[ETypeRot::YAW]), WorldAxis[ETypeAxis::Y]);
+				//	finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(rotationRadianEuler_[ETypeRot::YAW]), WorldAxis[ETypeAxis::Y]);
 				//if (rotationRadianEuler_[ETypeRot::ROLL] != 0.f)
-				//	transformMatrix_ = glm::rotate(transformMatrix_, glm::radians(rotationRadianEuler_[ETypeRot::ROLL]), WorldAxis[ETypeAxis::Z]);
+				//	finalMatrix_ = glm::rotate(finalMatrix_, glm::radians(rotationRadianEuler_[ETypeRot::ROLL]), WorldAxis[ETypeAxis::Z]);
 
-				//transformMatrix_ = glm::scale(transformMatrix_, scale_);
+				//finalMatrix_ = glm::scale(finalMatrix_, scale_);
 
 				const auto translMat = glm::translate(Mat4_Identity, translation_);
 
@@ -564,16 +659,17 @@ namespace SMGE
 
 				// 나의 스케일 처리
 				const auto scalMat = glm::scale(Mat4_Identity, scale_);
-				transformMatrix_ = translMat * quatRotMat * eulerRotMat * scalMat;
+				finalMatrix_ = translMat * quatRotMat * eulerRotMat * scalMat;
 
 				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
-				//transformMatrix_ = transformMatrix_ * parentMatrix;
+				//finalMatrix_ = finalMatrix_ * parentMatrix;
+#endif
 
 				if (parent && isAbsoluteTransform_ == false)
 				{
 					assert(parent == parent_);
 
-					transformMatrix_ = parent->transformMatrix_ * transformMatrix_;
+					finalMatrix_ = parent->finalMatrix_ * finalMatrix_;
 					inheritedScale_ = parent->inheritedScale_ * scale_;
 				}
 				else
@@ -586,9 +682,9 @@ namespace SMGE
 
 			// 나의 자식들에게 전파
 			std::for_each(children_.begin(), children_.end(),
-				[&](auto child)
+				[this](auto child)
 				{
-					child->RecalcMatrix_Internal(this);
+					child->RecalcFinal_Internal(this);
 				}
 			);
 		}
@@ -611,22 +707,22 @@ namespace SMGE
 
 		//	// 나의 자식들에게 전파
 		//	std::for_each(children_.begin(), children_.end(),
-		//		[&](auto child)
+		//		[this](auto child)
 		//		{
 		//			child->RecalcFinalWorldScales_Internal(this);
 		//		}
 		//	);
 		//}
 
-		void Transform::RecalcMatrix()
+		void Transform::RecalcFinal()
 		{
 			// this 가 트랜스폼 부모자식 체인의 어디에 위치해있든
-			// topParent 까지 올라가서 RecalcMatrix_Internal 하여 부모->자식으로 딱 1회 전파해나가면
+			// topParent 까지 올라가서 RecalcFinal_Internal 하여 부모->자식으로 딱 1회 전파해나가면
 			// 거의 낭비 없이 Recalc 가 처리된다
-			// 단 현재는 매번 RecalcMatrix_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회 - 최적화 고려
+			// 단 현재는 매번 RecalcFinal_Internal( 에서 자식들을 의미없이 한번씩 돌아주는 처리가 있긴하다 - 아마도 짧을 forward_list의 순회 - 최적화 고려
 			
 			auto topParent = GetTopParent<Transform>();	// 최적화 - 탑패런트 이거 캐시해두자
-			topParent->RecalcMatrix_Internal(nullptr);
+			topParent->RecalcFinal_Internal(nullptr);
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -880,13 +976,13 @@ namespace SMGE
 				//glm::mat4 ModelMatrix = glm::mat4(1);
 				//ModelMatrix = glm::translate(ModelMatrix, worldPos);
 
-				const auto MVP = VP * wmPtr->GetMatrix(false);
+				const auto MVP = VP * wmPtr->FinalMatrix(false);
 
 				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
 				if(GetShaderSet()->unif_MVPMatrixID_ != -1)
 					glUniformMatrix4fv(GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
 				if (GetShaderSet()->unif_ModelMatrixID_ != -1)
-					glUniformMatrix4fv(GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->GetMatrix(false)[0][0]);
+					glUniformMatrix4fv(GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->FinalMatrix(false)[0][0]);
 
 				CallGLDraw(verticesSize_);
 			}

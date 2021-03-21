@@ -113,11 +113,11 @@ namespace SMGE
 		glm::vec3 oldLoc, newLoc;
 		for (auto& actor : mapActorsW_)
 		{
-			oldLoc = actor->getLocation();
+			oldLoc = actor->getTransform().GetTranslation();
 
 			actor->Tick(timeDelta);	// 여기 - 나에게만 관련된 틱과 다른 액터와 관련된 틱을 분리하면 멀티쓰레드 처리를 할 수 있겠다 / 또는 로직 처리용 컴포넌트를 만들고 컴포넌트별로 멀티쓰레더블과 아닌걸로 나눌까?
 
-			newLoc = actor->getLocation();
+			newLoc = actor->getTransform().GetTranslation();
 			if (oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
 			{	// 여기 - 일단 무식하게 한다
 				mapOctree_.RemoveByPoint(actor, oldLoc);
@@ -271,7 +271,7 @@ namespace SMGE
 
 			for (auto& actor : mapActorsW_)
 			{
-				mapOctree_.AddByPoint(actor, actor->getLocation());
+				mapOctree_.AddByPoint(actor, actor->getTransform().GetTranslation());
 				actor->BeginPlay();
 			}
 		}
@@ -289,7 +289,7 @@ namespace SMGE
 
 		for (auto& actor : mapActorsW_)
 		{
-			mapOctree_.RemoveByPoint(actor, actor->getLocation());
+			mapOctree_.RemoveByPoint(actor, actor->getTransform().GetTranslation());
 			actor->EndPlay();
 		}
 
@@ -309,7 +309,7 @@ namespace SMGE
 		if (actor == nullptr)
 			return;
 
-		mapOctree_.RemoveByPoint(actor, actor->getLocation());
+		mapOctree_.RemoveByPoint(actor, actor->getTransform().GetTranslation());
 		actor->EndPlay();
 
 		auto it = std::find(oldActorsInFrustum_.begin(), oldActorsInFrustum_.end(), actor);
@@ -333,7 +333,7 @@ namespace SMGE
 
 		if (isBeganPlay_ == true)
 		{
-			mapOctree_.AddByPoint(actor, actor->getLocation());
+			mapOctree_.AddByPoint(actor, actor->getTransform().GetTranslation());
 			actor->BeginPlay();
 
 			if (isFrustumCulling_)

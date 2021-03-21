@@ -42,15 +42,15 @@ namespace SMGE
 		setActive(true);
 
 		{	// 테스트 코드 - 인터폴레이션
-			moveFrom = actorParent_->getLocation();
+			moveFrom = actorParent_->getTransform().GetTranslation();
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
-			rotateFromEuler = actorParent_->getRotationEulerDegrees();
+			rotateFromEuler = actorParent_->getTransform().GetRotationEulerDegrees();
 			interpRotation_.setCurveType(ECurveType::Cos);
 			interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
 
-			scaleFrom = actorParent_->getScales();
+			scaleFrom = actorParent_->getTransform().GetScales();
 			interpScale_.setCurveType(ECurveType::Sin);
 			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 		}
@@ -77,13 +77,17 @@ namespace SMGE
 				else
 				{
 					moveTo *= -1.f;
-					interpTranslation_.start(actorParent_->getLocation(), actorParent_->getLocation() + moveTo, TestInterpolationTime);
+					interpTranslation_.start(actorParent_->getTransform().GetTranslation(), actorParent_->getTransform().GetTranslation() + moveTo, TestInterpolationTime);
 				}
 
 				// Rotate
 				if (interpRotation_.isRunning())
 				{
+#ifdef REFACTORING_TRNASFORM
+					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current(), false);
+#else
 					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current());
+#endif
 				}
 				else
 				{

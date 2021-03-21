@@ -148,19 +148,35 @@ namespace SMGE
 
 			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
 			frustumLines[0]->Scale({ 0.f, 0.f, glm::length(Origin2LB) });
+#ifdef REFACTORING_TRNASFORM
+			frustumLines[0]->RotateDirection(glm::normalize(Origin2LB), nsRE::TransformConst::WorldYAxis);
+#else
 			frustumLines[0]->RotateQuat(glm::normalize(Origin2LB));
+#endif
 
 			auto Origin2RB = frustumModel.farPlane_[TransformConst::GL_RB];
 			frustumLines[1]->Scale({ 0.f, 0.f, glm::length(Origin2RB) });
+#ifdef REFACTORING_TRNASFORM
+			frustumLines[1]->RotateDirection(glm::normalize(Origin2RB), nsRE::TransformConst::WorldYAxis);
+#else
 			frustumLines[1]->RotateQuat(glm::normalize(Origin2RB));
+#endif
 
 			auto Origin2RT = frustumModel.farPlane_[TransformConst::GL_RT];
 			frustumLines[2]->Scale({ 0.f, 0.f, glm::length(Origin2RT) });
+#ifdef REFACTORING_TRNASFORM
+			frustumLines[2]->RotateDirection(glm::normalize(Origin2RT), nsRE::TransformConst::WorldYAxis);
+#else
 			frustumLines[2]->RotateQuat(glm::normalize(Origin2RT));
+#endif
 
 			auto Origin2LT = frustumModel.farPlane_[TransformConst::GL_LT];
 			frustumLines[3]->Scale({ 0.f, 0.f, glm::length(Origin2LT) });
+#ifdef REFACTORING_TRNASFORM
+			frustumLines[3]->RotateDirection(glm::normalize(Origin2LT), nsRE::TransformConst::WorldYAxis);
+#else
 			frustumLines[3]->RotateQuat(glm::normalize(Origin2LT));
+#endif
 
 #ifdef DRAW_FRUSTUM_QUADS
 			// 프러스텀 쿼드 그리기
