@@ -5,7 +5,7 @@
 
 #include "quaternion_utils.hpp"
 
-namespace OpenGL_Tutorials
+namespace MathUtils
 {
 	using namespace glm;
 
@@ -141,22 +141,34 @@ namespace OpenGL_Tutorials
 		pitch = atan2f(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * sqx - 2 * sqz);
 	}
 
+	glm::vec3 Mat2Euler(const glm::mat4& rotMat)
+	{
+		return Mat2Euler(static_cast<const glm::mat3>(rotMat));
+	}
 
+	glm::vec3 Mat2Euler(const glm::mat3& rotMat)
+	{
+		// license - https ://learnopencv.com/rotation-matrix-to-euler-angles/
+		float sy = std::sqrt(rotMat[0][0] * rotMat[0][0] + rotMat[1][0] * rotMat[1][0]);
+		bool singular = sy < 1e-6; // If
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		float x, y, z;
+		if (!singular)
+		{
+			x = std::atan2f(rotMat[2][1], rotMat[2][2]);
+			y = std::atan2f(-rotMat[2][0], sy);
+			z = std::atan2f(rotMat[1][0], rotMat[0][0]);
+		}
+		else
+		{
+			x = std::atan2f(-rotMat[1][2], rotMat[1][1]);
+			y = std::atan2f(-rotMat[2][0], sy);
+			z = 0;
+		}
+		
+		// 원래 코드를 그대로 쓰면 부호가 반대로 나와서 아래처럼 -1 을 곱해줌 - 왼손, 오른손 좌표계의 차이이려나???
+		return { glm::degrees(x * -1.f), glm::degrees(y * -1.f), glm::degrees(z * -1.f) };
+	}
 
 	void tests() {
 

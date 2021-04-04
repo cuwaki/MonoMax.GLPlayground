@@ -24,21 +24,25 @@ namespace SMGE
 			//GizmoResourceModel(const CString rmKey);
 
 		protected:
-			virtual void CreateFrom(const std::vector<glm::vec3>& vertices, GLuint drawType);
+			virtual void CreateWithData(const std::vector<glm::vec3>& vertices, GLuint drawType);
 			virtual void NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const override;
 		};
 
 		class GizmoRenderModel : public RenderModel
 		{
 		public:
-			GizmoRenderModel(const ResourceModelBase& asset, GLuint texSamp);
+			GizmoRenderModel(const ResourceModelBase& resModelBase, GLuint texSamp) : RenderModel(resModelBase, texSamp) {}
 			GizmoShaderSet* GetGizmoShaderSet() const { return static_cast<GizmoShaderSet*>(vfShaderSet_); }
 
-			GLuint drawType_ = GL_LINES;
+			virtual void CreateFromResource() override;
+
+			void SetDrawType(GLuint glDrawType) { drawType_ = glDrawType; }
 
 		protected:
 			virtual void CallGLDraw(size_t verticesSize) const override;
 			virtual void BeginRender() override;
+
+			GLuint drawType_ = GL_LINES;
 		};
 
 		// 모든 GizmoResourceModel 들은 모델좌표계로 만들어져야한다, 그래서 direction 이나 centerPos 가 없는 것이다.

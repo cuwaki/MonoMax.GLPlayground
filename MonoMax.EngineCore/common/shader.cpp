@@ -11,6 +11,7 @@ using namespace std;
 #include <string.h>
 
 #include <GL/glew.h>
+#include <cassert>
 
 #include "shader.hpp"
 
@@ -19,8 +20,18 @@ GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file
 	// 중복된 셰이더를 만들지 않도록 잘 관리할 것!
 
 	// Create the shaders
+	GLuint ProgramID = 0;
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
+	auto deleteGLTemps = [&ProgramID, &VertexShaderID, &FragmentShaderID](bool isError)
+	{
+		glDeleteShader(VertexShaderID);
+		glDeleteShader(FragmentShaderID);
+
+		if(isError)
+			glDeleteProgram(ProgramID);
+	};
 
 	// Read the Vertex Shader code from the file
 	std::string VertexShaderCode;
@@ -33,8 +44,11 @@ GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file
 	}
 	else {
 		printf("Impossible to open %ws. Are you in the right directory ? Don't forget to read the FAQ !\n", vertex_file_path);
-		getchar();
-		return 0;
+		deleteGLTemps(true);
+#if _DEBUG
+		assert(false, "Error");
+#endif
+		return ProgramID;
 	}
 
 	// Read the Fragment Shader code from the file
@@ -64,6 +78,11 @@ GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file
 		std::vector<char> VertexShaderErrorMessage(InfoLogLength + 1);
 		glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
 		printf("%s\n", &VertexShaderErrorMessage[0]);
+		deleteGLTemps(true);
+#if _DEBUG
+		assert(false, "Error");
+#endif
+		return ProgramID;
 	}
 
 
@@ -81,13 +100,18 @@ GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file
 		std::vector<char> FragmentShaderErrorMessage(InfoLogLength + 1);
 		glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
 		printf("%s\n", &FragmentShaderErrorMessage[0]);
+		deleteGLTemps(true);
+#if _DEBUG
+		assert(false, "Error");
+#endif
+		return ProgramID;
 	}
 
 
 
 	// Link the program
 	printf("Linking program\n");
-	GLuint ProgramID = glCreateProgram();
+	ProgramID = glCreateProgram();
 	glAttachShader(ProgramID, VertexShaderID);
 	glAttachShader(ProgramID, FragmentShaderID);
 	glLinkProgram(ProgramID);
@@ -99,14 +123,17 @@ GLuint LoadShaders(const wchar_t* vertex_file_path, const wchar_t* fragment_file
 		std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
 		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
 		printf("%s\n", &ProgramErrorMessage[0]);
+		deleteGLTemps(true);
+#if _DEBUG
+		assert(false, "Error");
+#endif
+		return ProgramID;
 	}
 
 
 	glDetachShader(ProgramID, VertexShaderID);
 	glDetachShader(ProgramID, FragmentShaderID);
 
-	glDeleteShader(VertexShaderID);
-	glDeleteShader(FragmentShaderID);
-
+	deleteGLTemps(false);
 	return ProgramID;
 }

@@ -8,7 +8,7 @@ namespace SMGE
 {
 	CCircleComponent::CCircleComponent(CObject* outer) : Super(outer)
 	{
-		hasFace_ = true;	// 테스트 코드
+		hasFace_ = true;	// 테스트 코드 - 임시로 눈에 잘 보이라고
 		Ctor();
 	}
 	CCircleComponent::CCircleComponent(CObject* outer, bool hasFace) : CCircleComponent(outer)
@@ -63,7 +63,7 @@ namespace SMGE
 
 	glm::vec3 CCircleComponent::getNormal() const
 	{
-		return GetWorldFront();
+		return GetFinalFront();
 	}
 
 	const SBound& CCircleComponent::GetBound()
@@ -72,8 +72,8 @@ namespace SMGE
 
 		// 써클은 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
-		const auto center = GetWorldPosition();
-		const auto halfSize = GetWorldScales() / 2.f;
+		const auto center = GetFinalPosition();
+		const auto halfSize = GetFinalScales() * 0.5f;
 
 		circleBound_ = SCircleBound(getNormal(), center, halfSize.x);
 		return circleBound_;

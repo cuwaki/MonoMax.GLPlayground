@@ -20,31 +20,32 @@ namespace SMGE
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		void GizmoResourceModel::CreateFrom(const std::vector<glm::vec3>& vertices, GLuint drawType)
+		void GizmoResourceModel::CreateWithData(const std::vector<glm::vec3>& vertices, GLuint drawType)
 		{
+			vertShaderPath_ = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.vert"));
+			fragShaderPath_ = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
+
 			std::vector<glm::vec2> dummy2(0);
 			std::vector<glm::vec3> dummy3(0);
 
 			GetMesh().loadFromPlainData(vertices, dummy2, dummy3);
 
 			auto gizRendM = static_cast<GizmoRenderModel*>(GetRenderModel(nullptr));
-			gizRendM->drawType_ = drawType;
+			gizRendM->SetDrawType(drawType);
 		}
 
 		void GizmoResourceModel::NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const
 		{
 			auto newOne = std::make_unique<GizmoRenderModel>(*this, 0);
+			newOne->CreateFromResource();
 			renderModelsPerContext_.insert(std::make_pair(contextWindow, std::move(newOne)));
 		}
 
-		GizmoRenderModel::GizmoRenderModel(const ResourceModelBase& asset, GLuint texSamp) : RenderModel(asset, texSamp)
+		void GizmoRenderModel::CreateFromResource()
 		{
-			auto gizmoVert = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.vert")),
-				gizmoFrag = SMGE::Globals::GetEngineAssetPath(wtext("gizmo.frag"));
+			const auto& gizResM = static_cast<const GizmoResourceModel&>(resourceModel_);
+			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<GizmoShaderSet>(gizResM.GetVertShaderPath(), gizResM.GetFragShaderPath());
 
-			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<GizmoShaderSet>(gizmoVert, gizmoFrag);
-
-			const auto& gizResM = static_cast<const GizmoResourceModel&>(asset);
 			const auto& gizMesh = gizResM.GetMesh();
 			GenGLMeshDatas(gizMesh.vertices_, gizMesh.uvs_, gizMesh.normals_, gizMesh.vertexColors_);
 		}
@@ -71,7 +72,7 @@ namespace SMGE
 			std::vector<glm::vec3> vertices;
 			vertices = nsRE::makeSimpleSphere3D_Lines<glm::vec3>(divides, 0.5f);
 
-			CreateFrom(vertices, GL_LINES);
+			CreateWithData(vertices, GL_LINES);
 		}
 
 		CubeResourceModel::CubeResourceModel()
@@ -81,7 +82,7 @@ namespace SMGE
 			glm::vec3 centerPos(0);
 			vertices = nsRE::makeSimpleCube3D_Lines<glm::vec3>(centerPos, glm::vec3(1.f));
 
-			CreateFrom(vertices, GL_LINES);
+			CreateWithData(vertices, GL_LINES);
 		}
 
 		QuadFacedResourceModel::QuadFacedResourceModel() : GizmoResourceModel()
@@ -103,7 +104,7 @@ namespace SMGE
 			vertices.push_back({ xyTri2Base - xySize, 0.f });	// -0.5, -0.5, 0
 			vertices.push_back({ xyTri2Base + glm::vec2{ 0.f, -1.f }, 0.f });	// 0.5, -0.5, 0
 
-			CreateFrom(vertices, GL_TRIANGLES);
+			CreateWithData(vertices, GL_TRIANGLES);
 		}
 
 		QuadResourceModel::QuadResourceModel() : GizmoResourceModel()
@@ -129,19 +130,19 @@ namespace SMGE
 			vertices.push_back({ xyTri1Base + glm::vec2{ 0.f, 1.f }, 0.f });	// -0.5, 0.5, 0
 			vertices.push_back({ xyTri1Base, 0.f });	// -0.5, -0.5, 0
 
-			CreateFrom(vertices, GL_LINES);
+			CreateWithData(vertices, GL_LINES);
 		}
 
 		CircleResourceModel::CircleResourceModel(int32 circumferenceSegmentNumber)
 		{
 			auto circleLines = makeCircle2DXY_Lines<glm::vec3>(circumferenceSegmentNumber, 0.5f);	// XY평면의 2D 써클
-			CreateFrom(circleLines, GL_LINES);
+			CreateWithData(circleLines, GL_LINES);
 		}
 
 		CircleFacedResourceModel::CircleFacedResourceModel(int32 circumferenceSegmentNumber)
 		{
 			auto circleLines = makeCircle2DXY_Faced<glm::vec3>(circumferenceSegmentNumber, 0.5f);	// XY평면의 2D 써클
-			CreateFrom(circleLines, GL_TRIANGLE_FAN);
+			CreateWithData(circleLines, GL_TRIANGLE_FAN);
 		}
 
 		PlaneResourceModel::PlaneResourceModel() : GizmoResourceModel()
@@ -153,7 +154,7 @@ namespace SMGE
 			vertices.emplace_back(0.f, 0.f, 0.f);	// 시점
 			vertices.emplace_back(glm::normalize(direction) * 1.f);	// 종점
 
-			CreateFrom(vertices, GL_LINES);
+			CreateWithData(vertices, GL_LINES);
 		}
 
 		SegmentResourceModel::SegmentResourceModel() : GizmoResourceModel()
@@ -165,7 +166,7 @@ namespace SMGE
 			vertices.emplace_back(0.f, 0.f, 0.f);	// 시점
 			vertices.emplace_back(glm::normalize(direction) * 1.f);	// 종점
 
-			CreateFrom(vertices, GL_LINES);
+			CreateWithData(vertices, GL_LINES);
 		}
 
 		PointResourceModel::PointResourceModel()
@@ -173,7 +174,7 @@ namespace SMGE
 			std::vector<glm::vec3> vertices;
 
 			vertices.emplace_back(0.f, 0.f, 0.f);
-			CreateFrom(vertices, GL_POINTS);
+			CreateWithData(vertices, GL_POINTS);
 		}
 	}
 }

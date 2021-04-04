@@ -46,7 +46,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 		//virtual void OnAfterDeserialized() override;	// 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
-		void OnAfterDeserialized2();	// 테스트 코드
+		void OnAfterDeserialized2();	// 테스트 코드 - vftbl 버그 때문에
 
 	protected:
 		std::unique_ptr<TReflectionStruct> reflData_;

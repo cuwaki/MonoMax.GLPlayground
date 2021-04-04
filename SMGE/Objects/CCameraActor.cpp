@@ -9,6 +9,8 @@
 #include "../CBoundCheck.h"
 
 #define DRAW_FRUSTUM
+// 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
+#define ENABLE_FRUSTUM_CULLING
 
 namespace SMGE
 {
@@ -76,8 +78,8 @@ namespace SMGE
 			//return;
 
 			auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
-			renderCam.SetCameraPos(getTransform().GetWorldPosition());
-			renderCam.SetCameraFront(getTransform().GetWorldFront());
+			renderCam.SetCameraPos(getTransform().GetFinalPosition());
+			renderCam.SetCameraFront(getTransform().GetFinalFront());
 		}
 		else
 		{
@@ -86,6 +88,12 @@ namespace SMGE
 
 	void CCameraActor::BeginPlay()
 	{
+#ifdef ENABLE_FRUSTUM_CULLING
+#else
+		Super::BeginPlay();
+		return;
+#endif
+
 		using namespace nsRE;
 
 		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
@@ -98,6 +106,7 @@ namespace SMGE
 			frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
 			frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
 			frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z });
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumAABBCube_->RecalcFinal();
 		frustumAABBCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
 
 		// 체크용 평면 만들기
@@ -149,34 +158,38 @@ namespace SMGE
 			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
 			frustumLines[0]->Scale({ 0.f, 0.f, glm::length(Origin2LB) });
 #ifdef REFACTORING_TRNASFORM
-			frustumLines[0]->RotateDirection(glm::normalize(Origin2LB), nsRE::TransformConst::WorldYAxis);
+			frustumLines[0]->RotateDirection(glm::normalize(Origin2LB));
 #else
 			frustumLines[0]->RotateQuat(glm::normalize(Origin2LB));
 #endif
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[0]->RecalcFinal();
 
 			auto Origin2RB = frustumModel.farPlane_[TransformConst::GL_RB];
 			frustumLines[1]->Scale({ 0.f, 0.f, glm::length(Origin2RB) });
 #ifdef REFACTORING_TRNASFORM
-			frustumLines[1]->RotateDirection(glm::normalize(Origin2RB), nsRE::TransformConst::WorldYAxis);
+			frustumLines[1]->RotateDirection(glm::normalize(Origin2RB));
 #else
 			frustumLines[1]->RotateQuat(glm::normalize(Origin2RB));
 #endif
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[1]->RecalcFinal();
 
 			auto Origin2RT = frustumModel.farPlane_[TransformConst::GL_RT];
 			frustumLines[2]->Scale({ 0.f, 0.f, glm::length(Origin2RT) });
 #ifdef REFACTORING_TRNASFORM
-			frustumLines[2]->RotateDirection(glm::normalize(Origin2RT), nsRE::TransformConst::WorldYAxis);
+			frustumLines[2]->RotateDirection(glm::normalize(Origin2RT));
 #else
 			frustumLines[2]->RotateQuat(glm::normalize(Origin2RT));
 #endif
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[2]->RecalcFinal();
 
 			auto Origin2LT = frustumModel.farPlane_[TransformConst::GL_LT];
 			frustumLines[3]->Scale({ 0.f, 0.f, glm::length(Origin2LT) });
 #ifdef REFACTORING_TRNASFORM
-			frustumLines[3]->RotateDirection(glm::normalize(Origin2LT), nsRE::TransformConst::WorldYAxis);
+			frustumLines[3]->RotateDirection(glm::normalize(Origin2LT));
 #else
 			frustumLines[3]->RotateQuat(glm::normalize(Origin2LT));
 #endif
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[3]->RecalcFinal();
 
 #ifdef DRAW_FRUSTUM_QUADS
 			// 프러스텀 쿼드 그리기
@@ -197,6 +210,7 @@ namespace SMGE
 					Configs::BoundEpsilon
 				});
 			frustumQuads_[0]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads_[0]->RecalcFinal();
 			frustumQuads_[0]->SetPickingTarget(false);
 			frustumQuads_[0]->SetCollideTarget(false);
 			frustumQuads_[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
@@ -212,11 +226,12 @@ namespace SMGE
 					Configs::BoundEpsilon
 				});
 			frustumQuads_[1]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads_[1]->RecalcFinal();
 			frustumQuads_[1]->SetPickingTarget(false);
 			frustumQuads_[1]->SetCollideTarget(false);
 			frustumQuads_[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
 
-			/* 이하 버그 있는 코드
+			/* 이하 버그 있는 코드 - 쓰려면 RecalcFinal 도 불러줘야한다
 			auto toUp = frustumModel.farPlane_[TransformConst::GL_LT] - frustumModel.nearPlane_[TransformConst::GL_LT];
 			toUp.x = 0;	// YZ 평면에 투영
 			frustumQuads_[2]->Translate(toUp / 2.f);
@@ -305,11 +320,11 @@ namespace SMGE
 			renderCam.SetFOV(fovDegrees_);
 			renderCam.SetZNearFar(zNear_, zFar_);
 			
-			renderCam.SetCameraUp(getTransform().GetWorldUp());
-			renderCam.SetCameraLeft(getTransform().GetWorldLeft());
+			renderCam.SetCameraUp(getTransform().GetFinalUp());
+			renderCam.SetCameraLeft(getTransform().GetFinalLeft());
 
-			renderCam.SetCameraPos(getTransform().GetWorldPosition());
-			renderCam.SetCameraFront(getTransform().GetWorldFront());
+			renderCam.SetCameraPos(getTransform().GetFinalPosition());
+			renderCam.SetCameraFront(getTransform().GetFinalFront());
 		}
 		else
 		{

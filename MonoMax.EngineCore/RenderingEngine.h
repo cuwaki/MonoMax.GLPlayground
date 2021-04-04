@@ -105,19 +105,19 @@ namespace SMGE
 		class Transform
 		{
 		private:
-			glm::vec3 translation_;
-			glm::vec3 scale_;
+			glm::vec3 pendingPosition_;
+			glm::vec3 pendingScales_;
 
 #ifdef REFACTORING_TRNASFORM
-			glm::mat4 rotationMatrix_;
+			glm::mat4 pendingRotationMatrix_;
 #else
 			glm::vec3 rotationRadianEuler_;
 			glm::vec3 directionForQuat_;
 #endif
-			mutable glm::vec3 inheritedScale_;	// 여기 - 이것도 리팩토링하자
 
 		protected:
 			glm::mat4 finalMatrix_;
+			glm::vec3 finalScales_;
 
 			Transform* parent_ = nullptr;
 			std::forward_list<Transform*> children_;
@@ -128,48 +128,57 @@ namespace SMGE
 		public:
 			Transform();
 
-			const glm::mat4& FinalMatrix(bool isRecalc);
-			const glm::mat4& FinalMatrixNoRecalc() const;
-
-			const glm::vec3& GetTranslation() const;
-			const glm::vec3& GetScales() const;
-			float GetScale(TransformConst::ETypeAxis aType) const;
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Get transform
+			const glm::vec3& GetPendingPosition() const;
+			const glm::vec3& GetPendingScales() const;
+			float GetPendingScale(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetPendingRotationEulerDegrees() const;
 
 			// REFACTORING_TRNASFORM - 여기 - 이름이 World 가 아니고 Final 이 맞다
-			glm::vec3 GetWorldPosition() const;
-			float GetWorldScale(TransformConst::ETypeAxis aType) const;
-			glm::vec3 GetWorldScales() const;
+			glm::vec3 GetFinalPosition() const;
+			float GetFinalScale(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetFinalScales() const;
 
-			glm::vec3 GetWorldAxis(TransformConst::ETypeAxis aType) const;
-			glm::vec3 GetWorldFront() const;
-			glm::vec3 GetWorldUp() const;
-			glm::vec3 GetWorldLeft() const;
+			glm::vec3 GetFinalAxis(TransformConst::ETypeAxis aType) const;
+			glm::vec3 GetFinalFront() const;
+			glm::vec3 GetFinalUp() const;
+			glm::vec3 GetFinalLeft() const;
+			glm::vec3 GetFinalRotationEulerDegrees() const;
+#ifdef REFACTORING_TRNASFORM
+			const glm::mat4& GetPendingRotationMatrix() const { return pendingRotationMatrix_; }
+#else
+			const glm::vec3& GetRotationEuler() const;
+			const glm::vec3& GetDirectionQuat() const;
+#endif
 
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Set, Change transform
 			void Translate(glm::vec3 worldPos);
 			void Scale(float scale);
 			void Scale(glm::vec3 scale);
 			void Scale(TransformConst::ETypeAxis aType, float scale);
 
-			glm::vec3 GetRotationEulerDegrees() const;
-
 #ifdef REFACTORING_TRNASFORM
-			const glm::mat4& CurrentRotationMatrix() const { return rotationMatrix_; }
 			void Rotate(const glm::mat4& newRotMat);
-			void RotateEuler(glm::vec3 rotateDegrees, bool isWorld);
 			void Rotate(const glm::vec3& basisAxis, float degrees);
-			void RotateDirection(const glm::vec3& newDirNormalized, glm::vec3 newUpNormalized, bool isSecurePerp = true);
-#else
-			const glm::vec3& GetRotationEuler() const;
-			const glm::vec3& GetDirectionQuat() const;
 
+			void RotateEuler(glm::vec3 rotateDegrees, bool isWorld);
+			void RotateDirection(const glm::vec3& newDirNormalized, glm::vec3 newUpNormalized = TransformConst::WorldYAxis, bool isSecurePerp = true);
+#else
 			void RotateEuler(glm::vec3 rotateDegrees);
 			void RotateEuler(TransformConst::ETypeRot rType, float degrees);
 			void RotateQuat(const glm::vec3& dirForQuat);
 #endif
 
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// etc
+			const glm::mat4& FinalMatrix(bool isRecalc);
+			const glm::mat4& FinalMatrixNoRecalc() const;
+
 			virtual void OnBeforeRendering();
 
-			void Dirty();
+			void Dirty(bool isForce = false);
 			bool IsDirty() const;
 			void RecalcFinal();
 
@@ -423,7 +432,7 @@ namespace SMGE
 			void Destroy();
 			void Invalidate();
 
-			RenderModel(const ResourceModelBase& asset, GLuint texSamp);
+			RenderModel(const ResourceModelBase& resModelBase, GLuint texSamp);
 
 			DELETE_COPY_CTOR(RenderModel);
 
@@ -431,12 +440,13 @@ namespace SMGE
 			RenderModel& operator=(RenderModel&& c) = delete;	// resource_ 때문에 구현 불가
 
 			bool GenGLMeshDatas(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors);
+			virtual void CreateFromResource();
 
 			virtual GLuint GetTextureID(int texSamp) const;
 			virtual const VertFragShaderSet* GetShaderSet() const;
 			virtual GLuint GetShaderID() const;
-			virtual void CallGLDraw(size_t verticesSize) const;
 
+			virtual void CallGLDraw(size_t verticesSize) const;
 			void Render(const glm::mat4& VP);
 			virtual void BeginRender();
 			virtual void EndRender();
@@ -451,7 +461,7 @@ namespace SMGE
 
 		public:
 			ResourceModelBase() {}
-#if IS_DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 			~ResourceModelBase();
 #endif
 			virtual void Invalidate();

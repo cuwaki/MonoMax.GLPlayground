@@ -37,7 +37,7 @@ namespace SMGE
 
 	glm::vec3 CPlaneComponent::getNormal() const
 	{
-		return GetWorldFront();
+		return GetFinalFront();
 	}
 
 	const SBound& CPlaneComponent::GetBound()
@@ -46,13 +46,13 @@ namespace SMGE
 
 		// 평면는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
-		PlaneBound_ = SPlaneBound(getNormal(), GetWorldPosition());
+		PlaneBound_ = SPlaneBound(getNormal(), GetFinalPosition());
 		return PlaneBound_;
 	}
 
 	void CPlaneComponent::SetBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2)
 	{
-		const auto& worldLoc = GetWorldPosition();
+		const auto& worldLoc = GetFinalPosition();
 
 		// ccw_p0 와 같이 이름 그대로 평면을 정의하는 점이 사각형의 순서대로 들어왔다면
 		// ccw_p2 - ccw_p0 의 중점을 평면의 center 로 삼을 수 있고, 이것은 크기를 제한할 경우 SQuadBound 와 같이 사용할 수도 있게 된다
@@ -61,10 +61,12 @@ namespace SMGE
 
 		const auto normal = glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0)));
 #ifdef REFACTORING_TRNASFORM
-		RotateDirection(normal, nsRE::TransformConst::WorldYAxis);	// up 은 자동 계산되도록
+		// 여기 - 안급함 - 평면을 구성하는 라인을 따라서 up을 결정해서 넣어주는 것이 좋겠다
+		RotateDirection(normal);
 #else
 		RotateQuat(normal);
 #endif
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();
 		
 		//auto pb = SPlaneBound(ccw_p0, ccw_p1, ccw_p2);
 	}

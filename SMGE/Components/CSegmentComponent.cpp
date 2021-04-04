@@ -18,24 +18,23 @@ namespace SMGE
 	{
 		Scale(nsRE::TransformConst::DefaultAxis_Front, size);
 #ifdef REFACTORING_TRNASFORM
-		RotateDirection(glm::normalize(direction), nsRE::TransformConst::WorldYAxis);
+		RotateDirection(glm::normalize(direction));
 #else
 		RotateQuat(glm::normalize(direction));
 #endif
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();
 
 		// 세그먼트는 Z 로만 만들어져야한다, X, Y 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
-
-		RecalcFinal();
 	}
 
 	float CSegmentComponent::getRayLength() const
 	{
-		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front];
+		return GetFinalScales()[nsRE::TransformConst::DefaultAxis_Front];
 	}
 
 	glm::vec3 CSegmentComponent::getRayDirection() const
 	{
-		return GetWorldFront();
+		return GetFinalFront();
 	}
 
 	void CSegmentComponent::Ctor()
@@ -64,6 +63,7 @@ namespace SMGE
 		// 레이는 0에서 앞으로 뻗지만, OBB 는 큐브라서 중점에서 만들어지므로 Z축을 앵커로 잡아야한다
 		assert(nsRE::TransformConst::DefaultAxis_Front == nsRE::TransformConst::ETypeAxis::Z);
 		obb->Translate({ 0, 0, 0.5f });	// 단위크기니까 0.5로 하면 된다
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - obb->RecalcFinal();
 
 		return obb;
 	}
@@ -72,7 +72,7 @@ namespace SMGE
 	{
 		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		const auto start = GetWorldPosition();
+		const auto start = GetFinalPosition();
 		segBound_ = SSegmentBound(start, start + getRayDirection() * getRayLength());
 		return segBound_;
 	}

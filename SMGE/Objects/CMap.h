@@ -17,7 +17,7 @@ namespace SMGE
 		constexpr float MaxZ = MaxX;
 	}
 
-	using MacOcTree = COcTree<std::set<CActor *>, float>;
+	using MapOcTree = COcTree<std::set<CActor *>, float>;
 
 	// deprecated
 	//enum class EActorLayer : uint8
@@ -94,7 +94,7 @@ namespace SMGE
 
 	protected:
 		// runtime
-		MacOcTree mapOctree_;
+		MapOcTree mapOctree_;
 		CVector<CActor*> mapActorsW_;
 		bool isBeganPlay_ = false;
 		bool isBeginningPlay_ = false;
@@ -102,7 +102,7 @@ namespace SMGE
 
 		class CCameraActor* currentCamera_;	// 물체를 비추는 카메라
 		class CCameraActor* cullingCamera_;	// mapOctree_ 와 협동하여 렌더링을 위해 컬링하는 카메라
-		bool isFrustumCulling_ = true;
+		const bool isFrustumCulling_;
 	};
 
 	namespace Globals

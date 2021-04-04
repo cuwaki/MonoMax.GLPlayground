@@ -8,7 +8,7 @@ namespace SMGE
 {
 	CQuadComponent::CQuadComponent(CObject* outer) : Super(outer)
 	{
-		hasFace_ = true;	// 테스트 코드
+		hasFace_ = true;	// 테스트 코드 - 디버깅용 눈에 보이라고
 		Ctor();
 	}
 	CQuadComponent::CQuadComponent(CObject* outer, bool hasFace) : CQuadComponent(outer)
@@ -63,7 +63,7 @@ namespace SMGE
 
 	glm::vec3 CQuadComponent::getNormal() const
 	{
-		return GetWorldFront();
+		return GetFinalFront();
 	}
 
 	const SBound& CQuadComponent::GetBound()
@@ -72,10 +72,10 @@ namespace SMGE
 
 		// 쿼드는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
-		const auto center = GetWorldPosition();
-		const auto halfSize = GetWorldScales() / 2.f;
-		const auto xVec = GetWorldAxis(nsRE::TransformConst::ETypeAxis::X) * halfSize.x;
-		const auto yVec = GetWorldAxis(nsRE::TransformConst::ETypeAxis::Y) * halfSize.y;
+		const auto center = GetFinalPosition();
+		const auto halfSize = GetFinalScales() * 0.5f;
+		const auto xVec = GetFinalAxis(nsRE::TransformConst::ETypeAxis::X) * halfSize.x;
+		const auto yVec = GetFinalAxis(nsRE::TransformConst::ETypeAxis::Y) * halfSize.y;
 
 		quadBound_ = SQuadBound(center - xVec - yVec, center + xVec - yVec, center + xVec + yVec, center -xVec + yVec);	// 좌하, 우하, 우상, 좌상 - 반시계 방향으로
 		return quadBound_;

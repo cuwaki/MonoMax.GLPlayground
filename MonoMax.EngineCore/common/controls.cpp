@@ -289,7 +289,7 @@ namespace SMGE
 
 		void CRenderingCamera::SetCameraFront(const glm::vec3& dir)
 		{
-#if DEBUG || _DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 			assert(IsNearlyEqual(glm::length(dir), 1.f) && "must be normalized!");
 #endif
 			cameraDir_ = dir;

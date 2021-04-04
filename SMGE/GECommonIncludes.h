@@ -43,10 +43,6 @@
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/quaternion.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtc/quaternion.hpp"
 
-#if defined(_DEBUG) || defined(DEBUG)
-#define IS_DEBUG    1
-#endif
-
 #define etoi(_E_) static_cast<int32>(_E_)
 #define etos(_E_) static_cast<size_t>(_E_)
 

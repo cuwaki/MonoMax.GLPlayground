@@ -10,7 +10,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$31
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	30.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	20.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$"mainCamera"
@@ -19,7 +19,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
 				persistCompoSize$size_t$0
@@ -30,7 +30,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 				persistCompoSize$size_t$0
@@ -40,7 +40,7 @@ classRTTIName_$CString$"CMap"
 		cameraName_$CString$"mainCamera"
 		fov_$float$90.0
 		zNear_$float$1.0
-		zFar_$float$31.0
+		zFar_$float$51.0
 
 /* 프러스텀 테스트 카메라
 	classRTTIName_$CString$"CCameraActor"
@@ -48,7 +48,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$32
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	30.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	30.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	200.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$"testCamera"
@@ -57,7 +57,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
 				persistCompoSize$size_t$0
@@ -68,7 +68,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 				persistCompoSize$size_t$0
@@ -88,21 +88,32 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$1
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$5.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$3.000000	3.000000	3.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 		classRTTIName_$CString$"CQuadComponent"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
-			persistCompoSize$size_t$0
-			isPickingTarget_$bool$true
-			isCollideTarget_$bool$true
+			persistCompoSize$size_t$1
+				classRTTIName_$CString$"CQuadComponent"
+					reflectionFilePath_$CWString$""
+					classRTTIName_$CString$"SGRefl_Transform"
+					reflectionFilePath_$CWString$""
+					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
+					persistCompoSize$size_t$0
+					isPickingTarget_$bool$false
+					isCollideTarget_$bool$false
+					gizmoColor_$glm::vec3$1.000000	0.000000	0.000000	
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
@@ -112,7 +123,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$164
 		classRTTIName_$CString$"SGRefl_Transform"
 		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$-4.000000	4.000000	0.000000	
+		nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
 		actorStaticTag_$CString$"this is a monkey"
@@ -121,7 +132,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
 				persistCompoSize$size_t$1
@@ -129,7 +140,7 @@ classRTTIName_$CString$"CMap"
 						reflectionFilePath_$CWString$""
 						classRTTIName_$CString$"SGRefl_Transform"
 						reflectionFilePath_$CWString$""
-						nsre_transform_.GetTranslation()$glm::vec3$3.000000	3.000000	0.000000	
+						nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 						nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 						nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
 						persistCompoSize$size_t$1
@@ -137,7 +148,7 @@ classRTTIName_$CString$"CMap"
 								reflectionFilePath_$CWString$""
 								classRTTIName_$CString$"SGRefl_Transform"
 									reflectionFilePath_$CWString$""
-									nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+									nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 									nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 									nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
 									persistCompoSize$size_t$0
@@ -150,7 +161,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
 					reflectionFilePath_$CWString$""
-					nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 					persistCompoSize$size_t$0
@@ -159,12 +170,13 @@ classRTTIName_$CString$"CMap"
 				gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
+
 	classRTTIName_$CString$"CStaticMeshActor"
 		reflectionFilePath_$CWString$"/actor/monkey.asset"
 		actorKey_$TActorKey$194
 		classRTTIName_$CString$"SGRefl_Transform"
 		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$+4.000000	-4.000000	0.000000	
+		nsre_transform_.GetPosition()$glm::vec3$+4.000000	-4.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	-45.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
 		actorStaticTag_$CString$"this is a monkey"
@@ -173,7 +185,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
 			persistCompoSize$size_t$1
@@ -181,7 +193,7 @@ classRTTIName_$CString$"CMap"
 					reflectionFilePath_$CWString$""
 					classRTTIName_$CString$"SGRefl_Transform"
 					reflectionFilePath_$CWString$""
-					nsre_transform_.GetTranslation()$glm::vec3$3.000000	3.000000	0.000000	
+					nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
 					persistCompoSize$size_t$1
@@ -189,7 +201,7 @@ classRTTIName_$CString$"CMap"
 							reflectionFilePath_$CWString$""
 							classRTTIName_$CString$"SGRefl_Transform"
 								reflectionFilePath_$CWString$""
-								nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+								nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
 								persistCompoSize$size_t$0
@@ -202,7 +214,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 				persistCompoSize$size_t$0
@@ -215,7 +227,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$195
 		classRTTIName_$CString$"SGRefl_Transform"
 		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$-6.000000	-6.000000	0.000000	
+		nsre_transform_.GetPosition()$glm::vec3$-6.000000	-6.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	+45.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
 		actorStaticTag_$CString$"this is a monkey"
@@ -224,7 +236,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
 			persistCompoSize$size_t$1
@@ -232,7 +244,7 @@ classRTTIName_$CString$"CMap"
 					reflectionFilePath_$CWString$""
 					classRTTIName_$CString$"SGRefl_Transform"
 					reflectionFilePath_$CWString$""
-					nsre_transform_.GetTranslation()$glm::vec3$3.000000	3.000000	0.000000	
+					nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
 					persistCompoSize$size_t$1
@@ -240,7 +252,7 @@ classRTTIName_$CString$"CMap"
 							reflectionFilePath_$CWString$""
 							classRTTIName_$CString$"SGRefl_Transform"
 								reflectionFilePath_$CWString$""
-								nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+								nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
 								persistCompoSize$size_t$0
@@ -253,7 +265,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 				persistCompoSize$size_t$0
@@ -266,7 +278,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$294
 		classRTTIName_$CString$"SGRefl_Transform"
 		reflectionFilePath_$CWString$""
-		nsre_transform_.GetTranslation()$glm::vec3$6.000000	6.000000	0.000000	
+		nsre_transform_.GetPosition()$glm::vec3$6.000000	6.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	205.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
 		actorStaticTag_$CString$"this is a monkey"
@@ -275,7 +287,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
 			persistCompoSize$size_t$1
@@ -283,7 +295,7 @@ classRTTIName_$CString$"CMap"
 					reflectionFilePath_$CWString$""
 					classRTTIName_$CString$"SGRefl_Transform"
 					reflectionFilePath_$CWString$""
-					nsre_transform_.GetTranslation()$glm::vec3$3.000000	3.000000	0.000000	
+					nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
 					persistCompoSize$size_t$1
@@ -291,7 +303,7 @@ classRTTIName_$CString$"CMap"
 							reflectionFilePath_$CWString$""
 							classRTTIName_$CString$"SGRefl_Transform"
 								reflectionFilePath_$CWString$""
-								nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+								nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
 								persistCompoSize$size_t$0
@@ -304,7 +316,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 				reflectionFilePath_$CWString$""
-				nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
 				persistCompoSize$size_t$0
@@ -317,7 +329,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$1
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$5.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$5.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
 		actorStaticTag_$CString$""
@@ -326,7 +338,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
 			persistCompoSize$size_t$0
@@ -341,7 +353,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$9
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$-4.000000	0.000000	4.000000	
+			nsre_transform_.GetPosition()$glm::vec3$-4.000000	0.000000	4.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$""
@@ -350,7 +362,7 @@ classRTTIName_$CString$"CMap"
 				reflectionFilePath_$CWString$"/templates/CCircleComponent.asset"
 				classRTTIName_$CString$"SGRefl_Transform"
 					reflectionFilePath_$CWString$""
-					nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	0.001   
 				persistCompoSize$size_t$0
@@ -367,7 +379,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$3
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	-5.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	-5.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
 		actorStaticTag_$CString$""
@@ -376,7 +388,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.00	2.00	2.00
 			persistCompoSize$size_t$0
@@ -391,7 +403,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$0
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$3.000000	3.000000	3.000000	
 		actorStaticTag_$CString$""
@@ -400,7 +412,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	1.00	
 			persistCompoSize$size_t$0
@@ -417,7 +429,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$2
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	5.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	5.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
 		actorStaticTag_$CString$""
@@ -426,7 +438,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
 			persistCompoSize$size_t$0
@@ -439,7 +451,7 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$4
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$-5.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$-5.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$""
@@ -448,7 +460,7 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001
 			persistCompoSize$size_t$0

@@ -530,12 +530,12 @@ namespace SMGE
 	SQuadBound::SQuadBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2, const glm::vec3& ccw_p3)
 	{
 		const auto norm = glm::normalize(glm::cross((ccw_p1 - ccw_p0), (ccw_p2 - ccw_p0)));
-#if DEBUG || _DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 		if (IsNearlyEqual(glm::length(norm), 1.f) == false)
 			assert(false && "it is not a quad - normal");
 #endif
 		this->SPlaneBound::SPlaneBound(norm, ccw_p0);
-#if DEBUG || _DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 		if (isOnPlane(ccw_p3) == false)
 			assert(false && "it is not a quad - p3");
 #endif
@@ -1176,7 +1176,7 @@ namespace SMGE
 		this->RecalcFinal();
 		sphere->RecalcFinal();
 
-		auto rayLoc = this->GetWorldPosition(), sphereLoc = sphere->GetWorldPosition();
+		auto rayLoc = this->GetFinalPosition(), sphereLoc = sphere->GetFinalPosition();
 
 		auto ray2sphere = sphereLoc - rayLoc;
 		float r2sLen = glm::distance(sphereLoc, rayLoc);

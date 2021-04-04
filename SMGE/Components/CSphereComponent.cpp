@@ -52,14 +52,14 @@ namespace SMGE
 
 	float CSphereComponent::GetRadius() const
 	{
-		return GetWorldScales()[nsRE::TransformConst::DefaultAxis_Front] / 2.f;	// 반지름이니까
+		return GetFinalScales()[nsRE::TransformConst::DefaultAxis_Front] / 2.f;	// 반지름이니까
 	}
 
 	const SBound& CSphereComponent::GetBound()
 	{
 		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		sphereBound_ = SSphereBound(GetWorldPosition(), GetRadius());
+		sphereBound_ = SSphereBound(GetFinalPosition(), GetRadius());
 		return sphereBound_;
 	}
 };

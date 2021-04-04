@@ -104,23 +104,23 @@ namespace SMGE
 				auto& camTransform = currentCamera->getTransform();
 
 				// 이동
-				auto currentPos = camTransform.GetWorldPosition();
+				auto currentPos = camTransform.GetFinalPosition();
 
 				constexpr float moveSpeed = 20.0f / 1000.f;
 
 				if (userInput.IsPressed('A'))
-					currentPos += camTransform.GetWorldLeft() * deltaTime * moveSpeed;
+					currentPos += camTransform.GetFinalLeft() * deltaTime * moveSpeed;
 				if (userInput.IsPressed('D'))
-					currentPos -= camTransform.GetWorldLeft() * deltaTime * moveSpeed;
+					currentPos -= camTransform.GetFinalLeft() * deltaTime * moveSpeed;
 				if (userInput.IsPressed('W'))
-					currentPos += camTransform.GetWorldFront() * deltaTime * moveSpeed;
+					currentPos += camTransform.GetFinalFront() * deltaTime * moveSpeed;
 				if (userInput.IsPressed('S'))
-					currentPos -= camTransform.GetWorldFront() * deltaTime * moveSpeed;
+					currentPos -= camTransform.GetFinalFront() * deltaTime * moveSpeed;
 
 				camTransform.Translate(currentPos);
 
 				// 회전
-				constexpr float angleSpeed = 3.f / 1000.f;
+				constexpr float angleSpeed = 48.f / 1000.f;
 
 				static glm::vec2 RPressedPos;
 
@@ -133,32 +133,56 @@ namespace SMGE
 				if (isJustRPress == false && isRPress == true)
 				{
 					auto mouseMoved = RPressedPos - userInput.GetMousePosition();
-					mouseMoved.y *= -1.f;	// screen to gl
 
-					// degrees 를 누적하지 않았을 때의 코드
-					const auto yawDegrees = mouseMoved.x * angleSpeed;
-					const auto pitchDegrees = mouseMoved.y * angleSpeed;
+					// 누적하기
+					static float yawDegrees = 180.f, pitchDegrees = 0.f;
+					yawDegrees += mouseMoved.x * angleSpeed;
+					pitchDegrees += mouseMoved.y * angleSpeed;
 
-					const auto rotYaw = glm::rotate(nsRE::TransformConst::Mat4_Identity, yawDegrees, camTransform.GetWorldUp());
-					const auto rotPit = glm::rotate(nsRE::TransformConst::Mat4_Identity, pitchDegrees, camTransform.GetWorldLeft());
+					// 오일러 처리
+					camTransform.RotateEuler({ pitchDegrees, yawDegrees, 0.f }, true);
 
-					const auto ypMat = rotPit * rotYaw;
-					const auto newDir = ypMat * glm::vec4(camTransform.GetWorldFront(), 0.f);
-					const auto newUp = ypMat * glm::vec4(camTransform.GetWorldUp(), 0.f);
+					// 누적해서 - 쿼터니언 처리
+					/*auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, { 1.f, 0.f, 0.f });
+					auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, { 0.f, 1.f, 0.f });
+					auto newDir = rotYaw * rotPit * glm::vec4(0.f, 0.f, 1.f, 0.f);
+					auto newUp = rotYaw * rotPit * glm::vec4(0.f, 1.f, 0.f, 0.f);
+					*/
 
-					// degrees 를 누적할 때의 코드 - 처음 회전이 확 튀고 그 뒤로는 잘 작동하는데 여전히 조금씩 휘어진다
-					//static float yawDegrees = 0.f, pitchDegrees = 0.f;
-					//yawDegrees += mouseMoved.x * angleSpeed;
-					//pitchDegrees += mouseMoved.y * angleSpeed;
-					//auto rotYaw = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, yawDegrees, { 0.f, 1.f, 0.f });
-					//auto rotPit = glm::rotate(SMGE::nsRE::TransformConst::Mat4_Identity, pitchDegrees, { 1.f, 0.f, 0.f });
-					//auto newDir = rotYaw * rotPit * glm::vec4(0.f, 0.f, 1.f, 0.f);
+					/* 누적 안하고 쿼터니언 처리 - 버그 있어서 제대로 안됨
+					//const auto yawDegrees = mouseMoved.x * angleSpeed;
+					//const auto pitchDegrees = mouseMoved.y * angleSpeed;
+
+					//static auto yawDegrees = 15.f;
+					//static auto pitchDegrees = 0.f;
+
+					// 여기 - RotateEuler 등의 통합 함수로 처리해야겠다, 나중에 여기저기서 회전 적용 순서 다른 문제 생길 수 있음, 다른 곳도 회전 적용 순서를 통합 처리해라
+					// XYZ 순서로 적용하는 것이 주의
+					const auto rotPit = glm::rotate(nsRE::TransformConst::Mat4_Identity, glm::radians(pitchDegrees), camTransform.GetFinalLeft());
+
+					// 1 - 노 누적, 피치에 따른 업 변화
+					const auto pitchedFinalUp = rotPit * glm::vec4(camTransform.GetFinalUp(), 0.f);
+					const auto rotPitYaw = glm::rotate(rotPit, glm::radians(yawDegrees), glm::vec3(pitchedFinalUp));
+
+					// 2 - 노 누적, 업 변화 없음
+					//const auto rotYaw = glm::rotate(nsRE::TransformConst::Mat4_Identity, glm::radians(yawDegrees), camTransform.GetFinalUp());
+					//const auto rotPitYaw = rotYaw * rotPit;
+					//const auto pitchedFinalUp = camTransform.GetFinalUp();
+
+					const auto finalFront = camTransform.GetFinalFront();
+					const auto newDir = rotPitYaw * glm::vec4(finalFront, 0.f);
+					//const auto newUp = rotPitYaw * glm::vec4(camTransform.GetFinalUp(), 0.f);
+					const auto newUp = pitchedFinalUp;
 
 #ifdef REFACTORING_TRNASFORM
 					camTransform.RotateDirection(newDir, newUp);
 #else
 					camTransform.RotateQuat(newDir);
 #endif
+					*/
+
+					// 테스트 코드 - 리칼크파이널 코드 재검토 - camTransform.RecalcFinal();
+
 					RPressedPos = userInput.GetMousePosition();
 				}
 			}
@@ -194,6 +218,7 @@ namespace SMGE
 						{
 							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 							pointActor->getTransform().Translate(COLL_SEG.end_);
+							// 테스트 코드 - 리칼크파이널 코드 재검토 - pointActor->getTransform().RecalcFinal();
 						}
 						FinishSpawnActor(currentMap, *pointActor);
 						pointActor->SetLifeTickCount(100);
@@ -213,10 +238,11 @@ namespace SMGE
 					rayActor->getTransform().Scale({ Configs::BoundEpsilon, Configs::BoundEpsilon, Configs::BoundEpsilon });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
 					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
 #ifdef REFACTORING_TRNASFORM
-					rayActor->getTransform().RotateDirection(ray_direction, nsRE::TransformConst::WorldYAxis);
+					rayActor->getTransform().RotateDirection(ray_direction);
 #else
 					rayActor->getTransform().RotateQuat(ray_direction);
 #endif
+					// 테스트 코드 - 리칼크파이널 코드 재검토 - rayActor->getTransform().RecalcFinal();
 				}
 				FinishSpawnActor(currentMap, rayActor);
 
@@ -275,9 +301,17 @@ namespace SMGE
 		{
 			auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/templates/CGizmoActorTranslate.asset")));
 			gizmo->CopyFromTemplate(prefab->getContentClass());
-			gizmo->getTransform().Translate(selActor->getTransform().GetTranslation());
-			gizmo->getTransform().Rotate(selActor->getTransform().CurrentRotationMatrix());	// 액터에 곧바로 붙어있음
-			gizmo->getTransform().Scale(selActor->getTransform().GetScales());
+
+			// 트랜스폼 그대로 카피
+			gizmo->getTransform().Translate(selActor->getTransform().GetPendingPosition());
+#ifdef REFACTORING_TRNASFORM
+			gizmo->getTransform().Rotate(selActor->getTransform().GetPendingRotationMatrix());	// 액터에 곧바로 붙어있음
+#else
+			//gizmo->getTransform().Rotate(selActor->getTransform().GetPendingRotationMatrix());	// 액터에 곧바로 붙어있음	
+#endif
+			gizmo->getTransform().Scale(selActor->getTransform().GetPendingScales());
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - gizmo->getTransform().RecalcFinal();
+
 			FinishSpawnActor(itsMap, gizmo);
 
 			gizmoActors_.insert(std::make_pair(selActor, gizmo));

@@ -1,7 +1,8 @@
 #ifndef QUATERNION_UTILS_H
 #define QUATERNION_UTILS_H
 
-namespace OpenGL_Tutorials
+// license - opengl tutorials
+namespace MathUtils
 {
 	glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
 
@@ -10,6 +11,9 @@ namespace OpenGL_Tutorials
 	glm::quat RotateTowards(glm::quat q1, glm::quat q2, float maxAngle);
 
 	void Quat2Euler(glm::quat& q, float& pitch, float& yaw, float& roll);
+
+	glm::vec3 Mat2Euler(const glm::mat4& rotMat);
+	glm::vec3 Mat2Euler(const glm::mat3& rotMat);
 }
 
 

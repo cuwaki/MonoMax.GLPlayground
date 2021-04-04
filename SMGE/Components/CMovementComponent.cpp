@@ -1,7 +1,7 @@
 #include "CMovementComponent.h"
 #include "../Objects/CActor.h"
 
-// 테스트 코드
+// 테스트 코드 - 무브먼트 디버깅용
 #include "CDrawComponent.h"
 
 namespace SMGE
@@ -17,7 +17,7 @@ namespace SMGE
 		return *reflTransformCompo_.get();
 	}
 
-	// 테스트 코드
+	// 테스트 코드 - 무브먼트 테스트용
 	static glm::vec3 moveTo(0, 0, -20), moveFrom;
 	static glm::vec3 rotateTo(0, 55, 0), rotateFromEuler;
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
@@ -42,15 +42,15 @@ namespace SMGE
 		setActive(true);
 
 		{	// 테스트 코드 - 인터폴레이션
-			moveFrom = actorParent_->getTransform().GetTranslation();
+			moveFrom = actorParent_->getTransform().GetPendingPosition();
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
-			rotateFromEuler = actorParent_->getTransform().GetRotationEulerDegrees();
+			rotateFromEuler = actorParent_->getTransform().GetPendingRotationEulerDegrees();
 			interpRotation_.setCurveType(ECurveType::Cos);
 			interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
 
-			scaleFrom = actorParent_->getTransform().GetScales();
+			scaleFrom = actorParent_->getTransform().GetPendingScales();
 			interpScale_.setCurveType(ECurveType::Sin);
 			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 		}
@@ -77,7 +77,7 @@ namespace SMGE
 				else
 				{
 					moveTo *= -1.f;
-					interpTranslation_.start(actorParent_->getTransform().GetTranslation(), actorParent_->getTransform().GetTranslation() + moveTo, TestInterpolationTime);
+					interpTranslation_.start(actorParent_->getTransform().GetPendingPosition(), actorParent_->getTransform().GetPendingPosition() + moveTo, TestInterpolationTime);
 				}
 
 				// Rotate
@@ -103,6 +103,8 @@ namespace SMGE
 				//{
 				//	interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 				//}
+
+				// 테스트 코드 - 리칼크파이널 코드 재검토 - targetTransform_->RecalcFinal();
 			}
 		}
 	}

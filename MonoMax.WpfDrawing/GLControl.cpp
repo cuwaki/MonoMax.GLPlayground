@@ -6,6 +6,8 @@ using namespace System::Windows::Media;
 using namespace System::Windows::Media::Imaging;
 using namespace System::Windows::Controls;
 
+//#define SINGLE_THREADING 1
+
 namespace SMGE
 {
 	GLControl::GLControl()
@@ -55,11 +57,13 @@ namespace SMGE
 			m_tickTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Tick);
 			m_tickTimer->Start();
 
+#ifdef SINGLE_THREADING
+#else
 			m_renderTimer = gcnew System::Windows::Threading::DispatcherTimer(System::Windows::Threading::DispatcherPriority::Send);
 			m_renderTimer->Interval = System::TimeSpan::FromMilliseconds(wantFPS);
 			m_renderTimer->Tick += gcnew System::EventHandler(this, &SMGE::GLControl::Render);
 			m_renderTimer->Start();
-
+#endif
 		}
 
 		m_renderingEngine->Resize(m_width, m_height);
@@ -100,10 +104,15 @@ namespace SMGE
 	void GLControl::Tick(System::Object^ sender, System::EventArgs^ e)
 	{
 		m_renderingEngine->Tick();
+#ifdef SINGLE_THREADING
+		Render(sender, e);
+#endif
 	}
 
 	void GLControl::Render(System::Object^ sender, System::EventArgs^ e)
 	{
+#ifdef SINGLE_THREADING
+#else
 		System::TimeSpan elapsed = (System::DateTime::Now - m_lastUpdate);
 		if (elapsed.TotalMilliseconds >= 1000)
 		{
@@ -116,5 +125,6 @@ namespace SMGE
 		m_ImageControl->Dispatcher->Invoke(gcnew System::Action(this, &GLControl::UpdateImageData));
 
 		m_fpsCounter++;
+#endif
 	}
 }

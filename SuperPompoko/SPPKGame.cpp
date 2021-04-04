@@ -28,14 +28,14 @@ namespace SMGE
 		}
 		CWString GetEngineAssetPath(const CWString& assetFilePath)
 		{
-#if DEBUG || _DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 			return wtext("./RunningResources/") + assetFilePath;
 #else
 #endif
 		}
 		CWString GetGameAssetRoot()
 		{
-#if DEBUG || _DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 			// 개발중에는 실행 dir 을 프로젝트 루트로 맞춰라 - .sln 이 있는 곳 말이다!
 			return wtext("./RunningResources/") + GetGameProjectName() + wtext("/assets/");
 #else

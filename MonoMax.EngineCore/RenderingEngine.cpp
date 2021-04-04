@@ -319,11 +319,11 @@ namespace SMGE
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		Transform::Transform()
 		{
-			translation_ = Vec3_Zero;
-			scale_ = Vec3_One;
+			pendingPosition_ = Vec3_Zero;
+			pendingScales_ = Vec3_One;
 
 #ifdef REFACTORING_TRNASFORM
-			rotationMatrix_ = Mat4_Identity;
+			pendingRotationMatrix_ = Mat4_Identity;
 #else
 			rotationRadianEuler_ = Vec3_Zero;
 			directionForQuat_ = Vec3_Zero;
@@ -332,59 +332,36 @@ namespace SMGE
 			RecalcFinal();
 		}
 
-		const glm::vec3& Transform::GetTranslation() const
+		void Transform::Translate(glm::vec3 worldPos)
 		{
-			return translation_;
-		}
-		const glm::vec3& Transform::GetScales() const
-		{
-			return scale_;
-		}
-		float Transform::GetScale(TransformConst::ETypeAxis aType) const
-		{
-			assert(aType >= ETypeAxis::X && aType <= ETypeAxis::Z);
-			return scale_[aType];
-		}
+			pendingPosition_ = worldPos;
 
-		glm::vec3 Transform::GetRotationEulerDegrees() const
+			Dirty();
+		}
+		void Transform::Scale(float scale)
 		{
-#ifdef REFACTORING_TRNASFORM
-			glm::vec3 ret;
+			pendingScales_ = glm::vec3(scale);
 
-			ret.y = glm::degrees(glm::acos(rotationMatrix_[ETypeAxis::Y][1]));
-			ret.z = glm::degrees(glm::acos(rotationMatrix_[ETypeAxis::Z][2]));
-			ret.x = glm::degrees(glm::acos(rotationMatrix_[ETypeAxis::X][0]));
+			Dirty();
+		}
+		void Transform::Scale(glm::vec3 scale)
+		{
+			pendingScales_ = scale;
 
-			return ret;
-#else
-			return glm::degrees(rotationRadianEuler_);
-#endif
+			Dirty();
+		}
+		void Transform::Scale(ETypeAxis aType, float scale)
+		{
+			assert(aType >= 0 && aType < ETypeAxis::ETypeAxis_MAX);
+			pendingScales_[aType] = scale;
+
+			Dirty();
 		}
 
 #ifdef REFACTORING_TRNASFORM
 		void Transform::Rotate(const glm::mat4& newRotMat)
 		{
-			rotationMatrix_ = newRotMat;
-
-			Dirty();
-		}
-
-		void Transform::RotateEuler(glm::vec3 rotateDegrees, bool isWorld)
-		{			
-			// YZX 순서로 - http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
-			if (isWorld)
-			{
-				rotationMatrix_ = Mat4_Identity;
-				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.y), WorldAxis[ETypeAxis::Y]);
-				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.z), WorldAxis[ETypeAxis::Z]);
-				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.x), WorldAxis[ETypeAxis::X]);
-			}
-			else
-			{	// 모델 축 기준으로 - 왠만하면 안써야한다, 짐벌락 일어남...
-				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.y), GetYAxis(rotationMatrix_));
-				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.z), GetZAxis(rotationMatrix_));
-				rotationMatrix_ = glm::rotate(rotationMatrix_, glm::radians(rotateDegrees.x), GetXAxis(rotationMatrix_));
-			}
+			pendingRotationMatrix_ = newRotMat;
 
 			Dirty();
 		}
@@ -392,14 +369,44 @@ namespace SMGE
 		void Transform::Rotate(const glm::vec3& basisAxis, float degrees)
 		{
 			const auto halfRadians = glm::radians(degrees) * 0.5f;
-			
-			glm::quat q;
-			q.x = basisAxis.x * glm::sin(halfRadians);
-			q.y = basisAxis.y * glm::sin(halfRadians);
-			q.z = basisAxis.z * glm::sin(halfRadians);
-			q.w = glm::cos(halfRadians);
 
-			rotationMatrix_ = glm::mat4_cast(q);
+			const auto sinHR = glm::sin(halfRadians);
+
+			glm::quat q;
+			q.w = glm::cos(halfRadians);
+			q.x = basisAxis.x * sinHR;
+			q.y = basisAxis.y * sinHR;
+			q.z = basisAxis.z * sinHR;
+
+			pendingRotationMatrix_ = glm::mat4_cast(q);
+
+			Dirty();
+		}
+
+		void Transform::RotateEuler(glm::vec3 rotateDegrees, bool isWorld)
+		{
+			// 여기 - RotateEuler 등의 통합 함수로 처리해야겠다, 나중에 여기저기서 회전 적용 순서 다른 문제 생길 수 있음, 다른 곳도 회전 적용 순서를 통합 처리해라
+			//
+			// 20210328 - 여기저기서 오일러 회전의 기본 순서에 대한 말이 분분한 것 같다 - 아래의 문서들을 보면 그렇다
+			// 일단 현재 glm 을 보니 eulerAngleXYZ 와 eulerAngleYXZ 두가지가 준비되어있다.
+			// 그러므로 그냥 glm에서 지원하는 순서 중 가장 디폴트고 직관적인 XYZ 순서를 따르기로 한다
+			//
+			// 디폴트가 YZX 순서라는 문서 - http://www.opengl-tutorial.org/kr/intermediate-tutorials/tutorial-17-quaternions/
+			// 디폴트가 ZYX 순서라는 문서 - https://kr.mathworks.com/help/uav/ref/eul2rotm.html
+			//
+			if (isWorld)
+			{
+				pendingRotationMatrix_ = Mat4_Identity;
+				pendingRotationMatrix_ = glm::rotate(pendingRotationMatrix_, glm::radians(rotateDegrees.x), WorldAxis[ETypeAxis::X]);
+				pendingRotationMatrix_ = glm::rotate(pendingRotationMatrix_, glm::radians(rotateDegrees.y), WorldAxis[ETypeAxis::Y]);
+				pendingRotationMatrix_ = glm::rotate(pendingRotationMatrix_, glm::radians(rotateDegrees.z), WorldAxis[ETypeAxis::Z]);
+			}
+			else
+			{	// 모델 축 기준으로 - 왠만하면 안써야한다, 짐벌락 일어남...
+				pendingRotationMatrix_ = glm::rotate(pendingRotationMatrix_, glm::radians(rotateDegrees.x), GetXAxis(pendingRotationMatrix_));
+				pendingRotationMatrix_ = glm::rotate(pendingRotationMatrix_, glm::radians(rotateDegrees.y), GetYAxis(pendingRotationMatrix_));
+				pendingRotationMatrix_ = glm::rotate(pendingRotationMatrix_, glm::radians(rotateDegrees.z), GetZAxis(pendingRotationMatrix_));
+			}
 
 			Dirty();
 		}
@@ -407,19 +414,20 @@ namespace SMGE
 		void Transform::RotateDirection(const glm::vec3& newDirNormalized, glm::vec3 newUpNormalized, bool isSecurePerp)
 		{
 			if (isSecurePerp == true)
-			{
+			{	// newUp과 newDir 의 직각을 보장해준다
 				const auto right = glm::cross(newDirNormalized, newUpNormalized);
 				newUpNormalized = glm::cross(right, newDirNormalized);
 			}
 
-			const auto currentDir = GetFrontAxis(rotationMatrix_);
-			const auto newDirQ = OpenGL_Tutorials::RotationBetweenVectors(currentDir, newDirNormalized);
+			const auto currentDir = GetFrontAxis(pendingRotationMatrix_);
+			const auto newDirQ = MathUtils::RotationBetweenVectors(currentDir, newDirNormalized);
 
-			//auto currentUp = GetUpAxis(rotationMatrix_);
-			auto rotatedDefaultUp = newDirQ * WorldAxis[DefaultAxis_Up];
-			const auto newUpQ = OpenGL_Tutorials::RotationBetweenVectors(rotatedDefaultUp, newUpNormalized);
+			//auto currentUp = GetUpAxis(pendingRotationMatrix_);
+			auto rotatedDefaultUp = newDirQ * WorldAxis[DefaultAxis_Up];	// newDir 때문에 Up축이 바뀔테니 바뀌게 해서
+			const auto newUpQ = MathUtils::RotationBetweenVectors(rotatedDefaultUp, newUpNormalized);	// 바뀐 Up 축을 기준으로 newUp으로 돌아야할 Quat을 계산
+			// 이렇게 해야 newUp 이 제대로 계산된다
 
-			rotationMatrix_ = glm::mat4_cast(newUpQ * newDirQ);
+			pendingRotationMatrix_ = glm::mat4_cast(newUpQ * newDirQ);
 
 			Dirty();
 		}
@@ -445,7 +453,7 @@ namespace SMGE
 
 			Dirty();
 		}
-		glm::vec3 Transform::GetRotationEuler() const
+		const glm::vec3& Transform::GetRotationEuler() const
 		{
 			return rotationRadianEuler_;
 		}
@@ -457,7 +465,7 @@ namespace SMGE
 
 		const glm::mat4& Transform::FinalMatrix(bool isRecalc)
 		{
-			if(isRecalc == true && isDirty_ == true)
+			if(isRecalc == true)
 				RecalcFinal();
 
 			return finalMatrix_;
@@ -467,80 +475,80 @@ namespace SMGE
 			return finalMatrix_;
 		}
 
-		glm::vec3 Transform::GetWorldPosition() const
+		const glm::vec3& Transform::GetPendingPosition() const
 		{
-			const auto& mat = FinalMatrixNoRecalc();
-			return mat[3];
+			return pendingPosition_;
 		}
-		float Transform::GetWorldScale(TransformConst::ETypeAxis aType) const
+		const glm::vec3& Transform::GetPendingScales() const
 		{
-			return inheritedScale_[aType];
+			return pendingScales_;
 		}
-		glm::vec3 Transform::GetWorldScales() const
+		float Transform::GetPendingScale(TransformConst::ETypeAxis aType) const
 		{
-			return inheritedScale_;
+			assert(aType >= ETypeAxis::X && aType <= ETypeAxis::Z);
+			return pendingScales_[aType];
 		}
 
-		glm::vec3 Transform::GetWorldAxis(TransformConst::ETypeAxis aType) const
+		glm::vec3 Transform::GetPendingRotationEulerDegrees() const
 		{
-			const auto& mat = FinalMatrixNoRecalc();
+#ifdef REFACTORING_TRNASFORM
+			return MathUtils::Mat2Euler(pendingRotationMatrix_);
+#else
+			return glm::degrees(rotationRadianEuler_);
+#endif
+		}
 
-			const glm::vec3 ret = mat[aType] / GetWorldScale(aType);
+		glm::vec3 Transform::GetFinalRotationEulerDegrees() const
+		{
+#ifdef REFACTORING_TRNASFORM
+			return MathUtils::Mat2Euler(finalMatrix_);
+#else
+			return glm::degrees(rotationRadianEuler_);	// 임시 - 그냥 대강 작동하도록
+#endif
+		}
+
+		glm::vec3 Transform::GetFinalPosition() const
+		{
+			return finalMatrix_[3];
+		}
+		float Transform::GetFinalScale(TransformConst::ETypeAxis aType) const
+		{
+			return finalScales_[aType];
+		}
+		glm::vec3 Transform::GetFinalScales() const
+		{
+			return finalScales_;
+		}
+		glm::vec3 Transform::GetFinalAxis(TransformConst::ETypeAxis aType) const
+		{
+			const auto ret = finalMatrix_[aType] / GetFinalScale(aType);
 			return glm::normalize(ret);
 		}
-		glm::vec3 Transform::GetWorldFront() const
+		glm::vec3 Transform::GetFinalFront() const
 		{
-			return GetWorldAxis(DefaultAxis_Front);
+			return GetFinalAxis(DefaultAxis_Front);
 		}
-		glm::vec3 Transform::GetWorldUp() const
+		glm::vec3 Transform::GetFinalUp() const
 		{
-			return GetWorldAxis(DefaultAxis_Up);
+			return GetFinalAxis(DefaultAxis_Up);
 		}
-		glm::vec3 Transform::GetWorldLeft() const	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
+		glm::vec3 Transform::GetFinalLeft() const	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 		{
-			return GetWorldAxis(DefaultAxis_Left);
-		}
-
-		
-		void Transform::Translate(glm::vec3 worldPos)
-		{
-			translation_ = worldPos;
-
-			Dirty();
+			return GetFinalAxis(DefaultAxis_Left);
 		}
 
-		void Transform::Scale(float scale)
+		void Transform::Dirty(bool isForce)
 		{
-			scale_ = glm::vec3(scale);
-
-			Dirty();
-		}
-		void Transform::Scale(glm::vec3 scale)
-		{
-			scale_ = scale;
-
-			Dirty();
-		}
-		void Transform::Scale(ETypeAxis aType, float scale)
-		{
-			assert(aType >= 0 && aType < ETypeAxis::ETypeAxis_MAX);
-			scale_[aType] = scale;
-
-			Dirty();
-		}
-
-		void Transform::Dirty()
-		{
-			if (isDirty_)
+			if (isForce == false && isDirty_ == true)
 				return;
 
 			isDirty_ = true;
 
 			// 부모가 더티될 때 자식들도 더티가 되어야한다 - 그래야 RecalcFinal 가 제대로 작동함
 			std::for_each(children_.begin(), children_.end(),
-				[](auto child)
+				[isForce](auto child)
 				{
-					child->Dirty();
+					child->Dirty(isForce);
 				}
 			);
 		}
@@ -557,7 +565,7 @@ namespace SMGE
 
 		void Transform::OnBeforeRendering()
 		{
-			RecalcFinal();
+			RecalcFinal();	// 최적화 - 여기서 매번 모든 트랜스폼에 대해서 처리를 시도할 필요가 없다, 탑패런트로 가서 1회 처리하면 싸그리 처리되므로, 현재는 좀 낭비가 있는 상태이다
 		}
 
 		void Transform::ChangeParent(Transform* p)
@@ -581,6 +589,8 @@ namespace SMGE
 				if(found != oldParent->children_.end())
 					oldParent->children_.remove(*found);
 			}
+
+			Dirty(true);
 		}
 
 		bool Transform::HasParent() const
@@ -598,10 +608,10 @@ namespace SMGE
 			if (IsDirty())
 			{	// 나의 트랜스폼을 계산
 #ifdef REFACTORING_TRNASFORM
-				const auto translMat = glm::translate(Mat4_Identity, translation_);
-				const auto scalMat = glm::scale(Mat4_Identity, scale_);
-
-				finalMatrix_ = translMat * rotationMatrix_ * scalMat;
+				// 1.  내 변환 반영
+				auto scaledMat = glm::scale(Mat4_Identity, pendingScales_);
+				auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
+				finalMatrix_ = translMat * pendingRotationMatrix_ * scaledMat;	// 최적화 - 인라인 처리해서 임시 객체 없애자
 #else
 				//if (parent)
 				//{	// 자식일 경우 - 부모의 트랜스폼 먼저 반영해야 의도대로 작동한다 / 이 코드에는 부모의 부모 것이 적용안되는 버그가 있다
@@ -637,7 +647,7 @@ namespace SMGE
 
 				//finalMatrix_ = glm::scale(finalMatrix_, scale_);
 
-				const auto translMat = glm::translate(Mat4_Identity, translation_);
+				const auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
 
 				// 1. 오일러각 조절로 기본 각도를 맞추고
 				// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
@@ -653,12 +663,12 @@ namespace SMGE
 				const auto modelDirAxis = GetFrontAxis(eulerRotMat);
 				const auto modelUpAxis = GetUpAxis(eulerRotMat);
 				//const glm::quat qX = glm::angleAxis(glm::degrees(rotationRadianQuat_.x), glm::vec3(eulerRotMat[ETypeAxis::X]));
-				const glm::quat lookAt = glm::normalize(OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, modelDirAxis, WorldYAxis));
-				//const glm::quat lookAt = OpenGL_Tutorials::LookAt(directionForQuat_, modelUpAxis, WorldZAxis, WorldYAxis);
+				const glm::quat lookAt = glm::normalize(MathUtils::LookAt(directionForQuat_, modelUpAxis, modelDirAxis, WorldYAxis));
+				//const glm::quat lookAt = MathUtils::LookAt(directionForQuat_, modelUpAxis, WorldZAxis, WorldYAxis);
 				const auto quatRotMat = glm::mat4_cast(lookAt);
 
 				// 나의 스케일 처리
-				const auto scalMat = glm::scale(Mat4_Identity, scale_);
+				const auto scalMat = glm::scale(Mat4_Identity, pendingScales_);
 				finalMatrix_ = translMat * quatRotMat * eulerRotMat * scalMat;
 
 				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
@@ -666,15 +676,15 @@ namespace SMGE
 #endif
 
 				if (parent && isAbsoluteTransform_ == false)
-				{
+				{	// 2. 부모 변환 반영
 					assert(parent == parent_);
 
-					finalMatrix_ = parent->finalMatrix_ * finalMatrix_;
-					inheritedScale_ = parent->inheritedScale_ * scale_;
+					finalMatrix_ *= parent->finalMatrix_;
+					finalScales_ *= parent->finalScales_;
 				}
 				else
 				{
-					inheritedScale_ = scale_;
+					finalScales_ = pendingScales_;
 				}
 
 				isDirty_ = false;
@@ -695,15 +705,15 @@ namespace SMGE
 		//	auto topParent = GetTopParentConst();
 		//	topParent->RecalcFinalWorldScales_Internal(nullptr);
 
-		//	return inheritedScale_;
+		//	return finalScales_;
 		//}
 
 		//void Transform::RecalcFinalWorldScales_Internal(const Transform* parent) const
 		//{
 		//	if (parent != nullptr)
-		//		inheritedScale_ = scale_ * parent->inheritedScale_;
+		//		finalScales_ = scale_ * parent->finalScales_;
 		//	else
-		//		inheritedScale_ = scale_;
+		//		finalScales_ = scale_;
 
 		//	// 나의 자식들에게 전파
 		//	std::for_each(children_.begin(), children_.end(),
@@ -726,7 +736,7 @@ namespace SMGE
 		}
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#if IS_DEBUG
+#if defined(_DEBUG) || defined(DEBUG)
 		ResourceModelBase::~ResourceModelBase()
 		{
 			return;	// 테스트 코드 ㅡ 디버깅용
@@ -736,6 +746,7 @@ namespace SMGE
 		void ResourceModelBase::NewAndRegisterRenderModel(const GLFWwindow* contextWindow) const
 		{
 			auto newOne = std::make_unique<RenderModel>(*this, 0);
+			newOne->CreateFromResource();
 			renderModelsPerContext_.insert( std::make_pair(contextWindow, std::move(newOne)) );
 		}
 
@@ -745,6 +756,7 @@ namespace SMGE
 			if (found == renderModelsPerContext_.end())
 			{
 				NewAndRegisterRenderModel(contextWindow);	// 없으면 만들고
+				// 여기 - 중요 - 렌더링이랑 틱 사이에 펜스 쳐야한다 - GLControl::Tick( vs ::Rendering(
 				return GetRenderModel(contextWindow);
 			}
 
@@ -855,25 +867,9 @@ namespace SMGE
 			Destroy();
 		}
 
-		RenderModel::RenderModel(const ResourceModelBase& asset, GLuint texSamp) : resourceModel_(asset)
+		RenderModel::RenderModel(const ResourceModelBase& resModelBase, GLuint texSamp) : resourceModel_(resModelBase), usingTextureSampleI_(texSamp)
 		{
 			Invalidate();
-
-			const auto& resModel = static_cast<const ResourceModel&>(asset);
-			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(resModel.GetVertShaderPath(), resModel.GetFragShaderPath());
-
-			// 임시 코드 - 렌더모델이 메시 관련일 경우에만 아래 코드가 실행되어야한다, 고민해봐라
-			const auto& textureData = resourceModel_.GetTexture();
-			if (textureData.image_ != nullptr)
-			{
-				usingTextureID_ = GLCreateTextureDDS(textureData.format_, textureData.mipMapCount_, textureData.width_, textureData.height_, textureData.image_);
-				usingTextureSampleI_ = texSamp;
-			}
-
-			const auto& mesh = asset.GetMesh();
-			GenGLMeshDatas(mesh.vertices_, mesh.uvs_, mesh.normals_, mesh.vertexColors_);
-
-			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resourceModel_ 의 내용을 비워도 된다???
 		}
 
 		RenderModel::RenderModel(RenderModel&& c) noexcept : resourceModel_(c.resourceModel_)
@@ -892,6 +888,24 @@ namespace SMGE
 			usingTextureSampleI_ = c.usingTextureSampleI_;
 
 			c.Invalidate();
+		}
+
+		void RenderModel::CreateFromResource()
+		{
+			const auto& resModel = static_cast<const ResourceModel&>(resourceModel_);
+			vfShaderSet_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(resModel.GetVertShaderPath(), resModel.GetFragShaderPath());
+
+			// 임시 코드 - 렌더모델이 메시 관련일 경우에만 아래 코드가 실행되어야한다, 고민해봐라
+			const auto& textureData = resModel.GetTexture();
+			if (textureData.image_ != nullptr)
+			{
+				usingTextureID_ = GLCreateTextureDDS(textureData.format_, textureData.mipMapCount_, textureData.width_, textureData.height_, textureData.image_);
+			}
+
+			const auto& mesh = resModel.GetMesh();
+			GenGLMeshDatas(mesh.vertices_, mesh.uvs_, mesh.normals_, mesh.vertexColors_);
+
+			// 최적화 - 게임의 경우 바인드가 끝나고 나면 resourceModel_ 의 내용을 비워도 된다???
 		}
 
 		bool RenderModel::GenGLMeshDatas(const std::vector<glm::vec3>& vertices, const std::vector<glm::vec2>& uvs, const std::vector<glm::vec3>& normals, const std::vector<glm::vec3>& vertexColors)
@@ -1618,7 +1632,8 @@ namespace SMGE
 
 		CPostEffectPass::CPostEffectPass(std::wstring_view vsFilePath, std::wstring_view fsFilePath) : CRenderingPass()
 		{
-			auto peVert= SMGE::Globals::GetEngineAssetPath(vsFilePath.data()), peFrag = SMGE::Globals::GetEngineAssetPath(fsFilePath.data());
+			auto peVert= SMGE::Globals::GetEngineAssetPath(vsFilePath.data()),
+				peFrag = SMGE::Globals::GetEngineAssetPath(fsFilePath.data());
 
 			posteffectShader_ = VertFragShaderSet::FindOrLoadShaderSet<VertFragShaderSet>(peVert, peFrag);
 		}
@@ -1634,7 +1649,7 @@ namespace SMGE
 
 			writeRT->BindFrameBuffer();
 			{
-				//writeRT->SetClearColor(glm::vec3(1.f, 0.f, 0.f));	// 테스트 코드
+				//writeRT->SetClearColor(glm::vec3(1.f, 0.f, 0.f));	// 테스트 코드 - 한눈에 잘 보이라고
 				writeRT->ClearFrameBuffer();	// 테스트 코드 ㅡ 현재 백버퍼로 오버라이트 하는 것만 구현되어있기 때문
 
 				glBindVertexArray(writeRT->GetQuadVAO());
