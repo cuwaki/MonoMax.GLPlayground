@@ -133,7 +133,7 @@ namespace SMGE
 			const glm::vec3& GetPendingPosition() const;
 			const glm::vec3& GetPendingScales() const;
 			float GetPendingScale(TransformConst::ETypeAxis aType) const;
-			glm::vec3 GetPendingRotationEulerDegrees() const;
+			glm::vec3 GetPendingRotationEulerDegreesWorld() const;
 
 			// REFACTORING_TRNASFORM - 여기 - 이름이 World 가 아니고 Final 이 맞다
 			glm::vec3 GetFinalPosition() const;
@@ -144,7 +144,7 @@ namespace SMGE
 			glm::vec3 GetFinalFront() const;
 			glm::vec3 GetFinalUp() const;
 			glm::vec3 GetFinalLeft() const;
-			glm::vec3 GetFinalRotationEulerDegrees() const;
+			glm::vec3 GetFinalRotationEulerDegreesWorld() const;
 #ifdef REFACTORING_TRNASFORM
 			const glm::mat4& GetPendingRotationMatrix() const { return pendingRotationMatrix_; }
 #else

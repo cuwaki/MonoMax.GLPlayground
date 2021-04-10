@@ -12,8 +12,8 @@ namespace MathUtils
 
 	void Quat2Euler(glm::quat& q, float& pitch, float& yaw, float& roll);
 
-	glm::vec3 Mat2Euler(const glm::mat4& rotMat);
-	glm::vec3 Mat2Euler(const glm::mat3& rotMat);
+	glm::vec3 Mat2EulerWorld(const glm::mat4& rotMat);
+	glm::vec3 Mat2EulerWorld(const glm::mat3& rotMat);
 }
 
 

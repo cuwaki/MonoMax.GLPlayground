@@ -6,7 +6,7 @@
 #include "CCameraActor.h"
 
 // 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
-#define ENABLE_FRUSTUM_CULLING
+//#define ENABLE_FRUSTUM_CULLING
 //#define ENABLE_OCTREE
 
 namespace SMGE

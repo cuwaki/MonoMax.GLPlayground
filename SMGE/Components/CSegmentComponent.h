@@ -19,8 +19,6 @@ namespace SMGE
 	public:
 		CSegmentComponent(CObject* outer);
 
-		virtual void OnBeginPlay(class CObject* parent) override;
-		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 
 		void SetBoundDataComponent(float size, const glm::vec3& direction);

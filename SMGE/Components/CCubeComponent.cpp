@@ -23,16 +23,6 @@ namespace SMGE
 		boundType_ = EBoundType::CUBE;
 	}
 
-	void CCubeComponent::OnBeginPlay(CObject* parent)
-	{
-		Super::OnBeginPlay(parent);
-	}
-
-	void CCubeComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
-	}
-
 	SGReflection& CCubeComponent::getReflection()
 	{
 		if (reflCubeCompo_.get() == nullptr)

@@ -22,16 +22,6 @@ namespace SMGE
 		boundType_ = EBoundType::POINT;
 	}
 
-	void CPointComponent::OnBeginPlay(CObject* parent)
-	{
-		Super::OnBeginPlay(parent);
-	}
-
-	void CPointComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
-	}
-
 	SGReflection& CPointComponent::getReflection()
 	{
 		if (reflPointCompo_.get() == nullptr)

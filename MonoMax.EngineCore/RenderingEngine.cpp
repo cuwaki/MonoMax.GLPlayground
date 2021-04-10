@@ -489,19 +489,19 @@ namespace SMGE
 			return pendingScales_[aType];
 		}
 
-		glm::vec3 Transform::GetPendingRotationEulerDegrees() const
+		glm::vec3 Transform::GetPendingRotationEulerDegreesWorld() const
 		{
 #ifdef REFACTORING_TRNASFORM
-			return MathUtils::Mat2Euler(pendingRotationMatrix_);
+			return MathUtils::Mat2EulerWorld(pendingRotationMatrix_);
 #else
 			return glm::degrees(rotationRadianEuler_);
 #endif
 		}
 
-		glm::vec3 Transform::GetFinalRotationEulerDegrees() const
+		glm::vec3 Transform::GetFinalRotationEulerDegreesWorld() const
 		{
 #ifdef REFACTORING_TRNASFORM
-			return MathUtils::Mat2Euler(finalMatrix_);
+			return MathUtils::Mat2EulerWorld(finalMatrix_);
 #else
 			return glm::degrees(rotationRadianEuler_);	// 임시 - 그냥 대강 작동하도록
 #endif
@@ -608,10 +608,31 @@ namespace SMGE
 			if (IsDirty())
 			{	// 나의 트랜스폼을 계산
 #ifdef REFACTORING_TRNASFORM
-				// 1.  내 변환 반영
-				auto scaledMat = glm::scale(Mat4_Identity, pendingScales_);
-				auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
-				finalMatrix_ = translMat * pendingRotationMatrix_ * scaledMat;	// 최적화 - 인라인 처리해서 임시 객체 없애자
+				if (parent_ == nullptr || isAbsoluteTransform_)
+				{
+					const auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
+					const auto scaledMat = glm::scale(Mat4_Identity, pendingScales_);
+
+					finalMatrix_ = translMat * pendingRotationMatrix_ * scaledMat;	// 최적화 - 인라인 처리해서 임시 객체 없애자
+					finalScales_ = pendingScales_;
+				}
+				else
+				{
+					finalMatrix_ = parent_->FinalMatrixNoRecalc();
+
+					finalMatrix_ = glm::translate(finalMatrix_, pendingPosition_);
+					finalMatrix_ = glm::scale(finalMatrix_, pendingScales_);
+					finalMatrix_ *= pendingRotationMatrix_;
+
+					finalScales_ = parent_->pendingScales_ * pendingScales_;
+				}
+
+				//// 1.  내 변환 반영
+				//const auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
+				//const auto scaledMat = glm::scale(Mat4_Identity, pendingScales_);
+
+				//finalMatrix_ = translMat * pendingRotationMatrix_ * scaledMat;	// 최적화 - 인라인 처리해서 임시 객체 없애자
+				//finalScales_ = pendingScales_;
 #else
 				//if (parent)
 				//{	// 자식일 경우 - 부모의 트랜스폼 먼저 반영해야 의도대로 작동한다 / 이 코드에는 부모의 부모 것이 적용안되는 버그가 있다
@@ -673,7 +694,6 @@ namespace SMGE
 
 				// 나에게 부모 트랜스폼을 적용 - 아래와 같이 하면 이동에 스케일이 반영되어서 더 적게 움직이는 거나 회전값이 자식에게 그대로 적용되는 등의 문제가 생긴다
 				//finalMatrix_ = finalMatrix_ * parentMatrix;
-#endif
 
 				if (parent && isAbsoluteTransform_ == false)
 				{	// 2. 부모 변환 반영
@@ -682,10 +702,7 @@ namespace SMGE
 					finalMatrix_ *= parent->finalMatrix_;
 					finalScales_ *= parent->finalScales_;
 				}
-				else
-				{
-					finalScales_ = pendingScales_;
-				}
+#endif
 
 				isDirty_ = false;
 			}

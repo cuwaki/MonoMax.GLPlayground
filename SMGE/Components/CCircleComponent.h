@@ -22,8 +22,6 @@ namespace SMGE
 		CCircleComponent(CObject* outer);
 		CCircleComponent(CObject* outer, bool hasFace);
 
-		virtual void OnBeginPlay(class CObject* parent) override;
-		virtual void OnEndPlay() override;
 		virtual void ReadyToDrawing() override;
 
 		glm::vec3 getNormal() const;

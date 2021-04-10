@@ -16,18 +16,11 @@ namespace SMGE
 	{
 		CWString ret = Super::operator CWString();
 
-		// 테스트 코드 - 리칼크파이널 코드 재검토
-//#ifdef REFACTORING_TRNASFORM
-//		ret += _TO_REFL(glm::vec3, nsre_transform_.GetFinalPosition());
-//		auto degRot = nsre_transform_.GetFinalRotationEulerDegrees();
-//		ret += _TO_REFL(glm::vec3, degRot);
-//		ret += _TO_REFL(glm::vec3, nsre_transform_.GetFinalScales());
-//#else
+		// 펜딩이 맞다 - 각자 자신의 트랜스폼을 저장하므로
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetPendingPosition());
-		auto degRot = nsre_transform_.GetPendingRotationEulerDegrees();
+		const auto degRot = nsre_transform_.GetPendingRotationEulerDegreesWorld();
 		ret += _TO_REFL(glm::vec3, degRot);
 		ret += _TO_REFL(glm::vec3, nsre_transform_.GetPendingScales());
-//#endif
 
 		return ret;
 	}
@@ -41,6 +34,7 @@ namespace SMGE
 		_FROM_REFL(rotation, variableSplitted);
 		_FROM_REFL(scale, variableSplitted);
 
+		// 펜딩이 맞다 - 각자 자신의 트랜스폼을 저장하므로
 		nsre_transform_.Translate(translation);
 #ifdef REFACTORING_TRNASFORM
 		nsre_transform_.RotateEuler(rotation, true);	// 최초 모델의 기준 축 설정 - 월드로 반영
@@ -48,7 +42,6 @@ namespace SMGE
 		nsre_transform_.RotateEuler(rotation);
 #endif
 		nsre_transform_.Scale(scale);
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - nsre_transform_.RecalcFinal();
 
 		return *this;
 	}
@@ -179,7 +172,7 @@ namespace SMGE
 			parentTransf = dynamic_cast<nsRE::Transform*>(parent);
 
 		ChangeParent(parentTransf);
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();
+		RecalcFinal();	// 이제 부모 자식 관계가 설정되었으므로 Final 계산을 제대로 할 수 있다.
 
 		for (auto& pc : getPersistentComponents())
 		{

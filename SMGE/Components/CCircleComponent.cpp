@@ -27,16 +27,6 @@ namespace SMGE
 		// 써클은 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 	}
 
-	void CCircleComponent::OnBeginPlay(CObject* parent)
-	{
-		Super::OnBeginPlay(parent);
-	}
-
-	void CCircleComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
-	}
-
 	void CCircleComponent::ReadyToDrawing()
 	{
 		CString resmKey;

@@ -22,7 +22,6 @@ namespace SMGE
 		CMovementComponent(CObject* outer);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
-		virtual void OnEndPlay() override;
 		virtual void Tick(float td) override;
 
 		// CInt_Reflection
@@ -32,8 +31,8 @@ namespace SMGE
 	protected:
 		std::unique_ptr<TReflectionStruct> reflTransformCompo_;
 
-		class CActor* actorParent_;
 		nsRE::Transform* targetTransform_ = nullptr;
+		std::unique_ptr<CTimer> myTimer_;
 
 		// 테스트 코드 - 인터폴레이션
 		CInterpolation<glm::vec3> interpTranslation_;

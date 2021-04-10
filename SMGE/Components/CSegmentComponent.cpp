@@ -22,7 +22,7 @@ namespace SMGE
 #else
 		RotateQuat(glm::normalize(direction));
 #endif
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();	// 여기 - SetBound 계열은 리칼크 해야하나??
 
 		// 세그먼트는 Z 로만 만들어져야한다, X, Y 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 	}
@@ -46,16 +46,6 @@ namespace SMGE
 		boundType_ = EBoundType::SEGMENT;
 	}
 
-	void CSegmentComponent::OnBeginPlay(CObject* parent)
-	{
-		Super::OnBeginPlay(parent);
-	}
-
-	void CSegmentComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
-	}
-
 	CCubeComponent* CSegmentComponent::CreateOBB()
 	{
 		auto obb = CreateOBB();
@@ -63,7 +53,7 @@ namespace SMGE
 		// 레이는 0에서 앞으로 뻗지만, OBB 는 큐브라서 중점에서 만들어지므로 Z축을 앵커로 잡아야한다
 		assert(nsRE::TransformConst::DefaultAxis_Front == nsRE::TransformConst::ETypeAxis::Z);
 		obb->Translate({ 0, 0, 0.5f });	// 단위크기니까 0.5로 하면 된다
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - obb->RecalcFinal();
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - obb->RecalcFinal();// 여기 - SetBound 계열은 리칼크 해야하나??
 
 		return obb;
 	}

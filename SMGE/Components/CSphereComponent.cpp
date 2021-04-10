@@ -20,16 +20,6 @@ namespace SMGE
 		boundType_ = EBoundType::SPHERE;
 	}
 
-	void CSphereComponent::OnBeginPlay(CObject* parent)
-	{
-		Super::OnBeginPlay(parent);
-	}
-
-	void CSphereComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
-	}
-
 	SGReflection& CSphereComponent::getReflection()
 	{
 		if (reflSphereCompo_.get() == nullptr)

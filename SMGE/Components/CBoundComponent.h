@@ -48,7 +48,6 @@ namespace SMGE
 		CBoundComponent(CObject* outer);
 
 		virtual void OnBeginPlay(class CObject* parent) override;
-		virtual void OnEndPlay() override;
 		virtual void Tick(float td) override;
 
 		void Ctor();

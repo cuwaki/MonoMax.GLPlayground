@@ -59,7 +59,6 @@ namespace SMGE
 		float zNear_, zFar_;
 
 		class CCubeComponent* frustumAABBCube_;
-		std::array<class CQuadComponent *, 2> frustumQuads_;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
 		std::array<class CPlaneComponent*, 6> frustumPlanes_;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
 
 	private:

@@ -141,12 +141,12 @@ namespace MathUtils
 		pitch = atan2f(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * sqx - 2 * sqz);
 	}
 
-	glm::vec3 Mat2Euler(const glm::mat4& rotMat)
+	glm::vec3 Mat2EulerWorld(const glm::mat4& rotMat)
 	{
-		return Mat2Euler(static_cast<const glm::mat3>(rotMat));
+		return Mat2EulerWorld(static_cast<const glm::mat3>(rotMat));
 	}
 
-	glm::vec3 Mat2Euler(const glm::mat3& rotMat)
+	glm::vec3 Mat2EulerWorld(const glm::mat3& rotMat)
 	{
 		// license - https ://learnopencv.com/rotation-matrix-to-euler-angles/
 		float sy = std::sqrt(rotMat[0][0] * rotMat[0][0] + rotMat[1][0] * rotMat[1][0]);

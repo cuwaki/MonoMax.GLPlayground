@@ -248,7 +248,7 @@ namespace SMGE
 
 				auto targets = rayActor->QueryCollideCheckTargets();
 				bool hasCollide = rayActor->CheckCollideAndProcess(targets);
-				rayActor->SetLifeTickCount(33);
+				rayActor->SetLifeTickCount(330);
 
 				if (hasCollide == false)
 				{	// 아무것도 선택되지 않았다

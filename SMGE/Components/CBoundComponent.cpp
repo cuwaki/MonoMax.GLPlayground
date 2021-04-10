@@ -100,11 +100,6 @@ namespace SMGE
 		CacheAABB();
 	}
 
-	void CBoundComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
-	}
-
 	void CBoundComponent::Tick(float td)
 	{
 		Super::Tick(td);
@@ -119,7 +114,6 @@ namespace SMGE
 			RotateEuler({ 0.f, 0.f, 0.f });
 			Translate(aabb.center());
 			Scale(aabb.getSize());
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();
 		}
 #endif
 	}

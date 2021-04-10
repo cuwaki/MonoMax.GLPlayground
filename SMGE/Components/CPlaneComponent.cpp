@@ -66,7 +66,7 @@ namespace SMGE
 #else
 		RotateQuat(normal);
 #endif
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();
+		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();// 여기 - SetBound 계열은 리칼크 해야하나??
 		
 		//auto pb = SPlaneBound(ccw_p0, ccw_p1, ccw_p2);
 	}

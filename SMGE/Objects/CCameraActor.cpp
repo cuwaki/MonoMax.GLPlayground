@@ -8,9 +8,9 @@
 #include "../../MonoMax.EngineCore/common/controls.hpp"
 #include "../CBoundCheck.h"
 
-#define DRAW_FRUSTUM
+//#define DRAW_FRUSTUM
 // 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
-#define ENABLE_FRUSTUM_CULLING
+//#define ENABLE_FRUSTUM_CULLING
 
 namespace SMGE
 {
@@ -53,7 +53,6 @@ namespace SMGE
 	CCameraActor::CCameraActor(CObject* outer) : Super(outer)
 	{
 		frustumAABBCube_ = nullptr;
-		std::fill(frustumQuads_.begin(), frustumQuads_.end(), nullptr);
 		std::fill(frustumPlanes_.begin(), frustumPlanes_.end(), nullptr);
 
 		Ctor();
@@ -99,13 +98,17 @@ namespace SMGE
 		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
 		const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
 
+#ifdef ENABLE_FRUSTUM_CULLING
 		// AABB용 큐브
 		frustumAABBCube_ = static_cast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CCubeComponent>(this))).get());
 		frustumAABBCube_->Translate(frustumModel.center_);
-		frustumAABBCube_->Scale({
-			frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
-			frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
-			frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z });
+		frustumAABBCube_->Scale(
+			{
+				frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
+				frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
+				frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z
+			});
+		frustumAABBCube_->SetEditorRendering(false);
 		// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumAABBCube_->RecalcFinal();
 		frustumAABBCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
 
@@ -129,6 +132,7 @@ namespace SMGE
 		frustumPlanes_[4]->SetEditorRendering(false);
 		frustumPlanes_[5]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
 		frustumPlanes_[5]->SetEditorRendering(false);
+#endif
 
 #ifdef DRAW_FRUSTUM
 		// 최적화 - 게임에서는 카메라 및 그의 기즈모들은 그려질 필요가 없다
@@ -193,15 +197,18 @@ namespace SMGE
 
 #ifdef DRAW_FRUSTUM_QUADS
 			// 프러스텀 쿼드 그리기
-			std::generate(frustumQuads_.begin(), frustumQuads_.end(),
+			std::array<class CQuadComponent*, 2> frustumQuads;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
+			std::fill(frustumQuads.begin(), frustumQuads.end(), nullptr);
+
+			std::generate(frustumQuads.begin(), frustumQuads.end(),
 				[this]()
 				{
 					return static_cast<CQuadComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CQuadComponent>(this, true))).get());
 				});
 
 			// Near 평면
-			frustumQuads_[0]->Translate({ 0.f, 0.f, frustumModel.nearPlane_[TransformConst::GL_LB].z });
-			frustumQuads_[0]->Scale(
+			frustumQuads[0]->Translate({ 0.f, 0.f, frustumModel.nearPlane_[TransformConst::GL_LB].z });
+			frustumQuads[0]->Scale(
 				{
 					frustumModel.nearPlane_[TransformConst::GL_RB].x - frustumModel.nearPlane_[TransformConst::GL_LB].x,
 					frustumModel.nearPlane_[TransformConst::GL_RT].y - frustumModel.nearPlane_[TransformConst::GL_RB].y,
@@ -209,15 +216,15 @@ namespace SMGE
 					//12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads_[0]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads_[0]->RecalcFinal();
-			frustumQuads_[0]->SetPickingTarget(false);
-			frustumQuads_[0]->SetCollideTarget(false);
-			frustumQuads_[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
+			frustumQuads[0]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads[0]->RecalcFinal();
+			frustumQuads[0]->SetPickingTarget(false);
+			frustumQuads[0]->SetCollideTarget(false);
+			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
 
 			// Far 평면
-			frustumQuads_[1]->Translate({ 0.f, 0.f, frustumModel.farPlane_[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
-			frustumQuads_[1]->Scale(
+			frustumQuads[1]->Translate({ 0.f, 0.f, frustumModel.farPlane_[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
+			frustumQuads[1]->Scale(
 				{
 					frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
 					frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
@@ -225,40 +232,40 @@ namespace SMGE
 					//12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads_[1]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads_[1]->RecalcFinal();
-			frustumQuads_[1]->SetPickingTarget(false);
-			frustumQuads_[1]->SetCollideTarget(false);
-			frustumQuads_[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
+			frustumQuads[1]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
+			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads[1]->RecalcFinal();
+			frustumQuads[1]->SetPickingTarget(false);
+			frustumQuads[1]->SetCollideTarget(false);
+			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
 
 			/* 이하 버그 있는 코드 - 쓰려면 RecalcFinal 도 불러줘야한다
 			auto toUp = frustumModel.farPlane_[TransformConst::GL_LT] - frustumModel.nearPlane_[TransformConst::GL_LT];
 			toUp.x = 0;	// YZ 평면에 투영
-			frustumQuads_[2]->Translate(toUp / 2.f);
-			frustumQuads_[2]->Scale(
+			frustumQuads[2]->Translate(toUp / 2.f);
+			frustumQuads[2]->Scale(
 				{
 					12.f,
 					12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads_[2]->RotateEuler({ fovDegrees_ / 2.f * +1.f, 0.f, 0.f });
-			frustumQuads_[2]->SetPickingTarget(false);
-			frustumQuads_[2]->SetCollideTarget(false);
-			frustumQuads_[2]->SetGizmoColor({ 0.f, 0.f, 1.f });
+			frustumQuads[2]->RotateEuler({ fovDegrees_ / 2.f * +1.f, 0.f, 0.f });
+			frustumQuads[2]->SetPickingTarget(false);
+			frustumQuads[2]->SetCollideTarget(false);
+			frustumQuads[2]->SetGizmoColor({ 0.f, 0.f, 1.f });
 
 			auto toBottom = frustumModel.farPlane_[TransformConst::GL_LB] - frustumModel.nearPlane_[TransformConst::GL_LB];
 			toBottom.x = 0;	// YZ 평면에 투영
-			frustumQuads_[3]->Translate(toBottom / 2.f);
-			frustumQuads_[3]->Scale(
+			frustumQuads[3]->Translate(toBottom / 2.f);
+			frustumQuads[3]->Scale(
 				{
 					12.f,
 					12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads_[3]->RotateEuler({ fovDegrees_ / 2.f * -1.f, 0.f, 0.f });
-			frustumQuads_[3]->SetPickingTarget(false);
-			frustumQuads_[3]->SetCollideTarget(false);
-			frustumQuads_[3]->SetGizmoColor({ 0.f, 0.f, 1.f });
+			frustumQuads[3]->RotateEuler({ fovDegrees_ / 2.f * -1.f, 0.f, 0.f });
+			frustumQuads[3]->SetPickingTarget(false);
+			frustumQuads[3]->SetCollideTarget(false);
+			frustumQuads[3]->SetGizmoColor({ 0.f, 0.f, 1.f });
 
 			// 여기 - 아래 코드에서 좌, 우 평면의 각도가 안맞는다, 무엇이 문제일까? 그리고
 			// 여기 - 이거 완전 중점 아니다, f - n, n 이거 따져야한다
@@ -270,33 +277,33 @@ namespace SMGE
 			const auto horizonFOVHalf = glm::degrees(std::acosf(glm::dot(TransformConst::WorldZAxis, glm::normalize(farPlaneRBY0))));
 
 			auto toLeft = farPlaneRBY0;
-			frustumQuads_[4]->Translate(toLeft / 2.f);	// 여기 - 이거 완전 중점 아니다, f - n, n 이거 따져야한다
-			frustumQuads_[4]->Scale(
+			frustumQuads[4]->Translate(toLeft / 2.f);	// 여기 - 이거 완전 중점 아니다, f - n, n 이거 따져야한다
+			frustumQuads[4]->Scale(
 				{
 					12.f,
 					12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads_[4]->RotateEuler({ 0.f, horizonFOVHalf * -1.f, 0.f });
-			frustumQuads_[4]->SetPickingTarget(false);
-			frustumQuads_[4]->SetCollideTarget(false);
-			frustumQuads_[4]->SetGizmoColor({ 0.f, 1.f, 0.f });
+			frustumQuads[4]->RotateEuler({ 0.f, horizonFOVHalf * -1.f, 0.f });
+			frustumQuads[4]->SetPickingTarget(false);
+			frustumQuads[4]->SetCollideTarget(false);
+			frustumQuads[4]->SetGizmoColor({ 0.f, 1.f, 0.f });
 
 			auto farPlaneLBY0 = frustumModel.farPlane_[TransformConst::GL_LB];
 			farPlaneLBY0.y = 0;
 
 			auto toRight = farPlaneLBY0;
-			frustumQuads_[5]->Translate(toRight / 2.f);
-			frustumQuads_[5]->Scale(
+			frustumQuads[5]->Translate(toRight / 2.f);
+			frustumQuads[5]->Scale(
 				{
 					12.f,
 					12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads_[5]->RotateEuler({ 0.f, horizonFOVHalf * +1.f, 0.f });
-			frustumQuads_[5]->SetPickingTarget(false);
-			frustumQuads_[5]->SetCollideTarget(false);
-			frustumQuads_[5]->SetGizmoColor({ 0.f, 1.f, 0.f });
+			frustumQuads[5]->RotateEuler({ 0.f, horizonFOVHalf * +1.f, 0.f });
+			frustumQuads[5]->SetPickingTarget(false);
+			frustumQuads[5]->SetCollideTarget(false);
+			frustumQuads[5]->SetGizmoColor({ 0.f, 1.f, 0.f });
 			*/
 #endif	// DRAW_FRUSTUM_QUADS
 		}

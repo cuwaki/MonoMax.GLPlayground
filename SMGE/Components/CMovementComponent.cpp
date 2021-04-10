@@ -18,8 +18,8 @@ namespace SMGE
 	}
 
 	// 테스트 코드 - 무브먼트 테스트용
-	static glm::vec3 moveTo(0, 0, -20), moveFrom;
-	static glm::vec3 rotateTo(0, 55, 0), rotateFromEuler;
+	static glm::vec3 moveTo(-20, 0, 0), moveFrom;
+	static glm::vec3 rotateTo(0, 30, 0), rotateFromEuler;
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
 	static float TestInterpolationTime = 400;
 
@@ -27,82 +27,89 @@ namespace SMGE
 	{
 		Super::OnBeginPlay(parent);
 
-		// 여기 수정 - 현재는 액터만 가능!! 콤포넌트에도 붙일 수 있게해야한다?? 아니면 오브젝트 말고 트랜스폼을 연결시키자? 이게 맞는듯!
-		actorParent_ = static_cast<CActor*>(parent);
+		CTimer* timer = nullptr;
+		auto actorParent = dynamic_cast<CActor*>(parent);
+		if (actorParent)
+		{
+			targetTransform_ = &actorParent->getTransform();
+			timer = &actorParent->getActorTimer();
+		}
+		else
+		{
+			targetTransform_ = dynamic_cast<nsRE::Transform*>(parent);
+			
+			myTimer_ = std::make_unique<CTimer>();
+			myTimer_->start();
 
-		targetTransform_ = &actorParent_->getTransform();
+			timer = myTimer_.get();
+		}
 
 		// 테스트 코드 - 인터폴레이션
-		actorParent_->getActorTimer().setRatio(0.1f);
-
-		interpTranslation_.setTimer(&actorParent_->getActorTimer());
-		interpRotation_.setTimer(&actorParent_->getActorTimer());
-		interpScale_.setTimer(&actorParent_->getActorTimer());
-
-		setActive(true);
-
-		{	// 테스트 코드 - 인터폴레이션
-			moveFrom = actorParent_->getTransform().GetPendingPosition();
-			interpTranslation_.setCurveType(ECurveType::Quad_Out);
-			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
-
-			rotateFromEuler = actorParent_->getTransform().GetPendingRotationEulerDegrees();
-			interpRotation_.setCurveType(ECurveType::Cos);
-			interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
-
-			scaleFrom = actorParent_->getTransform().GetPendingScales();
-			interpScale_.setCurveType(ECurveType::Sin);
-			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
-		}
-	}
-
-	void CMovementComponent::OnEndPlay()
-	{
-		Super::OnEndPlay();
+		timer->setRatio(0.2f);
+		interpTranslation_.setTimer(timer);
+		interpRotation_.setTimer(timer);
+		interpScale_.setTimer(timer);
 	}
 
 	void CMovementComponent::Tick(float td)
 	{
 		Super::Tick(td);
 
+		if (isActive() == false)
+		{	// 테스트 코드 - 인터폴레이션
+			setActive(true);
+		
+			moveFrom = targetTransform_->GetPendingPosition();
+			interpTranslation_.setCurveType(ECurveType::Quad_Out);
+			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
+
+			rotateFromEuler = targetTransform_->GetPendingRotationEulerDegreesWorld();
+			interpRotation_.setCurveType(ECurveType::Cos);
+			interpRotation_.start(rotateFromEuler, rotateTo, TestInterpolationTime);
+
+			scaleFrom = targetTransform_->GetPendingScales();
+			interpScale_.setCurveType(ECurveType::Linear);
+			interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+		}
+
 		if (isActive())
 		{
 			// 테스트 코드 - 인터폴레이션
 			{
 				// Translate
-				if (interpTranslation_.isRunning())
-				{
-					targetTransform_->Translate(interpTranslation_.current());
-				}
-				else
-				{
-					moveTo *= -1.f;
-					interpTranslation_.start(actorParent_->getTransform().GetPendingPosition(), actorParent_->getTransform().GetPendingPosition() + moveTo, TestInterpolationTime);
-				}
-
-				// Rotate
-				if (interpRotation_.isRunning())
-				{
-#ifdef REFACTORING_TRNASFORM
-					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current(), false);
-#else
-					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current());
-#endif
-				}
-				else
-				{
-					interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
-				}
-
-				// Scale
-				//if (interpScale_.isRunning())
+				//if (interpTranslation_.isRunning())
 				//{
-				//	targetTransform_->Scale(interpScale_.current());
+				//	targetTransform_->Translate(interpTranslation_.current());
 				//}
 				//else
 				//{
-				//	interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+				//	moveTo *= -1.f;
+				//	interpTranslation_.start(targetTransform_->GetPendingPosition(), targetTransform_->GetPendingPosition() + moveTo, TestInterpolationTime);
 				//}
+
+				// Rotate
+//				if (interpRotation_.isRunning())
+//				{
+//#ifdef REFACTORING_TRNASFORM
+//					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current(), true);
+//#else
+//					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current());
+//#endif
+//				}
+//				else
+//				{
+//					interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
+//				}
+
+				// Scale
+				if (interpScale_.isRunning())
+				{
+					targetTransform_->Scale(interpScale_.current());
+				}
+				else
+				{
+					interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+				}
 
 				// 테스트 코드 - 리칼크파이널 코드 재검토 - targetTransform_->RecalcFinal();
 			}
