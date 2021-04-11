@@ -8,6 +8,7 @@
         Title="MainWindow"
         Width="489" Height="816"
         KeyDown="OnKeyDown" KeyUp="OnKeyUp" MouseLeftButtonDown="OnLButtonDown" MouseLeftButtonUp="OnLButtonUp" MouseRightButtonUp="OnMouseWheel" WindowStyle="ToolWindow" >
+    <!-- 에디터 해상도 조절은 여기서 / 메뉴바 때문에 Height 에 23 더해줘야 맞고 Width 도 윈도우 스타일 때문에 줄어들어있는 점 참고해라 -->
     <!-- Height="539" Width="516" -->
     <Grid>
         <Grid.ColumnDefinitions>

@@ -3,7 +3,7 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 시스템 액터 시작
-	allActorsW_$CVector<SGReflection&>$2
+	allActorsW_$CVector<SGReflection&>$6
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
@@ -83,29 +83,7 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 게임액터 시작
-	// 세그먼트 //////////////////////////////////////////////////////////
-	classRTTIName_$CString$"CCollideActor"
-		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
-		actorKey_$TActorKey$666
-		classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
-		actorStaticTag_$CString$""
-		persistCompoSize$size_t$1
-			classRTTIName_$CString$"CSegmentComponent"
-			reflectionFilePath_$CWString$""
-			classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	90.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$0.001	0.001		1.0
-			persistCompoSize$size_t$0
-			isPickingTarget_$bool$false
-			isCollideTarget_$bool$false
-			gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
-			
+
 	// 포인트 //////////////////////////////////////////////////////////
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
@@ -217,7 +195,29 @@ classRTTIName_$CString$"CMap"
 			isCollideTarget_$bool$false
 			gizmoColor_$glm::vec3$0.000000	1.000000	0.000000	
 
-
+	// 세그먼트 //////////////////////////////////////////////////////////
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$666
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+			classRTTIName_$CString$"CSegmentComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	90.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$0.001	0.001		1.0
+			persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
+			gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
+			
 
 
 

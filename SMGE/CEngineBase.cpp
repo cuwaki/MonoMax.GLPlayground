@@ -26,7 +26,13 @@ namespace SMGE
 
 	HWND CEngineBase::HasWindowFocus() const
 	{
-		HWND hwnd = ::GetActiveWindow();
+		assert(renderingEngine_ != nullptr);
+
+#if IS_EDITOR
+		const auto hwnd = ::GetActiveWindow();
+#else
+		const auto hwnd = renderingEngine_->GetHwndGLFWWindow();
+#endif		
 		if (hwnd == nullptr || ::GetFocus() != hwnd)
 			return nullptr;
 

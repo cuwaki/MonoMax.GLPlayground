@@ -50,7 +50,10 @@ namespace SMGE
 			float xzAngle = horizontalAngle_, yzAngle = verticalAngle_;
 
 #ifdef CAMERA_QUATERNION
-			RotateCamera({ 0.f, 0.f });
+			if (isInitialize == true)
+			{
+				RotateCamera({ 0.f, 0.f });
+			}
 #else
 #if IS_EDITOR
 #else

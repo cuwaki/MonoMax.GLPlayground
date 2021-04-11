@@ -1160,17 +1160,20 @@ namespace SMGE
 
 	namespace nsRE
 	{
-		CRenderingEngine::CRenderingEngine() :
+		CRenderingEngine::CRenderingEngine(int widthOriginal, int heightOriginal, float dpiRate) :
 			m_clearColor(0.f, 0.f, 0.f, 1.0f)
 		{
+			m_dpiRate = dpiRate;
+
+			m_widthOriginal = widthOriginal;
+			m_heightOriginal = heightOriginal;
+			m_widthWindowDPI = widthOriginal * m_dpiRate;
+			m_heightWindowDPI = heightOriginal * m_dpiRate;
 		}
 		
 		CRenderingEngine::~CRenderingEngine()
 		{
 		}
-
-		const int CRenderingEngine::GetHeight() { return m_height; }
-		const int CRenderingEngine::GetWidth() { return m_width; }
 
 		void CRenderingEngine::initWindow()
 		{
@@ -1182,13 +1185,22 @@ namespace SMGE
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			//glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
 
 #if IS_EDITOR
 			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-#endif
 
-			// 윈도우 독립 시키기
-			m_window = glfwCreateWindow(640, 480, "Hidden OpenGL m_window", NULL, NULL);
+			//auto monitor = glfwGetPrimaryMonitor();
+			//const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+			//auto window_width = mode->width;
+			//auto window_height = mode->height;
+
+			m_window = glfwCreateWindow(m_widthWindowDPI, m_heightWindowDPI, "Hidden OpenGL m_window", NULL, NULL);
+#else
+			glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+
+			m_window = glfwCreateWindow(m_widthWindowDPI, m_heightWindowDPI, "OpenGL m_window", NULL, NULL);
+#endif
 
 			if (!m_window)
 			{
@@ -1205,7 +1217,7 @@ namespace SMGE
 			//	throw std::exception();
 			//}
 
-			// But on MacOS X with a retina screen it'll be m_width*2 and m_windowHeight*2, so we get the actual framebuffer size:
+			// But on MacOS X with a retina screen it'll be m_widthOriginal*2 and m_heightOriginal*2, so we get the actual framebuffer size:
 			glfwGetFramebufferSize(m_window, &m_framebufferWidth, &m_framebufferHeight);
 
 			// Initialize GLEW
@@ -1226,7 +1238,7 @@ namespace SMGE
 
 			// Set the mouse at the center of the screen
 			glfwPollEvents();
-			glfwSetCursorPos(m_window, m_width / 2, m_height / 2);
+			glfwSetCursorPos(m_window, GetWidth() / 2, GetHeight() / 2);
 #endif
 
 			glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
@@ -1248,15 +1260,20 @@ namespace SMGE
 			lastRenderingPass_ = std::make_unique<CPostEffectPass>(L"renderTargetNDC.vert", L"renderTargetOverwrite.frag");
 		}
 
-		// 테스트 코드 ㅡ 실제 width, height 를 정확히 맞추려면 .xaml 에서 w = 16, h = 39 더 추가해줘야한다
+		HWND CRenderingEngine::GetHwndGLFWWindow() const
+		{
+			return glfwGetWin32Window(m_window);
+		}
+
+		// 여기 - 실제 width, height 를 정확히 맞추려면 .xaml 에서 w = 16, h = 39 더 추가해줘야한다
 		void CRenderingEngine::Resize(int width, int height)
 		{
-			glfwSetWindowSize(m_window, width, height);
+			m_widthOriginal = width;
+			m_heightOriginal = height;
+			m_widthWindowDPI = width * m_dpiRate;
+			m_heightWindowDPI = height * m_dpiRate;
 
-			m_width = width;
-			m_height = height;
-
-			m_bufferLengthW = m_width * m_height * m_colorDepth;
+			m_bufferLengthW = GetWidth() * GetHeight() * m_colorDepth;
 
 			// 체크 사항 - 이거 다시 체크해야하려나??
 			//glfwGetFramebufferSize(m_window, &m_framebufferWidth, &m_framebufferHeight);
@@ -1266,10 +1283,10 @@ namespace SMGE
 			//free(m_glRenderHandle);
 			//m_glRenderHandle = (char*)malloc(m_bufferLengthW);
 
-			// deprecated
-			//OldModelAsset::OnScreenResize_Master(m_width, m_height);
+			glfwSetWindowSize(m_window, m_widthWindowDPI, m_heightWindowDPI);
+			glViewport(0, 0, GetWidth(), GetHeight());
 
-			glViewport(0, 0, m_width, m_height);
+			GetRenderingCamera().ComputeMatricesFromInputs(false, GetWidth(), GetHeight());
 
 			ResizeRenderTargets();
 		}
@@ -1280,11 +1297,11 @@ namespace SMGE
 
 			// 1920 * 1080 * RGBA 32BIT + 1920 * 1080 * D24_S8
 			// 이렇게 되니까 RT 하나당 16메가 정도 먹는다
-			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(m_width, m_height), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
+			renderTarget0_ = std::make_unique<CRenderTarget>(glm::vec2(GetWidth(), GetHeight()), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
 				glm::vec3{ 0.f, 1.f, 0.f });	// 테스트 코드 - 일부러 빨간 색
 
 			// 현재 포스트 프로세스가 없어서 renderTarget1_ 는 쓰일 일이 없지만 일단 만들어둠
-			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(m_width, m_height), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
+			renderTarget1_ = std::make_unique<CRenderTarget>(glm::vec2(GetWidth(), GetHeight()), GL_RGBA, GL_DEPTH24_STENCIL8, ndc,
 				glm::vec3{ 1.f, 0.f, 0.f });	// 테스트 코드 - 일부러 빨간 색
 
 			// 기본 렌더타겟으로 생성하면 백버퍼를 가리키게 된다
@@ -1304,7 +1321,7 @@ namespace SMGE
 			//float cameraInitialDist = 20;
 			GetRenderingCamera().SetCameraPos({ 0,0,0 });
 			GetRenderingCamera().SetCameraLookAt({ 0,0,1 });
-			GetRenderingCamera().ComputeMatricesFromInputs(true, m_width, m_height);
+			GetRenderingCamera().ComputeMatricesFromInputs(true, GetWidth(), GetHeight());
 
 			//////////////////////////////////////////////////////////////////////////////////////////
 			// 게임 처리
@@ -1389,7 +1406,7 @@ namespace SMGE
 				glFinish();
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-				glReadPixels(0, 0, m_width, m_height, GL_ColorType, GL_UNSIGNED_BYTE, imgBuffer);
+				glReadPixels(0, 0, GetWidth(), GetHeight(), GL_ColorType, GL_UNSIGNED_BYTE, imgBuffer);
 			}
 #endif
 
@@ -1413,7 +1430,7 @@ namespace SMGE
 
 		void CRenderingEngine::ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir)
 		{
-			auto& renderCam = GetRenderingCamera();
+			const auto& renderCam = GetRenderingCamera();
 
 			auto glY = GetHeight() - mousePos.y;	// 스크린좌표를 gl좌표로 취급해야하므로 뒤집어줘야함
 
@@ -1423,7 +1440,7 @@ namespace SMGE
 			// The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
 			glm::vec4 lRayStart_NDC(
 				ndcX, ndcY,
-				-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+				-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates	// - GL 이라서 -1 일걸? DirectX 는 0이었던 듯
 				1.0f
 			);
 			glm::vec4 lRayEnd_NDC(
@@ -1440,9 +1457,11 @@ namespace SMGE
 			// So inverse(ViewMatrix) goes from Camera Space to World Space.
 			glm::mat4 toWorldSpace = glm::inverse(renderCam.GetViewMatrix());
 
+			// ndc -> camera
 			glm::vec4 lRayStart_camera = toCameraSpace * lRayStart_NDC;
 			lRayStart_camera /= lRayStart_camera.w;
 
+			// camera -> world
 			glm::vec4 lRayStart_world = toWorldSpace * lRayStart_camera;
 			lRayStart_world /= lRayStart_world.w;
 

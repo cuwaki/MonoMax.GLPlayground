@@ -37,6 +37,8 @@
 
 #include "gl/glew.h"
 #include "glfw/glfw3.h"
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "glfw/glfw3native.h"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/gtx/string_cast.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/glm.hpp"
 #include "../packages/glm.0.9.9.800/build/native/include/glm/ext.hpp"

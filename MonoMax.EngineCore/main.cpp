@@ -9,7 +9,7 @@ int main()
 {
 	using namespace SMGE;
 
-	auto graphicsEngine = std::make_unique<nsRE::CRenderingEngine>();
+	auto graphicsEngine = std::make_unique<nsRE::CRenderingEngine>(1024, 768, 1.0f/*::GetWindowDPIRate()*/);
 	graphicsEngine->Init();
 
 	while (true)

@@ -4,6 +4,8 @@
 #include "../MonoMax.EngineCore/EngineCore.h"
 #pragma managed(pop)
 
+// https://www.codeproject.com/Articles/23736/Creating-OpenGL-Windows-in-WPF
+
 namespace SMGE
 {
 	public ref class GLControl : public System::Windows::Controls::UserControl
@@ -12,7 +14,9 @@ namespace SMGE
 		nsRE::CRenderingEngine* m_renderingEngine;
 
 		bool m_isInitialized = false;
-		int m_width, m_height, m_fpsCounter;
+		int m_fpsCounter;
+		int m_widthOriginal, m_heightOriginal;
+		int m_widthWindowDPI, m_heightWindowDPI;
 
 		System::Windows::Threading::DispatcherTimer^ m_tickTimer;
 		System::Windows::Threading::DispatcherTimer^ m_renderTimer;
@@ -31,6 +35,7 @@ namespace SMGE
 		void UpdateImageData();
 
 	protected:
+		//void OnLoaded(System::Object^ sender, System::Windows::RoutedEventArgs^ e);
 
 	public:
 		GLControl();

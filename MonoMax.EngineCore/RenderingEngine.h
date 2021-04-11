@@ -614,9 +614,13 @@ namespace SMGE
 			const GLint GL_ColorType = GL_BGRA;	// PixelFormats::Pbgr32
 			const int m_colorDepth = 4;			// GL_ColorType == GL_BGRA
 
+			float m_dpiRate;
+			int m_widthOriginal, m_heightOriginal;
+			int m_widthWindowDPI, m_heightWindowDPI;
+
 			int m_bufferLengthW, m_bufferLengthF;	// window 기반 버퍼 크기와 frame 기반 버퍼 크기
-			int m_width, m_height;
 			int m_framebufferWidth, m_framebufferHeight;
+
 			glm::vec4 m_clearColor;
 			GLFWwindow* m_window = nullptr;
 			char* m_glRenderHandle = nullptr;
@@ -633,14 +637,16 @@ namespace SMGE
 			std::unique_ptr<class CGameBase> gameBase_;
 
 		public:
-			CRenderingEngine();
+			CRenderingEngine(int widthOriginal, int heightOriginal, float dpiRate);
 			virtual ~CRenderingEngine();
 
-			const int GetWidth();
-			const int GetHeight();
 			void Init();
 			void DeInit();
+
+			int GetWidth() const { return m_widthWindowDPI; }
+			int GetHeight() const { return m_heightWindowDPI; }
 			void Resize(int width, int height);
+
 			void Stop();
 
 			void Tick();
@@ -650,6 +656,7 @@ namespace SMGE
 #else
 			void Render();
 #endif
+			HWND GetHwndGLFWWindow() const;
 			void ScreenPosToWorld(const glm::vec2& mousePos, glm::vec3& outWorldPos, glm::vec3& outWorldDir);
 
 			const CRenderingCamera& GetRenderingCamera() const { return renderingCamera_; }
