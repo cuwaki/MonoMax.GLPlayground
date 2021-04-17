@@ -7,7 +7,7 @@
 
 // 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
 //#define ENABLE_FRUSTUM_CULLING
-//#define ENABLE_OCTREE
+#define ENABLE_OCTREE
 
 namespace SMGE
 {
@@ -123,17 +123,17 @@ namespace SMGE
 		for (auto& actor : mapActorsW_)
 		{
 #ifdef ENABLE_OCTREE
-			actor->getTransform().RecalcFinal();
 			oldLoc = actor->getTransform().GetFinalPosition();
 #endif
 
 			actor->Tick(timeDelta);	// 여기 - 나에게만 관련된 틱과 다른 액터와 관련된 틱을 분리하면 멀티쓰레드 처리를 할 수 있겠다 / 또는 로직 처리용 컴포넌트를 만들고 컴포넌트별로 멀티쓰레더블과 아닌걸로 나눌까?
+			actor->AfterTick(timeDelta);
 
 #ifdef ENABLE_OCTREE
 			newLoc = actor->getTransform().GetFinalPosition();
 			if (oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
 			{	// 여기 - 일단 무식하게 한다
-				mapOctree_.RemoveByPoint(actor, oldLoc);	// 여기 - 값으로 제거 해야한다
+				RemoveActorFromOctree(actor);
 				mapOctree_.AddByPoint(actor, newLoc);
 
 				// 역시 일단 무식하게 한다
@@ -144,6 +144,11 @@ namespace SMGE
 			}
 #endif
 		}
+	}
+
+	bool CMap::IsTemplate() const
+	{
+		return GetOuter() == nullptr;	// 템플릿이 아닌 경우 Game 이 outer 이다
 	}
 
 	SGReflection& CMap::getReflection()
@@ -316,14 +321,11 @@ namespace SMGE
 			return;
 
 		for (auto& actor : mapActorsW_)
-		{
-#ifdef ENABLE_OCTREE
-			actor->getTransform().RecalcFinal();
-			mapOctree_.RemoveByPoint(actor, actor->getTransform().GetFinalPosition());	// 여기 - 값으로 제거 해야한다
-#endif
 			actor->EndPlay();
-		}
 
+#ifdef ENABLE_OCTREE
+		mapOctree_.Clear();
+#endif
 		mapActorsW_.clear();
 		oldActorsInFrustum_.clear();
 
@@ -335,14 +337,39 @@ namespace SMGE
 		return currentCamera_;
 	}
 
+	void CMap::RemoveActorFromOctree(CActor* actor)
+	{
+		if (actor == nullptr)
+			return;
+
+		actor->getTransform().RecalcFinal();
+
+		auto maybeSuccess = mapOctree_.RemoveByPoint(actor, actor->getTransform().GetFinalPosition());
+		if (maybeSuccess == false)	// 위치로 찾아보고 없으면 어쩔 수 없다 - 값으로 찾아야한다
+		{
+			MapOcTree::TValueIterator it;
+
+			auto [xyNode, zxNode] = mapOctree_.HardQuery(actor);
+			if (xyNode)
+			{
+				xyNode->FindValue(actor, it);
+				xyNode->RemoveValue(it);
+			}
+			if (zxNode)
+			{
+				zxNode->FindValue(actor, it);
+				zxNode->RemoveValue(it);
+			}
+		}
+	}
+
 	void CMap::ProcessPendingKill(CActor* actor)
 	{
 		if (actor == nullptr)
 			return;
 
 #ifdef ENABLE_OCTREE
-		actor->getTransform().RecalcFinal();
-		mapOctree_.RemoveByPoint(actor, actor->getTransform().GetFinalPosition());	// 여기 - 값으로 제거 해야한다
+		RemoveActorFromOctree(actor);
 #endif
 		actor->EndPlay();
 

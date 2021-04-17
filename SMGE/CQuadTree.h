@@ -83,9 +83,10 @@ namespace SMGE
 
 	public:
 		using TChild = CQuadTreeNode<ContainerT, SizeType>;
-		using TChildren = std::array<TChild, 4>;
+		using TChildren = std::array<TChild, 4>;	// quadtree 니까 4
 		using TContainer = ContainerT;
 		using TValue = typename ContainerT::value_type;
+		using TValueIterator = typename ContainerT::iterator;
 
 	public:
 		CQuadTreeNode()
@@ -114,6 +115,16 @@ namespace SMGE
 		auto& GetRect() { return rect_; }
 		const auto& GetRect() const { return rect_; }
 
+		bool FindValue(const TValue& findingValue, TValueIterator& outFound) const
+		{
+			outFound = std::find(container_.begin(), container_.end(), findingValue);
+			return outFound != container_.end();
+		}
+		void RemoveValue(TValueIterator& removeTarget)
+		{
+			container_.erase(removeTarget);
+		}
+
 		bool operator==(const CQuadTreeNode& r)
 		{
 			return rect_ == r.rect_;
@@ -121,6 +132,12 @@ namespace SMGE
 		bool operator!=(const CQuadTreeNode& r)
 		{
 			return !operator==(r);
+		}
+
+		void Clear()
+		{
+			container_ = decltype(container_){};
+			children_.reset();
 		}
 
 	protected:
@@ -145,11 +162,13 @@ namespace SMGE
 
 	public:
 		using TSize = SizeType;
+
 		using TContainer = ContainerT;
 		using TValue = typename ContainerT::value_type;
+		using TValueIterator = typename ContainerT::iterator;
 
 		using TNode = CQuadTreeNode<ContainerT, SizeType>;
-		using TNodes = std::forward_list<TNode*>;
+		using TNodeList = std::forward_list<TNode*>;
 
 	public:
 		CQuadTree() {}
@@ -200,6 +219,21 @@ namespace SMGE
 			heightGap_ = uvNodeTable_[1][0]->GetRect().b_ - uvNodeTable_[0][0]->GetRect().b_;
 		}
 
+		TNode* HardQuery(const TValue& findingValue) const
+		{
+			for (auto& vNodes : uvNodeTable_)
+			{
+				for (auto& vNode : vNodes)
+				{
+					TValueIterator found;
+					if (vNode->FindValue(findingValue, found))
+						return vNode;
+				}
+			}
+
+			return nullptr;
+		}
+
 		TNode* QueryNodeByPoint(SizeType w, SizeType h) const
 		{
 			//return QueryNodeByPoint(rootNode_, w, h);	// 트리 운행을 통한 쿼리
@@ -217,12 +251,12 @@ namespace SMGE
 			return uvNodeTable_[v][u];
 		}
 		
-		TNodes QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax) const
+		TNodeList QueryNodesByRect(SizeType uMin, SizeType vMin, SizeType uMax, SizeType vMax) const
 		{
 			assert(vMin <= vMax);	// 이래야 정상 작동함!!
 			assert(uMin <= uMax);
 
-			TNodes ret;
+			TNodeList ret;
 
 			// vector 인덱스로 쓰기 위하여 -1 ~ 0 ~ +1 좌표계를 0 ~ 2 좌표계로 바꾼다
 			vMin += halfHeight_; vMax += halfHeight_;
@@ -240,6 +274,13 @@ namespace SMGE
 					ret.emplace_front(uvNodeTable_[vv][uu]);
 
 			return ret;
+		}
+
+		void Clear()
+		{
+			rootNode_.Clear();
+			uvNodeTable_ = decltype(uvNodeTable_){};
+			tempUVNodes_ = decltype(tempUVNodes_){};	// 생성시 사용하는 임시이긴한데 혹시 몰라서;;
 		}
 
 	protected:
@@ -324,6 +365,7 @@ namespace SMGE
 	public:
 		using TContainer = ContainerT;
 		using TValue = typename ContainerT::value_type;
+		using TValueIterator = typename ContainerT::iterator;
 
 		using TSubTree = CQuadTree<ContainerT, SizeType>;
 		using TNode = typename TSubTree::TNode;
@@ -340,6 +382,14 @@ namespace SMGE
 
 			xyQTree_.Create("xy", xWidth, yWidth, leafNodeWidth, leafNodeWidth);
 			zxQTree_.Create("zx", zWidth, xWidth, leafNodeWidth, leafNodeWidth);
+		}
+
+		auto HardQuery(const TValue& findingValue) const
+		{
+			auto xyNode = xyQTree_.HardQuery(findingValue);
+			auto zxNode = zxQTree_.HardQuery(findingValue);
+
+			return std::make_pair(xyNode, zxNode);
 		}
 
 		TNode* QueryNodeByXY(SizeType x, SizeType y)
@@ -405,6 +455,12 @@ namespace SMGE
 			}
 
 			return intersect;
+		}
+
+		void Clear()
+		{
+			xyQTree_.Clear();
+			zxQTree_.Clear();
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

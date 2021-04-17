@@ -35,25 +35,29 @@ namespace SMGE
 		Super::ReadyToDrawing();
 	}
 
-	glm::vec3 CPlaneComponent::getNormal() const
+	glm::vec3 CPlaneComponent::getNormal(bool isWorld) const
 	{
-		return GetFinalFront();
+		if(isWorld)
+			return GetFinalFront();
+		else
+			return GetPendingFront();
 	}
 
-	const SBound& CPlaneComponent::GetBound()
+	const SBound& CPlaneComponent::GetBoundWorldSpace(bool isForceRecalc)
 	{
-		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+		if (isForceRecalc || IsDirty())
+		{
+			RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		// 평면는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
+			// 평면는 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
-		PlaneBound_ = SPlaneBound(getNormal(), GetFinalPosition());
+			PlaneBound_ = SPlaneBound(getNormal(true), GetFinalPosition());
+		}
 		return PlaneBound_;
 	}
 
-	void CPlaneComponent::SetBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2)
+	void CPlaneComponent::SetBoundLocalSpace(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2)
 	{
-		const auto& worldLoc = GetFinalPosition();
-
 		// ccw_p0 와 같이 이름 그대로 평면을 정의하는 점이 사각형의 순서대로 들어왔다면
 		// ccw_p2 - ccw_p0 의 중점을 평면의 center 로 삼을 수 있고, 이것은 크기를 제한할 경우 SQuadBound 와 같이 사용할 수도 있게 된다
 		const auto center = ccw_p0 + (ccw_p2 - ccw_p0) / 2.f;
@@ -66,8 +70,5 @@ namespace SMGE
 #else
 		RotateQuat(normal);
 #endif
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();// 여기 - SetBound 계열은 리칼크 해야하나??
-		
-		//auto pb = SPlaneBound(ccw_p0, ccw_p1, ccw_p2);
 	}
 };

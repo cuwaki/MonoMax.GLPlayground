@@ -14,7 +14,7 @@ namespace SMGE
 	}
 
 	// 콤포넌트의 트랜스폼을 바꾼다, 보통은 이걸 안쓰고 부모의 트랜스폼이 반영된 것을 쓰게 될 것이다
-	void CSegmentComponent::SetBoundDataComponent(float size, const glm::vec3& direction)
+	void CSegmentComponent::SetBoundLocalSpace(float size, const glm::vec3& direction)
 	{
 		Scale(nsRE::TransformConst::DefaultAxis_Front, size);
 #ifdef REFACTORING_TRNASFORM
@@ -22,19 +22,24 @@ namespace SMGE
 #else
 		RotateQuat(glm::normalize(direction));
 #endif
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - RecalcFinal();	// 여기 - SetBound 계열은 리칼크 해야하나??
 
 		// 세그먼트는 Z 로만 만들어져야한다, X, Y 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 	}
 
-	float CSegmentComponent::getRayLength() const
+	float CSegmentComponent::getLength(bool isWorld) const
 	{
-		return GetFinalScales()[nsRE::TransformConst::DefaultAxis_Front];
+		if (isWorld)
+			return GetFinalScales()[nsRE::TransformConst::DefaultAxis_Front];
+		else
+			return GetPendingScales()[nsRE::TransformConst::DefaultAxis_Front];
 	}
 
-	glm::vec3 CSegmentComponent::getRayDirection() const
+	glm::vec3 CSegmentComponent::getDirection(bool isWorld) const
 	{
-		return GetFinalFront();
+		if(isWorld)
+			return GetFinalFront();
+		else
+			return GetPendingFront();
 	}
 
 	void CSegmentComponent::Ctor()
@@ -53,17 +58,19 @@ namespace SMGE
 		// 레이는 0에서 앞으로 뻗지만, OBB 는 큐브라서 중점에서 만들어지므로 Z축을 앵커로 잡아야한다
 		assert(nsRE::TransformConst::DefaultAxis_Front == nsRE::TransformConst::ETypeAxis::Z);
 		obb->Translate({ 0, 0, 0.5f });	// 단위크기니까 0.5로 하면 된다
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - obb->RecalcFinal();// 여기 - SetBound 계열은 리칼크 해야하나??
 
 		return obb;
 	}
 
-	const SBound& CSegmentComponent::GetBound()
+	const SBound& CSegmentComponent::GetBoundWorldSpace(bool isForceRecalc)
 	{
-		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+		if (isForceRecalc || IsDirty())
+		{
+			RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		const auto start = GetFinalPosition();
-		segBound_ = SSegmentBound(start, start + getRayDirection() * getRayLength());
+			const auto start = GetFinalPosition();
+			segBound_ = SSegmentBound(start, start + getDirection(true) * getLength(true));
+		}
 		return segBound_;
 	}
 

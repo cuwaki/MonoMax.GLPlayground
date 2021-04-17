@@ -110,8 +110,6 @@ namespace SMGE
 				{
 					interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
 				}
-
-				// 테스트 코드 - 리칼크파이널 코드 재검토 - targetTransform_->RecalcFinal();
 			}
 		}
 	}

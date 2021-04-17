@@ -175,6 +175,19 @@ namespace SMGE
 		}
 	}
 
+	void CActor::AfterTick(float timeDelta)
+	{
+		for (auto& comp : getAllComponents())
+		{
+			comp->AfterTick(timeDelta);
+		}
+
+		if (IsPendingKill() == false)
+		{
+			getTransform().RecalcFinal();	// 현재 눈에 보이는 콤포넌트가 하나도 없는 경우가 있으므로 여기서 해줘야한다, 여기서 해주면 나중에 안하니까 문제 없음
+		}
+	}
+
 	void CActor::OnSpawnStarted(CMap* map, bool isDynamic)
 	{
 	}
@@ -253,8 +266,7 @@ namespace SMGE
 
 	class CBoundComponent* CActor::GetMainBound()
 	{
-		CBoundComponent* NOT_FOUND_MARK = reinterpret_cast<CBoundComponent*>(0x4321);
-
+		// 여기 - 최적화 - 콤포넌트의 변화가 있을 때만 재계산이 되어야한다
 		if (mainBoundCompo_ == nullptr)
 		{	// 여기 - transient 를 메인으로 삼은 경우 문제가 될 수 있는 점이 개선되어야한다
 			mainBoundCompo_ = findComponent<CBoundComponent>([](auto compoPtr)
@@ -264,11 +276,8 @@ namespace SMGE
 						return true;
 					return false;
 				});
-
-			if (mainBoundCompo_ == nullptr)
-				mainBoundCompo_ = NOT_FOUND_MARK;
 		}
-
-		return mainBoundCompo_ == NOT_FOUND_MARK ? nullptr : mainBoundCompo_;
+		
+		return mainBoundCompo_;
 	}
 };

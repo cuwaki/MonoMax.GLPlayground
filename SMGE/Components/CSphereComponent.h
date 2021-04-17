@@ -21,15 +21,14 @@ namespace SMGE
 
 		virtual void ReadyToDrawing() override;
 
-		virtual const SBound& GetBound() override;
+		float GetRadius(bool isWorld) const;
+		virtual const SBound& GetBoundWorldSpace(bool isForceRecalc = false) override;
 
 		void Ctor();
 
 		// CInt_Reflection
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
-
-		float GetRadius() const;
 
 	protected:
 		std::unique_ptr<TReflectionStruct> reflSphereCompo_;

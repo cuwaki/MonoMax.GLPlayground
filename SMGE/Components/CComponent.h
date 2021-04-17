@@ -33,7 +33,8 @@ namespace SMGE
 
 		virtual void OnBeginPlay(class CObject* parent);
 		virtual void OnEndPlay();
-		virtual void Tick(float td) {}
+		virtual void Tick(float) {}
+		virtual void AfterTick(float) {}
 
 		void setActive(bool isa) { isActive_ = isa; }
 		bool isActive() const { return isActive_; }

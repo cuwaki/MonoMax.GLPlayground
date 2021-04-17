@@ -20,8 +20,8 @@ namespace SMGE
 		CCubeComponent(CObject* outer);
 
 		virtual void ReadyToDrawing() override;
-
-		virtual const SBound& GetBound() override;
+		virtual class CCubeComponent* CreateOBB() override { return this; }
+		virtual const SBound& GetBoundWorldSpace(bool isForceRecalc = false) override;
 
 		void Ctor();
 

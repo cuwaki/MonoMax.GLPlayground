@@ -345,7 +345,7 @@ namespace SMGE
 	{
 		SCubeBound();
 		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3& eulerDegreesXYZ);
-		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3 (&eulerAxis)[3]);
+		SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3 (&axis)[3]);
 
 		bool operator==(const SCubeBound& other) const;
 

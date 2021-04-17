@@ -475,6 +475,7 @@ namespace SMGE
 			return finalMatrix_;
 		}
 
+		///////////////////////////////////////////////////////////////////////////////////////////
 		const glm::vec3& Transform::GetPendingPosition() const
 		{
 			return pendingPosition_;
@@ -488,7 +489,23 @@ namespace SMGE
 			assert(aType >= ETypeAxis::X && aType <= ETypeAxis::Z);
 			return pendingScales_[aType];
 		}
-
+		glm::vec3 Transform::GetPendingAxis(TransformConst::ETypeAxis aType) const
+		{
+			const auto ret = pendingRotationMatrix_[aType] / pendingScales_[aType];
+			return glm::normalize(ret);
+		}
+		glm::vec3 Transform::GetPendingFront() const
+		{
+			return GetPendingAxis(DefaultAxis_Front);
+		}
+		glm::vec3 Transform::GetPendingUp() const
+		{
+			return GetPendingAxis(DefaultAxis_Up);
+		}
+		glm::vec3 Transform::GetPendingLeft() const
+		{
+			return GetPendingAxis(DefaultAxis_Left);
+		}
 		glm::vec3 Transform::GetPendingRotationEulerDegreesWorld() const
 		{
 #ifdef REFACTORING_TRNASFORM
@@ -498,15 +515,7 @@ namespace SMGE
 #endif
 		}
 
-		glm::vec3 Transform::GetFinalRotationEulerDegreesWorld() const
-		{
-#ifdef REFACTORING_TRNASFORM
-			return MathUtils::Mat2EulerWorld(finalMatrix_);
-#else
-			return glm::degrees(rotationRadianEuler_);	// 임시 - 그냥 대강 작동하도록
-#endif
-		}
-
+		///////////////////////////////////////////////////////////////////////////////////////////
 		glm::vec3 Transform::GetFinalPosition() const
 		{
 			return finalMatrix_[3];
@@ -535,6 +544,14 @@ namespace SMGE
 		glm::vec3 Transform::GetFinalLeft() const	// 왜 Left 냐면 오른손 좌표계 기준으로 +Z가 앞이므로 +X는 Left 가 되기 때문이다
 		{
 			return GetFinalAxis(DefaultAxis_Left);
+		}
+		glm::vec3 Transform::GetFinalRotationEulerDegreesWorld() const
+		{
+#ifdef REFACTORING_TRNASFORM
+			return MathUtils::Mat2EulerWorld(finalMatrix_);
+#else
+			return glm::degrees(rotationRadianEuler_);	// 임시 - 그냥 대강 작동하도록
+#endif
 		}
 
 		void Transform::Dirty(bool isForce)

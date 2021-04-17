@@ -10,7 +10,7 @@
 
 //#define DRAW_FRUSTUM
 // 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
-//#define ENABLE_FRUSTUM_CULLING
+#define ENABLE_FRUSTUM_CULLING
 
 namespace SMGE
 {
@@ -98,6 +98,12 @@ namespace SMGE
 		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
 		const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
 
+#ifdef DRAW_FRUSTUM
+		const auto isEditorRendering = true;
+#else
+		const auto isEditorRendering = false;
+#endif
+
 #ifdef ENABLE_FRUSTUM_CULLING
 		// AABB용 큐브
 		frustumAABBCube_ = static_cast<CCubeComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CCubeComponent>(this))).get());
@@ -108,8 +114,7 @@ namespace SMGE
 				frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
 				frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z
 			});
-		frustumAABBCube_->SetEditorRendering(false);
-		// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumAABBCube_->RecalcFinal();
+		frustumAABBCube_->SetEditorRendering(isEditorRendering);
 		frustumAABBCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
 
 		// 체크용 평면 만들기
@@ -120,18 +125,18 @@ namespace SMGE
 			});
 
 		// 평면 노멀이 안쪽을 보도록, 현재 frustumModel은 +Z를 보고 있다
-		frustumPlanes_[0]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RT]);
-		frustumPlanes_[0]->SetEditorRendering(false);
-		frustumPlanes_[1]->SetBound(frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RB]);
-		frustumPlanes_[1]->SetEditorRendering(false);
-		frustumPlanes_[2]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.nearPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RT]);
-		frustumPlanes_[2]->SetEditorRendering(false);
-		frustumPlanes_[3]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_LB]);
-		frustumPlanes_[3]->SetEditorRendering(false);
-		frustumPlanes_[4]->SetBound(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.nearPlane_[TransformConst::GL_RT]);
-		frustumPlanes_[4]->SetEditorRendering(false);
-		frustumPlanes_[5]->SetBound(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
-		frustumPlanes_[5]->SetEditorRendering(false);
+		frustumPlanes_[0]->SetBoundLocalSpace(frustumModel.nearPlane_[TransformConst::GL_LB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[0]->SetEditorRendering(isEditorRendering);
+		frustumPlanes_[1]->SetBoundLocalSpace(frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RB]);
+		frustumPlanes_[1]->SetEditorRendering(isEditorRendering);
+		frustumPlanes_[2]->SetBoundLocalSpace(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.nearPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[2]->SetEditorRendering(isEditorRendering);
+		frustumPlanes_[3]->SetBoundLocalSpace(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_LB]);
+		frustumPlanes_[3]->SetEditorRendering(isEditorRendering);
+		frustumPlanes_[4]->SetBoundLocalSpace(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.nearPlane_[TransformConst::GL_RT]);
+		frustumPlanes_[4]->SetEditorRendering(isEditorRendering);
+		frustumPlanes_[5]->SetBoundLocalSpace(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
+		frustumPlanes_[5]->SetEditorRendering(isEditorRendering);
 #endif
 
 #ifdef DRAW_FRUSTUM
@@ -139,13 +144,6 @@ namespace SMGE
 		//if (getActorStaticTag() == "testCamera")	// 테스트 코드 - 프러스텀 컬링 시각화
 		if (getActorStaticTag() == "mainCamera")
 		{
-			//frustumPlanes_[0]->SetEditorRendering(true);
-			//frustumPlanes_[1]->SetEditorRendering(true);
-			//frustumPlanes_[2]->SetEditorRendering(true);
-			//frustumPlanes_[3]->SetEditorRendering(true);
-			//frustumPlanes_[4]->SetEditorRendering(true);
-			//frustumPlanes_[5]->SetEditorRendering(true);
-
 			// 테스트 코드 - 카메라 움직이도록
 			//auto moveCompo = std::make_unique<CMovementComponent>(this);
 			//getTransientComponents().emplace_back(std::move(moveCompo));
@@ -166,7 +164,6 @@ namespace SMGE
 #else
 			frustumLines[0]->RotateQuat(glm::normalize(Origin2LB));
 #endif
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[0]->RecalcFinal();
 
 			auto Origin2RB = frustumModel.farPlane_[TransformConst::GL_RB];
 			frustumLines[1]->Scale({ 0.f, 0.f, glm::length(Origin2RB) });
@@ -175,7 +172,6 @@ namespace SMGE
 #else
 			frustumLines[1]->RotateQuat(glm::normalize(Origin2RB));
 #endif
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[1]->RecalcFinal();
 
 			auto Origin2RT = frustumModel.farPlane_[TransformConst::GL_RT];
 			frustumLines[2]->Scale({ 0.f, 0.f, glm::length(Origin2RT) });
@@ -184,7 +180,6 @@ namespace SMGE
 #else
 			frustumLines[2]->RotateQuat(glm::normalize(Origin2RT));
 #endif
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[2]->RecalcFinal();
 
 			auto Origin2LT = frustumModel.farPlane_[TransformConst::GL_LT];
 			frustumLines[3]->Scale({ 0.f, 0.f, glm::length(Origin2LT) });
@@ -193,7 +188,6 @@ namespace SMGE
 #else
 			frustumLines[3]->RotateQuat(glm::normalize(Origin2LT));
 #endif
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumLines[3]->RecalcFinal();
 
 #ifdef DRAW_FRUSTUM_QUADS
 			// 프러스텀 쿼드 그리기
@@ -217,7 +211,6 @@ namespace SMGE
 					Configs::BoundEpsilon
 				});
 			frustumQuads[0]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads[0]->RecalcFinal();
 			frustumQuads[0]->SetPickingTarget(false);
 			frustumQuads[0]->SetCollideTarget(false);
 			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
@@ -233,7 +226,6 @@ namespace SMGE
 					Configs::BoundEpsilon
 				});
 			frustumQuads[1]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - frustumQuads[1]->RecalcFinal();
 			frustumQuads[1]->SetPickingTarget(false);
 			frustumQuads[1]->SetCollideTarget(false);
 			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
@@ -356,30 +348,30 @@ namespace SMGE
 		if (mainBound == nullptr)
 			return true;	// 여기 - 판단 불가 - 일단 true 로 해둔다 for 카메라 프러스텀 테스트
 
-		const auto& mainBoundBound = mainBound->GetBound();
+		const auto& mainBoundBound = mainBound->GetBoundWorldSpace();
 
-		const auto& planeBound0 = static_cast<const SPlaneBound&>(frustumPlanes_[0]->GetBound());
+		const auto& planeBound0 = static_cast<const SPlaneBound&>(frustumPlanes_[0]->GetBoundWorldSpace());
 		if (planeBound0.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound2 = static_cast<const SPlaneBound&>(frustumPlanes_[2]->GetBound());
+		const auto& planeBound2 = static_cast<const SPlaneBound&>(frustumPlanes_[2]->GetBoundWorldSpace());
 		if (planeBound2.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound3 = static_cast<const SPlaneBound&>(frustumPlanes_[3]->GetBound());
+		const auto& planeBound3 = static_cast<const SPlaneBound&>(frustumPlanes_[3]->GetBoundWorldSpace());
 		if (planeBound3.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound4 = static_cast<const SPlaneBound&>(frustumPlanes_[4]->GetBound());
+		const auto& planeBound4 = static_cast<const SPlaneBound&>(frustumPlanes_[4]->GetBoundWorldSpace());
 		if (planeBound4.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound5 = static_cast<const SPlaneBound&>(frustumPlanes_[5]->GetBound());
+		const auto& planeBound5 = static_cast<const SPlaneBound&>(frustumPlanes_[5]->GetBoundWorldSpace());
 		if (planeBound5.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
 		// 가장 마지막에 먼 것을 버리는게 나름 최적인 것 같다
-		const auto& planeBound1 = static_cast<const SPlaneBound&>(frustumPlanes_[1]->GetBound());
+		const auto& planeBound1 = static_cast<const SPlaneBound&>(frustumPlanes_[1]->GetBoundWorldSpace());
 		if (planeBound1.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 

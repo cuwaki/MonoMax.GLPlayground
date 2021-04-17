@@ -23,10 +23,10 @@ namespace SMGE
 
 		virtual void ReadyToDrawing() override;
 
-		glm::vec3 getNormal() const;
-		virtual const SBound& GetBound() override;
+		glm::vec3 getNormal(bool isWorld) const;
+		virtual const SBound& GetBoundWorldSpace(bool isForceRecalc = false) override;
 		
-		void SetBound(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2);
+		void SetBoundLocalSpace(const glm::vec3& ccw_p0, const glm::vec3& ccw_p1, const glm::vec3& ccw_p2);
 		void Ctor();
 
 	protected:

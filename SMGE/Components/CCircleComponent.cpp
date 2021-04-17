@@ -51,21 +51,27 @@ namespace SMGE
 		Super::ReadyToDrawing();
 	}
 
-	glm::vec3 CCircleComponent::getNormal() const
+	glm::vec3 CCircleComponent::getNormal(bool isWorld) const
 	{
-		return GetFinalFront();
+		if (isWorld)
+			return GetFinalFront();
+		else
+			return GetPendingFront();
 	}
 
-	const SBound& CCircleComponent::GetBound()
+	const SBound& CCircleComponent::GetBoundWorldSpace(bool isForceRecalc)
 	{
-		RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+		if (isForceRecalc || IsDirty())
+		{
+			RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
 
-		// 써클은 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
+			// 써클은 X 와 Y 로만 만들어져야한다, Z 는 Configs::BoundEpsilon 로 고정이거나 마치 0처럼 취급될 것이다
 
-		const auto center = GetFinalPosition();
-		const auto halfSize = GetFinalScales() * 0.5f;
+			const auto center = GetFinalPosition();
+			const auto halfSize = GetFinalScales() * 0.5f;
+			circleBound_ = SCircleBound(getNormal(true), center, halfSize.x);
+		}
 
-		circleBound_ = SCircleBound(getNormal(), center, halfSize.x);
 		return circleBound_;
 	}
 };

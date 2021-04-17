@@ -21,19 +21,20 @@ namespace SMGE
 
 		virtual void ReadyToDrawing() override;
 
-		void SetBoundDataComponent(float size, const glm::vec3& direction);
+		void SetBoundLocalSpace(float size, const glm::vec3& direction);
 
 		virtual CCubeComponent* CreateOBB() override;
-		virtual const SBound& GetBound() override;
+
+		float getLength(bool isWorld) const;
+		glm::vec3 getDirection(bool isWorld) const;
+
+		virtual const SBound& GetBoundWorldSpace(bool isForceRecalc = false) override;
 
 		void Ctor();
 
 		// CInt_Reflection
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
-
-		float getRayLength() const;
-		glm::vec3 getRayDirection() const;
 
 	protected:
 		std::unique_ptr<TReflectionStruct> reflRayCompo_;

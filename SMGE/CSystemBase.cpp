@@ -21,8 +21,8 @@ namespace SMGE
 		constexpr auto setSize = 1024;
 
 		using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-		TStackSetRenderModels::allocator_type::arena_type stackArean;
-		TStackSetRenderModels renderModels(stackArean);
+		TStackSetRenderModels::allocator_type::arena_type stackArena;
+		TStackSetRenderModels renderModels(stackArena);
 		renderModels.reserve(setSize);
 
 		// 1. 그려질 렌더모델 수집
@@ -177,19 +177,22 @@ namespace SMGE
 	{
 		assert(targetMap != nullptr && "never null");
 
-		auto newActor = dynamic_cast<CActor*>(newObj);
+		auto newActor = static_cast<CActor*>(newObj);
 
 		if (isDynamic == true)
 		{	// DynamicActorKey
 			newActor->actorKey_ = DynamicActorKey++;
 		}
 
-		auto& rb = allActors_.emplace_back(std::move(newActor));
-		actorsMap_.insert(std::make_pair(rb.get(), targetMap));
+		if (targetMap->IsTemplate() == false)
+		{	// 맵이 템플릿일 경우에는 등록처리를 하지 않는다, 진짜 사용되는 맵이 아니고 템플릿일 뿐이기 때문이다
+			auto& rb = allActors_.emplace_back(std::move(newActor));
+			actorsMap_.insert(std::make_pair(rb.get(), targetMap));
+		}
 
-		rb->OnSpawnStarted(targetMap, isDynamic);
+		newActor->OnSpawnStarted(targetMap, isDynamic);
 
-		return static_cast<CActor&>(*rb.get());
+		return static_cast<CActor&>(*newActor);
 	}
 
 	CActor* CSystemBase::FinishSpawnActor(CMap* targetMap, CActor* targetActor)

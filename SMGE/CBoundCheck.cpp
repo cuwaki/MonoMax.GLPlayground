@@ -835,27 +835,28 @@ namespace SMGE
 	{
 		using namespace nsRE::TransformConst;
 
+		// 여기 - 회전 순서 함수로 통일하기 필요
 		glm::mat4 rotMat = glm::rotate(Mat4_Identity, glm::radians(eulerDegreesXYZ.x), WorldAxis[ETypeRot::PITCH]);
 		rotMat = glm::rotate(rotMat, glm::radians(eulerDegreesXYZ.y), WorldAxis[ETypeRot::YAW]);
 		rotMat = glm::rotate(rotMat, glm::radians(eulerDegreesXYZ.z), WorldAxis[ETypeRot::ROLL]);
 
-		glm::vec3 eulerAxis[3];
-		eulerAxis[ETypeAxis::X] = rotMat[ETypeAxis::X];
-		eulerAxis[ETypeAxis::Y] = rotMat[ETypeAxis::Y];
-		eulerAxis[ETypeAxis::Z] = rotMat[ETypeAxis::Z];
-		this->SCubeBound::SCubeBound(centerPos, size, eulerAxis);
+		glm::vec3 axis[3];
+		axis[ETypeAxis::X] = rotMat[ETypeAxis::X];
+		axis[ETypeAxis::Y] = rotMat[ETypeAxis::Y];
+		axis[ETypeAxis::Z] = rotMat[ETypeAxis::Z];
+		this->SCubeBound::SCubeBound(centerPos, size, axis);
 
 		type_ = EBoundType::CUBE;
 	}
 
-	SCubeBound::SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3(&eulerAxis)[3]) : SCubeBound()
+	SCubeBound::SCubeBound(const glm::vec3& centerPos, const glm::vec3& size, const glm::vec3(&axis)[3]) : SCubeBound()
 	{
 		using namespace nsRE::TransformConst;
 
 		size_ = size;
-		eulerAxis_[ETypeAxis::X] = eulerAxis[ETypeAxis::X];
-		eulerAxis_[ETypeAxis::Y] = eulerAxis[ETypeAxis::Y];
-		eulerAxis_[ETypeAxis::Z] = eulerAxis[ETypeAxis::Z];
+		eulerAxis_[ETypeAxis::X] = axis[ETypeAxis::X];
+		eulerAxis_[ETypeAxis::Y] = axis[ETypeAxis::Y];
+		eulerAxis_[ETypeAxis::Z] = axis[ETypeAxis::Z];
 
 		const auto xHalfLeng = size_.x / 2.f;
 		const auto yHalfLeng = size_.y / 2.f;
@@ -1162,7 +1163,7 @@ namespace SMGE
 	SAABB::operator SCubeBound() const
 	{
 		const auto size = getSize();
-		return { min() + size / 2.f, size, { 0.f, 0.f, 0.f } };
+		return { min() + size * 0.5f, size, { 0.f, 0.f, 0.f } };
 	}
 };
 
@@ -1176,7 +1177,7 @@ namespace SMGE
 		this->RecalcFinal();
 		sphere->RecalcFinal();
 
-		auto rayLoc = this->GetFinalPosition(), sphereLoc = sphere->GetFinalPosition();
+		auto rayLoc = this->Get PendingPosition(), sphereLoc = sphere->Get PendingPosition();
 
 		auto ray2sphere = sphereLoc - rayLoc;
 		float r2sLen = glm::distance(sphereLoc, rayLoc);
@@ -1184,9 +1185,9 @@ namespace SMGE
 		// https://m.blog.naver.com/PostView.nhn?blogId=hermet&logNo=68084286&proxyReferer=https:%2F%2Fwww.google.com%2F
 		// 내용을 기준으로 조금 변형 하였다
 
-		const auto rayLength = this->getRayLength();
+		const auto rayLength = this->getLength();
 		const auto sphereRadius = sphere->GetRadius();
-		const auto rayDirection = this->getRayDirection();
+		const auto rayDirection = this->getDirection();
 
 		// 사이즈가 택도 없을 경우를 먼저 걸러낸다
 		float minSize = r2sLen - sphereRadius;

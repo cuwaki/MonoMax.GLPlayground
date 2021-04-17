@@ -82,19 +82,21 @@ namespace SMGE
         CVector(const size_t size, const _Alloc& _Al = _Alloc()) : std::vector<T>(size, _Al) {};    // #cvcvuptr_resize - unique_ptr 을 CVector<CVector< 의 T 로 넣을 경우 CVector< 의 resize 가 컴파일 오류가 나서 일단 이렇게 한다
 
         template<typename U>
-        T& operator[](const U& index)   // enum class 들을 [] 로 바로 받을 수 있게 하기 위함
-        {
-            static_assert(std::is_enum_v<U> || std::is_integral_v<U>);
-
-            return ParentVectorT::operator[](etoi(index));
-        }
-        template<typename U>
-        const T& operator[](const U& index) const
-        {
-            static_assert(std::is_enum_v<U> || std::is_integral_v<U>);
-
-            return ParentVectorT::operator[](etoi(index));
-        }
+		T& operator[](const U& index)   // enum class 들을 [] 로 바로 받을 수 있게 하기 위함
+		{
+			if constexpr (std::is_enum_v < U>)
+				return ParentVectorT::operator[](etoi(index));
+			else
+				return ParentVectorT::operator[](index);
+		}
+		template<typename U>
+		const T& operator[](const U& index) const
+		{
+			if constexpr (std::is_enum_v < U>)
+				return ParentVectorT::operator[](etoi(index));
+			else
+                return ParentVectorT::operator[](index);
+		}
 
         typename ParentVectorT::iterator cursorBegin() { cursor_ = this->begin(); return cursor(); }
         typename ParentVectorT::iterator cursorNext() { cursor_++; return cursor(); }

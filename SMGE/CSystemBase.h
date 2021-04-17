@@ -39,7 +39,7 @@ namespace SMGE
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// CActor 관리
-		CVector<std::unique_ptr<CActor>>& GetAllActors() { return allActors_; }
+		//CVector<std::unique_ptr<CActor>>& GetAllActors() { return allActors_; }	// 허용하면 안된다
 		const CVector<std::unique_ptr<CActor>>& GetAllActors() const { return allActors_; }
 
 		virtual void ProcessPendingKill(class CActor* actor);

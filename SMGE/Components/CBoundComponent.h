@@ -59,10 +59,9 @@ namespace SMGE
 		virtual bool CheckCollide(CBoundComponent* checkTarget, SSegmentBound& outCross);
 
 		EBoundType GetBoundType() const { return boundType_; }
-		virtual const SBound& GetBound() = 0;
+		virtual const SBound& GetBoundWorldSpace(bool isForceRecalc = false) = 0;
 
 		virtual const class CCubeComponent* GetOBB() const;
-
 		const SAABB& GetAABB() const;
 		virtual void CacheAABB();
 

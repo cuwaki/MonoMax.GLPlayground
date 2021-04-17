@@ -25,8 +25,8 @@ namespace SMGE
 		constexpr auto setSize = 1024;
 
 		using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-		TStackSetRenderModels::allocator_type::arena_type stackArean;
-		TStackSetRenderModels renderModels(stackArean);
+		TStackSetRenderModels::allocator_type::arena_type stackArena;
+		TStackSetRenderModels renderModels(stackArena);
 		renderModels.reserve(setSize);
 
 		// 1. 그려질 렌더모델 수집
@@ -181,8 +181,6 @@ namespace SMGE
 #endif
 					*/
 
-					// 테스트 코드 - 리칼크파이널 코드 재검토 - camTransform.RecalcFinal();
-
 					RPressedPos = userInput.GetMousePosition();
 				}
 			}
@@ -211,44 +209,38 @@ namespace SMGE
 					Args_START currentMap, ECheckCollideRule::NEAREST, false,
 					[this, currentMap](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const SSegmentBound& COLL_SEG)
 					{
-						/* 포인트 표시
+						// 포인트 표시
 						CCollideActor* pointActor = &StartSpawnActorVARIETY<CCollideActor>(currentMap, true, currentMap);
 						auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
 						pointActor->CopyFromTemplate(prefab->getContentClass());
 						{
 							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 							pointActor->getTransform().Translate(COLL_SEG.end_);
-							// 테스트 코드 - 리칼크파이널 코드 재검토 - pointActor->getTransform().RecalcFinal();
 						}
-						FinishSpawnActor(currentMap, *pointActor);
+						FinishSpawnActor(currentMap, pointActor);
 						pointActor->SetLifeTickCount(100);
-						*/
 
-						AddSelectedActor(currentMap, TAR);
+						//AddSelectedActor(currentMap, TAR);
 					});
 
 				auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
 				rayActor->CopyFromTemplate(prefab->getContentClass());
 				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
-
 					float rayLength = renderingEngine_->GetRenderingCamera().GetZFar();
-					//rayCompo->SetBoundData(rayLength, ray_direction);
 					rayActor->getTransform().Translate(ray_origin);
-					rayActor->getTransform().Scale({ Configs::BoundEpsilon, Configs::BoundEpsilon, Configs::BoundEpsilon });	// 여기 - GetOBB 를 위하여 약간의 두께를 갖게 했다, 이거 생각해봐야한다, 레이의 입장에서는 xy 크기는 0인게 맞지만 obb 로 역할하려면 BoundEpsilon 만큼은 있어야하므로...
 					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
 #ifdef REFACTORING_TRNASFORM
 					rayActor->getTransform().RotateDirection(ray_direction);
 #else
 					rayActor->getTransform().RotateQuat(ray_direction);
 #endif
-					// 테스트 코드 - 리칼크파이널 코드 재검토 - rayActor->getTransform().RecalcFinal();
 				}
 				FinishSpawnActor(currentMap, rayActor);
 
 				auto targets = rayActor->QueryCollideCheckTargets();
 				bool hasCollide = rayActor->CheckCollideAndProcess(targets);
-				rayActor->SetLifeTickCount(330);
+				rayActor->SetLifeTickCount(33);	// 테스트 코드 - 레이 트레이싱 시각화
 
 				if (hasCollide == false)
 				{	// 아무것도 선택되지 않았다
@@ -310,7 +302,6 @@ namespace SMGE
 			//gizmo->getTransform().Rotate(selActor->getTransform().GetPendingRotationMatrix());	// 액터에 곧바로 붙어있음	
 #endif
 			gizmo->getTransform().Scale(selActor->getTransform().GetPendingScales());
-			// 테스트 코드 - 리칼크파이널 코드 재검토 - gizmo->getTransform().RecalcFinal();
 
 			FinishSpawnActor(itsMap, gizmo);
 

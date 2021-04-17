@@ -29,7 +29,7 @@ namespace SMGE
 		auto actorWeaks = outerMap->QueryActors(aabb);
 		for (size_t i = 0; i < actorWeaks.size(); ++i)
 		{
-			if (actorWeaks[i] != nullptr && actorWeaks[i]->GetMainBound() != nullptr && actorWeaks[i] != this)
+			if (actorWeaks[i] != nullptr && actorWeaks[i] != this && actorWeaks[i]->GetMainBound() != nullptr)
 				ret.push_back(actorWeaks[i]);
 		}
 
@@ -57,7 +57,7 @@ namespace SMGE
 
 			auto aabbTest = thisMainBound->GetAABB().check(otherMainBound->GetAABB(), crossSeg);
 			if (aabbTest &&	// aabb 체크 넘어가면
-				thisMainBound->GetBound().check(otherMainBound->GetBound(), crossSeg) == true)	// 바운드끼리 체크 한다
+				thisMainBound->GetBoundWorldSpace().check(otherMainBound->GetBoundWorldSpace(), crossSeg) == true)	// 바운드끼리 체크 한다
 			{
 				hasCollide = true;
 

@@ -65,6 +65,7 @@ namespace SMGE
 		void Dtor();
 
 		virtual void Tick(float);	// 차후 개발 - CGInterf_Tickable 로 빼자
+		virtual void AfterTick(float);
 
 		nsRE::Transform& getTransform();
 		const nsRE::Transform& getTransform() const;

@@ -83,11 +83,15 @@ namespace SMGE
 		virtual const CString& getClassRTTIName() const override { return This::GetClassRTTIName(); }
 		virtual SGReflection& getReflection() override;
 
+		bool IsTemplate() const;
+
 	protected:
 		void OnPostBeginPlay();
 
 		void changeCurrentCamera(class CCameraActor* camA);
 		void cameraFrustumCulling();
+
+		void RemoveActorFromOctree(CActor* actor);
 
 	protected:
 		std::unique_ptr<TReflectionStruct> reflMap_;

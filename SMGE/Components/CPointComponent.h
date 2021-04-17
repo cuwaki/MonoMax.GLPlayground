@@ -21,7 +21,7 @@ namespace SMGE
 
 		virtual void ReadyToDrawing() override;
 
-		virtual const SBound& GetBound() override;
+		virtual const SBound& GetBoundWorldSpace(bool isForceRecalc = false) override;
 
 		void Ctor();
 

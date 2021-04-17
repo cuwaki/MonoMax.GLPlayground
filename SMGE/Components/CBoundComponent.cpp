@@ -57,7 +57,8 @@ namespace SMGE
 	{
 		WorldObject::OnBeforeRendering();
 
-		static_cast<const nsRE::GizmoRenderModel*>(renderModel_)->GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
+		const auto rm = static_cast<const nsRE::GizmoRenderModel*>(renderModel_);
+		rm->GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
 	}
 
 	void CBoundComponent::OnBeginPlay(CObject* parent)
@@ -97,6 +98,7 @@ namespace SMGE
 
 		Super::OnBeginPlay(parent);
 
+		GetBoundWorldSpace(true);	// isdirty 일 때만 계산되므로 한번 강제로 갱신해준다
 		CacheAABB();
 	}
 
@@ -121,7 +123,7 @@ namespace SMGE
 	bool CBoundComponent::CheckCollide(CBoundComponent* checkTarget, SSegmentBound& outCross)
 	{
 		if (checkTarget != nullptr)
-			return GetBound().check(checkTarget->GetBound(), outCross);
+			return GetBoundWorldSpace().check(checkTarget->GetBoundWorldSpace(), outCross);
 		
 		return false;
 	}
@@ -137,7 +139,7 @@ namespace SMGE
 		// 테스트 코드 - AABB
 		if (cobjectTag_ != "debug aabb")
 #endif
-			cachedAABB_ = GetBound();
+			cachedAABB_ = GetBoundWorldSpace();
 	}
 
 	const class CCubeComponent* CBoundComponent::GetOBB() const
@@ -150,17 +152,13 @@ namespace SMGE
 
 	class CCubeComponent* CBoundComponent::CreateOBB()
 	{
-		auto thisCube = dynamic_cast<CCubeComponent*>(this);
-		if (thisCube)
-		{	// 나 자신이 OBB이다
-			return thisCube;
-		}
-
 		auto map = FindOuter<CMap>(this);
 		if (map != nullptr)	// 현재 맵이 없다면 beginplay 가 작동하지 않아서 제대로된 obb로서의 작동을 할 수 없다
 		{
 			// 이렇게 단위 크기의 큐브콤포넌트를 만들어서 자식 콤포넌트로 붙이면 현재의 루트객체의 트랜스폼을 따라서 자동으로 트랜스폼 조정이 되게 된다.
 			// 점, 레이 같이 몇몇 특수한 케이스 외에는 추가 처리가 필요없다.
+			// 단, 현재로서는 OBB 가 붙는 nsRE::Transform 이 GL좌표계의 1 단위로 크기 조정이 되어있다는 가정이 있다
+			// 앞으로 SMGE 는 위와 같이 크기를 정규화(?) 한다는 룰이 있다면 이렇게 편하게 처리가 가능할 듯...
 
 			getTransientComponents().push_back(std::make_unique<CCubeComponent>(RTTI_CObject::NewDefault<CCubeComponent>(this)));
 
