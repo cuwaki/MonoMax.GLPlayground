@@ -5,9 +5,9 @@
 #include "../CGameBase.h"
 #include "CCameraActor.h"
 
-// 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
-//#define ENABLE_FRUSTUM_CULLING
+#define ENABLE_FRUSTUM_CULLING
 #define ENABLE_OCTREE
+//#define ENABLE_OCTREE_WITH_AABB	/* 옥트리에 크기로 등록하기 */
 
 namespace SMGE
 {
@@ -119,22 +119,17 @@ namespace SMGE
 	{
 		cameraFrustumCulling();
 
-		glm::vec3 oldLoc, newLoc;
 		for (auto& actor : mapActorsW_)
 		{
-#ifdef ENABLE_OCTREE
-			oldLoc = actor->getTransform().GetFinalPosition();
-#endif
-
 			actor->Tick(timeDelta);	// 여기 - 나에게만 관련된 틱과 다른 액터와 관련된 틱을 분리하면 멀티쓰레드 처리를 할 수 있겠다 / 또는 로직 처리용 컴포넌트를 만들고 컴포넌트별로 멀티쓰레더블과 아닌걸로 나눌까?
+			const auto isDirty = actor->getTransform().IsDirty();	// 여기 - 규칙 추가 - 액터의 트랜스폼 더티는 Tick 에서만 이뤄져야한다!
 			actor->AfterTick(timeDelta);
 
 #ifdef ENABLE_OCTREE
-			newLoc = actor->getTransform().GetFinalPosition();
-			if (oldLoc != newLoc)	// 여기 - 위치만 가지고 하면 안된다, 차후에 dirty 를 이용해서 업데이트 하도록 하자 / 옥트리 업데이트 말고도 aabb 업데이트도 해야한다
-			{	// 여기 - 일단 무식하게 한다
+			if (isDirty)
+			{	// 여기 - 최적화 - 일단 무식하게 한다
 				RemoveActorFromOctree(actor);
-				mapOctree_.AddByPoint(actor, newLoc);
+				mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());
 
 				// 역시 일단 무식하게 한다
 				if (actor->GetMainBound() != nullptr)
@@ -201,6 +196,16 @@ namespace SMGE
 
 	void CMap::OnPostBeginPlay()
 	{
+#ifdef ENABLE_OCTREE
+		mapOctree_.Create("mapOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
+
+		// 여기 - 규칙 - BeginPlay( 에서는 다른 액터를 쿼리하며 안된다! 옥트리에 아직 등록이 안되었기 때문!
+		for (auto& actor : mapActorsW_)
+		{
+			actor->getTransform().RecalcFinal();
+			mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());	// 여기 - 크기로 등록하기, 모든 AddByPoint에! ENABLE_OCTREE_WITH_AABB
+		}
+#endif
 		currentCamera_ = nullptr;
 
 		// 현재 카메라 설정
@@ -214,13 +219,16 @@ namespace SMGE
 			}
 		}
 
-		//// 테스트 코드 - 프러스텀 컬링 시각화
-		//for (auto& actor : mapActorsW_)
-		//{
-		//	auto testCamActor = dynamic_cast<CCameraActor*>(actor);
-		//	if (testCamActor->getActorStaticTag() == "testCamera")
-		//		cullingCamera_ = testCamActor;
-		//}
+		// 테스트 코드 - 프러스텀 컬링 시각화
+		for (auto& actor : mapActorsW_)
+		{
+			auto testCamActor = dynamic_cast<CCameraActor*>(actor);
+			if (testCamActor && testCamActor->getActorStaticTag() == "testCamera")
+			{
+				cullingCamera_ = testCamActor;
+				break;
+			}
+		}
 
 		if (isFrustumCulling_)
 		{	// 초기 프러스텀 컬링
@@ -238,6 +246,7 @@ namespace SMGE
 
 	void CMap::cameraFrustumCulling()
 	{
+#ifdef ENABLE_FRUSTUM_CULLING
 		if (isFrustumCulling_ == false || cullingCamera_ == nullptr)
 			return;
 
@@ -286,6 +295,8 @@ namespace SMGE
 				}
 			}
 		}
+#else
+#endif
 	}
 
 	void CMap::BeginPlay()
@@ -295,18 +306,8 @@ namespace SMGE
 
 		isBeginningPlay_ = true;
 		{
-#ifdef ENABLE_OCTREE
-			mapOctree_.Create("mapOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
-#endif
-
 			for (auto& actor : mapActorsW_)
-			{
-#ifdef ENABLE_OCTREE
-				actor->getTransform().RecalcFinal();
-				mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());
-#endif
 				actor->BeginPlay();
-			}
 		}
 		isBeginningPlay_ = false;
 
@@ -327,7 +328,9 @@ namespace SMGE
 		mapOctree_.Clear();
 #endif
 		mapActorsW_.clear();
+#ifdef ENABLE_FRUSTUM_CULLING
 		oldActorsInFrustum_.clear();
+#endif
 
 		isBeganPlay_ = false;
 	}
@@ -349,12 +352,25 @@ namespace SMGE
 		{
 			MapOcTree::TValueIterator it;
 
-			auto [xyNode, zxNode] = mapOctree_.HardQuery(actor);
+			auto [xyNodes, zxNodes] = mapOctree_.HardQuery(actor);
+#if _DEBUG || DEBUG
+			// 이게 반드시 보장되어야한다
+			const auto xySize = std::distance(xyNodes.begin(), xyNodes.end());
+			const auto zxSize = std::distance(zxNodes.begin(), zxNodes.end());
+	#ifdef ENABLE_OCTREE_WITH_AABB
+			assert(zxSize == xySize);
+	#else
+			assert(xySize == 1);
+			assert(zxSize == 1);
+	#endif
+#endif
+			auto& xyNode = *xyNodes.begin();
 			if (xyNode)
 			{
 				xyNode->FindValue(actor, it);
 				xyNode->RemoveValue(it);
 			}
+			auto& zxNode = *zxNodes.begin();
 			if (zxNode)
 			{
 				zxNode->FindValue(actor, it);
@@ -368,14 +384,16 @@ namespace SMGE
 		if (actor == nullptr)
 			return;
 
+		actor->EndPlay();
+
 #ifdef ENABLE_OCTREE
 		RemoveActorFromOctree(actor);
 #endif
-		actor->EndPlay();
-
+#ifdef ENABLE_FRUSTUM_CULLING
 		auto it = std::find(oldActorsInFrustum_.begin(), oldActorsInFrustum_.end(), actor);
 		if (it != oldActorsInFrustum_.end())
 			*it = nullptr;
+#endif
 
 		auto found = std::find(mapActorsW_.begin(), mapActorsW_.end(), actor);
 #if defined(_DEBUG) || defined(DEBUG)
@@ -394,11 +412,12 @@ namespace SMGE
 
 		if (isBeganPlay_ == true)
 		{
+			actor->BeginPlay();
+
 #ifdef ENABLE_OCTREE
 			actor->getTransform().RecalcFinal();
 			mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());
 #endif
-			actor->BeginPlay();
 
 			if (isFrustumCulling_)
 			{	// 안보임으로 시작하며 필요시 보이게 될 것

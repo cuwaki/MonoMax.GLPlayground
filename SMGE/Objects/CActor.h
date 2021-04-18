@@ -70,6 +70,7 @@ namespace SMGE
 		nsRE::Transform& getTransform();
 		const nsRE::Transform& getTransform() const;
 
+		TActorKey getActorKey() const { return actorKey_; }
 		void setActorStaticTag(const CString& st) { actorStaticTag_ = st; }
 		CString getActorStaticTag() { return actorStaticTag_; }
 
@@ -127,6 +128,9 @@ namespace SMGE
 		CTimer timer_;
 
 		friend class CSystemBase;	// for DynamicActorKey
+
+	protected:
+		void setActorKey(TActorKey ak) { actorKey_ = ak; }
 
 	public:
 		// interfaces for CSystemBase

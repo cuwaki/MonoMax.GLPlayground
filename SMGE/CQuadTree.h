@@ -219,19 +219,20 @@ namespace SMGE
 			heightGap_ = uvNodeTable_[1][0]->GetRect().b_ - uvNodeTable_[0][0]->GetRect().b_;
 		}
 
-		TNode* HardQuery(const TValue& findingValue) const
+		auto HardQuery(const TValue& findingValue) const
 		{
+			TNodeList ret;
 			for (auto& vNodes : uvNodeTable_)
 			{
 				for (auto& vNode : vNodes)
 				{
 					TValueIterator found;
 					if (vNode->FindValue(findingValue, found))
-						return vNode;
+						ret.emplace_front(vNode);
 				}
 			}
 
-			return nullptr;
+			return ret;
 		}
 
 		TNode* QueryNodeByPoint(SizeType w, SizeType h) const
@@ -386,10 +387,10 @@ namespace SMGE
 
 		auto HardQuery(const TValue& findingValue) const
 		{
-			auto xyNode = xyQTree_.HardQuery(findingValue);
-			auto zxNode = zxQTree_.HardQuery(findingValue);
+			auto xyNodes = xyQTree_.HardQuery(findingValue);
+			auto zxNodes = zxQTree_.HardQuery(findingValue);
 
-			return std::make_pair(xyNode, zxNode);
+			return std::make_pair(xyNodes, zxNodes);
 		}
 
 		TNode* QueryNodeByXY(SizeType x, SizeType y)

@@ -224,7 +224,7 @@ namespace SMGE
 					});
 
 				auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
-				rayActor->CopyFromTemplate(prefab->getContentClass());
+				rayActor->CopyFromTemplate(prefab->getContentClass());	// 여기 - CopyFromTemplate 이게 FinishSpawnActor 보다 일찍 호출되어야한다!!, 안그러면 staticTag 나 actorKey 등이 초기화되어버린다
 				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
 					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
 					float rayLength = renderingEngine_->GetRenderingCamera().GetZFar();

@@ -8,8 +8,7 @@
 #include "../../MonoMax.EngineCore/common/controls.hpp"
 #include "../CBoundCheck.h"
 
-//#define DRAW_FRUSTUM
-// 테스트 코드 ㅡ 트랜스폼 리팩토링 점검을 위해
+#define DRAW_FRUSTUM
 #define ENABLE_FRUSTUM_CULLING
 
 namespace SMGE
@@ -141,8 +140,8 @@ namespace SMGE
 
 #ifdef DRAW_FRUSTUM
 		// 최적화 - 게임에서는 카메라 및 그의 기즈모들은 그려질 필요가 없다
-		//if (getActorStaticTag() == "testCamera")	// 테스트 코드 - 프러스텀 컬링 시각화
-		if (getActorStaticTag() == "mainCamera")
+		if (getActorStaticTag() == "testCamera")	// 테스트 코드 - 프러스텀 컬링 시각화
+		//if (getActorStaticTag() == "mainCamera")
 		{
 			// 테스트 코드 - 카메라 움직이도록
 			//auto moveCompo = std::make_unique<CMovementComponent>(this);
@@ -158,7 +157,7 @@ namespace SMGE
 				});
 
 			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
-			frustumLines[0]->Scale({ 0.f, 0.f, glm::length(Origin2LB) });
+			frustumLines[0]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2LB) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[0]->RotateDirection(glm::normalize(Origin2LB));
 #else
@@ -166,7 +165,7 @@ namespace SMGE
 #endif
 
 			auto Origin2RB = frustumModel.farPlane_[TransformConst::GL_RB];
-			frustumLines[1]->Scale({ 0.f, 0.f, glm::length(Origin2RB) });
+			frustumLines[1]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2RB) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[1]->RotateDirection(glm::normalize(Origin2RB));
 #else
@@ -174,7 +173,7 @@ namespace SMGE
 #endif
 
 			auto Origin2RT = frustumModel.farPlane_[TransformConst::GL_RT];
-			frustumLines[2]->Scale({ 0.f, 0.f, glm::length(Origin2RT) });
+			frustumLines[2]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2RT) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[2]->RotateDirection(glm::normalize(Origin2RT));
 #else
@@ -182,14 +181,13 @@ namespace SMGE
 #endif
 
 			auto Origin2LT = frustumModel.farPlane_[TransformConst::GL_LT];
-			frustumLines[3]->Scale({ 0.f, 0.f, glm::length(Origin2LT) });
+			frustumLines[3]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2LT) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[3]->RotateDirection(glm::normalize(Origin2LT));
 #else
 			frustumLines[3]->RotateQuat(glm::normalize(Origin2LT));
 #endif
 
-#ifdef DRAW_FRUSTUM_QUADS
 			// 프러스텀 쿼드 그리기
 			std::array<class CQuadComponent*, 2> frustumQuads;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
 			std::fill(frustumQuads.begin(), frustumQuads.end(), nullptr);
@@ -210,7 +208,7 @@ namespace SMGE
 					//12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads[0]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
+			frustumQuads[0]->RotateEuler({ 0.f, 180.f, 0.f }, true);	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
 			frustumQuads[0]->SetPickingTarget(false);
 			frustumQuads[0]->SetCollideTarget(false);
 			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
@@ -225,7 +223,7 @@ namespace SMGE
 					//12.f,
 					Configs::BoundEpsilon
 				});
-			frustumQuads[1]->RotateEuler({ 0.f, 180.f, 0.f });	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
+			frustumQuads[1]->RotateEuler({ 0.f, 180.f, 0.f }, true);	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
 			frustumQuads[1]->SetPickingTarget(false);
 			frustumQuads[1]->SetCollideTarget(false);
 			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
@@ -297,7 +295,6 @@ namespace SMGE
 			frustumQuads[5]->SetCollideTarget(false);
 			frustumQuads[5]->SetGizmoColor({ 0.f, 1.f, 0.f });
 			*/
-#endif	// DRAW_FRUSTUM_QUADS
 		}
 #endif
 

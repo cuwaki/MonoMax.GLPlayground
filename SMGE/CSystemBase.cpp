@@ -179,11 +179,6 @@ namespace SMGE
 
 		auto newActor = static_cast<CActor*>(newObj);
 
-		if (isDynamic == true)
-		{	// DynamicActorKey
-			newActor->actorKey_ = DynamicActorKey++;
-		}
-
 		if (targetMap->IsTemplate() == false)
 		{	// 맵이 템플릿일 경우에는 등록처리를 하지 않는다, 진짜 사용되는 맵이 아니고 템플릿일 뿐이기 때문이다
 			auto& rb = allActors_.emplace_back(std::move(newActor));
@@ -198,6 +193,12 @@ namespace SMGE
 	CActor* CSystemBase::FinishSpawnActor(CMap* targetMap, CActor* targetActor)
 	{
 		assert(targetMap != nullptr && "never null");
+
+		const auto isDynamic = targetActor->getActorKey() == InvalidActorKey;
+		if (isDynamic == true)
+		{	// DynamicActorKey
+			targetActor->setActorKey(DynamicActorKey++);
+		}
 
 		targetActor->OnSpawnFinished(targetMap);
 
