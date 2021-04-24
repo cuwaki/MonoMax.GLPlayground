@@ -153,7 +153,9 @@ namespace SMGE
 			std::generate(frustumLines.begin(), frustumLines.end(),
 				[this]()
 				{
-					return static_cast<CSegmentComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CSegmentComponent>(this))).get());
+					CSegmentComponent* newOne = static_cast<CSegmentComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CSegmentComponent>(this))).get());
+					newOne->SetGizmoColor({ 1, 0, 0 });
+					return newOne;
 				});
 
 			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
@@ -211,7 +213,7 @@ namespace SMGE
 			frustumQuads[0]->RotateEuler({ 0.f, 180.f, 0.f }, true);	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
 			frustumQuads[0]->SetPickingTarget(false);
 			frustumQuads[0]->SetCollideTarget(false);
-			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.7f });
+			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.f });
 
 			// Far 평면
 			frustumQuads[1]->Translate({ 0.f, 0.f, frustumModel.farPlane_[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
@@ -226,7 +228,7 @@ namespace SMGE
 			frustumQuads[1]->RotateEuler({ 0.f, 180.f, 0.f }, true);	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
 			frustumQuads[1]->SetPickingTarget(false);
 			frustumQuads[1]->SetCollideTarget(false);
-			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.5f });
+			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.f });
 
 			/* 이하 버그 있는 코드 - 쓰려면 RecalcFinal 도 불러줘야한다
 			auto toUp = frustumModel.farPlane_[TransformConst::GL_LT] - frustumModel.nearPlane_[TransformConst::GL_LT];

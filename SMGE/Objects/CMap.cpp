@@ -275,8 +275,13 @@ namespace SMGE
 			for (auto& comp : actorPtr->getAllComponents())
 			{
 				auto drawComp = dynamic_cast<CDrawComponent*>(comp);
+#if IS_EDITOR
+				if (drawComp && drawComp->IsEditorRendering())	// 여기 - 비지블과 이즈렌더링 을 나눠야한다
+				{
+#else
 				if (drawComp)
 				{
+#endif
 					auto mbc = drawComp->GetMainBound();
 					if (mbc)
 					{	// 드로 콤포에 바운드가 있는 경우 - 그걸로 판단

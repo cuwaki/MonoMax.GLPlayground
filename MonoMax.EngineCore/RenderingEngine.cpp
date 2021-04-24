@@ -627,9 +627,10 @@ namespace SMGE
 #ifdef REFACTORING_TRNASFORM
 				if (parent_ == nullptr || isAbsoluteTransform_)
 				{
-					const auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
 					const auto scaledMat = glm::scale(Mat4_Identity, pendingScales_);
+					const auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
 
+					// S->R->T 순서로
 					finalMatrix_ = translMat * pendingRotationMatrix_ * scaledMat;	// 최적화 - 인라인 처리해서 임시 객체 없애자
 					finalScales_ = pendingScales_;
 				}
@@ -637,9 +638,10 @@ namespace SMGE
 				{
 					finalMatrix_ = parent_->FinalMatrixNoRecalc();
 
+					// S->R->T 순서로
 					finalMatrix_ = glm::translate(finalMatrix_, pendingPosition_);
-					finalMatrix_ = glm::scale(finalMatrix_, pendingScales_);
 					finalMatrix_ *= pendingRotationMatrix_;
+					finalMatrix_ = glm::scale(finalMatrix_, pendingScales_);
 
 					finalScales_ = parent_->pendingScales_ * pendingScales_;
 				}
