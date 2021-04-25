@@ -442,7 +442,7 @@ namespace SMGE
 				if (isInFront(p))
 					return true;
 			}
-			return true;
+			return false;
 		}
 		default:
 			return false;

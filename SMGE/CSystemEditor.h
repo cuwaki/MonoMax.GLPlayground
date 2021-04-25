@@ -43,7 +43,7 @@ namespace SMGE
 		void ClearSelectedActors();
 
 	protected:
-		std::forward_list<class CActor*> selectedActors_;
+		CForwardList<class CActor*> selectedActors_;
 		std::multimap<class CActor*, class CActor*> gizmoActors_;
 
 		EGizmoMode gizmoMode_;

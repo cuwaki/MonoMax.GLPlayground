@@ -9,10 +9,10 @@ namespace SMGE
 {
 	namespace MapConst
 	{
-		constexpr float OctreeLeafWidth = 50.f;	// 50미터
-		constexpr int32 OctreeDepth = 6;
+		constexpr float OctreeLeafWidth = 5.f;	// 5미터
+		constexpr int32 OctreeDepth = 8;
 
-		constexpr float MaxX = OctreeLeafWidth * 64.f;	// 64 == std::pow(2, OctreeDepth)
+		constexpr float MaxX = OctreeLeafWidth * 256.f;	// 256 == std::pow(2, OctreeDepth) - 최종 옥트리 한변의 크기는 OctreeLeafWidth * MaxX 가 된다
 		constexpr float MaxY = MaxX;
 		constexpr float MaxZ = MaxX;
 	}
@@ -102,7 +102,7 @@ namespace SMGE
 		CVector<CActor*> mapActorsW_;
 		bool isBeganPlay_ = false;
 		bool isBeginningPlay_ = false;
-		CVector<CActor*> oldActorsInFrustum_;
+		CVector<CActor*> actorsAroundFrustum_;
 
 		class CCameraActor* currentCamera_;	// 물체를 비추는 카메라
 		class CCameraActor* cullingCamera_;	// mapOctree_ 와 협동하여 렌더링을 위해 컬링하는 카메라

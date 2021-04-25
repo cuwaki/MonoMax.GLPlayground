@@ -44,9 +44,10 @@ namespace SMGE
 
 	const SBound& CPointComponent::GetBoundWorldSpace(bool isForceRecalc)
 	{
-		if (isForceRecalc || IsDirty())
+		// 여기 - 최적화 필요 - IsDirty() 가 해소되는 것이 액터의 AfterTick 인 현재 상황에서는 무조건 재계산을 해야한다
+		//if (isForceRecalc || IsDirty())
 		{
-			RecalcFinal();	// 여기 - 여길 막으려면 dirty 에서 미리 캐시해놓는 시스템을 만들고, 그걸로 안될 때는 바깥쪽에서 리칼크를 불러줘야한다
+			//RecalcFinal();	
 
 			pointBound_ = SPointBound(GetFinalPosition());
 		}

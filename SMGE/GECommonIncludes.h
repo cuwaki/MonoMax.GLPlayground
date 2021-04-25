@@ -114,7 +114,7 @@ namespace SMGE
     };
 
     template<typename T>
-    using CFList = std::forward_list<T>;
+    using CForwardList = std::forward_list<T>;
 
     template<typename T>
     using CList = std::list<T>;

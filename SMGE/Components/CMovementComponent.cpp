@@ -18,8 +18,8 @@ namespace SMGE
 	}
 
 	// 테스트 코드 - 무브먼트 테스트용
-	static glm::vec3 moveTo(-20, 0, 0), moveFrom;
-	static glm::vec3 rotateTo(0, 30, 0), rotateFromEuler;
+	static glm::vec3 moveTo(0, 0, -20), moveFrom;
+	static glm::vec3 rotateTo(0, 0, 0), rotateFromEuler(0, 0, 0);
 	static glm::vec3 scaleTo(2, 2, 2), scaleFrom;
 	static float TestInterpolationTime = 400;
 
@@ -63,8 +63,9 @@ namespace SMGE
 			interpTranslation_.setCurveType(ECurveType::Quad_Out);
 			interpTranslation_.start(moveFrom, moveFrom + moveTo, TestInterpolationTime);
 
-			rotateFromEuler = targetTransform_->GetPendingRotationEulerDegreesWorld();
+			rotateTo = rotateFromEuler = targetTransform_->GetPendingRotationEulerDegreesWorld();
 			interpRotation_.setCurveType(ECurveType::Cos);
+			rotateTo[1] += 45;
 			interpRotation_.start(rotateFromEuler, rotateTo, TestInterpolationTime);
 
 			scaleFrom = targetTransform_->GetPendingScales();
@@ -77,39 +78,39 @@ namespace SMGE
 			// 테스트 코드 - 인터폴레이션
 			{
 				// Translate
-				//if (interpTranslation_.isRunning())
-				//{
-				//	targetTransform_->Translate(interpTranslation_.current());
-				//}
-				//else
-				//{
-				//	moveTo *= -1.f;
-				//	interpTranslation_.start(targetTransform_->GetPendingPosition(), targetTransform_->GetPendingPosition() + moveTo, TestInterpolationTime);
-				//}
-
-				// Rotate
-//				if (interpRotation_.isRunning())
-//				{
-//#ifdef REFACTORING_TRNASFORM
-//					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current(), true);
-//#else
-//					targetTransform_->RotateEuler(rotateFromEuler + interpRotation_.current());
-//#endif
-//				}
-//				else
-//				{
-//					interpRotation_.start({ 0, 0, 0 }, rotateTo, TestInterpolationTime);
-//				}
-
-				// Scale
-				if (interpScale_.isRunning())
+				if (interpTranslation_.isRunning())
 				{
-					targetTransform_->Scale(interpScale_.current());
+					targetTransform_->Translate(interpTranslation_.current());
 				}
 				else
 				{
-					interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+					moveTo *= -1.f;
+					interpTranslation_.start(targetTransform_->GetPendingPosition(), targetTransform_->GetPendingPosition() + moveTo, TestInterpolationTime);
 				}
+
+				// Rotate
+				if (interpRotation_.isRunning())
+				{
+#ifdef REFACTORING_TRNASFORM
+					targetTransform_->RotateEuler(interpRotation_.current(), true);
+#else
+					targetTransform_->RotateEuler(interpRotation_.current());
+#endif
+				}
+				else
+				{
+					interpRotation_.start(rotateFromEuler, rotateTo, TestInterpolationTime);
+				}
+
+				//// Scale
+				//if (interpScale_.isRunning())
+				//{
+				//	targetTransform_->Scale(interpScale_.current());
+				//}
+				//else
+				//{
+				//	interpScale_.start(scaleFrom, scaleFrom + scaleTo, TestInterpolationTime);
+				//}
 			}
 		}
 	}

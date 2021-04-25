@@ -20,8 +20,8 @@ namespace SMGE
 			struct SFrustum
 			{
 				glm::vec3 center_;
-				glm::vec3 nearPlane_[4];
-				glm::vec3 farPlane_[4];
+				glm::vec3 nearPlanePoints_[4];
+				glm::vec3 farPlanePoints_[4];
 			};
 
 			friend CRenderingEngine;

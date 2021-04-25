@@ -7,7 +7,10 @@
 
 #define ENABLE_FRUSTUM_CULLING
 #define ENABLE_OCTREE
+#define DRAW_FRUSTUM
 //#define ENABLE_OCTREE_WITH_AABB	/* 옥트리에 크기로 등록하기 */
+//#define UNIT_TEST_OCTREE
+//#define UNIT_TEST_BOUND
 
 namespace SMGE
 {
@@ -117,16 +120,14 @@ namespace SMGE
 
 	void CMap::Tick(float timeDelta)
 	{
-		cameraFrustumCulling();
-
 		for (auto& actor : mapActorsW_)
 		{
 			actor->Tick(timeDelta);	// 여기 - 나에게만 관련된 틱과 다른 액터와 관련된 틱을 분리하면 멀티쓰레드 처리를 할 수 있겠다 / 또는 로직 처리용 컴포넌트를 만들고 컴포넌트별로 멀티쓰레더블과 아닌걸로 나눌까?
-			const auto isDirty = actor->getTransform().IsDirty();	// 여기 - 규칙 추가 - 액터의 트랜스폼 더티는 Tick 에서만 이뤄져야한다!
-			actor->AfterTick(timeDelta);
+			const auto wasDirty = actor->getTransform().IsDirty();	// 여기 - 규칙 추가 - 액터의 트랜스폼 더티는 Tick 에서만 이뤄져야한다!
+			actor->AfterTick(timeDelta);	// call RecalcFinal(
 
 #ifdef ENABLE_OCTREE
-			if (isDirty)
+			if (wasDirty)
 			{	// 여기 - 최적화 - 일단 무식하게 한다
 				RemoveActorFromOctree(actor);
 				mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());
@@ -139,6 +140,8 @@ namespace SMGE
 			}
 #endif
 		}
+
+		cameraFrustumCulling();
 	}
 
 	bool CMap::IsTemplate() const
@@ -196,12 +199,91 @@ namespace SMGE
 
 	void CMap::OnPostBeginPlay()
 	{
+#ifdef UNIT_TEST_BOUND
+		SPlaneBound plane({ 0, 1, 0 }, { 0, 0, 0 });
+		SPointBound upPoint(0, 0.5, 0);
+		SSegmentBound crossSegment({ 0, -0.5, 0 }, { 0, +0.5, 0 });
+		SCubeBound upCube({ 3, 3, 3 }, { 1, 1, 1 }, { 0, 0, 0 });
+		SCubeBound crossCube({ 0, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 });
+		SCubeBound cross1PointAndRotatedCube({ -0.55, -0.55, -0.55 }, { 1, 1, 1 }, { 45, 45, 0 });
+		SCubeBound underCube({ -3, -3, -3 }, { 1, 1, 1 }, { 0, 0, 0 });
+
+		auto isUpPoint = plane.isInFrontOrIntersect(upPoint);
+		auto isCrossSeg = plane.isInFrontOrIntersect(crossSegment);
+
+		auto cube1 = plane.isInFrontOrIntersect(upCube);
+		auto cube2 = plane.isInFrontOrIntersect(crossCube);
+		auto cube3 = plane.isInFrontOrIntersect(cross1PointAndRotatedCube);
+		auto cube4 = plane.isInFrontOrIntersect(underCube);
+#endif
+
 #ifdef ENABLE_OCTREE
 		mapOctree_.Create("mapOctree_", MapConst::MaxX, MapConst::MaxY, MapConst::MaxZ, MapConst::OctreeLeafWidth);
+
+#ifdef UNIT_TEST_OCTREE
+		auto& testOcTree = mapOctree_;	// 차후에 함수화 해라
+		auto actor0 = mapActorsW_[0], actor1 = mapActorsW_[1];
+
+		static_assert(MapConst::OctreeLeafWidth == 5.f);
+
+		// 추가 삭제 체크
+		auto add11 = testOcTree.AddByPoint(actor0, glm::vec3{ 3, 3, 3 });
+		auto add22 = testOcTree.AddByPoint(actor1, glm::vec3{ -3, -3, -3 });
+
+		auto valuesP11 = testOcTree.QueryValuesByPoint(glm::vec3{ 3, 3, 3 });
+		auto valuesP22 = testOcTree.QueryValuesByPoint(glm::vec3{ -3, -3, -3 });
+
+		auto valuesC11 = testOcTree.QueryValuesByCube(glm::vec3{ 1, 1, 1 }, glm::vec3{ 4, 4, 4 });
+		auto valuesC22 = testOcTree.QueryValuesByCube(glm::vec3{ -4, -4, -4 }, glm::vec3{ -1, -1, -1 });
+
+		auto remove11 = testOcTree.RemoveByPoint(actor0, glm::vec3{ 3, 3, 3 });
+		auto remove22 = testOcTree.RemoveByPoint(actor1, glm::vec3{ -3, -3, -3 });
+
+		// 하드쿼리 삭제 테스트
+		{
+			add11 = testOcTree.AddByPoint(actor0, glm::vec3{ 3, 3, 3 });
+			add11 = testOcTree.AddByPoint(actor0, glm::vec3{ 6, 6, 6 });
+			add22 = testOcTree.AddByPoint(actor1, glm::vec3{ -3, -3, -3 });
+			add22 = testOcTree.AddByPoint(actor1, glm::vec3{ -6, -6, -6 });
+			auto [hardQ11xy, hardQ11zx] = testOcTree.HardQuery(actor0);
+			auto [hardQ22xy, hardQ22zx] = testOcTree.HardQuery(actor1);
+
+			decltype(mapOctree_)::TValueIterator it;
+			for (auto hq11xy : hardQ11xy)
+			{
+				hq11xy->FindValue(actor0, it);
+				hq11xy->RemoveValue(it);
+			}
+			for (auto hq11zx : hardQ11zx)
+			{
+				hq11zx->FindValue(actor0, it);
+				hq11zx->RemoveValue(it);
+			}
+
+			// hardQ11xy, hardQ11zx 들의 모든 container 가 비었으면 성공
+		}
+
+		// 쿼리 영역 체크
+		{
+			auto [xyNodeList11, zxNodeList11] = testOcTree.QueryNodesByCube(-1, -1, -1, 1, 1, 1);	// 각각 4개씩 나오면 ㅇㅋ
+			auto [xyNodeList22, zxNodeList22] = testOcTree.QueryNodesByCube(-5, -5, -5, 5, 5, 5);	// 각각 8개씩 나오면 ㅇㅋ
+			auto [xyNodeList33, zxNodeList33] = testOcTree.QueryNodesByCube(-5, -5, -5, 4, 4, 4);	// 각각 4개씩 나오면 ㅇㅋ
+		}
+#endif
 
 		// 여기 - 규칙 - BeginPlay( 에서는 다른 액터를 쿼리하며 안된다! 옥트리에 아직 등록이 안되었기 때문!
 		for (auto& actor : mapActorsW_)
 		{
+			if (isFrustumCulling_)
+			{	// 안보임으로 시작하며 필요시 보이게 될 것
+				actor->SetRendering(false, true);
+			}
+			else
+			{
+				actor->SetRendering(true, true);
+			}
+
+			// 옥트리 최초 등록
 			actor->getTransform().RecalcFinal();
 			mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());	// 여기 - 크기로 등록하기, 모든 AddByPoint에! ENABLE_OCTREE_WITH_AABB
 		}
@@ -229,19 +311,6 @@ namespace SMGE
 				break;
 			}
 		}
-
-		if (isFrustumCulling_)
-		{	// 초기 프러스텀 컬링
-			for (auto& actor : mapActorsW_)
-				actor->SetRendering(false, true);
-
-			cameraFrustumCulling();
-		}
-		else
-		{
-			for (auto& actor : mapActorsW_)
-				actor->SetRendering(true, true);
-		}
 	}
 
 	void CMap::cameraFrustumCulling()
@@ -250,16 +319,16 @@ namespace SMGE
 		if (isFrustumCulling_ == false || cullingCamera_ == nullptr)
 			return;
 
-		for (auto actor : oldActorsInFrustum_)
+		for (auto actor : actorsAroundFrustum_)
 		{
 			if (actor)
 				actor->SetRendering(false, true);
 		}
 		
-		oldActorsInFrustum_ = QueryActors(cullingCamera_->GetFrustumAABB());	// 최적화 - ref out 으로 처리할 것
+		actorsAroundFrustum_ = QueryActors(cullingCamera_->GetFrustumAABB());	// 최적화 - ref out 으로 처리할 것
 
 		// 최적화 - 나중에 멀티쓰레드로 바꿀 것
-		for (auto& actorPtr : oldActorsInFrustum_)
+		for (auto& actorPtr : actorsAroundFrustum_)
 		{
 			//// 액터 기준 처리 - 이러면 빠르고 편한데 액터에 어태치된 컴포넌트들이 제대로 처리가 안된다
 			//const auto mainBound = actorPtr->GetMainBound();
@@ -300,6 +369,10 @@ namespace SMGE
 				}
 			}
 		}
+
+#ifdef DRAW_FRUSTUM
+		cullingCamera_->SetRendering(true, true);	// 컬링 카메라 자기 자신은 프러스텀 밖에 있으므로 강제로 보여준다
+#endif
 #else
 #endif
 	}
@@ -334,7 +407,7 @@ namespace SMGE
 #endif
 		mapActorsW_.clear();
 #ifdef ENABLE_FRUSTUM_CULLING
-		oldActorsInFrustum_.clear();
+		actorsAroundFrustum_.clear();
 #endif
 
 		isBeganPlay_ = false;
@@ -352,10 +425,12 @@ namespace SMGE
 
 		actor->getTransform().RecalcFinal();
 
+		auto finalSuccess = false;
+
 		auto maybeSuccess = mapOctree_.RemoveByPoint(actor, actor->getTransform().GetFinalPosition());
 		if (maybeSuccess == false)	// 위치로 찾아보고 없으면 어쩔 수 없다 - 값으로 찾아야한다
 		{
-			MapOcTree::TValueIterator it;
+			MapOcTree::TValueIterator outIt;
 
 			auto [xyNodes, zxNodes] = mapOctree_.HardQuery(actor);
 #if _DEBUG || DEBUG
@@ -372,16 +447,24 @@ namespace SMGE
 			auto& xyNode = *xyNodes.begin();
 			if (xyNode)
 			{
-				xyNode->FindValue(actor, it);
-				xyNode->RemoveValue(it);
+				xyNode->FindValue(actor, outIt);
+				xyNode->RemoveValue(outIt);
 			}
 			auto& zxNode = *zxNodes.begin();
 			if (zxNode)
 			{
-				zxNode->FindValue(actor, it);
-				zxNode->RemoveValue(it);
+				zxNode->FindValue(actor, outIt);
+				zxNode->RemoveValue(outIt);
 			}
+
+			finalSuccess = true;
 		}
+		else
+		{
+			finalSuccess = true;
+		}
+
+		assert(finalSuccess);
 	}
 
 	void CMap::ProcessPendingKill(CActor* actor)
@@ -395,8 +478,8 @@ namespace SMGE
 		RemoveActorFromOctree(actor);
 #endif
 #ifdef ENABLE_FRUSTUM_CULLING
-		auto it = std::find(oldActorsInFrustum_.begin(), oldActorsInFrustum_.end(), actor);
-		if (it != oldActorsInFrustum_.end())
+		auto it = std::find(actorsAroundFrustum_.begin(), actorsAroundFrustum_.end(), actor);
+		if (it != actorsAroundFrustum_.end())
 			*it = nullptr;
 #endif
 
@@ -418,20 +501,6 @@ namespace SMGE
 		if (isBeganPlay_ == true)
 		{
 			actor->BeginPlay();
-
-#ifdef ENABLE_OCTREE
-			actor->getTransform().RecalcFinal();
-			mapOctree_.AddByPoint(actor, actor->getTransform().GetFinalPosition());
-#endif
-
-			if (isFrustumCulling_)
-			{	// 안보임으로 시작하며 필요시 보이게 될 것
-				actor->SetRendering(false, true);
-			}
-			else
-			{
-				actor->SetRendering(true, true);
-			}
 		}
 	}
 };

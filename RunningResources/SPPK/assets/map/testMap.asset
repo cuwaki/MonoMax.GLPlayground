@@ -3,14 +3,14 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 시스템 액터 시작
-	allActorsW_$CVector<SGReflection&>$3
+	allActorsW_$CVector<SGReflection&>$7
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
 		actorKey_$TActorKey$31
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	30.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	40.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$"mainCamera"
@@ -47,11 +47,11 @@ classRTTIName_$CString$"CMap"
 		actorKey_$TActorKey$32
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$5.000000	0.000000	20.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	20.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$"testCamera"
-		persistCompoSize$size_t$2
+		persistCompoSize$size_t$3
 			classRTTIName_$CString$"CCubeComponent"
 				reflectionFilePath_$CWString$""
 				classRTTIName_$CString$"SGRefl_Transform"
@@ -74,21 +74,24 @@ classRTTIName_$CString$"CMap"
 				isPickingTarget_$bool$false
 				isCollideTarget_$bool$false
 				gizmoColor_$glm::vec3$1.000000	1.000000	0.000000	
+			classRTTIName_$CString$"CMovementComponent"
+				reflectionFilePath_$CWString$""
 		cameraName_$CString$"testCamera"
 		fov_$float$60.0
 		zNear_$float$2.0
-		zFar_$float$22.0
+		zFar_$float$32.0
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 게임액터 시작
+
 	// 큐브 //////////////////////////////////////////////////////////
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
 		actorKey_$TActorKey$668
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$-5.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	-15.000000	
+			nsre_transform_.GetPosition()$glm::vec3$4.000000	3.000000	3.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	15.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
@@ -96,21 +99,23 @@ classRTTIName_$CString$"CMap"
 			reflectionFilePath_$CWString$""
 			classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	3.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	-30.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	30.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$false
 			isCollideTarget_$bool$true
 			gizmoColor_$glm::vec3$0.000000	1.000000	0.000000	
 			
+
+
 	// 포인트 //////////////////////////////////////////////////////////
 	classRTTIName_$CString$"CCollideActor"
 		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
 		actorKey_$TActorKey$664
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetPosition()$glm::vec3$-8.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
 		actorStaticTag_$CString$""
@@ -128,6 +133,7 @@ classRTTIName_$CString$"CMap"
 			gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 			
 			
+
 
 			
 	// 세그먼트 //////////////////////////////////////////////////////////

@@ -52,7 +52,6 @@ namespace SMGE
 	CCameraActor::CCameraActor(CObject* outer) : Super(outer)
 	{
 		frustumAABBCube_ = nullptr;
-		std::fill(frustumPlanes_.begin(), frustumPlanes_.end(), nullptr);
 
 		Ctor();
 	}
@@ -95,7 +94,10 @@ namespace SMGE
 		using namespace nsRE;
 
 		auto& renderCam = GetRenderingEngine()->GetRenderingCamera();
+
 		const CRenderingCamera::SFrustum frustumModel = renderCam.CalculateFrustumModel(fovDegrees_, zNear_, zFar_);
+		const auto& fNPs = frustumModel.nearPlanePoints_;
+		const auto& fFPs = frustumModel.farPlanePoints_;
 
 #ifdef DRAW_FRUSTUM
 		const auto isEditorRendering = true;
@@ -109,33 +111,37 @@ namespace SMGE
 		frustumAABBCube_->Translate(frustumModel.center_);
 		frustumAABBCube_->Scale(
 			{
-				frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
-				frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
-				frustumModel.farPlane_[TransformConst::GL_RB].z - frustumModel.nearPlane_[TransformConst::GL_RB].z
+				fFPs[TransformConst::GL_RB].x - fFPs[TransformConst::GL_LB].x,
+				fFPs[TransformConst::GL_RT].y - fFPs[TransformConst::GL_RB].y,
+				fFPs[TransformConst::GL_RB].z - fNPs[TransformConst::GL_RB].z
 			});
 		frustumAABBCube_->SetEditorRendering(isEditorRendering);
 		frustumAABBCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
 
-		// 체크용 평면 만들기
-		std::generate(frustumPlanes_.begin(), frustumPlanes_.end(),
-			[this]()
-			{
-				return static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
-			});
+		// 체크용 평면 만들기 - 평면 노멀이 안쪽을 보도록, 현재 frustumModel은 +Z를 보고 있다
+		frustumNearPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
+		frustumNearPlane_->SetBoundLocalSpace(fNPs[TransformConst::GL_LB], fNPs[TransformConst::GL_RB], fNPs[TransformConst::GL_RT]);
+		frustumNearPlane_->SetEditorRendering(isEditorRendering);
+		
+		frustumFarPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
+		frustumFarPlane_->SetBoundLocalSpace(fFPs[TransformConst::GL_LT], fFPs[TransformConst::GL_RT], fFPs[TransformConst::GL_RB]);
+		frustumFarPlane_->SetEditorRendering(isEditorRendering);
 
-		// 평면 노멀이 안쪽을 보도록, 현재 frustumModel은 +Z를 보고 있다
-		frustumPlanes_[0]->SetBoundLocalSpace(frustumModel.nearPlane_[TransformConst::GL_LB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RT]);
-		frustumPlanes_[0]->SetEditorRendering(isEditorRendering);
-		frustumPlanes_[1]->SetBoundLocalSpace(frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RB]);
-		frustumPlanes_[1]->SetEditorRendering(isEditorRendering);
-		frustumPlanes_[2]->SetBoundLocalSpace(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.nearPlane_[TransformConst::GL_RT], frustumModel.farPlane_[TransformConst::GL_RT]);
-		frustumPlanes_[2]->SetEditorRendering(isEditorRendering);
-		frustumPlanes_[3]->SetBoundLocalSpace(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_RB], frustumModel.nearPlane_[TransformConst::GL_LB]);
-		frustumPlanes_[3]->SetEditorRendering(isEditorRendering);
-		frustumPlanes_[4]->SetBoundLocalSpace(frustumModel.farPlane_[TransformConst::GL_RB], frustumModel.farPlane_[TransformConst::GL_RT], frustumModel.nearPlane_[TransformConst::GL_RT]);
-		frustumPlanes_[4]->SetEditorRendering(isEditorRendering);
-		frustumPlanes_[5]->SetBoundLocalSpace(frustumModel.nearPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LT], frustumModel.farPlane_[TransformConst::GL_LB]);
-		frustumPlanes_[5]->SetEditorRendering(isEditorRendering);
+		frustumUpPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
+		frustumUpPlane_->SetBoundLocalSpace(fNPs[TransformConst::GL_LT], fNPs[TransformConst::GL_RT], fFPs[TransformConst::GL_RT]);
+		frustumUpPlane_->SetEditorRendering(isEditorRendering);
+
+		frustumBottomPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
+		frustumBottomPlane_->SetBoundLocalSpace(fFPs[TransformConst::GL_RB], fNPs[TransformConst::GL_RB], fNPs[TransformConst::GL_LB]);
+		frustumBottomPlane_->SetEditorRendering(isEditorRendering);
+
+		frustumLeftPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
+		frustumLeftPlane_->SetBoundLocalSpace(fFPs[TransformConst::GL_RB], fFPs[TransformConst::GL_RT], fNPs[TransformConst::GL_RT]);
+		frustumLeftPlane_->SetEditorRendering(isEditorRendering);
+
+		frustumRightPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
+		frustumRightPlane_->SetBoundLocalSpace(fNPs[TransformConst::GL_LT], fFPs[TransformConst::GL_LT], fFPs[TransformConst::GL_LB]);
+		frustumRightPlane_->SetEditorRendering(isEditorRendering);
 #endif
 
 #ifdef DRAW_FRUSTUM
@@ -158,7 +164,7 @@ namespace SMGE
 					return newOne;
 				});
 
-			auto Origin2LB = frustumModel.farPlane_[TransformConst::GL_LB];
+			auto Origin2LB = fFPs[TransformConst::GL_LB];
 			frustumLines[0]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2LB) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[0]->RotateDirection(glm::normalize(Origin2LB));
@@ -166,7 +172,7 @@ namespace SMGE
 			frustumLines[0]->RotateQuat(glm::normalize(Origin2LB));
 #endif
 
-			auto Origin2RB = frustumModel.farPlane_[TransformConst::GL_RB];
+			auto Origin2RB = fFPs[TransformConst::GL_RB];
 			frustumLines[1]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2RB) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[1]->RotateDirection(glm::normalize(Origin2RB));
@@ -174,7 +180,7 @@ namespace SMGE
 			frustumLines[1]->RotateQuat(glm::normalize(Origin2RB));
 #endif
 
-			auto Origin2RT = frustumModel.farPlane_[TransformConst::GL_RT];
+			auto Origin2RT = fFPs[TransformConst::GL_RT];
 			frustumLines[2]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2RT) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[2]->RotateDirection(glm::normalize(Origin2RT));
@@ -182,7 +188,7 @@ namespace SMGE
 			frustumLines[2]->RotateQuat(glm::normalize(Origin2RT));
 #endif
 
-			auto Origin2LT = frustumModel.farPlane_[TransformConst::GL_LT];
+			auto Origin2LT = fFPs[TransformConst::GL_LT];
 			frustumLines[3]->Scale({ SMGE::Configs::BoundEpsilon, SMGE::Configs::BoundEpsilon, glm::length(Origin2LT) });
 #ifdef REFACTORING_TRNASFORM
 			frustumLines[3]->RotateDirection(glm::normalize(Origin2LT));
@@ -201,11 +207,11 @@ namespace SMGE
 				});
 
 			// Near 평면
-			frustumQuads[0]->Translate({ 0.f, 0.f, frustumModel.nearPlane_[TransformConst::GL_LB].z });
+			frustumQuads[0]->Translate({ 0.f, 0.f, fNPs[TransformConst::GL_LB].z });
 			frustumQuads[0]->Scale(
 				{
-					frustumModel.nearPlane_[TransformConst::GL_RB].x - frustumModel.nearPlane_[TransformConst::GL_LB].x,
-					frustumModel.nearPlane_[TransformConst::GL_RT].y - frustumModel.nearPlane_[TransformConst::GL_RB].y,
+					fNPs[TransformConst::GL_RB].x - fNPs[TransformConst::GL_LB].x,
+					fNPs[TransformConst::GL_RT].y - fNPs[TransformConst::GL_RB].y,
 					//12.f,
 					//12.f,
 					Configs::BoundEpsilon
@@ -216,11 +222,11 @@ namespace SMGE
 			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.f });
 
 			// Far 평면
-			frustumQuads[1]->Translate({ 0.f, 0.f, frustumModel.farPlane_[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
+			frustumQuads[1]->Translate({ 0.f, 0.f, fFPs[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
 			frustumQuads[1]->Scale(
 				{
-					frustumModel.farPlane_[TransformConst::GL_RB].x - frustumModel.farPlane_[TransformConst::GL_LB].x,
-					frustumModel.farPlane_[TransformConst::GL_RT].y - frustumModel.farPlane_[TransformConst::GL_RB].y,
+					fFPs[TransformConst::GL_RB].x - fFPs[TransformConst::GL_LB].x,
+					fFPs[TransformConst::GL_RT].y - fFPs[TransformConst::GL_RB].y,
 					//12.f,
 					//12.f,
 					Configs::BoundEpsilon
@@ -231,7 +237,7 @@ namespace SMGE
 			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.f });
 
 			/* 이하 버그 있는 코드 - 쓰려면 RecalcFinal 도 불러줘야한다
-			auto toUp = frustumModel.farPlane_[TransformConst::GL_LT] - frustumModel.nearPlane_[TransformConst::GL_LT];
+			auto toUp = fFPs[TransformConst::GL_LT] - fNPs[TransformConst::GL_LT];
 			toUp.x = 0;	// YZ 평면에 투영
 			frustumQuads[2]->Translate(toUp / 2.f);
 			frustumQuads[2]->Scale(
@@ -245,7 +251,7 @@ namespace SMGE
 			frustumQuads[2]->SetCollideTarget(false);
 			frustumQuads[2]->SetGizmoColor({ 0.f, 0.f, 1.f });
 
-			auto toBottom = frustumModel.farPlane_[TransformConst::GL_LB] - frustumModel.nearPlane_[TransformConst::GL_LB];
+			auto toBottom = fFPs[TransformConst::GL_LB] - fNPs[TransformConst::GL_LB];
 			toBottom.x = 0;	// YZ 평면에 투영
 			frustumQuads[3]->Translate(toBottom / 2.f);
 			frustumQuads[3]->Scale(
@@ -263,8 +269,8 @@ namespace SMGE
 			// 여기 - 이거 완전 중점 아니다, f - n, n 이거 따져야한다
 			// 이 문제도 처리해야한다, 약간의 오차가 생기고 있다 - CalculateFrustumModel( 구현 참조
 
-			// 좌측 평면 - 왜 좌측인데 GL_RB를 쓰냐면 프러스텀은 +Z를 바라보고 있어서 +X가 레프트인데, frustumModel.farPlane_, nearPlane_ 은 GL좌표계의 +z를 기준으로 만들어졌기 때문에 GL_LB가 -X, -Y이기 때문에 프러스텀입장에서 보면 Right bottom 이기 때문이다
-			auto farPlaneRBY0 = frustumModel.farPlane_[TransformConst::GL_RB];
+			// 좌측 평면 - 왜 좌측인데 GL_RB를 쓰냐면 프러스텀은 +Z를 바라보고 있어서 +X가 레프트인데, fFPs, nearPlanePoints_ 은 GL좌표계의 +z를 기준으로 만들어졌기 때문에 GL_LB가 -X, -Y이기 때문에 프러스텀입장에서 보면 Right bottom 이기 때문이다
+			auto farPlaneRBY0 = fFPs[TransformConst::GL_RB];
 			farPlaneRBY0.y = 0;	// ZX 평면에 투영
 			const auto horizonFOVHalf = glm::degrees(std::acosf(glm::dot(TransformConst::WorldZAxis, glm::normalize(farPlaneRBY0))));
 
@@ -281,7 +287,7 @@ namespace SMGE
 			frustumQuads[4]->SetCollideTarget(false);
 			frustumQuads[4]->SetGizmoColor({ 0.f, 1.f, 0.f });
 
-			auto farPlaneLBY0 = frustumModel.farPlane_[TransformConst::GL_LB];
+			auto farPlaneLBY0 = fFPs[TransformConst::GL_LB];
 			farPlaneLBY0.y = 0;
 
 			auto toRight = farPlaneLBY0;
@@ -349,29 +355,29 @@ namespace SMGE
 
 		const auto& mainBoundBound = mainBound->GetBoundWorldSpace();
 
-		const auto& planeBound0 = static_cast<const SPlaneBound&>(frustumPlanes_[0]->GetBoundWorldSpace());
-		if (planeBound0.isInFrontOrIntersect(mainBoundBound) == false)
+		const auto& _near = static_cast<const SPlaneBound&>(frustumNearPlane_->GetBoundWorldSpace());
+		if (_near.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound2 = static_cast<const SPlaneBound&>(frustumPlanes_[2]->GetBoundWorldSpace());
-		if (planeBound2.isInFrontOrIntersect(mainBoundBound) == false)
+		const auto& up = static_cast<const SPlaneBound&>(frustumUpPlane_->GetBoundWorldSpace());
+		if (up.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound3 = static_cast<const SPlaneBound&>(frustumPlanes_[3]->GetBoundWorldSpace());
-		if (planeBound3.isInFrontOrIntersect(mainBoundBound) == false)
+		const auto& bottom = static_cast<const SPlaneBound&>(frustumBottomPlane_->GetBoundWorldSpace());
+		if (bottom.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound4 = static_cast<const SPlaneBound&>(frustumPlanes_[4]->GetBoundWorldSpace());
-		if (planeBound4.isInFrontOrIntersect(mainBoundBound) == false)
+		const auto& left = static_cast<const SPlaneBound&>(frustumLeftPlane_->GetBoundWorldSpace());
+		if (left.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
-		const auto& planeBound5 = static_cast<const SPlaneBound&>(frustumPlanes_[5]->GetBoundWorldSpace());
-		if (planeBound5.isInFrontOrIntersect(mainBoundBound) == false)
+		const auto& right = static_cast<const SPlaneBound&>(frustumRightPlane_->GetBoundWorldSpace());
+		if (right.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
 		// 가장 마지막에 먼 것을 버리는게 나름 최적인 것 같다
-		const auto& planeBound1 = static_cast<const SPlaneBound&>(frustumPlanes_[1]->GetBoundWorldSpace());
-		if (planeBound1.isInFrontOrIntersect(mainBoundBound) == false)
+		const auto& _far = static_cast<const SPlaneBound&>(frustumFarPlane_->GetBoundWorldSpace());
+		if (_far.isInFrontOrIntersect(mainBoundBound) == false)
 			return false;
 
 		return true;

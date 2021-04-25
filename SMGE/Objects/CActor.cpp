@@ -70,14 +70,7 @@ namespace SMGE
 		_FROM_REFL(actorKey_, variableSplitted);
 		sg_actorTransform_ = variableSplitted;
 
-		// 여기 수정 - 덮어씌워져야하는 경우가 있고 아닌 경우가 있다
-		if(actorStaticTag_.length() == 0)
-			_FROM_REFL(actorStaticTag_, variableSplitted);
-		else
-		{	// 버린다
-			CString dummy;
-			_FROM_REFL(dummy, variableSplitted);
-		}
+		_FROM_REFL(actorStaticTag_, variableSplitted);
 
 		size_t persistCompoSize = 0;
 		_FROM_REFL(persistCompoSize, variableSplitted);
@@ -104,14 +97,7 @@ namespace SMGE
 		_FROM_REFL(actorKey_, variableSplitted);
 		//sg_actorTransform_ = variableSplitted;	// 빠른 deser 지원해줘야한다
 
-		// 여기 수정 - 덮어씌워져야하는 경우가 있고 아닌 경우가 있다
-		if (actorStaticTag_.length() == 0)
-			_FROM_REFL(actorStaticTag_, variableSplitted);
-		else
-		{	// 버린다
-			CString dummy;
-			_FROM_REFL(dummy, variableSplitted);
-		}
+		_FROM_REFL(actorStaticTag_, variableSplitted);
 
 		return *this;
 	}
@@ -245,7 +231,7 @@ namespace SMGE
 
 	void CActor::SetRendering(bool isr, bool propagate)
 	{
-		if (isRendering_ == isr)
+		if (propagate == false && isRendering_ == isr)
 			return;
 
 		auto hasDrawCompo = false;

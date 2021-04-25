@@ -59,7 +59,12 @@ namespace SMGE
 		float zNear_, zFar_;
 
 		class CCubeComponent* frustumAABBCube_;
-		std::array<class CPlaneComponent*, 6> frustumPlanes_;	// 0 = near, 1 = far, 2 = up, 3 = bottom, 4 = left, 5 = right
+		class CPlaneComponent* frustumNearPlane_;
+		class CPlaneComponent* frustumFarPlane_;
+		class CPlaneComponent* frustumUpPlane_;
+		class CPlaneComponent* frustumBottomPlane_;
+		class CPlaneComponent* frustumLeftPlane_;
+		class CPlaneComponent* frustumRightPlane_;
 
 	private:
 		bool isCurrent_ = false;

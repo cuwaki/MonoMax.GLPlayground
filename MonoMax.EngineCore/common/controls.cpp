@@ -350,18 +350,18 @@ namespace SMGE
 			const auto nclhw = cameraLeft_ * nearHalfWidth;
 
 			// 카메라가 +z 를 보고 있을 때를 기준으로 평면 점들을 반시계로 내보낸다
-			returnFrustum.nearPlane_[GL_LB] = nearCenter - ncuhh - nclhw;	// lb
-			returnFrustum.nearPlane_[GL_RB] = nearCenter - ncuhh + nclhw;	// rb
-			returnFrustum.nearPlane_[GL_RT] = nearCenter + ncuhh + nclhw;	// rt
-			returnFrustum.nearPlane_[GL_LT] = nearCenter + ncuhh - nclhw;	// lt
+			returnFrustum.nearPlanePoints_[GL_LB] = nearCenter - ncuhh - nclhw;	// lb
+			returnFrustum.nearPlanePoints_[GL_RB] = nearCenter - ncuhh + nclhw;	// rb
+			returnFrustum.nearPlanePoints_[GL_RT] = nearCenter + ncuhh + nclhw;	// rt
+			returnFrustum.nearPlanePoints_[GL_LT] = nearCenter + ncuhh - nclhw;	// lt
 
 			const auto fcuhh = cameraUp_ * farHalfHeight;
 			const auto fclhw = cameraLeft_ * farHalfWidth;
 
-			returnFrustum.farPlane_[GL_LB] = farCenter - fcuhh - fclhw;
-			returnFrustum.farPlane_[GL_RB] = farCenter - fcuhh + fclhw;
-			returnFrustum.farPlane_[GL_RT] = farCenter + fcuhh + fclhw;
-			returnFrustum.farPlane_[GL_LT] = farCenter + fcuhh - fclhw;
+			returnFrustum.farPlanePoints_[GL_LB] = farCenter - fcuhh - fclhw;
+			returnFrustum.farPlanePoints_[GL_RB] = farCenter - fcuhh + fclhw;
+			returnFrustum.farPlanePoints_[GL_RT] = farCenter + fcuhh + fclhw;
+			returnFrustum.farPlanePoints_[GL_LT] = farCenter + fcuhh - fclhw;
 
 			return returnFrustum;
 		}
@@ -394,18 +394,18 @@ namespace SMGE
 			const auto nclhw = WorldXAxis * nearHalfWidth;
 
 			// 카메라가 +z 를 보고 있을 때를 기준으로 평면 점들을 GL좌표계 기준으로 반시계로 내보낸다
-			returnFrustum.nearPlane_[GL_LB] = nearCenter - ncuhh - nclhw;
-			returnFrustum.nearPlane_[GL_RB] = nearCenter - ncuhh + nclhw;
-			returnFrustum.nearPlane_[GL_RT] = nearCenter + ncuhh + nclhw;
-			returnFrustum.nearPlane_[GL_LT] = nearCenter + ncuhh - nclhw;
+			returnFrustum.nearPlanePoints_[GL_LB] = nearCenter - ncuhh - nclhw;
+			returnFrustum.nearPlanePoints_[GL_RB] = nearCenter - ncuhh + nclhw;
+			returnFrustum.nearPlanePoints_[GL_RT] = nearCenter + ncuhh + nclhw;
+			returnFrustum.nearPlanePoints_[GL_LT] = nearCenter + ncuhh - nclhw;
 
 			const auto fcuhh = WorldYAxis * farHalfHeight;
 			const auto fclhw = WorldXAxis * farHalfWidth;
 
-			returnFrustum.farPlane_[GL_LB] = farCenter - fcuhh - fclhw;
-			returnFrustum.farPlane_[GL_RB] = farCenter - fcuhh + fclhw;
-			returnFrustum.farPlane_[GL_RT] = farCenter + fcuhh + fclhw;
-			returnFrustum.farPlane_[GL_LT] = farCenter + fcuhh - fclhw;
+			returnFrustum.farPlanePoints_[GL_LB] = farCenter - fcuhh - fclhw;
+			returnFrustum.farPlanePoints_[GL_RB] = farCenter - fcuhh + fclhw;
+			returnFrustum.farPlanePoints_[GL_RT] = farCenter + fcuhh + fclhw;
+			returnFrustum.farPlanePoints_[GL_LT] = farCenter + fcuhh - fclhw;
 
 			return returnFrustum;
 		}
