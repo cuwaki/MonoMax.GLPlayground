@@ -16,8 +16,8 @@ namespace SMGE
 
 		SGRefl_ResourceModel(CResourceModel& md);
 
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 
 		CWString& vertShaderPath_;
 		CWString& fragShaderPath_;

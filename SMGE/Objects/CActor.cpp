@@ -26,7 +26,7 @@ namespace SMGE
 	SGRefl_Actor::SGRefl_Actor(const std::unique_ptr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr)
 	{
 		classRTTIName_ = actorPtr->getReflection().getClassRTTIName();	// 이미 로드된 액터로부터 사본으로 생기는 경우라서 이걸 수동으로 복사해줘야한다
-		reflectionFilePath_ = actorPtr->getReflection().getReflectionFilePath();
+		reflectionFilePath_ = actorPtr->getReflection().getSourceFilePath();
 	}
 
 	void SGRefl_Actor::buildVariablesMap()
@@ -38,42 +38,37 @@ namespace SMGE
 		_ADD_REFL_VARIABLE(actorStaticTag_);
 	}
 
-	void SGRefl_Actor::OnBeforeSerialize() const
+	const SGReflection& SGRefl_Actor::operator>>(CWString& out) const
 	{
-		Super::OnBeforeSerialize();
-	}
+		Super::operator>>(out);
 
-	SGRefl_Actor::operator CWString() const
-	{
-		CWString ret = Super::operator CWString();
-
-		ret += _TO_REFL(TActorKey, actorKey_);
-		ret += static_cast<CWString>(sg_actorTransform_);
-		ret += _TO_REFL(CString, actorStaticTag_);
+		out += _TO_REFL(TActorKey, actorKey_);
+		sg_actorTransform_ >> out;
+		out += _TO_REFL(CString, actorStaticTag_);
 
 		auto persistCompoSize = outerActor_.getPersistentComponents().size();
-		ret += _TO_REFL(size_t, persistCompoSize);
+		out += _TO_REFL(size_t, persistCompoSize);
 
 		auto& pcomps = outerActor_.getPersistentComponents();
 		for (size_t i = 0; i < pcomps.size(); ++i)
 		{
-			ret += static_cast<CWString>(pcomps[i]->getReflection());
+			pcomps[i]->getReflection() >> out;
 		}
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_Actor::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_Actor::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
-		_FROM_REFL(actorKey_, variableSplitted);
-		sg_actorTransform_ = variableSplitted;
+		_FROM_REFL(actorKey_, in);
+		sg_actorTransform_ << in;
 
-		_FROM_REFL(actorStaticTag_, variableSplitted);
+		_FROM_REFL(actorStaticTag_, in);
 
 		size_t persistCompoSize = 0;
-		_FROM_REFL(persistCompoSize, variableSplitted);
+		_FROM_REFL(persistCompoSize, in);
 
 		auto& pcomps = outerActor_.getPersistentComponents();
 		pcomps.clear();
@@ -81,7 +76,7 @@ namespace SMGE
 
 		for (size_t i = 0; i < persistCompoSize; ++i)
 		{
-			auto compo = ReflectionUtils::FuncLoadClass<CComponent>(&outerActor_, variableSplitted);
+			auto compo = ReflectionUtils::FuncLoadClass<CComponent>(&outerActor_, in);
 			if(compo != nullptr)
 				pcomps.emplace_back(std::move(compo));
 		}
@@ -89,15 +84,15 @@ namespace SMGE
 		return *this;
 	}
 
-	SGReflection& SGRefl_Actor::operator=(CVector<CWString>& variableSplitted)
+	SGReflection& SGRefl_Actor::operator<<(const CVector<CWString>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
 		// from fast
-		_FROM_REFL(actorKey_, variableSplitted);
-		//sg_actorTransform_ = variableSplitted;	// 빠른 deser 지원해줘야한다
+		_FROM_REFL(actorKey_, in);
+		//sg_actorTransform_ = in;	// 빠른 deser 지원해줘야한다
 
-		_FROM_REFL(actorStaticTag_, variableSplitted);
+		_FROM_REFL(actorStaticTag_, in);
 
 		return *this;
 	}

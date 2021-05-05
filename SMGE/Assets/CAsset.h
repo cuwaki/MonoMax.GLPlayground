@@ -110,7 +110,7 @@ namespace SMGE
 					}
 				}
 
-				auto parentAssetPath = currentRefl.getReflectionFilePath();
+				auto parentAssetPath = currentRefl.getSourceFilePath();
 				if (IsTemplateAssetPath(parentAssetPath) == true)
 				{	// 더이상 부모가 없다 - 이게 탑 == 템플릿이다, 이제부터 실제로 로드를 시작한다 - 예) CActor
 				}

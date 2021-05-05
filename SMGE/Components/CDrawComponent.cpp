@@ -12,27 +12,27 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_Transform::operator CWString() const
+	const SGReflection& SGRefl_Transform::operator>>(CWString& out) const
 	{
-		CWString ret = Super::operator CWString();
+		Super::operator>>(out);
 
 		// 펜딩이 맞다 - 각자 자신의 트랜스폼을 저장하므로
-		ret += _TO_REFL(glm::vec3, nsre_transform_.GetPendingPosition());
+		out += _TO_REFL(glm::vec3, nsre_transform_.GetPendingPosition());
 		const auto degRot = nsre_transform_.GetPendingRotationEulerDegreesWorld();
-		ret += _TO_REFL(glm::vec3, degRot);
-		ret += _TO_REFL(glm::vec3, nsre_transform_.GetPendingScales());
+		out += _TO_REFL(glm::vec3, degRot);
+		out += _TO_REFL(glm::vec3, nsre_transform_.GetPendingScales());
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_Transform::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_Transform::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
 		glm::vec3 translation, rotation, scale;
-		_FROM_REFL(translation, variableSplitted);
-		_FROM_REFL(rotation, variableSplitted);
-		_FROM_REFL(scale, variableSplitted);
+		_FROM_REFL(translation, in);
+		_FROM_REFL(rotation, in);
+		_FROM_REFL(scale, in);
 
 		// 펜딩이 맞다 - 각자 자신의 트랜스폼을 저장하므로
 		nsre_transform_.Translate(translation);
@@ -54,12 +54,7 @@ namespace SMGE
 	//{
 	//}
 
-	void SGRefl_DrawComponent::OnBeforeSerialize() const
-	{
-		Super::OnBeforeSerialize();
-	}
-
-	SGRefl_DrawComponent::operator CWString() const
+	const SGReflection& SGRefl_DrawComponent::operator>>(CWString& out) const
 	{
 		/* 여기 수정 - 여기 호출하면 
 				className_$CWString$"SMGE::SGRefl_Transform"
@@ -79,30 +74,30 @@ namespace SMGE
 			지금 여기 말고도 아래처럼 자식 클래스를 CWString 으로 캐스팅하는 부분이 있는데 다른 클래스들에서도 문제가 생기고 있다 className_ 과 reflectionName_ 의 초기화를 점검해봐야겠다!!
 			단 실행에는 현재로써는 지장이 없는 상태기는 하다 20200817
 		*/
-		auto ret = Super::operator CWString();
+		Super::operator>>(out);
 		
-		ret += static_cast<CWString>(sg_transform_);
+		sg_transform_ >> out;
 
 		const auto persistCompoSize = outerDrawCompo_.getPersistentComponents().size();
-		ret += _TO_REFL(size_t, persistCompoSize);
+		out += _TO_REFL(size_t, persistCompoSize);
 
 		auto& pcomps = outerDrawCompo_.getPersistentComponents();
 		for (int i = 0; i < pcomps.size(); ++i)
 		{
-			ret += static_cast<CWString>(pcomps[i]->getReflection());
+			pcomps[i]->getReflection() >> out;
 		}
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_DrawComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_DrawComponent::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
-		sg_transform_ = variableSplitted;
+		sg_transform_ << in;
 
 		size_t persistCompoSize = 0;
-		_FROM_REFL(persistCompoSize, variableSplitted);
+		_FROM_REFL(persistCompoSize, in);
 
 		auto& pcomps = outerDrawCompo_.getPersistentComponents();
 		pcomps.clear();
@@ -110,7 +105,7 @@ namespace SMGE
 
 		for (size_t i = 0; i < persistCompoSize; ++i)
 		{
-			auto compo = ReflectionUtils::FuncLoadClass<CComponent>(&outerDrawCompo_, variableSplitted);
+			auto compo = ReflectionUtils::FuncLoadClass<CComponent>(&outerDrawCompo_, in);
 			if (compo != nullptr)
 				pcomps.emplace_back(std::move(compo));
 		}

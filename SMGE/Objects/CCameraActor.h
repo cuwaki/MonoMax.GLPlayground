@@ -14,8 +14,8 @@ namespace SMGE
 		SGRefl_CameraActor(CCameraActor& actor);
 		SGRefl_CameraActor(const std::shared_ptr<CCameraActor>& actorPtr);
 
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 
 		CString& cameraName_;
 		float& fovDegrees_;

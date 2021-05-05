@@ -17,24 +17,24 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_BoundComponent::operator CWString() const
+	const SGReflection& SGRefl_BoundComponent::operator>>(CWString& out) const
 	{
-		auto ret = Super::operator CWString();
+		Super::operator>>(out);
 
-		ret += _TO_REFL(bool, isPickingTarget_);
-		ret += _TO_REFL(bool, isCollideTarget_);
-		ret += _TO_REFL(glm::vec3, gizmoColor_);
+		out += _TO_REFL(bool, isPickingTarget_);
+		out += _TO_REFL(bool, isCollideTarget_);
+		out += _TO_REFL(glm::vec3, gizmoColor_);
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_BoundComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_BoundComponent::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
-		_FROM_REFL(isPickingTarget_, variableSplitted);
-		_FROM_REFL(isCollideTarget_, variableSplitted);
-		_FROM_REFL(gizmoColor_, variableSplitted);
+		_FROM_REFL(isPickingTarget_, in);
+		_FROM_REFL(isCollideTarget_, in);
+		_FROM_REFL(gizmoColor_, in);
 
 		return *this;
 	}

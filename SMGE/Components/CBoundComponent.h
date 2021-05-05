@@ -28,8 +28,8 @@ namespace SMGE
 
 		SGRefl_BoundComponent(TReflectionClass& rc);
 
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 
 		bool& isPickingTarget_;
 		bool& isCollideTarget_;

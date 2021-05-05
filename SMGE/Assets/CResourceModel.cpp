@@ -15,40 +15,40 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_ResourceModel::operator CWString() const
+	const SGReflection& SGRefl_ResourceModel::operator>>(CWString& out) const
 	{
-		CWString ret = Super::operator CWString();
+		Super::operator>>(out);
 
-		ret += _TO_REFL(CWString, vertShaderPath_);
-		ret += _TO_REFL(CWString, fragShaderPath_);
-		ret += _TO_REFL(CWString, objFilePath_);
-		ret += _TO_REFL(CWString, textureFilePath_);
+		out += _TO_REFL(CWString, vertShaderPath_);
+		out += _TO_REFL(CWString, fragShaderPath_);
+		out += _TO_REFL(CWString, objFilePath_);
+		out += _TO_REFL(CWString, textureFilePath_);
 
-		ret += ReflectionUtils::ToCVector(vertices_, L"CVector<glm::vec3>", L"vertices_", std::optional<size_t>{});
-		ret += ReflectionUtils::ToCVector(uvs_, L"CVector<glm::vec2>", L"uvs_", std::optional<size_t>{});
-		ret += ReflectionUtils::ToCVector(normals_, L"CVector<glm::vec3>", L"normals_", std::optional<size_t>{});
-		ret += ReflectionUtils::ToCVector(vertexColors_, L"CVector<glm::vec3>", L"vertexColors_", std::optional<size_t>{});
+		out += ReflectionUtils::ToCVector(vertices_, L"CVector<glm::vec3>", L"vertices_", std::optional<size_t>{});
+		out += ReflectionUtils::ToCVector(uvs_, L"CVector<glm::vec2>", L"uvs_", std::optional<size_t>{});
+		out += ReflectionUtils::ToCVector(normals_, L"CVector<glm::vec3>", L"normals_", std::optional<size_t>{});
+		out += ReflectionUtils::ToCVector(vertexColors_, L"CVector<glm::vec3>", L"vertexColors_", std::optional<size_t>{});
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_ResourceModel::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_ResourceModel::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
-		_FROM_REFL(vertShaderPath_, variableSplitted);
-		_FROM_REFL(fragShaderPath_, variableSplitted);
-		_FROM_REFL(objFilePath_, variableSplitted);
-		_FROM_REFL(textureFilePath_, variableSplitted);
+		_FROM_REFL(vertShaderPath_, in);
+		_FROM_REFL(fragShaderPath_, in);
+		_FROM_REFL(objFilePath_, in);
+		_FROM_REFL(textureFilePath_, in);
 
 		vertices_.clear();
-		ReflectionUtils::FromCVector(vertices_, variableSplitted, ReflectionUtils::FromRefl_PushBack(this->vertices_));
+		ReflectionUtils::FromCVector(vertices_, in, ReflectionUtils::FromRefl_PushBack(this->vertices_));
 		uvs_.clear();
-		ReflectionUtils::FromCVector(uvs_, variableSplitted, ReflectionUtils::FromRefl_PushBack(this->uvs_));
+		ReflectionUtils::FromCVector(uvs_, in, ReflectionUtils::FromRefl_PushBack(this->uvs_));
 		normals_.clear();
-		ReflectionUtils::FromCVector(normals_, variableSplitted, ReflectionUtils::FromRefl_PushBack(this->normals_));
+		ReflectionUtils::FromCVector(normals_, in, ReflectionUtils::FromRefl_PushBack(this->normals_));
 		vertexColors_.clear();
-		ReflectionUtils::FromCVector(vertexColors_, variableSplitted, ReflectionUtils::FromRefl_PushBack(this->vertexColors_));
+		ReflectionUtils::FromCVector(vertexColors_, in, ReflectionUtils::FromRefl_PushBack(this->vertexColors_));
 
 		return *this;
 	}

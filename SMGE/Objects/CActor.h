@@ -22,12 +22,9 @@ namespace SMGE
 		
 		virtual void buildVariablesMap() override;
 		
-		virtual void OnBeforeSerialize() const override;
-
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value> &in) override;
-
-		virtual SGReflection& operator=(CVector<CWString>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value> &in) override;
+		virtual SGReflection& operator<<(const CVector<CWString>& in) override;
 
 		bool operator==(const SGRefl_Actor& right) const noexcept
 		{

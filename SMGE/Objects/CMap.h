@@ -37,8 +37,8 @@ namespace SMGE
 
 		CVector<std::reference_wrapper<SGReflection>> mapActorsRefl_;
 
-		virtual operator CWString() const;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 
 	protected:
 		void linkINST2REFL();

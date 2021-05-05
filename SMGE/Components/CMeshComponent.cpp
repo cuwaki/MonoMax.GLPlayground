@@ -15,19 +15,19 @@ namespace SMGE
 	//{
 	//}
 
-	SGRefl_MeshComponent::operator CWString() const
+	const SGReflection& SGRefl_MeshComponent::operator>>(CWString& out) const
 	{
-		CWString ret = Super::operator CWString();
+		Super::operator>>(out);
 
-		ret += _TO_REFL(CWString, resourceModelAssetPath_);
-		return ret;
+		out += _TO_REFL(CWString, resourceModelAssetPath_);
+		return *this;
 	}
 
-	SGReflection& SGRefl_MeshComponent::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_MeshComponent::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
-		_FROM_REFL(resourceModelAssetPath_, variableSplitted);
+		_FROM_REFL(resourceModelAssetPath_, in);
 		return *this;
 	}
 

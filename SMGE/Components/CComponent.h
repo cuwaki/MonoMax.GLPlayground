@@ -12,8 +12,6 @@ namespace SMGE
 		using TReflectionClass = CComponent;
 
 		SGRefl_Component(TReflectionClass& rc);
-		virtual operator CWString() const override { return Super::operator CWString(); }
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override { return Super::operator=(in); }
 	};
 
 	class CComponent : public CObject, public CInt_Reflection

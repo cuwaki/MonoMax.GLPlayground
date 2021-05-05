@@ -89,30 +89,30 @@ namespace SMGE
 		}
 		// } glm::section
 
-		CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted)
+		CString GetClassRTTIName(const CVector<TupleVarName_VarType_Value>& in)
 		{
-			metaSplitted.pushCursor();
+			in.pushCursor();
 			CString rttiName;
-			_FROM_REFL(rttiName, metaSplitted);
-			metaSplitted.popCursor();
+			_FROM_REFL(rttiName, in);
+			in.popCursor();
 			return rttiName;
 		}
 
-		CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted)
+		CWString GetReflectionFilePath(const CVector<TupleVarName_VarType_Value>& in)
 		{
-			metaSplitted.pushCursor();
+			in.pushCursor();
 			CString rttiName;
-			_FROM_REFL(rttiName, metaSplitted);
+			_FROM_REFL(rttiName, in);
 			CWString reflPath;
-			_FROM_REFL(reflPath, metaSplitted);
-			metaSplitted.popCursor();
+			_FROM_REFL(reflPath, in);
+			in.popCursor();
 			return reflPath;
 		}
 	};
 
-	const CWString& CInt_Reflection::getReflectionFilePath() const
+	const CWString& CInt_Reflection::getSourceFilePath() const
 	{
-		return getConstReflection().getReflectionFilePath();
+		return getReflection().getSourceFilePath();
 	}
 
 	void SGReflection::buildVariablesMap()
@@ -134,16 +134,12 @@ namespace SMGE
 		//_ADD_REFL_VARIABLE(reflectionFilePath_);
 	}
 
-	SGReflection::operator CWString() const
+	const SGReflection& SGReflection::operator>>(CWString& out) const
 	{
-		OnBeforeSerialize();
+		out += _TO_REFL(CString, classRTTIName_);
+		out += _TO_REFL(CWString, reflectionFilePath_);
 
-		CWString ret;
-
-		ret += _TO_REFL(CString, classRTTIName_);
-		ret += _TO_REFL(CWString, reflectionFilePath_);
-
-		return ret;
+		return *this;
 	}
 
 	struct SWhiteSpaceOrCommentForAssetString
@@ -199,59 +195,59 @@ namespace SMGE
 		}
 	};
 
-	SGReflection& SGReflection::operator=(const CWString& fullReflectedStr)
+	SGReflection& SGReflection::operator<<(const CWString& inFullReflectedStr)
 	{
-		CVector<CWString> variableSplitted = SplitStringToVector(fullReflectedStr, VARIABLE_DELIM);
+		CVector<CWString> in = SplitStringToVector(inFullReflectedStr, VARIABLE_DELIM);
 
 		if (isFast_ == false)
 		{
 			CVector<TupleVarName_VarType_Value> metaSplitted;	// ##CVector<float> 리플렉션 데이터 최적화
-			metaSplitted.reserve(variableSplitted.size());
+			metaSplitted.reserve(in.size());
 
 			SWhiteSpaceOrCommentForAssetString whiteOrCommentRemover;
 			CVector<CWString> temp;
-			for (int i = 0; i < variableSplitted.size(); ++i)
+			for (int i = 0; i < in.size(); ++i)
 			{
-				whiteOrCommentRemover(variableSplitted[i]);
+				whiteOrCommentRemover(in[i]);
 
-				if (variableSplitted[i].length() == 0)
+				if (in[i].length() == 0)
 					continue;
 
-				temp = SplitStringToVector(variableSplitted[i], META_DELIM);
+				temp = SplitStringToVector(in[i], META_DELIM);
 				metaSplitted.emplace_back(std::tie(temp[Tuple_VarName], temp[Tuple_VarType], temp[Tuple_Value]));
 			}	
 
 			metaSplitted.cursorBegin();
-
-			auto& ret = operator=(metaSplitted);
-			//if(pair_ != nullptr)	// 여기서 부르면 asset 계층에 따라서 여러번 불리우게 된다! 그래서 막아둠 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
-			//	pair_->OnAfterDeserialized();
-			return ret;
+			operator<<(metaSplitted);
+			//if(pairInstance_ != nullptr)	// 여기서 부르면 asset 계층에 따라서 여러번 불리우게 된다! 그래서 막아둠 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+			//	pairInstance_->OnAfterDeserialized();
 		}
 		else
 		{
-			variableSplitted.cursorBegin();
+			in.cursorBegin();
 
-			auto& ret = operator=(variableSplitted);
-			//if(pair_ != nullptr)	// 여기서 부르면 asset 계층에 따라서 여러번 불리우게 된다! 그래서 막아둠 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
-			//	pair_->OnAfterDeserialized();
-			return ret;
+			operator<<(in);
+			//if(pairInstance_ != nullptr)	// 여기서 부르면 asset 계층에 따라서 여러번 불리우게 된다! 그래서 막아둠 - 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+			//	pairInstance_->OnAfterDeserialized();
 		}
-	}
-
-	SGReflection& SGReflection::operator=(CVector<CWString>& variableSplitted)
-	{
-		// from fast
-		_FROM_REFL(classRTTIName_, variableSplitted);
-		_FROM_REFL(reflectionFilePath_, variableSplitted);
 
 		return *this;
 	}
 
-	SGReflection& SGReflection::operator=(CVector<TupleVarName_VarType_Value>& metaSplitted)
+	// _isFast == true
+	SGReflection& SGReflection::operator<<(const CVector<CWString>& in)
 	{
-		_FROM_REFL(classRTTIName_, metaSplitted);
-		_FROM_REFL(reflectionFilePath_, metaSplitted);
+		_FROM_REFL(classRTTIName_, in);
+		_FROM_REFL(reflectionFilePath_, in);
+
+		return *this;
+	}
+
+	// _isFast == false
+	SGReflection& SGReflection::operator<<(const CVector<TupleVarName_VarType_Value>& in)
+	{
+		_FROM_REFL(classRTTIName_, in);
+		_FROM_REFL(reflectionFilePath_, in);
 
 		return *this;
 	}

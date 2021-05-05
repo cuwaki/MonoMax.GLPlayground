@@ -15,8 +15,8 @@ namespace SMGE
 
 		SGRefl_MeshComponent(TReflectionClass& meshc);
 
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 		
 		CWString& resourceModelAssetPath_;
 	};

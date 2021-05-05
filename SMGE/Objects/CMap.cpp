@@ -34,22 +34,22 @@ namespace SMGE
 		ReflectionUtils::clearAndEmplaceBackINST2REFL(mapActorsRefl_, outerMap_.mapActorsW_);
 	}
 
-	SGRefl_Map::operator CWString() const
+	const SGReflection& SGRefl_Map::operator>>(CWString& out) const
 	{
-		CWString ret = Super::operator CWString();
+		Super::operator>>(out);
 
-		ret += ReflectionUtils::ToCVector(mapActorsRefl_, L"CVector<SGReflection&>", L"mapActorsW_", std::optional<size_t>{});
+		out += ReflectionUtils::ToCVector(mapActorsRefl_, L"CVector<SGReflection&>", L"mapActorsW_", std::optional<size_t>{});
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_Map::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_Map::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
 		// 이거긴 한데 이렇게 쓰면 auto 를 못쓴다...
-		//using REFL_CVECTOR_FUNC = void(CVector<TupleVarName_VarType_Value>& variableSplitted, size_t childKey);
-		auto FuncSpawnActor = [this](auto& variableSplitted, size_t childKey)
+		//using REFL_CVECTOR_FUNC = void(CVector<TupleVarName_VarType_Value>& in, size_t childKey);
+		auto FuncSpawnActor = [this](auto& in, size_t childKey)
 		{
 			// 여기서 SGRefl_Actor 가 생성되려면 CActor & 가 필요하다
 
@@ -57,8 +57,8 @@ namespace SMGE
 			// CMap 에 CActor 들이 인스턴싱 되어있어야한다
 			// SGRefl_Map 이 CMap 에 액터 생성을 시킨 후 연결해야한다 - 일단은 이렇게 구현해보자!
 
-			CString actorClassRTTIName = ReflectionUtils::GetClassRTTIName(variableSplitted);
-			CWString actorAssetPath = ReflectionUtils::GetReflectionFilePath(variableSplitted);
+			CString actorClassRTTIName = ReflectionUtils::GetClassRTTIName(in);
+			CWString actorAssetPath = ReflectionUtils::GetReflectionFilePath(in);
 
 			if (Path::IsValidPath(actorAssetPath) == true)
 			{
@@ -81,7 +81,7 @@ namespace SMGE
 				actorA->CopyFromTemplate(actorTemplate->getContentClass());
 
 				// 3. 맵에 저장된 값으로 한번 더 덮어쓴다 - 위치나 맵에서 박은 콤포넌트 등등
-				actorA->getReflection() = variableSplitted;
+				actorA->getReflection() << in;
 				system->FinishSpawnActor(&outerMap_, actorA);
 
 				// 여기선 아직 this->mapActorsW_ 에는 등록이 안되었다, 저 밑에 3단계에서 처리한다
@@ -92,7 +92,7 @@ namespace SMGE
 			}
 		};
 
-		ReflectionUtils::FromCVector(mapActorsRefl_, variableSplitted, FuncSpawnActor);
+		ReflectionUtils::FromCVector(mapActorsRefl_, in, FuncSpawnActor);
 
 		// 3단계 - 맵과 나를 레퍼런스로 연결한다
 		linkINST2REFL();

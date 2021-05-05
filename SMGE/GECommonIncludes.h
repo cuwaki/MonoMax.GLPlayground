@@ -98,19 +98,20 @@ namespace SMGE
                 return ParentVectorT::operator[](index);
 		}
 
-        typename ParentVectorT::iterator cursorBegin() { cursor_ = this->begin(); return cursor(); }
-        typename ParentVectorT::iterator cursorNext() { cursor_++; return cursor(); }
-        typename ParentVectorT::iterator cursor() { return cursor_; }
-
-        void setCursor(typename ParentVectorT::iterator newCursor) { cursor_ = newCursor; }
-        void pushCursor() { stack_.push(cursor_); }
-        void popCursor() { cursor_ = stack_.top(); stack_.pop(); }
-
-        bool isCursorEnd() { return cursor_ == this->end(); }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // { 특수 용도의 cursor 관리 영역
+        typename ParentVectorT::const_iterator cursorBegin() const { cursor_ = this->begin(); return cursor(); }
+        typename ParentVectorT::const_iterator cursorNext() const { cursor_++; return cursor(); }
+        typename ParentVectorT::const_iterator cursor() const { return cursor_; }
+        void setCursor(typename ParentVectorT::const_iterator newCursor) const { cursor_ = newCursor; }
+        void pushCursor() const { stack_.push(cursor_); }
+        void popCursor() const { cursor_ = stack_.top(); stack_.pop(); }
+        bool isCursorEnd() const { return cursor_ == this->end(); }
 
     protected:
-        typename ParentVectorT::iterator cursor_;
-        std::stack<typename ParentVectorT::iterator> stack_;
+        mutable typename ParentVectorT::const_iterator cursor_;
+        mutable std::stack<typename ParentVectorT::const_iterator> stack_;
+    // }
     };
 
     template<typename T>

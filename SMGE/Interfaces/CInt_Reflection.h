@@ -42,15 +42,17 @@ namespace SMGE
 	template<typename T>
 	struct SGReflectionStreamOut : public SGReflectionStream<T>
 	{
-		SGReflectionStreamOut() = default;
-		SGReflectionStreamOut(const SGReflection& sourceRefl)
-		{
-			*this << sourceRefl;
-		}
+		DELETE_COPY_CTOR(SGReflectionStreamOut)
+		DELETE_MOVE_CTOR(SGReflectionStreamOut)
 
+		SGReflectionStreamOut() = default;
+		SGReflectionStreamOut(const SGReflection& reflData)
+		{
+			reflData >> out_;
+		}
 		SGReflectionStreamOut& operator<<(const SGReflection& reflData)
 		{
-			out_ = reflData;	// SGReflection 을 decltype(out_) 로 캐스팅해줘서 처리한다
+			reflData >> out_;
 			return *this;
 		}
 
@@ -62,55 +64,34 @@ namespace SMGE
 	template<typename T>
 	struct SGReflectionStreamIn : public SGReflectionStream<T>
 	{
-		SGReflectionStreamIn() = default;
-		SGReflectionStreamIn(CWString&& source)
-		{
-			in_ = std::move(source);
-		}
-		SGReflectionStreamIn(const SGReflection& sourceRefl)
-		{
-			in_ = sourceRefl;
-		}
+		DELETE_COPY_CTOR(SGReflectionStreamIn)
+		DELETE_MOVE_CTOR(SGReflectionStreamIn)
 
+		SGReflectionStreamIn() = default;
+		SGReflectionStreamIn(SGReflection& reflData)
+		{
+			reflData << in_;
+		}
 		SGReflectionStreamIn& operator>>(SGReflection& reflData)
 		{
-			reflData = in_;		// SGReflection 이 decltype(in_) 을 operator= 로 받는다
+			reflData << in_;
 			return *this;
 		}
 
 		bool IsValid() { return in_.length() > 0; }
 
 		T in_;
+
+		SGReflectionStreamIn(CWString&& source)
+		{
+			in_ = std::move(source);
+		}
 	};
 
 	using SGStringStreamOut = SGReflectionStreamOut<CWString>;
 	using SGStringStreamIn = SGReflectionStreamIn<CWString>;
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	class CInt_Reflection : public CInterfaceBase
-	{
-	public:
-		virtual const CWString& getReflectionFilePath() const;
-		virtual const CString& getClassRTTIName() const = 0;
-
-		virtual SGReflection& getReflection() = 0;
-		virtual const SGReflection& getConstReflection() const
-		{
-			return const_cast<CInt_Reflection*>(this)->getReflection();
-		}
-
-		virtual void CopyFromTemplate(const CInt_Reflection* templateObj)
-		{
-			if (templateObj != nullptr)
-			{
-				SGStringStreamIn in(templateObj->getConstReflection());
-				in >> getReflection();
-			}
-		}
-
-		virtual void OnAfterDeserialized() {}	// 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
-	};
+	class CInt_Reflection;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +108,7 @@ namespace SMGE
 		static const CWString::value_type VARIABLE_DELIM_CHAR;
 		static const CWString::value_type VALUE_DELIM_CHAR;
 
-		SGReflection(CInt_Reflection* obj) : pair_(obj)
+		SGReflection(CInt_Reflection* obj) : pairInstance_(obj)
 		{
 			if (isFast_ == false)
 				buildVariablesMap();
@@ -136,20 +117,22 @@ namespace SMGE
 		{
 		}
 
-		virtual void OnBeforeSerialize() const {}
-		virtual operator CWString() const;	// operator>> 의 역할을 이게 한다
-		/* final */ SGReflection& operator=(const CWString& fullReflectedStr);	// operator<< 의 최종 역할을 이게 한다
+		DELETE_COPY_CTOR(SGReflection);
+		DELETE_MOVE_CTOR(SGReflection);
 
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& variableSplitted);	// DevReflection
-		virtual SGReflection& operator=(CVector<CWString>& variableSplitted);	// ReflectionUtils
+		virtual const SGReflection& operator>>(CWString& out) const;
+
+		SGReflection& operator<<(const CWString& inFullReflectedStr);
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in);	// _isFast == false
+		virtual SGReflection& operator<<(const CVector<CWString>& in);					// _isFast == true
 
 		const CString& getClassRTTIName() const { return classRTTIName_; }
-		const CWString& getReflectionFilePath() const { return reflectionFilePath_; }
+		const CWString& getSourceFilePath() const { return reflectionFilePath_; }
 
 	protected:
 		virtual void buildVariablesMap();
 
-		CInt_Reflection* pair_;
+		CInt_Reflection* pairInstance_;
 
 		CString classRTTIName_;
 		CWString reflectionFilePath_;
@@ -158,6 +141,39 @@ namespace SMGE
 		CHashMap<CWString, void*> variablesMap_;
 	};
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	class CInt_Reflection : public CInterfaceBase
+	{
+	public:
+		virtual const CWString& getSourceFilePath() const;
+		virtual const CString& getClassRTTIName() const = 0;
+
+		virtual SGReflection& getReflection() = 0;
+		virtual const SGReflection& getReflection() const
+		{
+			return const_cast<CInt_Reflection*>(this)->getReflection();
+		}
+		//virtual const SGReflection& getConstReflection() const
+		//{
+		//	return const_cast<CInt_Reflection*>(this)->getReflection();
+		//}
+
+		virtual void CopyFromTemplate(const CInt_Reflection* templateObj)
+		{
+			if (templateObj != nullptr)
+			{
+				CWString read;
+				templateObj->getReflection() >> read;
+
+				getReflection() << read;
+			}
+		}
+
+		virtual void OnAfterDeserialized() {}	// 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
+	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 말그대로 .asset 의 헤더 부분만 딱 읽어오기 위한 클래스이다 - 애셋 로드할 때 실제 그 애셋 안에 뭐가 든지 모를 때 사용한다.
 	class CHeaderOnlyReflection : public CInt_Reflection
 	{
@@ -180,8 +196,8 @@ namespace SMGE
 		#define _ADD_REFL_VARIABLE(_varname_) variablesMap_[L""#_varname_] = &_varname_
 		#define _REF_REFL_VARIABLE(_varname_) (*static_cast<decltype(&_varname_)>(variablesMap_[L""#_varname_]))
 
-		CString GetClassRTTIName(CVector<TupleVarName_VarType_Value>& metaSplitted);
-		CWString GetReflectionFilePath(CVector<TupleVarName_VarType_Value>& metaSplitted);
+		CString GetClassRTTIName(const CVector<TupleVarName_VarType_Value>& in);
+		CWString GetReflectionFilePath(const CVector<TupleVarName_VarType_Value>& in);
 
 		// _TO_REFL 의 헤더만 만드는 함수 버전
 		CWString _TO_REFL_Head(CWString _vartype_, CWString _varname_, bool isFast_);
@@ -245,20 +261,20 @@ namespace SMGE
 		// } glm::section
 
 		template<typename L>
-		extern void FromREFL_SOURCEVECTOR(L& left, CVector<CWString>& rightVec)
+		extern void FromREFL_SOURCEVECTOR(L& left, const CVector<CWString>& rightVec)
 		{
 			FromREFL(left, *rightVec.cursor());
 			rightVec.cursorNext();	// 다음으로!
 		}
 
 		template<typename L>
-		extern void FromREFL_SOURCEVECTOR(L& left, CVector<TupleVarName_VarType_Value>& rightVec)
+		extern void FromREFL_SOURCEVECTOR(L& left, const CVector<TupleVarName_VarType_Value>& rightVec)
 		{
 			auto tup = rightVec.cursor();
 
-			CWString& varName = std::get<Tuple_VarName>(*tup);
-			CWString& varType = std::get<Tuple_VarType>(*tup);
-			CWString& value = std::get<Tuple_Value>(*tup);
+			const auto& varName = std::get<Tuple_VarName>(*tup);
+			const auto& varType = std::get<Tuple_VarType>(*tup);
+			const auto& value = std::get<Tuple_Value>(*tup);
 
 			FromREFL(left, value);
 #if defined(_DEBUG) || defined(DEBUG)
@@ -311,7 +327,7 @@ namespace SMGE
 					//if constexpr (std::is_base_of_v<SGReflection, ContT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
 					if constexpr (std::is_same_v<std::reference_wrapper<SGReflection>, ContT::value_type>)	//(TName.find_first_of(L"SGRefl") != CWString::npos)
 					{	// SGRefl_Actor 등
-						ret += static_cast<CWString>(it.get());
+						it.get() >> ret;
 					}
 					else
 					{	// float, glm::vec3...
@@ -346,15 +362,15 @@ namespace SMGE
 		//	// mapActorsW_
 		//		// mapActorsW_.resize
 		//			// CGActors
-		////_FROM_REFL(actorKey_, variableSplitted);
+		////_FROM_REFL(actorKey_, in);
 		template<typename CT, typename VS, typename FUNC, typename... FUNCArgs>
-		void FromCVector(CT& cont, VS& variableSplitted, FUNC& func, FUNCArgs&&... funcargs)
+		void FromCVector(CT& cont, const VS& in, FUNC& func, FUNCArgs&&... funcargs)
 		{
 			size_t contSize = 0;
-			CWString& size_str = std::get<Tuple_Value>(*variableSplitted.cursor());
+			const auto& size_str = std::get<Tuple_Value>(*in.cursor());
 			ReflectionUtils::FromREFL(contSize, size_str);
 
-			variableSplitted.cursorNext();	// [2] = (L"mapActorsW_", L"CVector<SGRefl_Actor>", L"2") 를 먹어치운다
+			in.cursorNext();	// [2] = (L"mapActorsW_", L"CVector<SGRefl_Actor>", L"2") 를 먹어치운다
 
 			if (contSize == 0)
 				return;
@@ -364,17 +380,17 @@ namespace SMGE
 
 			for (size_t i = 0; i < contSize; i++)
 			{
-				func(variableSplitted, i, std::forward<FUNCArgs>(funcargs)...);
+				func(in, i, std::forward<FUNCArgs>(funcargs)...);
 			}
 		}
 
 		template<typename CT>
 		auto FromRefl_PushBack(CT& cont)
 		{
-			return [&cont](auto& variableSplitted, size_t i)
+			return [&cont](auto& in, size_t i)
 			{
 				typename CT::value_type temp;
-				_FROM_REFL(temp, variableSplitted);
+				_FROM_REFL(temp, in);
 				cont.push_back(temp);
 			};
 		};
@@ -394,12 +410,12 @@ namespace SMGE
 		};
 
 		template<typename TargetClass, typename OuterClass>
-		auto FuncLoadClass(OuterClass* outer, CVector<TupleVarName_VarType_Value>& variableSplitted)
+		auto FuncLoadClass(OuterClass* outer, const CVector<TupleVarName_VarType_Value>& in)
 		{
-			auto rttiName = ReflectionUtils::GetClassRTTIName(variableSplitted);
+			auto rttiName = ReflectionUtils::GetClassRTTIName(in);
 
 			auto newObj = dynamic_cast<TargetClass*>(RTTI_CObject::NewDefault(rttiName, outer));
-			newObj->getReflection() = variableSplitted;
+			newObj->getReflection() << in;
 
 			return newObj;
 		};

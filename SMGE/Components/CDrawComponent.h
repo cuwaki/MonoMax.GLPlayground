@@ -16,8 +16,8 @@ namespace SMGE
 
 		SGRefl_Transform(CInt_Reflection& anything, nsRE::Transform& trans);
 
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 
 		nsRE::Transform& nsre_transform_;
 	};
@@ -31,9 +31,8 @@ namespace SMGE
 
 		SGRefl_DrawComponent(TReflectionClass& rc);
 
-		virtual void OnBeforeSerialize() const override;
-		virtual operator CWString() const override;
-		virtual SGReflection& operator=(CVector<TupleVarName_VarType_Value>& in) override;
+		virtual const SGReflection& operator>>(CWString& out) const override;
+		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
 
 		SGRefl_Transform sg_transform_;
 		TReflectionClass& outerDrawCompo_;

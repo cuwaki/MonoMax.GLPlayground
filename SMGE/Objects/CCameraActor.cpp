@@ -25,26 +25,26 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_CameraActor::operator CWString() const
+	const SGReflection& SGRefl_CameraActor::operator>>(CWString& out) const
 	{
-		CWString ret = Super::operator CWString();
+		Super::operator>>(out);
 
-		ret += _TO_REFL(CString, cameraName_);
-		ret += _TO_REFL(float, fovDegrees_);
-		ret += _TO_REFL(float, zNear_);
-		ret += _TO_REFL(float, zFar_);
+		out += _TO_REFL(CString, cameraName_);
+		out += _TO_REFL(float, fovDegrees_);
+		out += _TO_REFL(float, zNear_);
+		out += _TO_REFL(float, zFar_);
 
-		return ret;
+		return *this;
 	}
 
-	SGReflection& SGRefl_CameraActor::operator=(CVector<TupleVarName_VarType_Value>& variableSplitted)
+	SGReflection& SGRefl_CameraActor::operator<<(const CVector<TupleVarName_VarType_Value>& in)
 	{
-		Super::operator=(variableSplitted);
+		Super::operator<<(in);
 
-		_FROM_REFL(cameraName_, variableSplitted);
-		_FROM_REFL(fovDegrees_, variableSplitted);
-		_FROM_REFL(zNear_, variableSplitted);
-		_FROM_REFL(zFar_, variableSplitted);
+		_FROM_REFL(cameraName_, in);
+		_FROM_REFL(fovDegrees_, in);
+		_FROM_REFL(zNear_, in);
+		_FROM_REFL(zFar_, in);
 
 		return *this;
 	}
