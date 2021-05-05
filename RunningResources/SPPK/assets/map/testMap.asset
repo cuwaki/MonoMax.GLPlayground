@@ -3,7 +3,7 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 시스템 액터 시작
-	allActorsW_$CVector<SGReflection&>$7
+	allActorsW_$CVector<SGReflection&>$3
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
@@ -42,6 +42,7 @@ classRTTIName_$CString$"CMap"
 		zNear_$float$1.0
 		zFar_$float$51.0
 
+/*
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
 		actorKey_$TActorKey$32
@@ -80,9 +81,43 @@ classRTTIName_$CString$"CMap"
 		fov_$float$60.0
 		zNear_$float$2.0
 		zFar_$float$32.0
+		*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 게임액터 시작
+
+	// 원숭이
+	classRTTIName_$CString$"CStaticMeshActor"
+		reflectionFilePath_$CWString$"/actor/monkey.asset"
+		actorKey_$TActorKey$164
+		classRTTIName_$CString$"SGRefl_Transform"
+		reflectionFilePath_$CWString$""
+		nsre_transform_.GetPosition()$glm::vec3$-3.000000	-3.000000	-3.000000	
+		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	33.000000	
+		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+		actorStaticTag_$CString$"this is a monkey"
+		persistCompoSize$size_t$2
+			classRTTIName_$CString$"CMeshComponent"
+				reflectionFilePath_$CWString$""
+				classRTTIName_$CString$"SGRefl_Transform"
+				reflectionFilePath_$CWString$""
+				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+				nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
+				persistCompoSize$size_t$0
+				drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
+			classRTTIName_$CString$"CSphereComponent"
+				reflectionFilePath_$CWString$""
+				classRTTIName_$CString$"SGRefl_Transform"
+					reflectionFilePath_$CWString$""
+					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+					nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
+					persistCompoSize$size_t$0
+				isPickingTarget_$bool$true
+				isCollideTarget_$bool$true
+				gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
+
 
 	// 큐브 //////////////////////////////////////////////////////////
 	classRTTIName_$CString$"CCollideActor"
@@ -106,7 +141,7 @@ classRTTIName_$CString$"CMap"
 			isPickingTarget_$bool$false
 			isCollideTarget_$bool$true
 			gizmoColor_$glm::vec3$0.000000	1.000000	0.000000	
-			
+
 
 
 	// 포인트 //////////////////////////////////////////////////////////
@@ -235,57 +270,6 @@ classRTTIName_$CString$"CMap"
 
 
 
-
-	classRTTIName_$CString$"CStaticMeshActor"
-		reflectionFilePath_$CWString$"/actor/monkey.asset"
-		actorKey_$TActorKey$164
-		classRTTIName_$CString$"SGRefl_Transform"
-		reflectionFilePath_$CWString$""
-		nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
-		actorStaticTag_$CString$"this is a monkey"
-		persistCompoSize$size_t$2
-			classRTTIName_$CString$"CMeshComponent"
-				reflectionFilePath_$CWString$""
-				classRTTIName_$CString$"SGRefl_Transform"
-				reflectionFilePath_$CWString$""
-				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-				nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
-				persistCompoSize$size_t$1
-					classRTTIName_$CString$"CMeshComponent"
-						reflectionFilePath_$CWString$""
-						classRTTIName_$CString$"SGRefl_Transform"
-						reflectionFilePath_$CWString$""
-						nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
-						nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
-						nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
-						persistCompoSize$size_t$1
-							classRTTIName_$CString$"CSphereComponent"
-								reflectionFilePath_$CWString$""
-								classRTTIName_$CString$"SGRefl_Transform"
-									reflectionFilePath_$CWString$""
-									nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-									nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-									nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
-									persistCompoSize$size_t$0
-								isPickingTarget_$bool$false
-								isCollideTarget_$bool$true
-								gizmoColor_$glm::vec3$0.000000	1.000000	0.000000	
-						drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
-				drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
-			classRTTIName_$CString$"CSphereComponent"
-				reflectionFilePath_$CWString$""
-				classRTTIName_$CString$"SGRefl_Transform"
-					reflectionFilePath_$CWString$""
-					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-					nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
-					persistCompoSize$size_t$0
-				isPickingTarget_$bool$true
-				isCollideTarget_$bool$true
-				gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
 
 
 

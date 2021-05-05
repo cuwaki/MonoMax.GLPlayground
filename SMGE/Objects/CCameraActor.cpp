@@ -8,7 +8,8 @@
 #include "../../MonoMax.EngineCore/common/controls.hpp"
 #include "../CBoundCheck.h"
 
-#define DRAW_FRUSTUM
+//#define DRAW_FRUSTUM
+//#define FRUSTUM_TEST_CAMERA
 #define ENABLE_FRUSTUM_CULLING
 
 namespace SMGE
@@ -144,7 +145,7 @@ namespace SMGE
 		frustumRightPlane_->SetEditorRendering(isEditorRendering);
 #endif
 
-#ifdef DRAW_FRUSTUM
+#ifdef FRUSTUM_TEST_CAMERA
 		// 최적화 - 게임에서는 카메라 및 그의 기즈모들은 그려질 필요가 없다
 		if (getActorStaticTag() == "testCamera")	// 테스트 코드 - 프러스텀 컬링 시각화
 		//if (getActorStaticTag() == "mainCamera")

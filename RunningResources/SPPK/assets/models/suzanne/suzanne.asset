@@ -2,7 +2,7 @@ classRTTIName_$CString$"CResourceModel"
     reflectionFilePath_$CWString$"/models/suzanne/suzanne.asset"
     vertShaderPath_$CWString$"models/suzanne/suzanne.vert"
     fragShaderPath_$CWString$"models/suzanne/suzanne.frag"
-    objFilePath_$CWString$"models/suzanne/suzanne.obj"
+    objFilePath_$CWString$"models/suzanne/suzanne.3dobj"
     textureFilePath_$CWString$"models/suzanne/suzanne.dds"
     vertices_$CVector<glm::vec3>$0
     uvs_$CVector<glm::vec2>$0

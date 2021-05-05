@@ -7,7 +7,8 @@
 
 #define ENABLE_FRUSTUM_CULLING
 #define ENABLE_OCTREE
-#define DRAW_FRUSTUM
+//#define DRAW_FRUSTUM
+//#define FRUSTUM_TEST_CAMERA
 //#define ENABLE_OCTREE_WITH_AABB	/* 옥트리에 크기로 등록하기 */
 //#define UNIT_TEST_OCTREE
 //#define UNIT_TEST_BOUND
@@ -301,6 +302,7 @@ namespace SMGE
 			}
 		}
 
+#ifdef FRUSTUM_TEST_CAMERA
 		// 테스트 코드 - 프러스텀 컬링 시각화
 		for (auto& actor : mapActorsW_)
 		{
@@ -311,6 +313,7 @@ namespace SMGE
 				break;
 			}
 		}
+#endif
 	}
 
 	void CMap::cameraFrustumCulling()

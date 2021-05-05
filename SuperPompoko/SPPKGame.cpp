@@ -172,7 +172,7 @@ namespace SMGE
 
 		modelData.vertShaderPath_ = wtext("");
 		modelData.fragShaderPath_ = wtext("suzanne.frag");
-		modelData.objFilePath_ = wtext("suzanne.obj");
+		modelData.objFilePath_ = wtext("suzanne.3dobj");
 		modelData.textureFilePath_ = wtext("");
 
 		CVector<glm::vec3> planeVertices
@@ -248,7 +248,7 @@ namespace SMGE
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// cpp study - 마구잡이 공부 영역 나중에 날릴 것
+// 테스트 코드 - cpp study - 마구잡이 공부 영역 나중에 날릴 것
 #include <array>
 
 // https://stackoverflow.com/questions/34143943/how-to-fill-const-stdarraysize-t-n-with-values-based-on-function
