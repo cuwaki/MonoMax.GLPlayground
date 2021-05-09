@@ -38,8 +38,8 @@ namespace SMGE
 			return std::static_pointer_cast<CAsset<C>>(cachedAssets_[filePath]);
 		}
 
-		template<typename C, typename NewF, typename DeleteF, typename ...Args>
-		static std::shared_ptr<CAsset<C>> LoadAssetCustom(CWString filePath, NewF&& nf, DeleteF&& df, Args&&... contentClassCtorArgs)
+		template<typename C, typename NewContentF, typename DeleteContentF, typename ...Args>
+		static std::shared_ptr<CAsset<C>> LoadAssetCustom(CWString filePath, NewContentF&& nf, DeleteContentF&& df, Args&&... contentClassCtorArgs)
 		{
 			ToLowerInline(filePath);
 
@@ -47,7 +47,7 @@ namespace SMGE
 			if (res)
 				return res;
 
-			auto newAsset = std::make_shared<CAsset<C>>(filePath, std::forward<NewF>(nf), std::forward<DeleteF>(df), std::forward<Args>(contentClassCtorArgs)...);
+			auto newAsset = std::make_shared<CAsset<C>>(filePath, std::forward<NewContentF>(nf), std::forward<DeleteContentF>(df), std::forward<Args>(contentClassCtorArgs)...);
 			cachedAssets_[filePath] = std::move(newAsset);
 
 			return std::static_pointer_cast<CAsset<C>>(cachedAssets_[filePath]);
@@ -56,7 +56,7 @@ namespace SMGE
 		template<typename C>
 		static bool SaveAsset(CWString filePath, CAsset<C>& target)
 		{
-			SGStringStreamOut strOut(target.getContentClass()->getReflection());
+			SGReflectionStringOut strOut(target.getContentClass()->getReflection());
 			return SaveToTextFile(filePath, strOut.out_);
 		}
 

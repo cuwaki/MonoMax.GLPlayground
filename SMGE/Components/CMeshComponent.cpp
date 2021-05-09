@@ -78,9 +78,9 @@ namespace SMGE
 							resm = nsRE::CResourceModelProvider::AddResourceModel(asciiAssetKey, std::make_shared<CResourceModel>(nullptr));
 						return static_cast<CResourceModel*>(resm.get());
 					},
-					[]()
+					[](void *)
 					{	// 커스텀 파괴자
-						// 캐시에 그냥 남겨둠
+						// 캐시에 그냥 남겨두도록 아무것도 안한다
 					});
 
 				resModel = resourceModelAsset_->getContentClass();

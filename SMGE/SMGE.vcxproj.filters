@@ -104,7 +104,7 @@
     <ClInclude Include="Components\CPointComponent.h">
       <Filter>Components\Bound</Filter>
     </ClInclude>
-    <ClInclude Include="CQuadTree.h">
+    <ClInclude Include="CQuadtree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Components\CCubeComponent.h">
@@ -214,7 +214,7 @@
     <ClCompile Include="Components\CPointComponent.cpp">
       <Filter>Components\Bound</Filter>
     </ClCompile>
-    <ClCompile Include="CQuadTree.cpp">
+    <ClCompile Include="CQuadtree.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Components\CCubeComponent.cpp">

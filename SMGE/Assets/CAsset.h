@@ -20,16 +20,15 @@ namespace SMGE
 		CObject* contentClass_ = nullptr;
 	};
 
-	template<typename TBaseClass>
-	using TContentClassNewFunc = std::function<TBaseClass*(void)>;
+	template<typename TContentClass, typename ...Args>
+	using TContentClassNewFunc = std::function<TContentClass*(Args&&...)>;
+	using TContentClassDeleteFunc = std::function<void(void*)>;
 
-	using TContentClassDeleteFunc = std::function<void(void)>;
-
-	template<typename TBaseClass>
+	template<typename TContentClass>
 	class CAsset : public CAssetBase
 	{
 	public:
-		CAsset(TBaseClass* contentClass) : CAssetBase()
+		CAsset(TContentClass* contentClass) : CAssetBase()
 		{	// 쓰기를 위하여 외부에서 받음
 			contentClass_ = contentClass;
 			isReadOnly_ = false;
@@ -43,11 +42,11 @@ namespace SMGE
 			LoadAssetRecursive(filePath, std::forward<Args>(contentClassCtorArgs)...);
 		}
 		
-		template<typename NewF, typename DeleteF, typename ...Args>
-		CAsset(CWString filePath, NewF&& nf, DeleteF&& df, Args&&... contentClassCtorArgs) : CAssetBase()
+		template<typename NewContentF, typename DeleteContentF, typename ...Args>
+		CAsset(CWString filePath, NewContentF&& nf, DeleteContentF&& df, Args&&... contentClassCtorArgs) : CAssetBase()
 		{	// 읽기를 위하여 내부에서 만듦
-			newFunc_ = std::forward<NewF>(nf);
-			deleteFunc_ = std::forward<DeleteF>(df);
+			newContentFunc_ = std::forward<NewContentF>(nf);
+			deleteContentFunc_ = std::forward<DeleteContentF>(df);
 
 			assetFilePath_ = filePath;
 			isReadOnly_ = true;
@@ -58,8 +57,8 @@ namespace SMGE
 		{
 			if (isReadOnly_ && contentClass_)
 			{
-				if(deleteFunc_)	// 지정된 파괴 방법
-					deleteFunc_();
+				if(deleteContentFunc_)	// 지정된 파괴 방법
+					deleteContentFunc_(contentClass_);
 				else
 					delete contentClass_;
 
@@ -67,19 +66,15 @@ namespace SMGE
 			}
 		}
 
-		TBaseClass* getContentClass() const
+		TContentClass* getContentClass() const
 		{
-			return static_cast<TBaseClass*>(contentClass_);
+			return static_cast<TContentClass*>(contentClass_);
 		}
 
 	protected:
-		bool IsTemplateAssetPath(CWString filePath) const
+		bool IsTemplate(CWString filePath) const
 		{
 			return SMGE::IsStartsWith(filePath, wtext("/templates/")) || SMGE::IsStartsWith(filePath, wtext("templates/"));
-		}
-		bool IsEmptyAssetPath(CWString filePath) const
-		{
-			return filePath.length() == 0;
 		}
 
 		template<typename ...Args>
@@ -87,31 +82,31 @@ namespace SMGE
 		{
 			assert(isReadOnly_ == true && "for read only");
 
-			SGStringStreamIn strIn(LoadFromTextFile(filePath));
+			SGReflectionStringIn strIn(LoadFromTextFile(filePath));
 			if (strIn.IsValid())
 			{
 				// 부모 클래스로 계속 올라간다 - 예) slime.asset -> CAMonster -> CAPawn -> CActor
 				SGReflection currentRefl(nullptr);
-				strIn >> currentRefl;
+				strIn >> currentRefl;	// 헤더만 읽음
 
-				// top일 때 RTTI 클래스를 생성해야한다
+				// 최하위일 때 RTTI 클래스를 생성해야한다, 예) CAMonster 일 때 contentClass_가 생성되어야한다
 				if (contentClass_ == nullptr)
 				{
-					if (newFunc_)
+					if (newContentFunc_)
 					{	// 지정된 생성 방법
-						contentClass_ = newFunc_();	// 지금은 contentClassCtorArgs 를 무시할 수 밖에 없는 구조이다 - TContentClassNewFunc 에 Args... 을 지정할수가 없어서임
+						contentClass_ = newContentFunc_(std::forward<Args>(contentClassCtorArgs)...);
 					}
 					else
 					{	// 디폴트 생성 방법
 						if constexpr (sizeof...(contentClassCtorArgs) == 0)
 							contentClass_ = RTTI_CObject::NewDefault(currentRefl.getClassRTTIName(), nullptr);
 						else
-							contentClass_ = RTTI_CObject::NewVariety<TBaseClass>(nullptr, std::forward<Args>(contentClassCtorArgs)...);
+							contentClass_ = RTTI_CObject::NewVariadic<TContentClass>(nullptr, std::forward<Args>(contentClassCtorArgs)...);
 					}
 				}
 
 				auto parentAssetPath = currentRefl.getSourceFilePath();
-				if (IsTemplateAssetPath(parentAssetPath) == true)
+				if (IsTemplate(parentAssetPath) == true)
 				{	// 더이상 부모가 없다 - 이게 탑 == 템플릿이다, 이제부터 실제로 로드를 시작한다 - 예) CActor
 				}
 				else
@@ -119,7 +114,7 @@ namespace SMGE
 					LoadAssetRecursive(CAssetManager::GetTemplateAssetPath(ToTCHAR(currentRefl.getClassRTTIName())));
 				}
 
-				// 자식 클래스의 값으로 계속 덮어씌워져나갈 것이다
+				// 후위로 재귀 호출 되므로 CActor -> CAPawn -> CAMonster 순서로 적용되며, 하위의 값으로 계속 덮어씌워져나갈 것이다
 				strIn >> getContentClass()->getReflection();
 			}
 			else
@@ -132,7 +127,7 @@ namespace SMGE
 		}
 
 	protected:
-		TContentClassNewFunc<TBaseClass> newFunc_;
-		TContentClassDeleteFunc deleteFunc_;
+		TContentClassNewFunc<TContentClass> newContentFunc_;
+		TContentClassDeleteFunc deleteContentFunc_;
 	};
 }

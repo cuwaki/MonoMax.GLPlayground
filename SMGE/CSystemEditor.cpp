@@ -205,12 +205,12 @@ namespace SMGE
 				glm::vec3 ray_direction;
 				renderingEngine_->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
-				CCollideActor* rayActor = &StartSpawnActorVARIETY<CCollideActor>(currentMap, true, 
+				CCollideActor* rayActor = &StartSpawnActorVARIADIC<CCollideActor>(currentMap, true, 
 					Args_START currentMap, ECheckCollideRule::NEAREST, false,
 					[this, currentMap](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const SSegmentBound& COLL_SEG)
 					{
 						// 포인트 표시
-						CCollideActor* pointActor = &StartSpawnActorVARIETY<CCollideActor>(currentMap, true, currentMap);
+						CCollideActor* pointActor = &StartSpawnActorVARIADIC<CCollideActor>(currentMap, true, currentMap);
 						auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
 						pointActor->CopyFromTemplate(prefab->getContentClass());
 						{
@@ -279,7 +279,7 @@ namespace SMGE
 		switch (gizmoMode_)
 		{
 		case EGizmoMode::TRANSLATE:
-			gizmo = &StartSpawnActorVARIETY<CGizmoActorTranslate>(itsMap, true, Args_START selActor);
+			gizmo = &StartSpawnActorVARIADIC<CGizmoActorTranslate>(itsMap, true, Args_START selActor);
 			break;
 		case EGizmoMode::ROTATE:
 			break;

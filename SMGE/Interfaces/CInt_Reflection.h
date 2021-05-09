@@ -21,7 +21,7 @@
 	2. 실제로 RTTI 로써 사용되지 않는 클래스들에는 RTTI 매크로나 함수, 변수가 없을 수 있다 - 이들은 C++의 인터페이스 클래스와 같다고 생각하면 된다
 
 	3. DEFINE_RTTI_CObject_DEFAULT 매크로 - 말그대로 인자가 outer 1개인 디폴트 생성용이다
-	3. DEFINE_RTTI_CObject_VARIETY 매크로 - 인자가 여러개인 각 클래스용 전용 생성자들을 처리하기 위해서 존재한다
+	3. DEFINE_RTTI_CObject_VARIADIC 매크로 - 인자가 여러개인 각 클래스용 전용 생성자들을 처리하기 위해서 존재한다
 
 	4. 맵 로딩등을 할 때 문자열로 rtti 할 때는 버라이어티 생성자를 사용할 수 없다 - 컴파일 타임에 타입이 명시적으로 필요하기 때문이다
 */
@@ -88,8 +88,14 @@ namespace SMGE
 		}
 	};
 
-	using SGStringStreamOut = SGReflectionStreamOut<CWString>;
-	using SGStringStreamIn = SGReflectionStreamIn<CWString>;
+	// 문자열로 reflection
+	using SGReflectionStringOut = SGReflectionStreamOut<CWString>;
+	using SGReflectionStringIn = SGReflectionStreamIn<CWString>;
+
+	// Binary로 reflection
+	using TByteVector = CVector<unsigned char>;
+	using SGReflectionBinaryOut = SGReflectionStreamOut<TByteVector>;
+	using SGReflectionBinaryIn = SGReflectionStreamIn<TByteVector>;
 
 	class CInt_Reflection;
 
@@ -171,20 +177,6 @@ namespace SMGE
 		}
 
 		virtual void OnAfterDeserialized() {}	// 지금은 뭔가 이상한 vftbl 관련 버그가 있어서 못쓰고 있다
-	};
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// 말그대로 .asset 의 헤더 부분만 딱 읽어오기 위한 클래스이다 - 애셋 로드할 때 실제 그 애셋 안에 뭐가 든지 모를 때 사용한다.
-	class CHeaderOnlyReflection : public CInt_Reflection
-	{
-	public:
-		CHeaderOnlyReflection(void *dummy) {}
-		virtual const CString& getClassRTTIName() const { return dummyClassRTTIName_; }
-		virtual SGReflection& getReflection() { return dummy_; }
-
-	protected:
-		CString dummyClassRTTIName_ = "CHeaderOnlyReflection";
-		SGReflection dummy_{ *this };
 	};
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

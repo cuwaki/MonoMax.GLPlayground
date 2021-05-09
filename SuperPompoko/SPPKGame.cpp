@@ -121,11 +121,11 @@ namespace SMGE
 		//// 기본 리플렉션 테스트 코드
 		//CActor actor(nullptr);
 		//actor.setActorStaticTag("empty");
-		//SGStringStreamOut strOut;
+		//SGReflectionStringOut strOut;
 		//strOut << actor.getReflection();
 
 		////const auto& aaa = actor.getConstReflection();	// const 객체 테스트
-		//SGStringStreamIn strIn;
+		//SGReflectionStringIn strIn;
 		//strIn.in_ = strOut.out_;
 		//strIn >> actor.getReflection();
 		//// }

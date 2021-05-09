@@ -11,8 +11,8 @@
 
 namespace SMGE
 {
-	template<typename T, typename TNodeSize> class CQuadTree;
-	template<typename T, typename TNodeSize> class COcTree;
+	template<typename T, typename TNodeSize> class CQuadtree;
+	template<typename T, typename TNodeSize> class COctree;
 
 	template<typename T>
 	struct SPoint2D
@@ -78,8 +78,8 @@ namespace SMGE
 	template<typename TContainer, typename TNodeSize>
 	class CQuadTreeNode
 	{
-		friend CQuadTree;
-		friend COcTree;
+		friend CQuadtree;
+		friend COctree;
 
 	public:
 		using TValue = typename TContainer::value_type;
@@ -154,10 +154,10 @@ namespace SMGE
 	};
 
 	// 모든 좌표와 좌표계는 GL 오른손 좌표계를 사용한다.
-	template<typename TContainer, typename TNodeSize>
-	class CQuadTree
+	template<typename TContainer, typename TNodeSize = float>
+	class CQuadtree
 	{
-		friend COcTree;
+		friend COctree;
 
 	public:
 		using TValue = typename TContainer::value_type;
@@ -168,8 +168,8 @@ namespace SMGE
 		using TValues = CVector<TValue>;
 
 	public:
-		CQuadTree() {}
-		CQuadTree(const std::string& treeName, TNodeSize width, TNodeSize height, TNodeSize leafNodeWidth, TNodeSize leafNodeHeight)
+		CQuadtree() {}
+		CQuadtree(const std::string& treeName, TNodeSize width, TNodeSize height, TNodeSize leafNodeWidth, TNodeSize leafNodeHeight)
 		{
 			Create(treeName, width, height, leafNodeWidth, leafNodeHeight);
 		}
@@ -356,20 +356,20 @@ namespace SMGE
 		std::map<TNodeSize, std::map<TNodeSize, TNode*>> tempUVNodes_;	// [v][u]
 	};
 
-	template<typename TContainer, typename TNodeSize>
-	class COcTree
+	template<typename TContainer, typename TNodeSize = float>
+	class COctree
 	{
 	public:
 		using TValue = typename TContainer::value_type;
 		using TValueIterator = typename TContainer::iterator;
 
-		using TSubTree = CQuadTree<TContainer, TNodeSize>;
+		using TSubTree = CQuadtree<TContainer, TNodeSize>;
 		using TNode = typename TSubTree::TNode;
 		using TNodes = CForwardList<TNode*>;
 		using TValues = CVector<TValue>;
 
 	public:
-		COcTree() {}
+		COctree() {}
 
 		void Create(const std::string& treeName, TNodeSize xWidth, TNodeSize yWidth, TNodeSize zWidth, TNodeSize leafNodeWidth)
 		{

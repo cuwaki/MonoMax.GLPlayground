@@ -89,8 +89,8 @@ public :\
 private:\
 	/* private 이어야한다 - 자식들도 함부로 바꾸면 안됨 */static CString ClassRTTIName;
 
-#define DEFINE_RTTI_CObject_DEFAULT(CRN) CString CRN::ClassRTTIName = ""#CRN; RTTI_CObject _staticRTTI_DEFAULT_##CRN(""#CRN, [](CObject* outer) {return new CRN(outer); }); 
-#define DEFINE_RTTI_CObject_VARIETY(CRN, ...) RTTI_CObject _staticRTTI_VARIETY_##CRN(""#CRN, CRttiNewFunctorVariety<CObject, CRN, __VA_ARGS__>{});
+#define DEFINE_RTTI_CObject_DEFAULT(CRN)		CString CRN::ClassRTTIName = ""#CRN; RTTI_CObject _staticRTTI_DEFAULT_##CRN(""#CRN, [](CObject* outer) {return new CRN(outer); }); 
+#define DEFINE_RTTI_CObject_VARIADIC(CRN, ...)	RTTI_CObject _staticRTTI_VARIADIC_##CRN(""#CRN, CRttiNewFunctorVariadic<CObject, CRN, __VA_ARGS__>{});
 
 #define IsA(__cobjectInst__, classRTTIName) (__cobjectInst__ && __cobjectInst__->getClassRTTIName() == wtext(#classRTTIName))
 };

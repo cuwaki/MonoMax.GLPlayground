@@ -11,12 +11,12 @@ namespace SMGE
 	#define Args_START
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	struct CRttiNewFunctorVarietyBase
+	struct CRttiNewFunctorVariadicBase
 	{
 	};
 
 	template<class BaseClass, class TargetClass, typename... Args>
-	struct CRttiNewFunctorVariety : public CRttiNewFunctorVarietyBase
+	struct CRttiNewFunctorVariadic : public CRttiNewFunctorVariadicBase
 	{
 		BaseClass* operator()(Args&&... args)
 		{
@@ -37,10 +37,10 @@ namespace SMGE
 	class CRtti
 	{
 		using NewFunctorDefaultT = std::map<std::string, std::function<NewFunctor>>;
-		using NewFunctorVarietyT = std::map<std::string, CRttiNewFunctorVarietyBase>;
+		using NewFunctorVariadicT = std::map<std::string, CRttiNewFunctorVariadicBase>;
 
 		static NewFunctorDefaultT NewClassDefaults_;
-		static NewFunctorVarietyT NewClassVarieties_;
+		static NewFunctorVariadicT NewClassVarieties_;
 
 	public:
 		CRtti(std::string&& rttiName, std::function<NewFunctor>&& func)	// 일부러 정적인 입력들만 받기위하여 오른값들만 받음 - 즉 동적으로 작성 불가!
@@ -48,7 +48,7 @@ namespace SMGE
 			NewClassDefaults_[rttiName] = std::move(func);
 		}
 
-		CRtti(std::string&& rttiName, CRttiNewFunctorVarietyBase&& func)
+		CRtti(std::string&& rttiName, CRttiNewFunctorVariadicBase&& func)
 		{
 			NewClassVarieties_[rttiName] = std::move(func);
 		}
@@ -68,13 +68,13 @@ namespace SMGE
 		}
 
 		template<class TargetClass, typename... Args>
-		static TargetClass* NewVariety(Args&&... args)
+		static TargetClass* NewVariadic(Args&&... args)
 		{
 			const auto& classRTTIName = SMGE::GetClassRTTIName<TargetClass>();
 
 			assert(NewClassVarieties_.find(classRTTIName) != NewClassVarieties_.end());
 
-			using NewFunctorT = CRttiNewFunctorVariety<BaseClass, TargetClass, Args...>;
+			using NewFunctorT = CRttiNewFunctorVariadic<BaseClass, TargetClass, Args...>;
 			
 			auto newOne = static_cast<NewFunctorT&>(NewClassVarieties_[classRTTIName])(std::forward<Args>(args)...);
 			return static_cast<TargetClass*>(newOne);

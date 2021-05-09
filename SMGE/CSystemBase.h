@@ -56,9 +56,9 @@ namespace SMGE
 
 		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
 		template<typename ActorT, typename... Args>
-		ActorT& StartSpawnActorVARIETY(class CMap* targetMap, bool isDynamic, Args_START Args&&... args)
+		ActorT& StartSpawnActorVARIADIC(class CMap* targetMap, bool isDynamic, Args_START Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewVariety<ActorT>(Args_START std::forward<Args>(args)...);
+			auto newObj = RTTI_CObject::NewVariadic<ActorT>(Args_START std::forward<Args>(args)...);
 			return static_cast<ActorT&>(StartSpawnActorINTERNAL(targetMap, newObj, isDynamic));
 		}
 

@@ -2,22 +2,22 @@
 
 #include "../Interfaces/CInt_Reflection.h"
 #include "../Components/CBoundComponent.h"
-#include "../CQuadTree.h"
+#include "../CQuadtree.h"
 #include <set>
 
 namespace SMGE
 {
 	namespace MapConst
 	{
-		constexpr float OctreeLeafWidth = 5.f;	// 5미터
+		constexpr float OctreeLeafWidth = 5;	// 5미터
 		constexpr int32 OctreeDepth = 8;
 
-		constexpr float MaxX = OctreeLeafWidth * 256.f;	// 256 == std::pow(2, OctreeDepth) - 최종 옥트리 한변의 크기는 OctreeLeafWidth * MaxX 가 된다
+		constexpr float MaxX = OctreeLeafWidth * 256;	// 256 == std::pow(2, OctreeDepth) - 최종 옥트리 전체 한변의 크기는 OctreeLeafWidth * MaxX 가 된다
 		constexpr float MaxY = MaxX;
 		constexpr float MaxZ = MaxX;
 	}
 
-	using MapOcTree = COcTree<std::set<CActor *>, float>;
+	using MapOcTree = COctree<std::set<CActor *>>;
 
 	// deprecated
 	//enum class EActorLayer : uint8
