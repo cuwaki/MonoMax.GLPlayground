@@ -117,7 +117,7 @@ namespace SMGE
 				fFPs[TransformConst::GL_RB].z - fNPs[TransformConst::GL_RB].z
 			});
 		frustumAABBCube_->SetEditorRendering(isEditorRendering);
-		frustumAABBCube_->SetGizmoColor({ 1.f, 0.f, 1.f });
+		frustumAABBCube_->SetPrimitiveColor({ 1.f, 0.f, 1.f });
 
 		// 체크용 평면 만들기 - 평면 노멀이 안쪽을 보도록, 현재 frustumModel은 +Z를 보고 있다
 		frustumNearPlane_ = static_cast<CPlaneComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CPlaneComponent>(this))).get());
@@ -161,7 +161,7 @@ namespace SMGE
 				[this]()
 				{
 					CSegmentComponent* newOne = static_cast<CSegmentComponent*>(getTransientComponents().emplace_back(std::move(std::make_unique<CSegmentComponent>(this))).get());
-					newOne->SetGizmoColor({ 1, 0, 0 });
+					newOne->SetPrimitiveColor({ 1, 0, 0 });
 					return newOne;
 				});
 
@@ -220,7 +220,7 @@ namespace SMGE
 			frustumQuads[0]->RotateEuler({ 0.f, 180.f, 0.f }, true);	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
 			frustumQuads[0]->SetPickingTarget(false);
 			frustumQuads[0]->SetCollideTarget(false);
-			frustumQuads[0]->SetGizmoColor({ 0.7f, 0.7f, 0.f });
+			frustumQuads[0]->SetPrimitiveColor({ 0.7f, 0.7f, 0.f });
 
 			// Far 평면
 			frustumQuads[1]->Translate({ 0.f, 0.f, fFPs[TransformConst::GL_LB].z - 0.01f });	// 빼기 적당량 해주지 않으면 zFar_ 를 넘어가므로 컬링되어버린다
@@ -235,7 +235,7 @@ namespace SMGE
 			frustumQuads[1]->RotateEuler({ 0.f, 180.f, 0.f }, true);	// 테스트 코드 - 프러스텀 컬링 시각화 - 눈에 보이라고 일부러 반대로
 			frustumQuads[1]->SetPickingTarget(false);
 			frustumQuads[1]->SetCollideTarget(false);
-			frustumQuads[1]->SetGizmoColor({ 0.5f, 0.5f, 0.f });
+			frustumQuads[1]->SetPrimitiveColor({ 0.5f, 0.5f, 0.f });
 
 			/* 이하 버그 있는 코드 - 쓰려면 RecalcFinal 도 불러줘야한다
 			auto toUp = fFPs[TransformConst::GL_LT] - fNPs[TransformConst::GL_LT];
@@ -250,7 +250,7 @@ namespace SMGE
 			frustumQuads[2]->RotateEuler({ fovDegrees_ / 2.f * +1.f, 0.f, 0.f });
 			frustumQuads[2]->SetPickingTarget(false);
 			frustumQuads[2]->SetCollideTarget(false);
-			frustumQuads[2]->SetGizmoColor({ 0.f, 0.f, 1.f });
+			frustumQuads[2]->SetPrimitiveColor({ 0.f, 0.f, 1.f });
 
 			auto toBottom = fFPs[TransformConst::GL_LB] - fNPs[TransformConst::GL_LB];
 			toBottom.x = 0;	// YZ 평면에 투영
@@ -264,7 +264,7 @@ namespace SMGE
 			frustumQuads[3]->RotateEuler({ fovDegrees_ / 2.f * -1.f, 0.f, 0.f });
 			frustumQuads[3]->SetPickingTarget(false);
 			frustumQuads[3]->SetCollideTarget(false);
-			frustumQuads[3]->SetGizmoColor({ 0.f, 0.f, 1.f });
+			frustumQuads[3]->SetPrimitiveColor({ 0.f, 0.f, 1.f });
 
 			// 여기 - 아래 코드에서 좌, 우 평면의 각도가 안맞는다, 무엇이 문제일까? 그리고
 			// 여기 - 이거 완전 중점 아니다, f - n, n 이거 따져야한다
@@ -286,7 +286,7 @@ namespace SMGE
 			frustumQuads[4]->RotateEuler({ 0.f, horizonFOVHalf * -1.f, 0.f });
 			frustumQuads[4]->SetPickingTarget(false);
 			frustumQuads[4]->SetCollideTarget(false);
-			frustumQuads[4]->SetGizmoColor({ 0.f, 1.f, 0.f });
+			frustumQuads[4]->SetPrimitiveColor({ 0.f, 1.f, 0.f });
 
 			auto farPlaneLBY0 = fFPs[TransformConst::GL_LB];
 			farPlaneLBY0.y = 0;
@@ -302,7 +302,7 @@ namespace SMGE
 			frustumQuads[5]->RotateEuler({ 0.f, horizonFOVHalf * +1.f, 0.f });
 			frustumQuads[5]->SetPickingTarget(false);
 			frustumQuads[5]->SetCollideTarget(false);
-			frustumQuads[5]->SetGizmoColor({ 0.f, 1.f, 0.f });
+			frustumQuads[5]->SetPrimitiveColor({ 0.f, 1.f, 0.f });
 			*/
 		}
 #endif

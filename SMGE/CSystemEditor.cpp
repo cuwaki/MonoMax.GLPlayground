@@ -206,45 +206,48 @@ namespace SMGE
 				renderingEngine_->ScreenPosToWorld(mouseScreenPos, ray_origin, ray_direction);
 
 				CCollideActor* rayActor = &StartSpawnActorVARIADIC<CCollideActor>(currentMap, true, 
-					Args_START currentMap, ECheckCollideRule::NEAREST, false,
+					VARIADIC_START currentMap, ECheckCollideRule::NEAREST, false,
 					[this, currentMap](class CActor* SRC, class CActor* TAR, const class CBoundComponent* SRC_BOUND, const class CBoundComponent* TAR_BOUND, const SSegmentBound& COLL_SEG)
 					{
-						// 포인트 표시
-						CCollideActor* pointActor = &StartSpawnActorVARIADIC<CCollideActor>(currentMap, true, currentMap);
-						auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
-						pointActor->CopyFromTemplate(prefab->getContentClass());
-						{
-							// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-							pointActor->getTransform().Translate(COLL_SEG.end_);
-						}
-						FinishSpawnActor(currentMap, pointActor);
-						pointActor->SetLifeTickCount(100);
+						//// 포인트 표시
+						//CCollideActor* pointActor = &StartSpawnActorVARIADIC<CCollideActor>(currentMap, true, currentMap);
+						//auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabPointActor.asset")));
+						//pointActor->CopyFromTemplate(prefab->getContentClass());
+						//{
+						//	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
+						//	pointActor->getTransform().Translate(COLL_SEG.end_);
+						//}
+						//FinishSpawnActor(currentMap, pointActor);
+						//pointActor->SetLifeTickCount(100);
 
-						//AddSelectedActor(currentMap, TAR);
+						OnSelectActor(currentMap, TAR);
 					});
 
-				auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
-				rayActor->CopyFromTemplate(prefab->getContentClass());	// 여기 - CopyFromTemplate 이게 FinishSpawnActor 보다 일찍 호출되어야한다!!, 안그러면 staticTag 나 actorKey 등이 초기화되어버린다
-				{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
-					// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
-					float rayLength = renderingEngine_->GetRenderingCamera().GetZFar();
-					rayActor->getTransform().Translate(ray_origin);
-					rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
+				if (rayActor)
+				{
+					auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/actor/prefabRayActor.asset")));
+					rayActor->CopyFromTemplate(prefab->getContentClass());	// 여기 - CopyFromTemplate 이게 FinishSpawnActor 보다 일찍 호출되어야한다!!, 안그러면 staticTag 나 actorKey 등이 초기화되어버린다
+					{	// 얘는 단독 액터니까 이렇게 직접 트랜스폼 해줘야한다
+						// rayCompo 를 조작하는 게 아니고 rayActor 를 조작하고 있음에 주의!
+						float rayLength = renderingEngine_->GetRenderingCamera().GetZFar();
+						rayActor->getTransform().Translate(ray_origin);
+						rayActor->getTransform().Scale(nsRE::TransformConst::DefaultAxis_Front, rayLength);
 #ifdef REFACTORING_TRNASFORM
-					rayActor->getTransform().RotateDirection(ray_direction);
+						rayActor->getTransform().RotateDirection(ray_direction);
 #else
-					rayActor->getTransform().RotateQuat(ray_direction);
+						rayActor->getTransform().RotateQuat(ray_direction);
 #endif
-				}
-				FinishSpawnActor(currentMap, rayActor);
+					}
+					FinishSpawnActor(currentMap, rayActor);
 
-				auto targets = rayActor->QueryCollideCheckTargets();
-				bool hasCollide = rayActor->CheckCollideAndProcess(targets);
-				rayActor->SetLifeTickCount(33);	// 테스트 코드 - 레이 트레이싱 시각화
+					auto targets = rayActor->QueryCollideCheckTargets();
+					bool hasCollide = rayActor->CheckCollideAndProcess(targets);
+					rayActor->SetLifeTickCount(33);	// 테스트 코드 - 레이 트레이싱 시각화
 
-				if (hasCollide == false)
-				{	// 아무것도 선택되지 않았다
-					ClearSelectedActors();
+					if (hasCollide == false)
+					{	// 아무것도 선택되지 않았다
+						ClearSelectedActors();
+					}
 				}
 				// }
 			}
@@ -263,7 +266,27 @@ namespace SMGE
 
 	}
 
-	void CSystemEditor::AddSelectedActor(CMap* itsMap, class CActor* selActor)
+	auto CSystemEditor::RemoveSelectedActor(class CActor* actor)
+	{
+		auto found = std::find(selectedActors_.begin(), selectedActors_.end(), actor);
+		if (found != selectedActors_.end())
+		{	// actor 연관된 기즈모 삭제
+			for (auto it = gizmoActors_.lower_bound(actor); it != gizmoActors_.upper_bound(actor); it++)
+			{
+				auto gizmo = it->second;
+				gizmo->SetPendingKill();
+			}
+			std::experimental::erase_if(gizmoActors_, [](const auto& it)
+				{
+					const auto gizmo = it.second;
+					return gizmo->IsPendingKill();
+				});
+
+			selectedActors_.remove(actor);
+		}
+	}
+
+	void CSystemEditor::OnSelectActor(CMap* itsMap, class CActor* selActor)
 	{
 		auto it = std::find(selectedActors_.begin(), selectedActors_.end(), selActor);
 		if (it != selectedActors_.end())
@@ -275,23 +298,10 @@ namespace SMGE
 		if (itsMap == nullptr)
 			return;
 
-		CGizmoActor* gizmo = nullptr;
-		switch (gizmoMode_)
-		{
-		case EGizmoMode::TRANSLATE:
-			gizmo = &StartSpawnActorVARIADIC<CGizmoActorTranslate>(itsMap, true, Args_START selActor);
-			break;
-		case EGizmoMode::ROTATE:
-			break;
-		case EGizmoMode::SCALE:
-			break;
-		default:
-			break;
-		}
-
+		CGizmoActor* gizmo = &StartSpawnActorVARIADIC<CGizmoActorTransform>(itsMap, true, VARIADIC_START selActor);
 		if (gizmo != nullptr)
 		{
-			auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/templates/CGizmoActorTranslate.asset")));
+			auto prefab = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(wtext("/templates/CGizmoActorTransform.asset")));
 			gizmo->CopyFromTemplate(prefab->getContentClass());
 
 			// 트랜스폼 그대로 카피
@@ -306,43 +316,23 @@ namespace SMGE
 			FinishSpawnActor(itsMap, gizmo);
 
 			gizmoActors_.insert(std::make_pair(selActor, gizmo));
-			selectedActors_.push_front(selActor);
-		}
-	}
-
-	void CSystemEditor::RemoveSelectedActor(class CActor* actor)
-	{
-		for (auto it = gizmoActors_.lower_bound(actor); it != gizmoActors_.upper_bound(actor); it++)
-		{
-			auto gizmo = it->second;
-			gizmo->SetPendingKill();
 		}
 
-		std::experimental::erase_if(gizmoActors_, [](const auto& it)
-			{
-				auto gizmo = it.second;
-				return gizmo->IsPendingKill();
-			});
-
-		selectedActors_.remove(actor);
+		selectedActors_.push_front(selActor);
 	}
 
 	void CSystemEditor::ClearSelectedActors()
 	{
-		for (auto it = selectedActors_.begin(); it != selectedActors_.end(); ++it)
+		do
 		{
-			RemoveSelectedActor(*it);
-		}
+			RemoveSelectedActor(*selectedActors_.begin());
+		} while (selectedActors_.empty() == false);
 	}
 
 	void CSystemEditor::ProcessPendingKill(class CActor* actor)
 	{
 		__super::ProcessPendingKill(actor);
 
-		auto found = std::find(selectedActors_.begin(), selectedActors_.end(), actor);
-		if (found != selectedActors_.end())
-		{
-			RemoveSelectedActor(actor);
-		}
+		RemoveSelectedActor(actor);
 	}
 };

@@ -2,7 +2,7 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
-#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
+#include "../../MonoMax.EngineCore/RenderingEnginePrimitive.h"
 
 namespace SMGE
 {
@@ -30,23 +30,23 @@ namespace SMGE
 	void CCircleComponent::ReadyToDrawing()
 	{
 		CString resmKey;
-		std::shared_ptr<nsRE::ResourceModelBase> gizmorm;
+		std::shared_ptr<nsRE::ResourceModelBase> primitiveResM;
 		if (hasFace_)
 		{
-			resmKey = "gizmoK:circle_faced";
-			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			if(gizmorm == nullptr)
-				gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleFacedResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
+			resmKey = "primitiveK:circle_faced";
+			primitiveResM = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+			if(primitiveResM == nullptr)
+				primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleFacedResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
 		}
 		else
 		{
-			resmKey = "gizmoK:circle";
-			gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-			if (gizmorm == nullptr)
-				gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
+			resmKey = "primitiveK:circle";
+			primitiveResM = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+			if (primitiveResM == nullptr)
+				primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
 		}
 
-		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
+		primitiveResM->GetRenderModel(nullptr)->AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}

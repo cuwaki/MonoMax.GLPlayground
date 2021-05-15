@@ -2,7 +2,7 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
-#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
+#include "../../MonoMax.EngineCore/RenderingEnginePrimitive.h"
 #include "CSphereComponent.h"
 #include "CCubeComponent.h"
 
@@ -24,13 +24,13 @@ namespace SMGE
 
 	void CSegmentComponent::ReadyToDrawing()
 	{
-		const auto resmKey = "gizmoK:segment";
+		const auto resmKey = "primitiveK:segment";
 
-		auto gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-		if (gizmorm == nullptr)
-			gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::SegmentResourceModel>());
+		auto primitiveResM = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+		if (primitiveResM == nullptr)
+			primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::SegmentResourceModel>());
 
-		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
+		primitiveResM->GetRenderModel(nullptr)->AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}

@@ -2,7 +2,7 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
-#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
+#include "../../MonoMax.EngineCore/RenderingEnginePrimitive.h"
 
 namespace SMGE
 {
@@ -24,13 +24,13 @@ namespace SMGE
 
 	void CPlaneComponent::ReadyToDrawing()
 	{
-		const auto resmKey = "gizmoK:plane";
+		const auto resmKey = "primitiveK:plane";
 
-		auto gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-		if (gizmorm == nullptr)
-			gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::PlaneResourceModel>());
+		auto primitiveResM = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+		if (primitiveResM == nullptr)
+			primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::PlaneResourceModel>());
 
-		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
+		primitiveResM->GetRenderModel(nullptr)->AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}

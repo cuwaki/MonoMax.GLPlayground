@@ -52,8 +52,8 @@ namespace SMGE
 	DEFINE_RTTI_CObject_VARIADIC(CStaticMeshActor, CObject*);
 	DEFINE_RTTI_CObject_DEFAULT(CCameraActor);
 	DEFINE_RTTI_CObject_VARIADIC(CCameraActor, CObject*);
-	DEFINE_RTTI_CObject_DEFAULT(CGizmoActorTranslate);
-	DEFINE_RTTI_CObject_VARIADIC(CGizmoActorTranslate, CObject*);
+	DEFINE_RTTI_CObject_DEFAULT(CGizmoActorTransform);
+	DEFINE_RTTI_CObject_VARIADIC(CGizmoActorTransform, CObject*);
 	DEFINE_RTTI_CObject_DEFAULT(CActor);
 	DEFINE_RTTI_CObject_VARIADIC(CActor, CObject*);
 

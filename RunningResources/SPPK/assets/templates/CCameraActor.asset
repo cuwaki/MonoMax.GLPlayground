@@ -18,7 +18,7 @@ classRTTIName_$CString$"CCameraActor"
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$false
-			gizmoColor_$glm::vec3$0.000000	1.000000	1.000000	
+			primitiveColor_$glm::vec3$0.000000	1.000000	1.000000	
         classRTTIName_$CString$"CSegmentComponent"
             reflectionFilePath_$CWString$""
             classRTTIName_$CString$"SGRefl_Transform"
@@ -29,7 +29,7 @@ classRTTIName_$CString$"CCameraActor"
             persistCompoSize$size_t$0
             isPickingTarget_$bool$false
             isCollideTarget_$bool$false
-            gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
+            primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
 			*/
     cameraName_$CString$"templateCamera"
     fov_$float$90.0

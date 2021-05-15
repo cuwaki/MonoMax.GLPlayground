@@ -74,7 +74,7 @@ namespace SMGE
 
 				// 1. 디폴트로 생성하고
 				const auto system = Globals::GCurrentGame->GetEngine()->GetSystem();
-				auto actorA = &system->StartSpawnActorDEFAULT(&outerMap_, actorClassRTTIName, false, Args_START &outerMap_);
+				auto actorA = &system->StartSpawnActorDEFAULT(&outerMap_, actorClassRTTIName, false, VARIADIC_START &outerMap_);
 
 				// 2. 애셋 덮어씌우고
 				auto actorTemplate = CAssetManager::LoadAssetDefault<CActor>(Globals::GetGameAssetPath(actorAssetPath));

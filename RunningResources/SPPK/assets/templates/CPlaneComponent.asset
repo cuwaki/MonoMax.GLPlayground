@@ -10,4 +10,4 @@ classRTTIName_$CString$"CPlaneComponent"
     persistCompoSize$size_t$0
     isPickingTarget_$bool$false
     isCollideTarget_$bool$false
-    gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	   
+    primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	   

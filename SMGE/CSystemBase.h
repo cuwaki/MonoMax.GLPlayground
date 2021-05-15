@@ -48,17 +48,17 @@ namespace SMGE
 
 		// 애셋등에서 리플렉션으로 액터를 생성할 때 사용
 		template<typename... Args>
-		CActor& StartSpawnActorDEFAULT(class CMap* targetMap, const std::string& classRTTIName, bool isDynamic, Args_START Args&&... args)
+		CActor& StartSpawnActorDEFAULT(class CMap* targetMap, const std::string& classRTTIName, bool isDynamic, VARIADIC_START Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewDefault(classRTTIName, Args_START std::forward<Args>(args)...);
+			auto newObj = RTTI_CObject::NewDefault(classRTTIName, VARIADIC_START std::forward<Args>(args)...);
 			return static_cast<CActor&>(StartSpawnActorINTERNAL(targetMap, newObj, isDynamic));
 		}
 
 		// 코드에서 하드코딩으로 액터를 스폰할 때 사용
 		template<typename ActorT, typename... Args>
-		ActorT& StartSpawnActorVARIADIC(class CMap* targetMap, bool isDynamic, Args_START Args&&... args)
+		ActorT& StartSpawnActorVARIADIC(class CMap* targetMap, bool isDynamic, VARIADIC_START Args&&... args)
 		{
-			auto newObj = RTTI_CObject::NewVariadic<ActorT>(Args_START std::forward<Args>(args)...);
+			auto newObj = RTTI_CObject::NewVariadic<ActorT>(VARIADIC_START std::forward<Args>(args)...);
 			return static_cast<ActorT&>(StartSpawnActorINTERNAL(targetMap, newObj, isDynamic));
 		}
 

@@ -23,13 +23,13 @@ namespace SMGE
 		virtual bool AmIEditorActor() const { return true; };
 	};
 
-	class CGizmoActorTranslate : public CGizmoActor
+	class CGizmoActorTransform : public CGizmoActor
 	{
-		DECLARE_RTTI_CObject(CGizmoActorTranslate)
+		DECLARE_RTTI_CObject(CGizmoActorTransform)
 
 		using Super = CGizmoActor;
 
 	public:
-		CGizmoActorTranslate(CObject* outer);
+		CGizmoActorTransform(CObject* outer);
 	};
 }

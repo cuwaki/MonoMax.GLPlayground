@@ -18,7 +18,7 @@ namespace SMGE
 		Super::BeginPlay();
 	}
 
-	CGizmoActorTranslate::CGizmoActorTranslate(CObject* outer) : CGizmoActor(outer)
+	CGizmoActorTransform::CGizmoActorTransform(CObject* outer) : CGizmoActor(outer)
 	{
 	}
 }

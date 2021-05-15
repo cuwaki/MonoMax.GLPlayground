@@ -18,7 +18,7 @@ namespace SMGE
 	class CSystemEditor : public CSystemBase
 	{
 	public:
-		enum class EGizmoMode : char
+		enum class ETransformEditMode : char
 		{
 			TRANSLATE = 0,
 			ROTATE,
@@ -38,14 +38,14 @@ namespace SMGE
 		virtual void ProcessPendingKill(class CActor* actor) override;
 
 	protected:
-		void AddSelectedActor(CMap* itsMap, class CActor* actor);
-		void RemoveSelectedActor(class CActor* actor);
+		void OnSelectActor(CMap* itsMap, class CActor* actor);
+		auto RemoveSelectedActor(class CActor* actor);
 		void ClearSelectedActors();
 
 	protected:
 		CForwardList<class CActor*> selectedActors_;
 		std::multimap<class CActor*, class CActor*> gizmoActors_;
 
-		EGizmoMode gizmoMode_;
+		ETransformEditMode gizmoMode_;
 	};
 };

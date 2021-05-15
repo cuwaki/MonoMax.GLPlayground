@@ -4,7 +4,7 @@
 #include "CCubeComponent.h"
 #include "../Objects/CMap.h"
 #include "../Assets/CAssetManager.h"
-#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
+#include "../../MonoMax.EngineCore/RenderingEnginePrimitive.h"
 
 //#define DEBUG_DRAW_AABB
 
@@ -13,7 +13,7 @@ namespace SMGE
 	SGRefl_BoundComponent::SGRefl_BoundComponent(TReflectionClass& rc) : Super(rc), 
 		isPickingTarget_(rc.isPickingTarget_),
 		isCollideTarget_(rc.isCollideTarget_),
-		gizmoColor_(rc.gizmoColor_)
+		primitiveColor_(rc.primitiveColor_)
 	{
 	}
 
@@ -23,7 +23,7 @@ namespace SMGE
 
 		out += _TO_REFL(bool, isPickingTarget_);
 		out += _TO_REFL(bool, isCollideTarget_);
-		out += _TO_REFL(glm::vec3, gizmoColor_);
+		out += _TO_REFL(glm::vec3, primitiveColor_);
 
 		return *this;
 	}
@@ -34,7 +34,7 @@ namespace SMGE
 
 		_FROM_REFL(isPickingTarget_, in);
 		_FROM_REFL(isCollideTarget_, in);
-		_FROM_REFL(gizmoColor_, in);
+		_FROM_REFL(primitiveColor_, in);
 
 		return *this;
 	}
@@ -57,8 +57,8 @@ namespace SMGE
 	{
 		WorldObject::OnBeforeRendering();
 
-		const auto rm = static_cast<const nsRE::GizmoRenderModel*>(renderModel_);
-		rm->GetGizmoShaderSet()->set_vertexColorForFragment(gizmoColor_);
+		const auto rm = static_cast<const nsRE::PrimitiveRenderModel*>(renderModel_);
+		rm->GetPrimitiveShaderSet()->set_vertexColorForFragment(primitiveColor_);
 	}
 
 	void CBoundComponent::OnBeginPlay(CObject* parent)
@@ -85,7 +85,7 @@ namespace SMGE
 					aabb->isAbsoluteTransform_ = true;
 					aabb->isCollideTarget_ = false;
 					aabb->SetCObjectTag("debug aabb");
-					aabb->SetGizmoColor({ 1.f, 0.f, 1.f });
+					aabb->SetPrimitiveColor({ 1.f, 0.f, 1.f });
 
 					//registerComponent(aabb);
 

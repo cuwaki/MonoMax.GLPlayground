@@ -33,7 +33,7 @@ namespace SMGE
 
 		bool& isPickingTarget_;
 		bool& isCollideTarget_;
-		glm::vec3& gizmoColor_;
+		glm::vec3& primitiveColor_;
 	};
 
 	class CBoundComponent : public CDrawComponent
@@ -70,8 +70,8 @@ namespace SMGE
 		virtual bool IsCollideTarget() const { return isCollideTarget_; }
 		virtual void SetCollideTarget(bool);
 
-		glm::vec3 GetGizmoColor() const { return gizmoColor_; }
-		void SetGizmoColor(const glm::vec3& gc) { gizmoColor_ = gc; }
+		glm::vec3 GetPrimitiveColor() const { return primitiveColor_; }
+		void SetPrimitiveColor(const glm::vec3& gc) { primitiveColor_ = gc; }
 
 		virtual SGReflection& getReflection() override;
 
@@ -87,7 +87,7 @@ namespace SMGE
 		// reflection
 		bool isPickingTarget_;
 		bool isCollideTarget_;
-		glm::vec3 gizmoColor_;
+		glm::vec3 primitiveColor_;
 
 		std::unique_ptr<TReflectionStruct> reflMeshCompo_;
 	};

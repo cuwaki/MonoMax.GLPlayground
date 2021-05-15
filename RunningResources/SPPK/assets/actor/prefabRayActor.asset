@@ -18,5 +18,5 @@ classRTTIName_$CString$"CCollideActor"
         persistCompoSize$size_t$0
         isPickingTarget_$bool$false
         isCollideTarget_$bool$true
-        gizmoColor_$glm::vec3$1.000000	0.000000	0.000000	
+        primitiveColor_$glm::vec3$1.000000	0.000000	0.000000	
         

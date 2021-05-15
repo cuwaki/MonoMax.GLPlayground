@@ -2,7 +2,7 @@
 #include "../CGameBase.h"
 #include "../CEngineBase.h"
 #include "../Objects/CActor.h"
-#include "../../MonoMax.EngineCore/RenderingEngineGizmo.h"
+#include "../../MonoMax.EngineCore/RenderingEnginePrimitive.h"
 #include <algorithm>
 
 namespace SMGE
@@ -32,13 +32,13 @@ namespace SMGE
 
 	void CCubeComponent::ReadyToDrawing()
 	{
-		const auto resmKey = "gizmoK:cube";
+		const auto resmKey = "primitiveK:cube";
 
-		auto gizmorm = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
-		if (gizmorm == nullptr)
-			gizmorm = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CubeResourceModel>());
+		auto primitiveResM = nsRE::CResourceModelProvider::FindResourceModel(resmKey);
+		if (primitiveResM == nullptr)
+			primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CubeResourceModel>());
 
-		gizmorm->GetRenderModel(nullptr)->AddWorldObject(this);
+		primitiveResM->GetRenderModel(nullptr)->AddWorldObject(this);
 
 		Super::ReadyToDrawing();
 	}

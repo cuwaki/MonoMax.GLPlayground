@@ -8,4 +8,4 @@ classRTTIName_$CString$"CCircleComponent"
     persistCompoSize$size_t$0
     isPickingTarget_$bool$true
     isCollideTarget_$bool$true
-    gizmoColor_$glm::vec3$1.000000	1.000000	1.000000	
+    primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
