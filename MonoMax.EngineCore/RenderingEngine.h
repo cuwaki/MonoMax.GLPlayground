@@ -367,7 +367,7 @@ namespace SMGE
 			MeshData& operator=(MeshData&& c) noexcept;
 		};
 
-		class WorldObject : public Transform
+		class WorldModel : public Transform
 		{
 		protected:
 			class RenderModel* renderModel_;
@@ -375,13 +375,13 @@ namespace SMGE
 			friend class RenderModel;
 
 		public:
-			WorldObject(class RenderModel* rm);
-			virtual ~WorldObject();
+			WorldModel(class RenderModel* rm);
+			virtual ~WorldModel();
 
-			WorldObject(const WorldObject& c);
-			WorldObject& operator=(const WorldObject& c) = delete;
-			WorldObject(WorldObject&& c) noexcept;
-			WorldObject& operator=(WorldObject&& c) noexcept = delete;
+			WorldModel(const WorldModel& c);
+			WorldModel& operator=(const WorldModel& c) = delete;
+			WorldModel(WorldModel&& c) noexcept;
+			WorldModel& operator=(WorldModel&& c) noexcept = delete;
 
 			void SetRendering(bool isv, bool propagate);
 			bool IsRendering() const;
@@ -423,11 +423,11 @@ namespace SMGE
 			GLuint usingTextureID_ = 0;
 			GLuint usingTextureSampleI_ = 0;
 
-#pragma region WorldObject
-			mutable std::vector<WorldObject*> worldObjectsW_;
-			void AddWorldObject(WorldObject* wm);
-			void RemoveWorldObject(WorldObject* wm) const;
-			const std::vector<WorldObject*>& WorldObjects() const;
+#pragma region WorldModel
+			mutable std::vector<WorldModel*> worldModelsW_;
+			void AddWorldModel(WorldModel* wm);
+			void RemoveWorldModel(WorldModel* wm) const;
+			const std::vector<WorldModel*>& WorldModels() const;
 #pragma endregion
 
 			virtual ~RenderModel();

@@ -23,11 +23,12 @@ namespace SMGE
 		const auto& allActors = system->GetAllActors();
 
 		constexpr auto setSize = 1024;
+		ShortAllocSet<nsRE::RenderModel*, setSize> renderModels;
 
-		using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-		TStackSetRenderModels::allocator_type::arena_type stackArena;
-		TStackSetRenderModels renderModels(stackArena);
-		renderModels.reserve(setSize);
+		//using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
+		//TStackSetRenderModels::allocator_type::arena_type stackArena;
+		//TStackSetRenderModels renderModels(stackArena);
+		//renderModels.reserve(setSize);
 
 		// 1. 그려질 렌더모델 수집
 		for (const auto& actor : allActors)
@@ -40,23 +41,22 @@ namespace SMGE
 					auto drawComp = dynamic_cast<CDrawComponent*>(comp);
 					if (drawComp && drawComp->IsRendering())
 					{
-						renderModels.insert(drawComp->GetRenderModel());
+						renderModels().insert(drawComp->GetRenderModel());
 					}
 				}
 			}
 		}
 
 		// 2. 실제로 렌더링
-		if (renderModels.size() > 0)
+		if (renderModels().size() > 0)
 		{	// 중복 코드 정리 필요
 			writeRT->BindFrameBuffer();
-
-			// 여기 - 월드 그려진 후에 그 위에 그려야하는 것이므로 지우면 안된다, 자동화 할 수 있는 판단이 필요하다
-			//writeRT->SetClearColor(nsRE::ColorConst::Blue);	// 테스트 코드 ㅡ 빨강으로 칠해서 확인하기 위함
-			//writeRT->ClearFrameBuffer();
+			
+			// 여기 - 월드가 그려진 버퍼 위에 그려야하는 것이므로 뎁스랑 스텐실만 지우고 덮어그린다
+			writeRT->ClearFrameBuffer(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
-			for (auto rm : renderModels)
+			for (auto rm : renderModels())
 			{
 				if (rm->GetShaderID() > 0)
 				{
@@ -66,8 +66,11 @@ namespace SMGE
 					rm->EndRender();
 				}
 			}
+
 			writeRT->UnbindFrameBuffer();
 		}
+
+		// 핑퐁 안함!
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,10 +86,10 @@ namespace SMGE
 		auto re = renderingEngine_;
 		auto& renderingPasses = re->GetRenderingPasses();
 
-		// 월드 렌더 패스 등록
-		auto& worldPass = renderingPasses.emplace_back(std::make_unique<CRenderPassWorld>(this));
-		// 기즈모용 렌더 패스 등록
-		auto& gizmoPass = renderingPasses.emplace_back(std::make_unique<CRenderPassGizmo>(this));
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 렌더 패스 등록
+		renderingPasses.emplace_back(std::make_unique<CRenderPassWorld>(this));
+		renderingPasses.emplace_back(std::make_unique<CRenderPassGizmo>(this));
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 입력 처리 등록
@@ -323,6 +326,9 @@ namespace SMGE
 
 	void CSystemEditor::ClearSelectedActors()
 	{
+		if (selectedActors_.empty())
+			return;
+
 		do
 		{
 			RemoveSelectedActor(*selectedActors_.begin());

@@ -114,7 +114,7 @@ namespace SMGE
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldObject(nullptr)
+	CDrawComponent::CDrawComponent(CObject *outer) : CComponent(outer), nsRE::WorldModel(nullptr)
 	{
 		Ctor();
 	}

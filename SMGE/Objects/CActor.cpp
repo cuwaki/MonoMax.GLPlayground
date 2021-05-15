@@ -231,7 +231,7 @@ namespace SMGE
 
 		auto hasDrawCompo = false;
 
-		// 액터에서 바로 밑 콤포넌트들에게는 무조건 해야한다 - 액터가 WorldObject 가 아니기 때문
+		// 액터에서 바로 밑 콤포넌트들에게는 무조건 해야한다 - 액터가 WorldModel 가 아니기 때문
 		for (auto comp : getAllComponents())
 		{
 			auto drawComp = dynamic_cast<CDrawComponent*>(comp);

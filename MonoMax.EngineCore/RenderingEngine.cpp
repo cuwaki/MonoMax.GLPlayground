@@ -876,9 +876,9 @@ namespace SMGE
 			glDrawArrays(GL_TRIANGLES, 0, verticesSize);
 		}
 
-		void RenderModel::AddWorldObject(WorldObject* wm)
+		void RenderModel::AddWorldModel(WorldModel* wm)
 		{
-			worldObjectsW_.push_back(wm);
+			worldModelsW_.push_back(wm);
 
 			assert(wm->renderModel_ == nullptr);	// 이렇지 않으면 이전 거에서 빼주는 처리가 필요하다
 
@@ -886,16 +886,16 @@ namespace SMGE
 				wm->renderModel_ = this;
 		}
 
-		void RenderModel::RemoveWorldObject(WorldObject* wm) const
+		void RenderModel::RemoveWorldModel(WorldModel* wm) const
 		{
-			auto it = std::find(worldObjectsW_.begin(), worldObjectsW_.end(), wm);
-			if (it != worldObjectsW_.end())
-				worldObjectsW_.erase(it);
+			auto it = std::find(worldModelsW_.begin(), worldModelsW_.end(), wm);
+			if (it != worldModelsW_.end())
+				worldModelsW_.erase(it);
 		}
 
-		const std::vector<WorldObject*>& RenderModel::WorldObjects() const
+		const std::vector<WorldModel*>& RenderModel::WorldModels() const
 		{
-			return worldObjectsW_;
+			return worldModelsW_;
 		}
 
 		RenderModel::~RenderModel()
@@ -1016,7 +1016,7 @@ namespace SMGE
 		// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
 		void RenderModel::Render(const glm::mat4& VP)
 		{
-			for (auto& wmPtr : WorldObjects())
+			for (auto& wmPtr : WorldModels())
 			{	// 나를 사용하는 모든 월드 오브젝트을 찍는다
 				if (wmPtr->IsRendering() == false)
 					continue;
@@ -1132,26 +1132,27 @@ namespace SMGE
 				glUniform3f(GetShaderSet()->unif_LightWorldPosition_, lightPos.x, lightPos.y, lightPos.z);
 		}
 
-		WorldObject::WorldObject(RenderModel* rm) : renderModel_(nullptr)
+		WorldModel::WorldModel(RenderModel* rm) : renderModel_(nullptr)
 		{
 			if(rm != nullptr)
-				rm->AddWorldObject(this);
+				rm->AddWorldModel(this);
 		}
-		WorldObject::~WorldObject()
+
+		WorldModel::~WorldModel()
 		{
 			if (renderModel_ != nullptr)
-				renderModel_->RemoveWorldObject(this);
+				renderModel_->RemoveWorldModel(this);
 
 			renderModel_ = nullptr;
 		}
-		WorldObject::WorldObject(const WorldObject& c) : WorldObject(c.renderModel_)
+		WorldModel::WorldModel(const WorldModel& c) : WorldModel(c.renderModel_)
 		{
 		}
-		WorldObject::WorldObject(WorldObject&& c) noexcept : WorldObject(c.renderModel_)
+		WorldModel::WorldModel(WorldModel&& c) noexcept : WorldModel(c.renderModel_)
 		{
-			c.~WorldObject();
+			c.~WorldModel();
 		}
-		void WorldObject::SetRendering(bool isv, bool propagate)
+		void WorldModel::SetRendering(bool isv, bool propagate)
 		{
 			if (isRendering_ == isv)
 				return;
@@ -1162,16 +1163,16 @@ namespace SMGE
 			{
 				for (auto child : children_)
 				{
-					static_cast<WorldObject*>(child)->SetRendering(isv, propagate);	// 여기 - 현재는 항상 WorldObject* 지만 차후 아닐 수도 있다
+					static_cast<WorldModel*>(child)->SetRendering(isv, propagate);	// 여기 - 현재는 항상 WorldModel* 지만 차후 아닐 수도 있다
 				}
 			}
 		}
-		bool WorldObject::IsRendering() const
+		bool WorldModel::IsRendering() const
 		{
 			return isRendering_;
 		}
 
-		class RenderModel* WorldObject::GetRenderModel() const
+		class RenderModel* WorldModel::GetRenderModel() const
 		{
 			return renderModel_;
 		}
@@ -1360,7 +1361,7 @@ namespace SMGE
 			//float theta = currentTime * 2.f;
 
 			//int i = 0;
-			//for (auto& wm : WorldObjects_)
+			//for (auto& wm : WorldModels_)
 			//{
 			//	wm.RotateEuler(ETypeRot::YAW, glm::degrees(-theta * ((++i % 3) + 1)));
 			//}
@@ -1672,7 +1673,8 @@ namespace SMGE
 		}
 		void CRenderTarget::ClearFrameBuffer(GLuint flags) const
 		{
-			glClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1.0f);
+			if(flags == 0 || (flags & GL_COLOR_BUFFER_BIT))
+				glClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1.0f);
 
 			if(flags == 0)
 				glClear(GL_COLOR_BUFFER_BIT | (depthStencilFormat_ == 0 ? 0 : (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)));
@@ -1715,8 +1717,8 @@ namespace SMGE
 			}
 			writeRT->UnbindFrameBuffer();
 
-			// write 와 read 를 스왑해서 리턴한다 - for 핑퐁 렌더링
-			std::swap<CRenderTarget*>(writeRT, readRT);
+			// 핑퐁~
+			std::swap(writeRT, readRT);
 		}
 	}
 }

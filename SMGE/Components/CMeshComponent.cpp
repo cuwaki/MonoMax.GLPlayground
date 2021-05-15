@@ -89,7 +89,7 @@ namespace SMGE
 			else
 				resModel = resourceModelAsset_->getContentClass();
 
-			resModel->GetRenderModel(nullptr)->AddWorldObject(this);
+			resModel->GetRenderModel(nullptr)->AddWorldModel(this);
 		}
 
 		Super::ReadyToDrawing();

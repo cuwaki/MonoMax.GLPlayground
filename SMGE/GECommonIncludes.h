@@ -463,11 +463,59 @@ namespace SMGE
 		classTypeName& operator=(classTypeName&& other) = default;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// stack allocator - https://howardhinnant.github.io/stack_alloc.html
+// stack allocator - license - https://howardhinnant.github.io/stack_alloc.html
 #include "short_alloc.h"
 
-template <class T, std::size_t BufSize>
-using StackVector = std::vector<T, short_alloc<T, BufSize, alignof(T)>>;
+// 쓰기 편하도록 아레나와 셋을 묶은 것
+template<typename V, size_t N>
+class ShortAllocSet
+{
+private:
+    using TArena = typename short_alloc<V, N, alignof(V)>;
+    using TArenaType = typename TArena::arena_type;
+    using TSet = typename std::unordered_set<V, std::hash<V>, std::equal_to<V>, TArena>;
 
-template <class T, std::size_t BufSize>
-using StackSet = std::unordered_set<T, std::hash<T>, std::equal_to<T>, short_alloc<T, BufSize, alignof(T)>>;
+    TArenaType arena_type_;
+    TArena arena_;
+    TSet container_;
+
+public:
+    ShortAllocSet() : arena_(arena_type_), container_(arena_)
+    {
+    }
+    inline TSet& operator()()
+    {
+        return container_;
+    }
+    inline const TSet& operator()() const
+    {
+        return container_;
+    }
+};
+
+// 쓰기 편하도록 아레나와 벡터를 묶은 것
+template<typename V, size_t N>
+class ShortAllocVector
+{
+private:
+    using TArena = typename short_alloc<V, N, alignof(V)>;
+    using TArenaType = typename TArena::arena_type;
+    using TVector = typename std::vector<V, TArena>;
+
+    TArenaType arena_type_;
+    TArena arena_;
+    TVector container_;
+
+public:
+    ShortAllocVector() : arena_(arena_type_), container_(arena_)
+    {
+    }
+    inline TVector& operator()()
+    {
+        return container_;
+    }
+    inline const TVector& operator()() const
+    {
+        return container_;
+    }
+};

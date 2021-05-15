@@ -84,7 +84,7 @@ namespace SMGE
 		void SetLifeTickCount(int32 t) { lifeTickCount_ = t; }
 		// 여기 - lifetick time 을 만들어야한다
 
-		// nsRE::WorldObject 와의 연동을 위하여 존재함
+		// nsRE::WorldModel 와의 연동을 위하여 존재함
 		void SetRendering(bool isr, bool propagate);
 		bool IsRendering() const { return isRendering_; }
 

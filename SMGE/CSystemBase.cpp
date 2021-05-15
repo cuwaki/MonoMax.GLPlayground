@@ -19,11 +19,12 @@ namespace SMGE
 		const auto& allActors = system->GetAllActors();
 
 		constexpr auto setSize = 1024;
-
-		using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-		TStackSetRenderModels::allocator_type::arena_type stackArena;
-		TStackSetRenderModels renderModels(stackArena);
-		renderModels.reserve(setSize);
+		ShortAllocSet<nsRE::RenderModel*, setSize> renderModels;
+		
+		//using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
+		//TStackSetRenderModels::allocator_type::arena_type stackArena;
+		//TStackSetRenderModels renderModels(stackArena);
+		//renderModels.reserve(setSize);
 
 		// 1. 그려질 렌더모델 수집
 		for (const auto& actor : allActors)
@@ -36,14 +37,14 @@ namespace SMGE
 					auto drawComp = dynamic_cast<CDrawComponent*>(comp);	// 최적화 - isdrawable 같은 함수 만들어서 대체하자
 					if (drawComp && drawComp->IsRendering())
 					{
-						renderModels.insert(drawComp->GetRenderModel());
+						renderModels().insert(drawComp->GetRenderModel());
 					}
 				}
 			}
 		}
 
 		// 2. 실제로 렌더링
-		if (renderModels.size() > 0)
+		if (renderModels().size() > 0)
 		{	// 중복 코드 정리 필요
 			writeRT->BindFrameBuffer();
 
@@ -52,15 +53,18 @@ namespace SMGE
 			writeRT->ClearFrameBuffer();
 
 			// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
-			for (auto rm : renderModels)
+			for (auto rm : renderModels())
 			{
 				rm->UseShader(V, lightPos);	// 셰이더 마다 1회
 				rm->BeginRender();
 				rm->Render(VP);
 				rm->EndRender();
 			}
+
 			writeRT->UnbindFrameBuffer();
-		}	
+		}
+
+		// 핑퐁 안함!
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

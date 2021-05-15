@@ -55,7 +55,7 @@ namespace SMGE
 
 	void CBoundComponent::OnBeforeRendering()
 	{
-		WorldObject::OnBeforeRendering();
+		WorldModel::OnBeforeRendering();
 
 		const auto rm = static_cast<const nsRE::PrimitiveRenderModel*>(renderModel_);
 		rm->GetPrimitiveShaderSet()->set_vertexColorForFragment(primitiveColor_);

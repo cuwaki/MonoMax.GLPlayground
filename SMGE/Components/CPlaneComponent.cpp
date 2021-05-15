@@ -30,7 +30,7 @@ namespace SMGE
 		if (primitiveResM == nullptr)
 			primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::PlaneResourceModel>());
 
-		primitiveResM->GetRenderModel(nullptr)->AddWorldObject(this);
+		primitiveResM->GetRenderModel(nullptr)->AddWorldModel(this);
 
 		Super::ReadyToDrawing();
 	}

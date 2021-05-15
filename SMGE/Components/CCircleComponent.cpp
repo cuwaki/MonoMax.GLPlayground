@@ -46,7 +46,7 @@ namespace SMGE
 				primitiveResM = nsRE::CResourceModelProvider::AddResourceModel(resmKey, std::make_shared<nsRE::CircleResourceModel>(SCircleBound::CIRCUMFERENCE_SEGMENT_MAX));
 		}
 
-		primitiveResM->GetRenderModel(nullptr)->AddWorldObject(this);
+		primitiveResM->GetRenderModel(nullptr)->AddWorldModel(this);
 
 		Super::ReadyToDrawing();
 	}

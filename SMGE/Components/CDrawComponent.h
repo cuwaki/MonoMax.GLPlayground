@@ -39,7 +39,7 @@ namespace SMGE
 	};
 
 	// 자식 컴포넌트를 가질 수 있어야하므로 CInt_Component 상속
-	class CDrawComponent : public CComponent, public nsRE::WorldObject, public CInt_Component
+	class CDrawComponent : public CComponent, public nsRE::WorldModel, public CInt_Component
 	{
 	public:
 		using Super = CComponent;
