@@ -3,7 +3,7 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 시스템 액터 시작
-	allActorsW_$CVector<SGReflection&>$3
+	allActorsW_$CVector<SGReflection&>$4
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"

@@ -24,7 +24,7 @@ namespace SMGE
 		system_->OnDestroyingGameEngine();
 	}
 
-	HWND CEngineBase::HasWindowFocus() const
+	HWND CEngineBase::GetFocusingWindow() const
 	{
 		assert(renderingEngine_ != nullptr);
 

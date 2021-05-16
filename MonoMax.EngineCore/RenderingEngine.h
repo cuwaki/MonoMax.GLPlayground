@@ -449,7 +449,8 @@ namespace SMGE
 			virtual GLuint GetShaderID() const;
 
 			virtual void CallGLDraw(size_t verticesSize) const;
-			void Render(const glm::mat4& VP);
+			void RenderAll(const glm::mat4& VP);
+			void Render(const glm::mat4& VP, class WorldModel* wm);
 			virtual void BeginRender();
 			virtual void EndRender();
 			void UseShader(const glm::mat4& V, const glm::vec3& lightPos);

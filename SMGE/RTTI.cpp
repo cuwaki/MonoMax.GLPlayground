@@ -15,7 +15,7 @@
 #include "Objects/CCollideActor.h"
 #include "Objects/CStaticMeshActor.h"
 #include "Objects/CCameraActor.h"
-#include "Objects/CGizmoActor.h"
+#include "Objects/CEditorActor.h"
 
 #include "Objects/CMap.h"
 

@@ -2,6 +2,7 @@
 #include "CEngineBase.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
 #include "Objects/CMap.h"
+#include "Objects/CEditorActor.h"
 
 namespace SMGE
 {
@@ -18,34 +19,39 @@ namespace SMGE
 		const auto system = GetSystem();
 		const auto& allActors = system->GetAllActors();
 
-		constexpr auto setSize = 1024;
-		ShortAllocSet<nsRE::RenderModel*, setSize> renderModels;
+#if IS_EDITOR
+		CVector<nsRE::WorldModel*> worldModels;
+		worldModels.reserve(2048);
+#else
+		ShortAllocVector<nsRE::WorldModel*, 2048> worldModelsO;	// 여기 - C3821 때문에 에디터일 때는 사용할 수 없다
+		auto& worldModels = worldModelsO();
+		worldModels.reserve(2048);
+#endif
 		
-		//using TStackSetRenderModels = StackSet<nsRE::RenderModel*, setSize>;	// 여기 - 나중에 RenderModel 다양해지면 터질 수 있다
-		//TStackSetRenderModels::allocator_type::arena_type stackArena;
-		//TStackSetRenderModels renderModels(stackArena);
-		//renderModels.reserve(setSize);
-
-		// 1. 그려질 렌더모델 수집
+		// 1. 그려질 월드 모델 수집
 		for (const auto& actor : allActors)
 		{
-			if (actor->IsRendering() == true &&
-				actor->AmIEditorActor() == false)
+			if (actor->IsRendering() == true && dynamic_cast<CEditorActor*>(actor.get()) == nullptr)
 			{
 				for (auto comp : actor->getAllComponents())
 				{
 					auto drawComp = dynamic_cast<CDrawComponent*>(comp);	// 최적화 - isdrawable 같은 함수 만들어서 대체하자
 					if (drawComp && drawComp->IsRendering())
 					{
-						renderModels().insert(drawComp->GetRenderModel());
+						worldModels.push_back(drawComp);
 					}
 				}
 			}
 		}
 
 		// 2. 실제로 렌더링
-		if (renderModels().size() > 0)
-		{	// 중복 코드 정리 필요
+		if (worldModels.size() > 0)
+		{	// 렌더모델로 정렬
+			std::sort(worldModels.begin(), worldModels.end(), [](auto l, auto r)
+				{
+					return l->GetRenderModel() < r->GetRenderModel();
+				});
+
 			writeRT->BindFrameBuffer();
 
 			// 여기 - 일단 가장 첫번째 패스이기 때문에 지워야한다
@@ -53,13 +59,24 @@ namespace SMGE
 			writeRT->ClearFrameBuffer();
 
 			// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
-			for (auto rm : renderModels())
+			auto rm = worldModels[0]->GetRenderModel();
+			rm->UseShader(V, lightPos);	// 셰이더 마다 1회
+			rm->BeginRender();
+
+			for (auto wm : worldModels)
 			{
-				rm->UseShader(V, lightPos);	// 셰이더 마다 1회
-				rm->BeginRender();
-				rm->Render(VP);
-				rm->EndRender();
+				if (rm != wm->GetRenderModel())
+				{
+					rm = wm->GetRenderModel();
+					rm->EndRender();
+
+					rm->UseShader(V, lightPos);
+					rm->BeginRender();
+				}
+
+				rm->Render(VP, wm);
 			}
+			rm->EndRender();
 
 			writeRT->UnbindFrameBuffer();
 		}
@@ -118,14 +135,13 @@ namespace SMGE
 
 	bool CSystemBase::ProcessUserInput()
 	{
+		const auto focusingWindow = engine_->GetFocusingWindow();
+
 		auto& userInput = engine_->GetUserInput();
+		userInput.Tick(focusingWindow);
 
-		userInput.QueryStateKeyOrButton();
-
-		if (auto activeWindow = engine_->HasWindowFocus())
+		if (focusingWindow)
 		{	// 포커스가 있을 때만
-			userInput.QueryStateMousePos(activeWindow);
-
 			for (auto& pui : delegateUserInputs_)
 			{
 				if (pui(userInput) == true)

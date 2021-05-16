@@ -128,9 +128,5 @@ namespace SMGE
 
 	protected:
 		void setActorKey(TActorKey ak) { actorKey_ = ak; }
-
-	public:
-		// interfaces for CSystemBase
-		virtual bool AmIEditorActor() const { return false; };
 	};
 };

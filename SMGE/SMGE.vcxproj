@@ -188,7 +188,7 @@
     <ClCompile Include="Objects\CActor.cpp" />
     <ClCompile Include="Objects\CCameraActor.cpp" />
     <ClCompile Include="Objects\CCollideActor.cpp" />
-    <ClCompile Include="Objects\CGizmoActor.cpp" />
+    <ClCompile Include="Objects\CEditorActor.cpp" />
     <ClCompile Include="Objects\CMap.cpp" />
     <ClCompile Include="Objects\CObject.cpp" />
     <ClCompile Include="Objects\CStaticMeshActor.cpp" />
@@ -229,7 +229,7 @@
     <ClInclude Include="Objects\CActor.h" />
     <ClInclude Include="Objects\CCameraActor.h" />
     <ClInclude Include="Objects\CCollideActor.h" />
-    <ClInclude Include="Objects\CGizmoActor.h" />
+    <ClInclude Include="Objects\CEditorActor.h" />
     <ClInclude Include="Objects\CMap.h" />
     <ClInclude Include="Objects\CObject.h" />
     <ClInclude Include="Objects\CStaticMeshActor.h" />

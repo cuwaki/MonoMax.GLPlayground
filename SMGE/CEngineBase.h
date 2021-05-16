@@ -45,7 +45,7 @@ namespace SMGE
 		void SetRenderingEngine(class nsRE::CRenderingEngine* re);
 		class nsRE::CRenderingEngine* GetRenderingEngine() const;
 
-		HWND HasWindowFocus() const;
+		HWND GetFocusingWindow() const;
 		CUserInput& GetUserInput();
 
 		CSystemBase* GetSystem() const;

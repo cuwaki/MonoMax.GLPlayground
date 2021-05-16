@@ -1014,7 +1014,7 @@ namespace SMGE
 		}
 
 		// CRenderingPass 와의 엮인 처리로 좀 낭비가 있다 - ##renderingpasswith03
-		void RenderModel::Render(const glm::mat4& VP)
+		void RenderModel::RenderAll(const glm::mat4& VP)
 		{
 			for (auto& wmPtr : WorldModels())
 			{	// 나를 사용하는 모든 월드 오브젝트을 찍는다
@@ -1030,6 +1030,30 @@ namespace SMGE
 
 				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
 				if(GetShaderSet()->unif_MVPMatrixID_ != -1)
+					glUniformMatrix4fv(GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
+				if (GetShaderSet()->unif_ModelMatrixID_ != -1)
+					glUniformMatrix4fv(GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->FinalMatrix(false)[0][0]);
+
+				CallGLDraw(verticesSize_);
+			}
+		}
+
+		void RenderModel::Render(const glm::mat4& VP, WorldModel* wm)
+		{
+			for (auto& wmPtr : WorldModels())
+			{	// 나를 사용하는 모든 월드 오브젝트을 찍는다
+				if (wmPtr->IsRendering() == false)
+					continue;
+
+				wmPtr->OnBeforeRendering();
+
+				//glm::mat4 ModelMatrix = glm::mat4(1);
+				//ModelMatrix = glm::translate(ModelMatrix, worldPos);
+
+				const auto MVP = VP * wmPtr->FinalMatrix(false);
+
+				// 이걸 유니폼으로 하지말고 VP를 프레임당 한번 고정해두고 셰이더 안에서 만드는 게 나을지도?? 프레임 비교 필요하겠다
+				if (GetShaderSet()->unif_MVPMatrixID_ != -1)
 					glUniformMatrix4fv(GetShaderSet()->unif_MVPMatrixID_, 1, GL_FALSE, &MVP[0][0]);
 				if (GetShaderSet()->unif_ModelMatrixID_ != -1)
 					glUniformMatrix4fv(GetShaderSet()->unif_ModelMatrixID_, 1, GL_FALSE, &wmPtr->FinalMatrix(false)[0][0]);

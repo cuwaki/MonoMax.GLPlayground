@@ -8,7 +8,9 @@ namespace SMGE
 	{
 		using TInputKey = unsigned short;
 		using TInputState = unsigned short;
-		using TInputMap = std::map<TInputKey, TInputState>;
+		using TInputStateMap = std::map<TInputKey, TInputState>;
+		using TPressedPosMap = std::map<TInputKey, glm::vec2>;
+		using TBoolMap = std::map<TInputKey, bool>;
 
 		// win32 - async inputs - https://m.blog.naver.com/power2845/50143021565
 
@@ -20,17 +22,17 @@ namespace SMGE
 	public:
 		// 리맵핑 가능하도록 static 이다
 #if IS_EDITOR
-		static TInputKey LBUTTON;
-		static TInputKey RBUTTON;
-		static TInputKey MBUTTON;
+		static TInputKey LButton;
+		static TInputKey RButton;
+		static TInputKey MButton;
+		static TInputKey AddMultipleKey;
 #else
 #endif
 
 	public:
 		CUserInput();
 
-		virtual void QueryStateMousePos(HWND activeWindow);
-		virtual void QueryStateKeyOrButton();
+		void Tick(HWND focusingWindow);
 
 		bool IsPressed(TInputKey k) const
 		{
@@ -53,14 +55,37 @@ namespace SMGE
 			return mousePos_;
 		}
 
+		bool IsDragging(TInputKey k) const
+		{
+			return isDragging_[k];
+		}
+		bool WasDragging(TInputKey k) const
+		{
+			return wasDragging_[k];
+		}
+		auto GetDraggedScreenOffset(TInputKey k) const
+		{
+			glm::vec2 ret(0);
+			if (IsDragging(k))
+				ret = prevTickPos_[k] - mousePos_;
+
+			return ret;
+		}
+
 	protected:
+		virtual void QueryStateMousePos(HWND activeWindow);
+		virtual void QueryStateKeyOrButton();
+
 		bool CheckInputState(TInputKey k, TInputState state) const;
 
 	protected:
-		TInputMap checkMouseInputs_, checkMouseInputsOLD_;
-		TInputMap checkKeyboardInputs_, checkKeyboardInputsOLD_;
+		TInputStateMap checkMouseInputs_, checkMouseInputsOLD_;
+		TInputStateMap checkKeyboardInputs_, checkKeyboardInputsOLD_;
 
 		glm::vec2 mousePos_;
+
+		mutable TBoolMap isDragging_, wasDragging_;
+		mutable TPressedPosMap prevTickPos_;
 	};
 
 	using DELEGATE_ProcessUserInput = std::function<bool(const CUserInput& userInput)>;	// return bool is break!

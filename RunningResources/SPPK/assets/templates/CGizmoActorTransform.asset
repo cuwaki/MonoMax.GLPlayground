@@ -7,19 +7,7 @@ classRTTIName_$CString$"CGizmoActorTransform"
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
     actorStaticTag_$CString$"gizmo_transform"
-    persistCompoSize$size_t$1
-			classRTTIName_$CString$"CCircleComponent"
-			reflectionFilePath_$CWString$""
-			classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	00.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
-			persistCompoSize$size_t$0
-			isPickingTarget_$bool$false
-			isCollideTarget_$bool$true
-			primitiveColor_$glm::vec3$0.000000	0.000000	0.000000	
-
+    persistCompoSize$size_t$3
 			/*// 바운드 스피어
 		classRTTIName_$CString$"CSphereComponent"
 			reflectionFilePath_$CWString$""
@@ -32,6 +20,7 @@ classRTTIName_$CString$"CGizmoActorTransform"
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$false
 			primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
+			*/
 			// X축 - Red
         classRTTIName_$CString$"CSegmentComponent"
             reflectionFilePath_$CWString$""
@@ -68,4 +57,3 @@ classRTTIName_$CString$"CGizmoActorTransform"
             isPickingTarget_$bool$true
             isCollideTarget_$bool$false
             primitiveColor_$glm::vec3$0.000000	0.000000	1.000000	
-			*/

@@ -168,6 +168,9 @@ namespace SMGE
     {
         constexpr float BoundEpsilon = 0.001f;			// 점이나 선, 면 등을 사용할 때 어떤 두께가 필요한 경우가 있어서 정의된 상수, OpenGL 단위 기준 1 을 1미터로 놓고 1000으로 나눴다 - 즉 1미리미터임
         constexpr float BoundCheckEpsilon = 0.0001f;
+        
+        constexpr float MouseMoveSpeed = 48.0f / 1000.f;    // 카메라 이동 등에서 쓰임
+        constexpr float MouseAngleSpeed = 48.0f / 1000.f;    // 카메라 회전 등에서 쓰임
     }
 }
 
@@ -216,7 +219,7 @@ namespace SMGE
 
     template<typename IT, typename T_CF>
     auto PartialSortList(IT begin, IT end, size_t m, const T_CF& T_Comparer)
-    {
+    {   // 여기 - std partial sort 로 교체하자, 이름도 리스트가 아닌 범용적인 것으로 해야할 듯
         using T = typename IT::value_type;
 
         std::vector<T> ret;
@@ -483,6 +486,9 @@ public:
     ShortAllocSet() : arena_(arena_type_), container_(arena_)
     {
     }
+    DELETE_COPY_CTOR(ShortAllocSet);
+    DEFAULT_MOVE_CTOR(ShortAllocSet);
+
     inline TSet& operator()()
     {
         return container_;
@@ -510,6 +516,9 @@ public:
     ShortAllocVector() : arena_(arena_type_), container_(arena_)
     {
     }
+    DELETE_COPY_CTOR(ShortAllocVector);
+    DEFAULT_MOVE_CTOR(ShortAllocVector);
+
     inline TVector& operator()()
     {
         return container_;

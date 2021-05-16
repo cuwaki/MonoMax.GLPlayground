@@ -2,8 +2,6 @@
 
 #include "CSystemBase.h"
 #include "../MonoMax.EngineCore/RenderingEngine.h"
-
-#include <forward_list>
 #include <map>
 
 namespace SMGE
@@ -38,13 +36,15 @@ namespace SMGE
 		virtual void ProcessPendingKill(class CActor* actor) override;
 
 	protected:
-		void OnSelectActor(CMap* itsMap, class CActor* actor);
+		void OnSelectActor(CMap* itsMap, class CActor* actor, bool isMultipleAdd);
 		auto RemoveSelectedActor(class CActor* actor);
 		void ClearSelectedActors();
 
+		void OnLButtonDragging(const CUserInput& userInput);
+
 	protected:
 		CForwardList<class CActor*> selectedActors_;
-		std::multimap<class CActor*, class CActor*> gizmoActors_;
+		std::multimap<class CActor*, class CEditorActor*> gizmoActors_;
 
 		ETransformEditMode gizmoMode_;
 	};

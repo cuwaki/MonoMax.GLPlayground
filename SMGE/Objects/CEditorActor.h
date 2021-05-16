@@ -4,30 +4,27 @@
 
 namespace SMGE
 {
-	class CGizmoActor : public CActor
+	class CEditorActor : public CActor
 	{
-		//DECLARE_RTTI_CObject(CGizmoActor)
+		//DECLARE_RTTI_CObject(CEditorActor)
 
 		using Super = CActor;
 
 	public:
-		CGizmoActor(CObject* outer);
+		CEditorActor(CObject* outer);
 		void Ctor();
 
 		virtual void BeginPlay() override;
 
 	protected:
 		CActor* linkedActorW_ = nullptr;
-
-	public:
-		virtual bool AmIEditorActor() const { return true; };
 	};
 
-	class CGizmoActorTransform : public CGizmoActor
+	class CGizmoActorTransform : public CEditorActor
 	{
 		DECLARE_RTTI_CObject(CGizmoActorTransform)
 
-		using Super = CGizmoActor;
+		using Super = CEditorActor;
 
 	public:
 		CGizmoActorTransform(CObject* outer);
