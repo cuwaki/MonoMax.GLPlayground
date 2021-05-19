@@ -328,10 +328,16 @@ namespace SMGE
 			rotationRadianEuler_ = Vec3_Zero;
 			directionForQuat_ = Vec3_Zero;
 #endif
+			anchor_ = Vec3_Zero;
+
 			Dirty();
 			RecalcFinal();
 		}
 
+		void Transform::SetAnchor(glm::vec3 anchor)
+		{
+			anchor_ = anchor;	// 보통은 0.0 ~ 1.0, 특수한 경우 아닐 것이고
+		}
 		void Transform::Translate(glm::vec3 worldPos)
 		{
 			pendingPosition_ = worldPos;
@@ -476,11 +482,28 @@ namespace SMGE
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////
-		const glm::vec3& Transform::GetPendingPosition() const
+		const glm::vec3& Transform::GetAnchor() const
+		{
+			return anchor_;
+		}
+		glm::vec3 Transform::GetPositionWithAnchor(glm::vec3 basePos) const
+		{
+			glm::vec3 contentSize(GetPendingScales());	// 현재는 이렇고 나중에 단위가 생기면 바꿔야함
+			contentSize.x *= GetAnchor().x;
+			contentSize.y *= GetAnchor().y;
+			contentSize.z *= GetAnchor().z;
+
+			basePos += GetPendingLeft() * contentSize.x;
+			basePos += GetPendingUp() * contentSize.y;
+			basePos += GetPendingFront() * contentSize.z;
+
+			return basePos;
+		}
+		glm::vec3 Transform::GetPendingPosition() const
 		{
 			return pendingPosition_;
 		}
-		const glm::vec3& Transform::GetPendingScales() const
+		glm::vec3 Transform::GetPendingScales() const
 		{
 			return pendingScales_;
 		}
@@ -627,19 +650,15 @@ namespace SMGE
 #ifdef REFACTORING_TRNASFORM
 				if (parent_ == nullptr || isAbsoluteTransform_)
 				{
-					const auto scaledMat = glm::scale(Mat4_Identity, pendingScales_);
-					const auto translMat = glm::translate(Mat4_Identity, pendingPosition_);
+					finalMatrix_ = glm::translate(Mat4_Identity, GetPositionWithAnchor(GetPendingPosition()));
+					finalMatrix_ *= pendingRotationMatrix_;
+					finalMatrix_ = glm::scale(finalMatrix_, pendingScales_);
 
-					// S->R->T 순서로
-					finalMatrix_ = translMat * pendingRotationMatrix_ * scaledMat;	// 최적화 - 인라인 처리해서 임시 객체 없애자
 					finalScales_ = pendingScales_;
 				}
 				else
 				{
-					finalMatrix_ = parent_->FinalMatrixNoRecalc();
-
-					// S->R->T 순서로
-					finalMatrix_ = glm::translate(finalMatrix_, pendingPosition_);
+					finalMatrix_ = glm::translate(parent_->FinalMatrixNoRecalc(), GetPositionWithAnchor(GetPendingPosition()));
 					finalMatrix_ *= pendingRotationMatrix_;
 					finalMatrix_ = glm::scale(finalMatrix_, pendingScales_);
 

@@ -21,6 +21,7 @@ namespace SMGE
 		const auto degRot = nsre_transform_.GetPendingRotationEulerDegreesWorld();
 		out += _TO_REFL(glm::vec3, degRot);
 		out += _TO_REFL(glm::vec3, nsre_transform_.GetPendingScales());
+		out += _TO_REFL(glm::vec3, nsre_transform_.GetAnchor());
 
 		return *this;
 	}
@@ -29,10 +30,11 @@ namespace SMGE
 	{
 		Super::operator<<(in);
 
-		glm::vec3 translation, rotation, scale;
+		glm::vec3 translation, rotation, scale, anchor;
 		_FROM_REFL(translation, in);
 		_FROM_REFL(rotation, in);
 		_FROM_REFL(scale, in);
+		_FROM_REFL(anchor, in);
 
 		// 펜딩이 맞다 - 각자 자신의 트랜스폼을 저장하므로
 		nsre_transform_.Translate(translation);
@@ -42,6 +44,7 @@ namespace SMGE
 		nsre_transform_.RotateEuler(rotation);
 #endif
 		nsre_transform_.Scale(scale);
+		nsre_transform_.SetAnchor(anchor);
 
 		return *this;
 	}
@@ -167,7 +170,6 @@ namespace SMGE
 			parentTransf = dynamic_cast<nsRE::Transform*>(parent);
 
 		ChangeParent(parentTransf);
-		RecalcFinal();	// 이제 부모 자식 관계가 설정되었으므로 Final 계산을 제대로 할 수 있다.
 
 		for (auto& pc : getPersistentComponents())
 		{

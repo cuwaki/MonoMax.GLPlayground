@@ -5,6 +5,7 @@ classRTTIName_$CString$"CMeshComponent"
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000    
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
         persistCompoSize$size_t$0
     drawingModelAssetPath_$CWString$"/models/cube.asset"
     

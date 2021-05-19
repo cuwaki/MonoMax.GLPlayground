@@ -7,6 +7,7 @@ classRTTIName_$CString$"CPlaneComponent"
         //nsre_transform_.GetScale()$glm::vec3$99999.000000	99999.000000	0.001   
         // 평면의 노멀만 그리므로 이렇게
         nsre_transform_.GetScale()$glm::vec3$0.001	0.001	1.000000    
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
     persistCompoSize$size_t$0
     isPickingTarget_$bool$false
     isCollideTarget_$bool$false

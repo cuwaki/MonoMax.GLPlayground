@@ -6,6 +6,7 @@ classRTTIName_$CString$"CCameraActor"
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
     actorStaticTag_$CString$""
     persistCompoSize$size_t$0
 		/*classRTTIName_$CString$"CCubeComponent"
@@ -15,6 +16,7 @@ classRTTIName_$CString$"CCameraActor"
 			nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$false
@@ -26,6 +28,7 @@ classRTTIName_$CString$"CCameraActor"
             nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
             nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
             nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
             persistCompoSize$size_t$0
             isPickingTarget_$bool$false
             isCollideTarget_$bool$false

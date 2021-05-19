@@ -364,7 +364,7 @@ namespace SMGE
 					}
 
 					const auto isRender = cullingCamera_->IsInOrIntersectWithFrustum(mbc);
-					drawComp->SetRendering(isRender, false);
+					drawComp->SetRendering(isRender, true);
 
 					// 여기 - 여기를 액터로부터 시작해서 자식 콤포들에 대해서 모두 돌아야한다 - cameraFrustumCulling 라는 함수를  액터, 콤포 체인으로 만들어서 한방에 트리 운행으로 처리하도록
 					// 부모가 보이지 않는다고 자식이 보이지 말라는 법이 없다 (propagate)

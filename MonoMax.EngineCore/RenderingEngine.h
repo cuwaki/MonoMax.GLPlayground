@@ -114,6 +114,7 @@ namespace SMGE
 			glm::vec3 rotationRadianEuler_;
 			glm::vec3 directionForQuat_;
 #endif
+			glm::vec3 anchor_;
 
 		protected:
 			glm::mat4 finalMatrix_;
@@ -128,10 +129,17 @@ namespace SMGE
 		public:
 			Transform();
 
+			// 차후 필요시 열 것
+			DELETE_COPY_CTOR(Transform);
+			DELETE_MOVE_CTOR(Transform);
+
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Get transform
-			const glm::vec3& GetPendingPosition() const;
-			const glm::vec3& GetPendingScales() const;
+			const glm::vec3& GetAnchor() const;
+			glm::vec3 GetPositionWithAnchor(glm::vec3 basePos) const;
+
+			glm::vec3 GetPendingPosition() const;
+			glm::vec3 GetPendingScales() const;
 			float GetPendingScale(TransformConst::ETypeAxis aType) const;
 			glm::vec3 GetPendingAxis(TransformConst::ETypeAxis aType) const;
 			glm::vec3 GetPendingFront() const;
@@ -156,6 +164,7 @@ namespace SMGE
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// Set, Change transform
+			void SetAnchor(glm::vec3 anchor);
 			void Translate(glm::vec3 worldPos);
 			void Scale(float scale);
 			void Scale(glm::vec3 scale);

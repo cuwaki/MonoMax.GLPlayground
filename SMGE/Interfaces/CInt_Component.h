@@ -95,4 +95,36 @@ namespace SMGE
 			return nullptr;
 		}
 	};
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Utilities
+	template<typename T, typename FTodo>
+	void CascadeTodoPreorder(const CInt_Component* iCompo, const FTodo& fTodo)
+	{
+		fTodo(iCompo);
+
+		for (const auto comp : iCompo->getAllComponents())
+		{
+			const auto iCompoC = dynamic_cast<const CInt_Component*>(comp);
+			if(iCompoC)
+				CascadeTodoPreorder(iCompoC, fTodo);
+			else
+				fTodo(comp);
+		}
+	}
+
+	template<typename FTodo>
+	void CascadeTodoPreorder(CInt_Component* iCompo, const FTodo& fTodo)
+	{
+		fTodo(iCompo);
+
+		for (auto comp : iCompo->getAllComponents())
+		{
+			auto iCompoC = dynamic_cast<CInt_Component*>(comp);
+			if (iCompoC)
+				CascadeTodoPreorder(iCompoC, fTodo);
+			else
+				fTodo(comp);
+		}
+	}
 };

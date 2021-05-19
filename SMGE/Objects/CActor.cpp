@@ -194,6 +194,8 @@ namespace SMGE
 		{
 			comp->OnBeginPlay(this);
 		}
+
+		getTransform().RecalcFinal();	// 이제 부모 자식 관계가 설정되었으므로 Final 계산을 제대로 할 수 있다.
 	}
 
 	void CActor::EndPlay()

@@ -29,18 +29,17 @@ namespace SMGE
 #endif
 		
 		// 1. 그려질 월드 모델 수집
-		for (const auto& actor : allActors)
+		for (auto& actor : allActors)
 		{
 			if (actor->IsRendering() == true && dynamic_cast<CEditorActor*>(actor.get()) == nullptr)
 			{
-				for (auto comp : actor->getAllComponents())
-				{
-					auto drawComp = dynamic_cast<CDrawComponent*>(comp);	// 최적화 - isdrawable 같은 함수 만들어서 대체하자
-					if (drawComp && drawComp->IsRendering())
+				CascadeTodoPreorder(actor.get(),
+					[&worldModels](auto comp)
 					{
-						worldModels.push_back(drawComp);
-					}
-				}
+						auto drawComp = dynamic_cast<CDrawComponent*>(comp);	// 최적화 - isdrawable 같은 함수 만들어서 대체하자
+						if (drawComp && drawComp->IsRendering())
+							worldModels.push_back(drawComp);
+					});
 			}
 		}
 

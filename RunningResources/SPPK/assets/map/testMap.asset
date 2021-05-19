@@ -3,16 +3,17 @@ classRTTIName_$CString$"CMap"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 여기 시스템 액터 시작
-	allActorsW_$CVector<SGReflection&>$4
+	allActorsW_$CVector<SGReflection&>$5
 
 	classRTTIName_$CString$"CCameraActor"
 		reflectionFilePath_$CWString$"/templates/CCameraActor.asset"
 		actorKey_$TActorKey$31
 		classRTTIName_$CString$"SGRefl_Transform"
 			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	40.000000	
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	10.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"mainCamera"
 		persistCompoSize$size_t$0
 			/*classRTTIName_$CString$"CCubeComponent"
@@ -22,6 +23,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 				isPickingTarget_$bool$true
 				isCollideTarget_$bool$false
@@ -33,6 +35,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 				isPickingTarget_$bool$false
 				isCollideTarget_$bool$false
@@ -51,6 +54,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	20.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	180.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"testCamera"
 		persistCompoSize$size_t$3
 			classRTTIName_$CString$"CCubeComponent"
@@ -60,6 +64,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.50	0.50	0.75
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 				isPickingTarget_$bool$false
 				isCollideTarget_$bool$false
@@ -71,6 +76,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.50
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 				isPickingTarget_$bool$false
 				isCollideTarget_$bool$false
@@ -87,6 +93,157 @@ classRTTIName_$CString$"CMap"
 // 여기 게임액터 시작
 
 
+	// 심플 큐브 //////////////////////////////////////////////////////////
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$668
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.00000	0.000000	0.00000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+			classRTTIName_$CString$"CCubeComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.00000	
+			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+			persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$true
+			primitiveColor_$glm::vec3$1.000000	0.000000	0.000000	
+
+
+
+	// 포인트 //////////////////////////////////////////////////////////
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$664
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$-0.500000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+			classRTTIName_$CString$"CPointComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+			persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
+			primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
+			
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$664
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+			classRTTIName_$CString$"CPointComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+			persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
+			primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
+			
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$664
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.500000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+			classRTTIName_$CString$"CPointComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+			persistCompoSize$size_t$0
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$false
+			primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
+			
+
+	// 부모자식 큐브 //////////////////////////////////////////////////////////
+	classRTTIName_$CString$"CCollideActor"
+		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
+		actorKey_$TActorKey$668
+		classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	1.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.00000	0.000000	0.000000	
+		actorStaticTag_$CString$""
+		persistCompoSize$size_t$1
+			classRTTIName_$CString$"CCubeComponent"
+			reflectionFilePath_$CWString$""
+			classRTTIName_$CString$"SGRefl_Transform"
+			reflectionFilePath_$CWString$""
+			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
+			nsre_transform_.GetRotation()$glm::vec3$0.000000	-90.000000	0.00000	
+			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.00000	0.000000	0.000000	
+			persistCompoSize$size_t$1
+				classRTTIName_$CString$"CCubeComponent"
+				reflectionFilePath_$CWString$""
+				classRTTIName_$CString$"SGRefl_Transform"
+				reflectionFilePath_$CWString$""
+				nsre_transform_.GetPosition()$glm::vec3$4.000000	0.000000	0.000000	
+				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	15.000000	
+				nsre_transform_.GetScale()$glm::vec3$0.7	0.7		0.7
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+				persistCompoSize$size_t$1
+					classRTTIName_$CString$"CCubeComponent"
+					reflectionFilePath_$CWString$""
+					classRTTIName_$CString$"SGRefl_Transform"
+					reflectionFilePath_$CWString$""
+					nsre_transform_.GetPosition()$glm::vec3$4.000000	0.000000	0.000000	
+					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	15.000000	
+					nsre_transform_.GetScale()$glm::vec3$0.7	0.7		0.7
+					nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
+					persistCompoSize$size_t$0
+					isPickingTarget_$bool$false
+					isCollideTarget_$bool$true
+					primitiveColor_$glm::vec3$0.000000	1.000000	0.000000	
+				isPickingTarget_$bool$false
+				isCollideTarget_$bool$true
+				primitiveColor_$glm::vec3$0.000000	1.000000	0.000000	
+			isPickingTarget_$bool$false
+			isCollideTarget_$bool$true
+			primitiveColor_$glm::vec3$1.000000	0.000000	0.000000	
+
+
 	// 원숭이
 	classRTTIName_$CString$"CStaticMeshActor"
 		reflectionFilePath_$CWString$"/actor/monkey.asset"
@@ -96,6 +253,7 @@ classRTTIName_$CString$"CMap"
 		nsre_transform_.GetPosition()$glm::vec3$-3.000000	-3.000000	-3.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	33.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"this is a monkey"
 		persistCompoSize$size_t$2
 			classRTTIName_$CString$"CMeshComponent"
@@ -105,6 +263,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 				drawingModelAssetPath_$CWString$"/models/suzanne/suzanne.asset"
 			classRTTIName_$CString$"CSphereComponent"
@@ -114,37 +273,11 @@ classRTTIName_$CString$"CMap"
 					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
+					nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 					persistCompoSize$size_t$0
 				isPickingTarget_$bool$true
 				isCollideTarget_$bool$true
 				primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
-
-
-
-
-
-	// 큐브 //////////////////////////////////////////////////////////
-	classRTTIName_$CString$"CCollideActor"
-		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
-		actorKey_$TActorKey$668
-		classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$4.000000	3.000000	3.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	45.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
-		actorStaticTag_$CString$""
-		persistCompoSize$size_t$1
-			classRTTIName_$CString$"CCubeComponent"
-			reflectionFilePath_$CWString$""
-			classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
-			persistCompoSize$size_t$0
-			isPickingTarget_$bool$false
-			isCollideTarget_$bool$true
-			primitiveColor_$glm::vec3$0.000000	1.000000	0.000000	
 
 
 
@@ -158,6 +291,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	3.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	60.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"movementTestTag"
 		persistCompoSize$size_t$1
 			classRTTIName_$CString$"CQuadComponent"
@@ -167,6 +301,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	-3.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	22.50000	
 			nsre_transform_.GetScale()$glm::vec3$2.0	2.0		0.001
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$1
 				classRTTIName_$CString$"CQuadComponent"
 				reflectionFilePath_$CWString$""
@@ -175,6 +310,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	-3.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	22.50000
 				nsre_transform_.GetScale()$glm::vec3$1.0	1.0		0.001
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 					// 자식의 자식 콤포넌트에 붙임
 					//classRTTIName_$CString$"CMovementComponent"
@@ -193,29 +329,6 @@ classRTTIName_$CString$"CMap"
 
 
 
-	// 포인트 //////////////////////////////////////////////////////////
-	classRTTIName_$CString$"CCollideActor"
-		reflectionFilePath_$CWString$"/templates/CCollideActor.asset"
-		actorKey_$TActorKey$664
-		classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$-8.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
-		actorStaticTag_$CString$""
-		persistCompoSize$size_t$1
-			classRTTIName_$CString$"CPointComponent"
-			reflectionFilePath_$CWString$""
-			classRTTIName_$CString$"SGRefl_Transform"
-			reflectionFilePath_$CWString$""
-			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
-			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
-			persistCompoSize$size_t$0
-			isPickingTarget_$bool$false
-			isCollideTarget_$bool$false
-			primitiveColor_$glm::vec3$1.000000	1.000000	1.000000	
-			
 
 
 
@@ -229,6 +342,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$10.000000	10.000000	10.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 			classRTTIName_$CString$"CSegmentComponent"
@@ -238,6 +352,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.001	0.001		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000				
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$false
 			isCollideTarget_$bool$false
@@ -254,6 +369,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$+5.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	15.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 			classRTTIName_$CString$"CCircleComponent"
@@ -263,6 +379,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	3.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	30.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.0	1.0		1.0
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$false
 			isCollideTarget_$bool$true
@@ -287,6 +404,7 @@ classRTTIName_$CString$"CMap"
 		nsre_transform_.GetPosition()$glm::vec3$+4.000000	-4.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	-45.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"this is a monkey"
 		persistCompoSize$size_t$2
 		classRTTIName_$CString$"CMeshComponent"
@@ -296,6 +414,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$1
 				classRTTIName_$CString$"CMeshComponent"
 					reflectionFilePath_$CWString$""
@@ -304,6 +423,7 @@ classRTTIName_$CString$"CMap"
 					nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
+					nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 					persistCompoSize$size_t$1
 						classRTTIName_$CString$"CSphereComponent"
 							reflectionFilePath_$CWString$""
@@ -312,6 +432,7 @@ classRTTIName_$CString$"CMap"
 								nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
+								nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 								persistCompoSize$size_t$0
 							isPickingTarget_$bool$false
 							isCollideTarget_$bool$true
@@ -325,6 +446,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000					
 				persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$true
@@ -338,6 +460,7 @@ classRTTIName_$CString$"CMap"
 		nsre_transform_.GetPosition()$glm::vec3$-6.000000	-6.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	+45.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"this is a monkey"
 		persistCompoSize$size_t$2
 		classRTTIName_$CString$"CMeshComponent"
@@ -347,6 +470,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$1
 				classRTTIName_$CString$"CMeshComponent"
 					reflectionFilePath_$CWString$""
@@ -355,6 +479,7 @@ classRTTIName_$CString$"CMap"
 					nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
+					nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 					persistCompoSize$size_t$1
 						classRTTIName_$CString$"CSphereComponent"
 							reflectionFilePath_$CWString$""
@@ -363,6 +488,7 @@ classRTTIName_$CString$"CMap"
 								nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
+								nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 								persistCompoSize$size_t$0
 							isPickingTarget_$bool$false
 							isCollideTarget_$bool$true
@@ -376,6 +502,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$true
@@ -389,6 +516,7 @@ classRTTIName_$CString$"CMap"
 		nsre_transform_.GetPosition()$glm::vec3$6.000000	6.000000	0.000000	
 		nsre_transform_.GetRotation()$glm::vec3$0.000000	205.000000	0.000000	
 		nsre_transform_.GetScale()$glm::vec3$1.00000	1.00000	1.00000	
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$"this is a monkey"
 		persistCompoSize$size_t$2
 		classRTTIName_$CString$"CMeshComponent"
@@ -398,6 +526,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.500000	1.500000	1.500000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$1
 				classRTTIName_$CString$"CMeshComponent"
 					reflectionFilePath_$CWString$""
@@ -406,6 +535,7 @@ classRTTIName_$CString$"CMap"
 					nsre_transform_.GetPosition()$glm::vec3$3.000000	3.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	60.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$0.50000	0.50000	0.50000	
+					nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 					persistCompoSize$size_t$1
 						classRTTIName_$CString$"CSphereComponent"
 							reflectionFilePath_$CWString$""
@@ -414,6 +544,7 @@ classRTTIName_$CString$"CMap"
 								nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 								nsre_transform_.GetScale()$glm::vec3$2.000	2.000	2.000	
+								nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 								persistCompoSize$size_t$0
 							isPickingTarget_$bool$false
 							isCollideTarget_$bool$true
@@ -427,6 +558,7 @@ classRTTIName_$CString$"CMap"
 				nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 				nsre_transform_.GetScale()$glm::vec3$3.000	3.000	3.000	
+				nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$true
@@ -440,6 +572,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$5.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 		classRTTIName_$CString$"CQuadComponent"
@@ -449,6 +582,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	0.001	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$true
@@ -464,6 +598,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$-4.000000	0.000000	4.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 			classRTTIName_$CString$"CCircleComponent"
@@ -473,6 +608,7 @@ classRTTIName_$CString$"CMap"
 					nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 					nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	0.001   
+					nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 				persistCompoSize$size_t$0
 				isPickingTarget_$bool$true
 				isCollideTarget_$bool$true
@@ -490,6 +626,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	-5.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 		classRTTIName_$CString$"CCubeComponent"
@@ -499,6 +636,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.00	2.00	2.00
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$true
@@ -514,6 +652,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 		classRTTIName_$CString$"CSphereComponent"
@@ -523,6 +662,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.00	1.00	1.00	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$true
 			isCollideTarget_$bool$true
@@ -540,6 +680,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	5.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$2.000000	2.000000	2.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 		classRTTIName_$CString$"CSegmentComponent"
@@ -549,6 +690,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.00	0.00	1.00
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$false
 			isCollideTarget_$bool$false
@@ -562,6 +704,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$-5.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$45.000000	45.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$1.000000	1.000000	1.000000	
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 		actorStaticTag_$CString$""
 		persistCompoSize$size_t$1
 		classRTTIName_$CString$"CPointComponent"
@@ -571,6 +714,7 @@ classRTTIName_$CString$"CMap"
 			nsre_transform_.GetPosition()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
 			nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001
+			nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
 			persistCompoSize$size_t$0
 			isPickingTarget_$bool$false
 			isCollideTarget_$bool$false

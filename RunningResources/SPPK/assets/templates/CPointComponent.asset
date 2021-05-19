@@ -5,6 +5,7 @@ classRTTIName_$CString$"CPointComponent"
         nsre_transform_.GetTranslation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetRotation()$glm::vec3$0.000000	0.000000	0.000000	
         nsre_transform_.GetScale()$glm::vec3$0.001	0.001	0.001   
+		nsre_transform_.GetAnchor()$glm::vec3$0.000000	0.000000	0.000000	
     persistCompoSize$size_t$0
     isPickingTarget_$bool$false
     isCollideTarget_$bool$false
