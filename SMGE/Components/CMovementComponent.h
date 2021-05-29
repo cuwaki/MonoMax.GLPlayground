@@ -29,10 +29,10 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflTransformCompo_;
+		UPtr<TReflectionStruct> reflTransformCompo_;
 
 		nsRE::Transform* targetTransform_ = nullptr;
-		std::unique_ptr<CTimer> myTimer_;
+		UPtr<CTimer> myTimer_;
 
 		// 테스트 코드 - 인터폴레이션
 		CInterpolation<glm::vec3> interpTranslation_;

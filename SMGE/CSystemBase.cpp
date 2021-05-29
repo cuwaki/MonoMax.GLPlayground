@@ -225,7 +225,7 @@ namespace SMGE
 		return targetActor;
 	}
 
-	//std::unique_ptr<CActor>&& CSystemBase::RemoveActor(TActorKey ak)
+	//UPtr<CActor>&& CSystemBase::RemoveActor(TActorKey ak)
 	//{
 	//	assert(false && "구현하라");
 	//	return std::make_unique<CActor>(nullptr);

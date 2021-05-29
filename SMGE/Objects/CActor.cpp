@@ -23,7 +23,7 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_Actor::SGRefl_Actor(const std::unique_ptr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr)
+	SGRefl_Actor::SGRefl_Actor(const UPtr<CActor>& actorPtr) : SGRefl_Actor(*actorPtr)
 	{
 		classRTTIName_ = actorPtr->getReflection().getClassRTTIName();	// 이미 로드된 액터로부터 사본으로 생기는 경우라서 이걸 수동으로 복사해줘야한다
 		reflectionFilePath_ = actorPtr->getReflection().getSourceFilePath();

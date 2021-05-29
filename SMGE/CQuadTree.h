@@ -85,7 +85,7 @@ namespace SMGE
 		using TValue = typename TContainer::value_type;
 		using TValueIterator = typename TContainer::iterator;
 		using TChild = CQuadTreeNode<TContainer, TNodeSize>;
-		using TChildren = std::array<TChild, 4>;	// quadtree 니까 4
+		using TChildren = std::vector<TChild>;
 
 	public:
 		CQuadTreeNode()
@@ -106,10 +106,10 @@ namespace SMGE
 		TContainer& GetContainer() { return container_; }
 		const TContainer& GetContainer() const { return container_; }
 
-		bool HasChildren() const { return children_ != nullptr; }
+		bool HasChildren() const { return children_.size() > 0; }
 
-		TChild& GetChild(size_t i) { AllocChildren(); return (*children_.get())[i]; }
-		const TChild& GetChild(size_t i) const { AllocChildren(); return (*children_.get())[i]; }
+		TChild& GetChild(size_t i) { AllocChildren(); return children_[i]; }
+		const TChild& GetChild(size_t i) const { AllocChildren(); return children_[i]; }
 
 		auto& GetRect() { return rect_; }
 		const auto& GetRect() const { return rect_; }
@@ -135,22 +135,21 @@ namespace SMGE
 
 		void Clear()
 		{
-			container_ = decltype(container_){};
-			children_.reset();
+			container_ = TContainer{};
+			children_.resize(0);
 		}
 
 	protected:
 		void AllocChildren()
 		{
-			if(children_ == nullptr)
-				children_ = std::make_unique<TChildren>();
+			if (children_.size() == 0)
+				children_.resize(4);
 		}
 
 	protected:
 		TContainer container_;
 		SRect2D<TNodeSize> rect_;
-
-		std::unique_ptr<TChildren> children_;
+		TChildren children_;
 	};
 
 	// 모든 좌표와 좌표계는 GL 오른손 좌표계를 사용한다.

@@ -30,7 +30,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflPointCompo_;
+		UPtr<TReflectionStruct> reflPointCompo_;
 
 		SPointBound pointBound_;
 	};

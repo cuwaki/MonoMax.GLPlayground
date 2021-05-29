@@ -30,7 +30,7 @@ namespace SMGE
 	void CCircleComponent::ReadyToDrawing()
 	{
 		CString resmKey;
-		std::shared_ptr<nsRE::ResourceModelBase> primitiveResM;
+		SPtr<nsRE::ResourceModelBase> primitiveResM;
 		if (hasFace_)
 		{
 			resmKey = "primitiveK:circle_faced";

@@ -12,7 +12,7 @@ namespace SMGE
 		using Super = SGRefl_Actor;
 
 		SGRefl_CameraActor(CCameraActor& actor);
-		SGRefl_CameraActor(const std::shared_ptr<CCameraActor>& actorPtr);
+		SGRefl_CameraActor(const SPtr<CCameraActor>& actorPtr);
 
 		virtual const SGReflection& operator>>(CWString& out) const override;
 		virtual SGReflection& operator<<(const CVector<TupleVarName_VarType_Value>& in) override;
@@ -52,7 +52,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflCameraActor_;
+		UPtr<TReflectionStruct> reflCameraActor_;
 
 		CString cameraName_;
 		float fovDegrees_;

@@ -30,7 +30,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflCubeCompo_;
+		UPtr<TReflectionStruct> reflCubeCompo_;
 
 		SCubeBound cubeBound_;
 	};

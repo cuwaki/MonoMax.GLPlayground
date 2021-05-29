@@ -5,7 +5,7 @@ namespace SMGE
 	SGRefl_Component::SGRefl_Component(TReflectionClass& rc) : Super(rc)
 	{
 	}
-	//SGRefl_Component::SGRefl_Component(const std::unique_ptr<CComponent>& uptr) : Super(*uptr.get())
+	//SGRefl_Component::SGRefl_Component(const UPtr<CComponent>& uptr) : Super(*uptr.get())
 	//{
 	//}
 

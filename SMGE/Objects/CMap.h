@@ -94,7 +94,7 @@ namespace SMGE
 		void RemoveActorFromOctree(CActor* actor);
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflMap_;
+		UPtr<TReflectionStruct> reflMap_;
 
 	protected:
 		// runtime

@@ -21,7 +21,7 @@ namespace SMGE
 	{
 	}
 
-	SGRefl_CameraActor::SGRefl_CameraActor(const std::shared_ptr<CCameraActor>& actorPtr) : SGRefl_CameraActor(*actorPtr)
+	SGRefl_CameraActor::SGRefl_CameraActor(const SPtr<CCameraActor>& actorPtr) : SGRefl_CameraActor(*actorPtr)
 	{
 	}
 

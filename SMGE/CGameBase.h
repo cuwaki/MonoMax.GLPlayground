@@ -43,11 +43,11 @@ namespace SMGE
 		virtual void Initialize();
 
 	protected:
-		std::unique_ptr<class CEngineBase> engine_;
-		std::unique_ptr<SGEGameSettings> gameSettings_;
+		UPtr<class CEngineBase> engine_;
+		UPtr<SGEGameSettings> gameSettings_;
 
 		// 아키텍트적으로는 맵을 감싸는 게임서버 객체가 필요하겠지만 이는 차후에 처리하자
-		std::unique_ptr<class CMap> currentMap_;
+		UPtr<class CMap> currentMap_;
 
 	public:
 		static CGameBase* Instance;

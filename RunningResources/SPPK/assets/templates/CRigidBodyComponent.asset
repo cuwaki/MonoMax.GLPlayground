@@ -1,0 +1,5 @@
+classRTTIName_$CString$"CRigidBodyComponent"
+    reflectionFilePath_$CWString$"/templates/CRigidBodyComponent.asset"
+	mass_$PFloat$0.0
+	antiGravity_$PVec3$0.000000	0.000000	0.000000	
+	normalForce_$PVec3$0.000000	0.000000	0.000000	

@@ -42,7 +42,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflCompo_;
+		UPtr<TReflectionStruct> reflCompo_;
 		bool isActive_ = false;
 	};
 }

@@ -67,7 +67,7 @@ namespace SMGE
 #endif
 
 			/////////////////////////////////
-			m_renderingEngine = new nsRE::CRenderingEngine(m_widthOriginal, m_heightOriginal, GetWindowDPIRate());	// Managed 라서 std::unique_ptr 못씀
+			m_renderingEngine = new nsRE::CRenderingEngine(m_widthOriginal, m_heightOriginal, GetWindowDPIRate());	// Managed 라서 UPtr 못씀
 			m_renderingEngine->Init();
 			m_isInitialized = true;
 		}

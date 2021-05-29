@@ -31,7 +31,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflSphereCompo_;
+		UPtr<TReflectionStruct> reflSphereCompo_;
 		SSphereBound sphereBound_;
 	};
 };

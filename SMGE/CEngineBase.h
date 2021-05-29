@@ -60,6 +60,6 @@ namespace SMGE
 
 		CUserInput userInput_;
 
-		std::unique_ptr<CSystemBase> system_;
+		UPtr<CSystemBase> system_;
 	};
 };

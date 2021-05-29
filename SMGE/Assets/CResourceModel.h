@@ -49,7 +49,7 @@ namespace SMGE
 		void OnAfterDeserialized2();	// 테스트 코드 - vftbl 버그 때문에
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflData_;
+		UPtr<TReflectionStruct> reflData_;
 
 	public:
 		//CWString vertShaderPath_;

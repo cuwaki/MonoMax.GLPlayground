@@ -30,7 +30,7 @@ namespace SMGE
 	void CQuadComponent::ReadyToDrawing()
 	{
 		CString resmKey;
-		std::shared_ptr<nsRE::ResourceModelBase> primitiveResM;
+		SPtr<nsRE::ResourceModelBase> primitiveResM;
 		if (hasFace_)
 		{
 			resmKey = "primitiveK:quad_faced";

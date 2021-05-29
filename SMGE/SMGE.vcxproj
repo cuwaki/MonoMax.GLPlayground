@@ -173,6 +173,7 @@
     <ClCompile Include="Components\CPlaneComponent.cpp" />
     <ClCompile Include="Components\CQuadComponent.cpp" />
     <ClCompile Include="Components\CPointComponent.cpp" />
+    <ClCompile Include="Components\CRigidBodyComponent.cpp" />
     <ClCompile Include="Components\CSegmentComponent.cpp" />
     <ClCompile Include="Components\CSphereComponent.cpp" />
     <ClCompile Include="Components\CStaticMeshComponent.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="Objects\CMap.cpp" />
     <ClCompile Include="Objects\CObject.cpp" />
     <ClCompile Include="Objects\CStaticMeshActor.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="RTTI.cpp" />
     <ClCompile Include="short_alloc.cpp" />
   </ItemGroup>
@@ -207,6 +209,7 @@
     <ClInclude Include="Components\CPlaneComponent.h" />
     <ClInclude Include="Components\CQuadComponent.h" />
     <ClInclude Include="Components\CPointComponent.h" />
+    <ClInclude Include="Components\CRigidBodyComponent.h" />
     <ClInclude Include="Components\CSegmentComponent.h" />
     <ClInclude Include="Components\CSphereComponent.h" />
     <ClInclude Include="Components\CMovementComponent.h" />
@@ -233,6 +236,7 @@
     <ClInclude Include="Objects\CMap.h" />
     <ClInclude Include="Objects\CObject.h" />
     <ClInclude Include="Objects\CStaticMeshActor.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="RTTI.hpp" />
     <ClInclude Include="short_alloc.h" />
   </ItemGroup>

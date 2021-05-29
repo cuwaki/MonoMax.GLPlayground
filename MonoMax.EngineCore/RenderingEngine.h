@@ -235,7 +235,7 @@ namespace SMGE
 
 		class VertFragShaderSet
 		{
-			static std::map<CWString, std::unique_ptr<VertFragShaderSet>> Cache;
+			static std::map<CWString, UPtr<VertFragShaderSet>> Cache;
 
 		public:
 			template<typename T>
@@ -469,7 +469,7 @@ namespace SMGE
 		class ResourceModelBase : public std::enable_shared_from_this<ResourceModelBase>
 		{
 		protected:
-			mutable std::map<const GLFWwindow*, std::unique_ptr<RenderModel>> renderModelsPerContext_;
+			mutable std::map<const GLFWwindow*, UPtr<RenderModel>> renderModelsPerContext_;
 
 		public:
 			ResourceModelBase() {}
@@ -521,15 +521,15 @@ namespace SMGE
 
 		class CResourceModelProvider
 		{
-			static CHashMap<CString, std::shared_ptr<ResourceModelBase>> ResourceModels;
+			static CHashMap<CString, SPtr<ResourceModelBase>> ResourceModels;
 
 		public:
-			static std::shared_ptr<nsRE::ResourceModelBase> AddResourceModel(const CString& key, std::shared_ptr<ResourceModelBase> am);
+			static SPtr<nsRE::ResourceModelBase> AddResourceModel(const CString& key, SPtr<ResourceModelBase> am);
 			static bool RemoveResourceModel(const CString& key);
 			static bool RemoveResourceModel(ResourceModelBase* am);
-			static std::shared_ptr<ResourceModelBase> FindResourceModel(const CString& key);
+			static SPtr<ResourceModelBase> FindResourceModel(const CString& key);
 
-			static const CHashMap<CString, std::shared_ptr<ResourceModelBase>>& GetResourceModels();
+			static const CHashMap<CString, SPtr<ResourceModelBase>>& GetResourceModels();
 		};
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -639,14 +639,14 @@ namespace SMGE
 			bool m_isRunning = false;
 
 			CRenderingCamera renderingCamera_;
-			std::unique_ptr<CRenderTarget> renderTarget0_, renderTarget1_, renderTargetBackBuffer_;
-			std::vector<std::unique_ptr<CRenderingPass>> renderingPasses_;
-			std::unique_ptr<CPostEffectPass> lastRenderingPass_;
+			UPtr<CRenderTarget> renderTarget0_, renderTarget1_, renderTargetBackBuffer_;
+			std::vector<UPtr<CRenderingPass>> renderingPasses_;
+			UPtr<CPostEffectPass> lastRenderingPass_;
 
 			void initWindow();
 
 			// 여기 - 20210214 생각 - 게임 말고 엔진이 들어와야한다, 엔진->게임으로 구조를 바꾸자
-			std::unique_ptr<class CGameBase> gameBase_;
+			UPtr<class CGameBase> gameBase_;
 
 		public:
 			CRenderingEngine(int widthOriginal, int heightOriginal, float dpiRate);
@@ -674,7 +674,7 @@ namespace SMGE
 			const CRenderingCamera& GetRenderingCamera() const { return renderingCamera_; }
 			CRenderingCamera& GetRenderingCamera() { return renderingCamera_; }
 
-			std::vector<std::unique_ptr<CRenderingPass>>& GetRenderingPasses() { return renderingPasses_; }
+			std::vector<UPtr<CRenderingPass>>& GetRenderingPasses() { return renderingPasses_; }
 
 		protected:
 			void ResizeRenderTargets();

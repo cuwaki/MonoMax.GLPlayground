@@ -10,6 +10,7 @@
 #include "Components/CSphereComponent.h"
 #include "Components/CMeshComponent.h"
 #include "Components/CMovementComponent.h"
+#include "Components/CRigidBodyComponent.h"
 
 #include "Objects/CActor.h"
 #include "Objects/CCollideActor.h"
@@ -39,6 +40,7 @@ namespace SMGE
 	DEFINE_RTTI_CObject_DEFAULT(CCubeComponent);
 	DEFINE_RTTI_CObject_DEFAULT(CSegmentComponent);
 	DEFINE_RTTI_CObject_DEFAULT(CSphereComponent);
+	DEFINE_RTTI_CObject_DEFAULT(CRigidBodyComponent);
 
 	DEFINE_RTTI_CObject_DEFAULT(CMeshComponent);
 	DEFINE_RTTI_CObject_VARIADIC(CMeshComponent, CObject*, const CWString&);

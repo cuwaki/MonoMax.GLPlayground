@@ -6,7 +6,7 @@
 
 namespace SMGE
 {
-	using ComponentVector = CVector<std::unique_ptr<CComponent>>;
+	using ComponentVector = CVector<UPtr<CComponent>>;
 	using ComponentVectorWeak = CVector<CComponent*>;
 
 	/*

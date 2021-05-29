@@ -37,7 +37,7 @@ namespace SMGE
 		virtual SGReflection& getReflection() override;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflRayCompo_;
+		UPtr<TReflectionStruct> reflRayCompo_;
 		SSegmentBound segBound_;
 	};
 };

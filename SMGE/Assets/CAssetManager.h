@@ -12,7 +12,7 @@ namespace SMGE
 		static CWString GetTemplateAssetPath(CWString className);
 
 		template<typename C>
-		static std::shared_ptr<CAsset<C>> FindAsset(CWString filePath)
+		static SPtr<CAsset<C>> FindAsset(CWString filePath)
 		{
 			ToLowerInline(filePath);
 
@@ -24,7 +24,7 @@ namespace SMGE
 		}
 
 		template<typename C, typename ...Args>
-		static std::shared_ptr<CAsset<C>> LoadAssetDefault(CWString filePath, Args&&... contentClassCtorArgs)
+		static SPtr<CAsset<C>> LoadAssetDefault(CWString filePath, Args&&... contentClassCtorArgs)
 		{
 			ToLowerInline(filePath);
 
@@ -39,7 +39,7 @@ namespace SMGE
 		}
 
 		template<typename C, typename NewContentF, typename DeleteContentF, typename ...Args>
-		static std::shared_ptr<CAsset<C>> LoadAssetCustom(CWString filePath, NewContentF&& nf, DeleteContentF&& df, Args&&... contentClassCtorArgs)
+		static SPtr<CAsset<C>> LoadAssetCustom(CWString filePath, NewContentF&& nf, DeleteContentF&& df, Args&&... contentClassCtorArgs)
 		{
 			ToLowerInline(filePath);
 
@@ -61,6 +61,6 @@ namespace SMGE
 		}
 
 	protected:
-		static CHashMap<CWString, std::shared_ptr<CAssetBase>> cachedAssets_;
+		static CHashMap<CWString, SPtr<CAssetBase>> cachedAssets_;
 	};
 }

@@ -11,7 +11,7 @@ namespace SMGE
 		resourceModelAssetPath_(meshc.resourceModelAssetPath_)
 	{
 	}
-	//SGRefl_MeshComponent::SGRefl_MeshComponent(const std::unique_ptr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
+	//SGRefl_MeshComponent::SGRefl_MeshComponent(const UPtr<CMeshComponent>& uptr) : SGRefl_MeshComponent(*uptr.get())
 	//{
 	//}
 

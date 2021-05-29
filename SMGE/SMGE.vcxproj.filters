@@ -155,6 +155,12 @@
     <ClInclude Include="Objects\CEditorActor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CRigidBodyComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGameBase.cpp">
@@ -267,6 +273,12 @@
     </ClCompile>
     <ClCompile Include="Objects\CEditorActor.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CRigidBodyComponent.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

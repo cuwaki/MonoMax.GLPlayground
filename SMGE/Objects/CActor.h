@@ -18,7 +18,7 @@ namespace SMGE
 		using Super = SGReflection;
 
 		SGRefl_Actor(CActor& actor);
-		SGRefl_Actor(const std::unique_ptr<CActor>& actorPtr);
+		SGRefl_Actor(const UPtr<CActor>& actorPtr);
 		
 		virtual void buildVariablesMap() override;
 		
@@ -113,7 +113,7 @@ namespace SMGE
 		CString actorTag_;
 
 	protected:
-		std::unique_ptr<TReflectionStruct> reflActor_;
+		UPtr<TReflectionStruct> reflActor_;
 
 		// CInt_Component
 		ComponentVector persistentComponents_;

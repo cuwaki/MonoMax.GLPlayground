@@ -188,7 +188,7 @@ namespace SMGE
 
 	protected:
 		glm::vec3 p0_, p1_, p2_;
-		mutable std::unique_ptr<SSegmentBound[]> cachedSegments_;
+		mutable UPtr<SSegmentBound[]> cachedSegments_;
 	};
 
 	struct SQuadBound : public SPlaneBound
@@ -242,7 +242,7 @@ namespace SMGE
 
 	protected:
 		glm::vec3 p0_, p1_, p2_, p3_;
-		mutable std::unique_ptr<SSegmentBound[]> cachedSegments_;
+		mutable UPtr<SSegmentBound[]> cachedSegments_;
 	};
 
 	struct SCircleBound : public SPlaneBound
@@ -306,7 +306,7 @@ namespace SMGE
 
 		mutable glm::vec3 cachedPerp_;
 
-		mutable std::unique_ptr<SSegmentBound[]> cachedSegments_;
+		mutable UPtr<SSegmentBound[]> cachedSegments_;
 	};
 
 	struct SSphereBound : public SBound
@@ -368,7 +368,7 @@ namespace SMGE
 		glm::vec3 size_;
 		glm::vec3 eulerAxis_[3];	// x, y, z축
 
-		mutable std::unique_ptr<SQuadBound[]> cachedQuads_;
+		mutable UPtr<SQuadBound[]> cachedQuads_;
 	};
 
 	struct SAABB : public SBound

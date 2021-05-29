@@ -4,7 +4,7 @@
 
 namespace SMGE
 {
-	CHashMap<CWString, std::shared_ptr<CAssetBase>> CAssetManager::cachedAssets_;
+	CHashMap<CWString, SPtr<CAssetBase>> CAssetManager::cachedAssets_;
 
 	CWString CAssetManager::GetTemplateAssetPath(CWString className)
 	{

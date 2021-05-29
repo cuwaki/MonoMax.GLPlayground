@@ -53,7 +53,7 @@ namespace SMGE
 	SGRefl_DrawComponent::SGRefl_DrawComponent(TReflectionClass& rc) : Super(rc), sg_transform_(rc, rc), outerDrawCompo_(rc)
 	{
 	}
-	//SGRefl_DrawComponent::SGRefl_DrawComponent(const std::unique_ptr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
+	//SGRefl_DrawComponent::SGRefl_DrawComponent(const UPtr<CDrawComponent>& uptr) : SGRefl_DrawComponent(*uptr.get())
 	//{
 	//}
 

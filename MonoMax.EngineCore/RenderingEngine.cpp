@@ -17,9 +17,9 @@ namespace SMGE
 {
 	namespace nsRE
 	{
-		CHashMap<CString, std::shared_ptr<nsRE::ResourceModelBase>> CResourceModelProvider::ResourceModels;
+		CHashMap<CString, SPtr<nsRE::ResourceModelBase>> CResourceModelProvider::ResourceModels;
 
-		std::shared_ptr<nsRE::ResourceModelBase> CResourceModelProvider::AddResourceModel(const CString& key, std::shared_ptr<ResourceModelBase> am)
+		SPtr<nsRE::ResourceModelBase> CResourceModelProvider::AddResourceModel(const CString& key, SPtr<ResourceModelBase> am)
 		{
 			auto already = FindResourceModel(key);
 			if (already == nullptr)
@@ -53,13 +53,13 @@ namespace SMGE
 			return true;
 		}
 
-		std::shared_ptr<ResourceModelBase> CResourceModelProvider::FindResourceModel(const CString& key)
+		SPtr<ResourceModelBase> CResourceModelProvider::FindResourceModel(const CString& key)
 		{
 			auto clIt = ResourceModels.find(key);
 			return clIt != ResourceModels.end() ? clIt->second : nullptr;
 		}
 
-		const CHashMap<CString, std::shared_ptr<ResourceModelBase>>& CResourceModelProvider::GetResourceModels()
+		const CHashMap<CString, SPtr<ResourceModelBase>>& CResourceModelProvider::GetResourceModels()
 		{
 			return ResourceModels;
 		}
@@ -174,7 +174,7 @@ namespace SMGE
 			glUseProgram(programID_);
 		}
 
-		std::map<CWString, std::unique_ptr<VertFragShaderSet>> VertFragShaderSet::Cache;
+		std::map<CWString, UPtr<VertFragShaderSet>> VertFragShaderSet::Cache;
 
 		VertFragShaderSet::VertFragShaderSet(VertFragShaderSet&& c) noexcept
 		{
