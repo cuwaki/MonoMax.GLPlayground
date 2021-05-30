@@ -1,4 +1,5 @@
 #include "CRigidBodyComponent.h"
+#include "CBoundComponent.h"
 
 namespace SMGE
 {
@@ -36,6 +37,12 @@ namespace SMGE
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	CRigidBodyComponent::CRigidBodyComponent(CObject* outer) : CComponent(outer), CRigidBody(GWorld)
 	{
+		boundOuter_ = dynamic_cast<CBoundComponent*>(outer);
+		transformOuter_ = dynamic_cast<nsRE::Transform*>(outer);
+
+		assert(boundOuter_);
+		assert(transformOuter_);
+
 		Ctor();
 	}
 
@@ -48,5 +55,37 @@ namespace SMGE
 		if (reflRigidCompo_.get() == nullptr)
 			reflRigidCompo_ = std::make_unique<TReflectionStruct>(*this);
 		return *reflRigidCompo_.get();
+	}
+
+	void CRigidBodyComponent::Tick(float dt)
+	{
+		Super::Tick(dt);
+	}
+
+	bool CRigidBodyComponent::IsPhysicsActivated() const
+	{
+		return IsActive();
+	}
+	void CRigidBodyComponent::SetPhysicsActivate(bool a)
+	{
+		if (a == true)
+		{	// 물리 작동 재시작
+			SetPhysicsPosition(getTransform().GetPendingPosition());
+			SetOwnUniformVelocity(PVec3(0.));
+		}
+
+		SetActive(a);
+	}
+
+	nsRE::Transform& CRigidBodyComponent::getTransform()
+	{
+		assert(transformOuter_);
+		return *transformOuter_;
+	}
+
+	const nsRE::Transform& CRigidBodyComponent::getTransform() const
+	{
+		assert(transformOuter_);
+		return *transformOuter_;
 	}
 };

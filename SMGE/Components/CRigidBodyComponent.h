@@ -6,6 +6,11 @@
 
 namespace SMGE
 {
+	namespace nsRE
+	{
+		class Transform;
+	}
+
 	using namespace Physics;
 
 	class CRigidBodyComponent;
@@ -39,10 +44,22 @@ namespace SMGE
 		CRigidBodyComponent(CObject* outer);
 
 		void Ctor();
+		virtual void Tick(float) override;
 
 		virtual SGReflection& getReflection() override;
 
 	protected:
 		UPtr<TReflectionStruct> reflRigidCompo_;
+
+		class CBoundComponent* boundOuter_;
+		class nsRE::Transform* transformOuter_;
+
+		// CRigidBody
+	public:
+		bool IsPhysicsActivated() const;
+		void SetPhysicsActivate(bool a);
+
+		class nsRE::Transform& getTransform();
+		const class nsRE::Transform& getTransform() const;
 	};
 };

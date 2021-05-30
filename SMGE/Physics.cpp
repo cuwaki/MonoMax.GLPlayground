@@ -9,6 +9,15 @@ namespace SMGE
 	{
 		CWorld GWorld;
 
+		bool SForce::IsExpired() const
+		{
+			return (durationMS_ <= 0./* || (force_.x <= 0. && force_.y <= 0. && force_.z <= 0.)*/);
+		}
+		bool SForce::IsImpact() const
+		{
+			return durationMS_ <= 0.;
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		CRigidBody::CRigidBody(const class CWorld& world) : world_(world)
 		{
@@ -49,7 +58,7 @@ namespace SMGE
 		PVec3 CRigidBody::CurrentFrictionalForce(EMaterial contactPlaneMat, PVec3 contactPlaneNormal, bool isKinetic) const
 		{
 			const auto nf = NeedNormalForce(contactPlaneNormal);
-			return -1 * world_.FrictionalForce(material_, contactPlaneMat, isKinetic) * nf;
+			return world_.FrictionalForce(material_, contactPlaneMat, isKinetic) * -1 * nf;
 		}
 
 		// 접면에서 미끌어지는가?
@@ -59,32 +68,30 @@ namespace SMGE
 
 			// 최적화를 위한 중복 코드 허용 - 최적화 - 최근 계산한 결과를 갖고 있으면 될 것 같다, 보통 연속으로 쓰이므로...
 			const auto nf = NeedNormalForce(contactPlaneNormal, &perpForce);
-			const auto staticFrictForce = -1 * world_.FrictionalForce(material_, contactPlaneMat, false) * nf;
+			const auto staticFrictForce = world_.FrictionalForce(material_, contactPlaneMat, false) * -1 * nf;
 
 			return glm::length2(perpForce) > glm::length2(staticFrictForce);
 		}
 
-		// 접면에서 미끌어지는 가속도를 구한다
-		PVec3 CRigidBody::ComputeSlidingAccel(EMaterial contactPlaneMat, PVec3 contactPlaneNormal) const
+		// 접면에서 미끌어지는 힘을 구한다
+		PVec3 CRigidBody::ComputeSlidingForce(EMaterial contactPlaneMat, PVec3 contactPlaneNormal) const
 		{
-			PVec3 ret{ 0. };
-
 			PVec3 perpForce;
 
 			// 최적화를 위한 중복 코드 허용 - 최적화 - 최근 계산한 결과를 갖고 있으면 될 것 같다, 보통 연속으로 쓰이므로...
 			const auto nf = NeedNormalForce(contactPlaneNormal, &perpForce);
-			const auto staticFrictForce = -1 * world_.FrictionalForce(material_, contactPlaneMat, false) * nf;
+			const auto staticFrictForce = world_.FrictionalForce(material_, contactPlaneMat, false) * -1 * nf;
 
 			auto isSliding = glm::length2(perpForce) > glm::length2(staticFrictForce);
 			if (isSliding)
 			{	// 평면에 수평으로 작용하는 힘이 정지 마찰력 즉 이동을 시작하지 못하게 하는 힘보다 큰 상황
-				const auto kineticFrictForce = -1 * world_.FrictionalForce(material_, contactPlaneMat, true) * nf;
+				const auto kineticFrictForce = world_.FrictionalForce(material_, contactPlaneMat, true) * -1 * nf;
 				const auto slidingForce = perpForce - kineticFrictForce;	// 평면에 수평으로 작용하는 힘이 이동 마찰력보다 크므로 그 차이만큼의 힘이 작용하게 된다
 
-				ret = slidingForce / mass_;	// F = ma 이므로 a = F/m 이니까
+				return slidingForce;
 			}
 
-			return ret;
+			return PVec3{ 0. };
 		}
 
 		void CRigidBody::SetActive(bool a)
@@ -107,6 +114,124 @@ namespace SMGE
 			}
 		}
 
+		void CRigidBody::SetOwnUniformVelocity(PVec3 ouv)
+		{
+			ownUniformVelocity_ = ouv;
+		}
+		PVec3 CRigidBody::GetOwnUniformVelocity() const
+		{
+			return ownUniformVelocity_;
+		}
+
+		void CRigidBody::SetPhysicsPosition(PVec3 pos)
+		{
+			oldPosition_ = position_;
+			position_ = pos;
+		}
+		PVec3 CRigidBody::GetPhysicsPosition() const
+		{
+			return position_;
+		}
+		PVec3 CRigidBody::GetOldPhysicsPosition() const
+		{
+			return oldPosition_;
+		}
+
+		void CRigidBody::AddForce(SForce f)
+		{
+			if (f.IsImpact())
+			{	// 충격은 1회만 적용
+				impactAcceleration_ += ComputeAccelerationFromForce(f.force_);
+				return;
+			}
+
+			thrustForces_.emplace_front(f);
+		}
+		PVec3 CRigidBody::GetTotalThrustForce() const
+		{
+			PVec3 ret{ 0. };
+			for (const auto& f : thrustForces_)
+				ret += f.force_;
+			return ret;
+		}
+
+		const auto& CRigidBody::GetContactPlanes() const
+		{
+			return contactPlanes_;
+		}
+
+		void CRigidBody::Tick(float td)
+		{
+			if (IsActive() == false)
+				return;
+
+			const auto gravityAccel = world_.Gravity();
+
+			PVec3 freeFallForce{ 0. };
+
+			// 접면들로부터 미끌어지는 힘 구하기
+			size_t contactCount = 0;
+
+			PVec3 totalPerpForce{ 0. }, totalStaticFrictForce{ 0. }, totalKineticFrictForce{ 0. };
+			for (auto& cp : GetContactPlanes())
+			{
+				PVec3 pf{ 0. };
+				const auto nf = NeedNormalForce(cp.normal_, &pf);
+
+				const auto minusNF = -1.f * nf;
+				const auto staticFrictForce = world_.FrictionalForce(Material(), cp.material_, false) * minusNF;
+				const auto kineticFrictForce = world_.FrictionalForce(Material(), cp.material_, true) * minusNF;
+
+				totalPerpForce += pf;
+				totalStaticFrictForce += staticFrictForce;
+				totalKineticFrictForce += kineticFrictForce;
+
+				++contactCount;
+			}
+
+			if (contactCount == 0)
+			{	// 접면이 없으면 중력만 적용 - 자유낙하
+				freeFallForce = Mass() * gravityAccel;
+			}
+			else
+			{	// 접면이 있으면
+				const auto tpf2 = glm::length2(totalPerpForce), tsf2 = glm::length2(totalStaticFrictForce);
+				const auto isSliding = tpf2 > tsf2;
+				if (isSliding)
+				{
+					freeFallForce = totalPerpForce - totalKineticFrictForce;
+				}
+			}
+
+			const auto thrustForce = freeFallForce + GetTotalThrustForce();
+			thrustAcceleration_ = ComputeAccelerationFromForce(thrustForce);
+
+			const auto totalVel = TotalAcceleration() * td;
+			const auto unifoVal = GetOwnUniformVelocity() * td;
+			const auto finalVel = unifoVal + totalVel;
+
+			const auto curPosition = GetPhysicsPosition();
+			const auto moved = finalVel * td;
+			SetPhysicsPosition(curPosition + moved);
+
+			////////////////////////////////////////////////////////////////////////////////////////////////
+			// 종료 처리
+			for (auto& f : thrustForces_)
+				f.durationMS_ -= td;
+
+			thrustForces_.remove_if([](auto& f) {	return f.IsExpired();	});
+
+			// 가속도의 변화
+			const auto gacc = gravityAccel * td;
+			impactAcceleration_ += gacc;
+			thrustAcceleration_ += gacc;
+		}
+
+		PVec3 CRigidBody::ComputeAccelerationFromForce(PVec3 totalForce)
+		{
+			return totalForce / Mass();
+		}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		CWorld::CWorld()
 		{
@@ -115,11 +240,9 @@ namespace SMGE
 
 		void CWorld::Tick(float td)
 		{
-			for (auto& rb : rigidBodies_)
+			for (auto& rbW : rigidBodies_)
 			{
-				// 중력 적용
-				// rb 스스로의 힘 적용
-				// 최종 가속도 적용
+				rbW.get().Tick(td);
 			}
 		}
 
