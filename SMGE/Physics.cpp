@@ -3,12 +3,101 @@
 #include "GECommonIncludes.h"
 #include "Physics.h"
 
+#if defined(_DEBUG) || defined(DEBUG)
+#define PHYSICS_DEBUG
+#else
+#endif
+
 namespace SMGE
 {
 	namespace Physics
 	{
 		CWorld GWorld;
 
+		namespace NewtonRules
+		{
+			PVec3 ComputeVelocity(const PVec3& Df, const PVec3& Di, PFloat td)
+			{
+				return (Df - Di) / td;
+			}
+			PVec3 ComputeAcceleration(const PVec3& Vf, const PVec3& Vi, PFloat td)
+			{
+				return (Vf - Vi) / td;
+			}
+
+			PScalar ComputeWork(const PVec3& F, const PVec3& displacement)
+			{
+				return glm::dot(displacement, F);	// 이게 아래와 동일하다
+
+				//const auto normDispl = glm::normalize(displacement);	// 1. 변위의 방향으로 작동한 힘을 구함
+				//const auto FOnDispl = glm::dot(normDispl, F);	// 1. 변위의 방향으로 작동한 힘을 구함
+				//return glm::length(F) * glm::length(displacement);
+			}
+
+			PScalar ComputeKineticEnergy(PScalar mass, const PVec3& velocity)
+			{
+				const auto velLength = glm::length(velocity);
+				return (0.5 * mass) * (velLength * velLength);
+			}
+
+			PScalar ComputeWork(PScalar KEf, PScalar KEi)
+			{
+				return KEf - KEi;
+			}
+
+			PScalar ComputeGravitationalPotentialEnergy(PScalar mass, PScalar gravityY, PScalar height)
+			{
+				return mass * gravityY * height;
+			}
+			PScalar ComputeGPE(PScalar m, PScalar g, PScalar h)
+			{
+				return ComputeGravitationalPotentialEnergy(m, g, h);
+			}
+
+			PVec3 ComputeReflectionVectorN(const PVec3& N, const PVec3& Vi)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(IsNearlyEqual(glm::length(N), 1.));
+#endif
+				const auto P = glm::dot(N, PFloat(-1.) * Vi) * N;
+				return glm::normalize( (PFloat(2.) * P) + Vi );
+			}
+
+			PVec3 ComputeMomentum(PScalar mass, const PVec3& velocity)
+			{
+				return mass * velocity;
+			}
+
+			PVec3 ComputeImpulse(PScalar mass, const PVec3& Vi, const PVec3& Vf)
+			{
+				const auto pf = ComputeMomentum(mass, Vf), pi = ComputeMomentum(mass, Vi);
+				return pf - pi;
+			}
+
+			PVec3 ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2)
+			{
+				const auto pi1 = ComputeMomentum(mass1, Vi1), pi2 = ComputeMomentum(mass2, Vi2);
+
+				const auto Pi = pi1 + pi2;
+				const auto Pf = Pi;	// pi1 + pi2 == pf1 + pf2
+
+				// Pf == m1 * vf1 + m2 * vf2
+				outVf2 = Pf / mass2;	// (m1 * vf1 / m2) == -vf2
+				outVf1 = Pf / mass1;
+
+				return Pf;
+			}
+		}
+
+		SContactPlane::SContactPlane(PUniqueKey uk, PVec3 n, EMaterial m, class CRigidBody* rb) : uniqueKey_(uk), from_(rb)
+		{
+			normal_ = n;
+			material_ = m;
+		}
+
+		SForce::SForce(PVec3 f, class CRigidBody* rb) : force_(f), from_(rb)
+		{
+		}
 		bool SForce::IsExpired() const
 		{
 			return (durationMS_ <= 0./* || (force_.x <= 0. && force_.y <= 0. && force_.z <= 0.)*/);
@@ -40,18 +129,18 @@ namespace SMGE
 		{
 			const auto w = Weight();
 			const auto wn = glm::normalize(w);
-#if defined(_DEBUG) || defined(DEBUG)
+#ifdef PHYSICS_DEBUG
 			assert(IsNearlyEqual(glm::length(contactPlaneNormal), 1.));
 #endif
 			const auto cosT = glm::dot(wn, contactPlaneNormal);
 
 			if (outPerpForce)
-			{	// 평면에 수평으로 작용하는 힘이 필요하다면 sinT 를 구해서 곱해주면 된다
+			{	// 접면에 수평으로 작용하는 힘이 필요하다면 sinT 를 구해서 곱해주면 된다
 				const auto sinTsinT = (1. * 1.) - (cosT * cosT);
 				*outPerpForce = w * static_cast<PFloat>(std::sqrt(sinTsinT));
 			}
 
-			return w * cosT;
+			return w * cosT;	// 접면에 수직으로 작용하는 힘 - 수직항력
 		}
 
 		// 마찰력을 구한다
@@ -140,7 +229,7 @@ namespace SMGE
 		void CRigidBody::AddForce(SForce f)
 		{
 			if (f.IsImpact())
-			{	// 충격은 1회만 적용
+			{	// 충격은 1회만 적용되고 곧바로 가속도로 계산해서 넣어둬야함
 				impactAcceleration_ += ComputeAccelerationFromForce(f.force_);
 				return;
 			}
@@ -158,6 +247,28 @@ namespace SMGE
 		const auto& CRigidBody::GetContactPlanes() const
 		{
 			return contactPlanes_;
+		}
+
+		auto CRigidBody::FindContactPlane(PUniqueKey collUniKey) const
+		{
+			return std::find_if(contactPlanes_.begin(), contactPlanes_.end(), [collUniKey](const auto& cp)
+				{
+					return cp.uniqueKey_ == collUniKey;
+				});
+		}
+
+		void CRigidBody::OnContactStart(CRigidBody* other, PUniqueKey collUniKey, PVec3 normal, EMaterial mat)
+		{
+#ifdef PHYSICS_DEBUG
+			auto already = FindContactPlane(collUniKey);
+			assert(already == contactPlanes_.end());
+#endif
+			contactPlanes_.emplace(collUniKey, normal, mat, other);
+		}
+
+		void CRigidBody::OnContactEnd(CRigidBody* other, PUniqueKey collUniKey)
+		{
+			contactPlanes_.erase(FindContactPlane(collUniKey));
 		}
 
 		void CRigidBody::Tick(float td)
@@ -206,7 +317,7 @@ namespace SMGE
 			const auto thrustForce = freeFallForce + GetTotalThrustForce();
 			thrustAcceleration_ = ComputeAccelerationFromForce(thrustForce);
 
-			const auto totalVel = TotalAcceleration() * td;
+			const auto totalVel = (impactAcceleration_ + thrustAcceleration_) * td;
 			const auto unifoVal = GetOwnUniformVelocity() * td;
 			const auto finalVel = unifoVal + totalVel;
 
