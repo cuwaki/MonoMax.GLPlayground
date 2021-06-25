@@ -1,9 +1,18 @@
 #pragma once
 
 #include "GECommonIncludes.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include <array>
 #include <forward_list>
 #include <set>
+
+#if defined(_DEBUG) || defined(DEBUG)
+	#define PHYSICS_DEBUG
+#else
+#endif
 
 namespace SMGE
 {
@@ -17,9 +26,24 @@ namespace SMGE
 		using PVector = glm::vec<3, PFloat>;
 		using PUniqueKey = uint32_t;
 
-//#define kg
-//#define newton
-//#define ms
+		PFloat ConvertRotation2Radian(PFloat rotation);
+		PFloat ConvertRadian2Rotation(PFloat radian);
+		PFloat ConvertRadian2Degree(PFloat radian);
+		PFloat ConvertDegree2Radian(PFloat degree);
+
+		namespace Constants
+		{
+			constexpr PFloat _Second = 1000.;
+			constexpr PFloat _Minute = _Second * 60.;
+
+			constexpr PFloat _FramePerSecond = 60.;
+			constexpr PFloat _AFrameTime = _Second / _FramePerSecond;
+
+			constexpr PFloat _1KG = 1000.;
+			constexpr PFloat _1M = 1.;								// GL 기본값 기준
+			constexpr PFloat _DEFAULT_GRAVITY_Y_MS2 = -9.8;			// GL Y축 기준
+		};
+
 		enum EMaterial
 		{
 			NONE,
@@ -84,14 +108,51 @@ namespace SMGE
 			// P1/td == -P2/td
 			// m1 * Vi1 + m2 * Vi2 == m1 * Vf1 + m2 * Vf2
 			PVec3 ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2);
-		}
 
-		namespace Constants
-		{
-			constexpr PFloat _1KG = 1000.;
-			constexpr PFloat _1M = 1.;								// GL 기본값 기준
-			constexpr PFloat _DEFAULT_GRAVITY_Y_MS2 = -9.8;			// GL Y축 기준
-		};
+			// 정리 - 탄성계수 또는 반발계수
+			// https://terms.naver.com/entry.naver?docId=4389969&ref=y&cid=60217&categoryId=60217
+			PFloat ComputeRestitutionCoefficient(const PVec3& Vi1, const PVec3& Vi2, const PVec3& Vf1, const PVec3& Vf2);
+
+			// 정리 - 선형 탄성 충돌 - 1일 때 완전탄성, 0일 때 완전비탄성, 그 중간일 때 비탄성충돌
+			// 탄성계수 또는 반발계수 : e -> 0. <= e <= 1.
+			// Vf2 - Vf1 == e * (Vi2 - Vi1)
+			// 질량이 서로 다른 두 물체의 비탄성충돌 계산을 위한 공식이 정리된 곳
+			// https://terms.naver.com/entry.naver?docId=3537078&cid=60217&categoryId=60217
+			void ApplyRestitutionCoefficient(PFloat e, PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2);
+
+			// 이하 회전 운동 관련
+			// 단위 - 라디안
+			PFloat ComputeAngularDisplacement(PFloat arcLength, PFloat radius);
+
+			// 단위 - r/s == 라디안/초
+			PScalar ComputeAngularVelocity(PFloat anglDispI, PFloat anglDispF, PFloat td);
+
+			// 단위 - r/s^2 == 라디안/초의 제곱
+			PScalar ComputeAngularAcceleration(PFloat anglVelI, PFloat anglVelF, PFloat td);
+
+			PScalar ComputeTangentVelocity(PScalar anglVelInstantaneous, PFloat radius);
+			PScalar ComputeTangentAcceleration(PScalar anglAccInstantaneous, PFloat radius);
+
+			// 관성 모먼트 I
+			// 다만 관성모먼트는 물체의 형상에 따라 달라진다. 이 경우는 모든 질량이 가장자리에 몰려있는 원통이나 고리에만 해당한다.
+			PScalar ComputeInertialMoment(PScalar mass, PFloat radius);
+
+			// 정리 - 토크 / 물체를 회전하게 만드는 힘
+			// 각 운동에서 F = ma 에 해당한다, T = Ia
+			// 단위 - Nm
+			PScalar ComputeTorque(PScalar mass, PFloat radius, PScalar anglAcc);
+
+			// 정리 - 회전 운동 에너지
+			// 이제 에너지 보존의 법칙에 회전운동에너지를 포함해야한다.
+			// KEti + PEi + KEri == KEtf + PEf + KErf + E0
+			PScalar ComputeRotationalKineticEnergy(PScalar I, PScalar anglVel);
+
+			// 정리 - 각 운동량
+			PScalar ComputeAngluarMomentum(PScalar I, PScalar anglVel);
+
+			// 정리 - 각 충격량
+			PScalar ComputeAngularImpulse(PScalar mass, PScalar anglVelI, PScalar anglVelF);
+		}
 
 		struct SContactPlane
 		{

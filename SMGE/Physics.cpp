@@ -3,25 +3,43 @@
 #include "GECommonIncludes.h"
 #include "Physics.h"
 
-#if defined(_DEBUG) || defined(DEBUG)
-#define PHYSICS_DEBUG
-#else
-#endif
-
 namespace SMGE
 {
 	namespace Physics
 	{
 		CWorld GWorld;
 
+		PFloat ConvertRotation2Radian(PFloat rotation)
+		{
+			return rotation * 2. * M_PI;
+		}
+		PFloat ConvertRadian2Rotation(PFloat radian)
+		{
+			return radian / 2. * M_PI;
+		}
+		PFloat ConvertRadian2Degree(PFloat radian)
+		{
+			return radian * M_PI / 180.;
+		}
+		PFloat ConvertDegree2Radian(PFloat degree)
+		{
+			return degree * 180. / M_PI;
+		}
+
 		namespace NewtonRules
 		{
 			PVec3 ComputeVelocity(const PVec3& Df, const PVec3& Di, PFloat td)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(td > 0.);
+#endif
 				return (Df - Di) / td;
 			}
 			PVec3 ComputeAcceleration(const PVec3& Vf, const PVec3& Vi, PFloat td)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(td > 0.);
+#endif
 				return (Vf - Vi) / td;
 			}
 
@@ -36,6 +54,9 @@ namespace SMGE
 
 			PScalar ComputeKineticEnergy(PScalar mass, const PVec3& velocity)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(mass >= 0.);
+#endif
 				const auto velLength = glm::length(velocity);
 				return (0.5 * mass) * (velLength * velLength);
 			}
@@ -47,6 +68,9 @@ namespace SMGE
 
 			PScalar ComputeGravitationalPotentialEnergy(PScalar mass, PScalar gravityY, PScalar height)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(mass >= 0.);
+#endif
 				return mass * gravityY * height;
 			}
 			PScalar ComputeGPE(PScalar m, PScalar g, PScalar h)
@@ -65,17 +89,28 @@ namespace SMGE
 
 			PVec3 ComputeMomentum(PScalar mass, const PVec3& velocity)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(mass >= 0.);
+#endif
 				return mass * velocity;
 			}
 
 			PVec3 ComputeImpulse(PScalar mass, const PVec3& Vi, const PVec3& Vf)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(mass >= 0.);
+#endif
 				const auto pf = ComputeMomentum(mass, Vf), pi = ComputeMomentum(mass, Vi);
 				return pf - pi;
 			}
 
 			PVec3 ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2)
 			{
+#ifdef PHYSICS_DEBUG
+				assert(mass1 >= 0.);
+				assert(mass2 >= 0.);
+#endif
+
 				const auto pi1 = ComputeMomentum(mass1, Vi1), pi2 = ComputeMomentum(mass2, Vi2);
 
 				const auto Pi = pi1 + pi2;
@@ -86,6 +121,95 @@ namespace SMGE
 				outVf1 = Pf / mass1;
 
 				return Pf;
+			}
+
+			PFloat ComputeRestitutionCoefficient(const PVec3& Vi1, const PVec3& Vi2, const PVec3& Vf1, const PVec3& Vf2)
+			{
+				return glm::length(Vf2 - Vf1) / glm::length(Vi1 - Vi2);
+			}
+
+			void ApplyRestitutionCoefficient(PFloat e, PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(e >= 0. && e <= 1.);
+				assert(mass1 >= 0.);
+				assert(mass2 >= 0.);
+#endif
+				// 참고로 정면충돌이 아닌 경우에는 충돌면에 수직 방향의 성분 벡터를 고려하면 된다.
+
+				const auto m1_plus_m2 = mass1 + mass2;
+				const auto _1_plus_e = PFloat(1.) + e;
+
+				outVf1 = ((mass1 - e * mass2) * Vi1 + (mass2 * _1_plus_e) * Vi2) / m1_plus_m2;
+				outVf2 = ((mass2 - e * mass1) * Vi2 + (mass1 * _1_plus_e) * Vi1) / m1_plus_m2;
+			}
+
+			PFloat ComputeAngularDisplacement(PFloat arcLength, PFloat radius)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(arcLength > 0.);
+				assert(radius > 0.);
+#endif
+				const auto thetaRadian = arcLength / radius;
+				return thetaRadian;
+			}
+
+			PScalar ComputeAngularVelocity(PFloat anglDispI, PFloat anglDispF, PFloat td)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(td > 0.);
+#endif
+				return (anglDispF - anglDispI) / td;
+			}
+
+			PScalar ComputeAngularAcceleration(PFloat anglVelI, PFloat anglVelF, PFloat td)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(td > 0.);
+#endif
+				return (anglVelF - anglVelI) / td;
+			}
+
+			PScalar ComputeTangentVelocity(PScalar anglVelInstantaneous, PFloat radius)
+			{
+				return anglVelInstantaneous * radius;
+			}
+			PScalar ComputeTangentAcceleration(PScalar anglAccInstantaneous, PFloat radius)
+			{
+				return anglAccInstantaneous * radius;
+			}
+
+			PScalar ComputeInertialMoment(PScalar mass, PFloat radius)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(mass > 0.);
+				assert(radius > 0.);
+#endif
+				return mass * radius * radius;
+			}
+
+			PScalar ComputeTorque(PScalar mass, PFloat radius, PScalar anglAcc)
+			{
+				return ComputeInertialMoment(mass, radius) * anglAcc;
+			}
+
+			PScalar ComputeRotationalKineticEnergy(PScalar I, PScalar anglVel)
+			{
+				return 0.5 * I * anglVel * anglVel;
+			}
+
+			PScalar ComputeAngluarMomentum(PScalar I, PScalar anglVel)
+			{
+				return I * anglVel;
+			}
+
+			PScalar ComputeAngularImpulse(PScalar mass, PScalar anglVelI, PScalar anglVelF)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(mass >= 0.);
+#endif
+				const auto pf = ComputeAngluarMomentum(mass, anglVelF), pi = ComputeAngluarMomentum(mass, anglVelI);
+				return pf - pi;
 			}
 		}
 
