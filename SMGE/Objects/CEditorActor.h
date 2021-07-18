@@ -15,9 +15,6 @@ namespace SMGE
 		void Ctor();
 
 		virtual void BeginPlay() override;
-
-	protected:
-		CActor* linkedActorW_ = nullptr;
 	};
 
 	class CGizmoActorTransform : public CEditorActor

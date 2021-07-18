@@ -20,17 +20,28 @@ namespace SMGE
 	{
 		// 모든 계산은 오른손 법칙과 GL축 을 기준으로 한다
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		using PFloat = float;
 		using PScalar = float;
 		using PVec3 = glm::vec<3, PFloat>;
 		using PVector = glm::vec<3, PFloat>;
 		using PUniqueKey = uint32_t;
 
-		PFloat ConvertRotation2Radian(PFloat rotation);
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		PFloat ConvertRotation2Radian(PFloat rotation);	// Rotation == 회전 수
 		PFloat ConvertRadian2Rotation(PFloat radian);
 		PFloat ConvertRadian2Degree(PFloat radian);
 		PFloat ConvertDegree2Radian(PFloat degree);
 
+		template<typename VEC3>
+		void GuranteeMore0(VEC3& outVec3)
+		{
+			outVec3.x = std::max<PFloat>(outVec3.x, 0.);
+			outVec3.y = std::max<PFloat>(outVec3.y, 0.);
+			outVec3.z = std::max<PFloat>(outVec3.z, 0.);
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		namespace Constants
 		{
 			constexpr PFloat _Second = 1000.;
@@ -42,6 +53,8 @@ namespace SMGE
 			constexpr PFloat _1KG = 1000.;
 			constexpr PFloat _1M = 1.;								// GL 기본값 기준
 			constexpr PFloat _DEFAULT_GRAVITY_Y_MS2 = -9.8;			// GL Y축 기준
+
+			constexpr PFloat _InfiniteMass = std::numeric_limits<PFloat>::max();
 		};
 
 		enum EMaterial
@@ -98,7 +111,8 @@ namespace SMGE
 			// F == (Pf - Pi) / td
 			// 정리 - 충격량, 운동량 정리
 			// I == F * td == (Pf - Pi)
-			// 현재로서는 td 를 매우 짧은 시간간격이라고 생각하고 1로 놓고 생각한다
+			// 즉, 충격량은 td 가 없어도 계산이 가능하다
+			PVec3 ComputeImpulse(PScalar mass, const PVec3& acc);
 			PVec3 ComputeImpulse(PScalar mass, const PVec3& Vi, const PVec3& Vf);
 
 			// 정리 - 뉴턴의 제 3법칙 - 작용, 반작용의 법칙
@@ -107,7 +121,8 @@ namespace SMGE
 			// 그러므로 정리 - 운동량 보존의 법칙 - 운동량의 총합은 두 물체가 충돌할 때 항상 똑같이 유지된다, 즉 운동량은 여기서 저기로 옮겨갈 뿐이다
 			// P1/td == -P2/td
 			// m1 * Vi1 + m2 * Vi2 == m1 * Vf1 + m2 * Vf2
-			PVec3 ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2);
+			// 고로 Pi1 + Pi2 == Pf1 + Pf2
+			void ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2);
 
 			// 정리 - 탄성계수 또는 반발계수
 			// https://terms.naver.com/entry.naver?docId=4389969&ref=y&cid=60217&categoryId=60217
@@ -195,6 +210,7 @@ namespace SMGE
 
 			void Tick(float dt);
 
+			void SetMass(PFloat m) { mass_ = m; }
 			PFloat Mass() const { return mass_; }
 			PVec3 Weight() const;
 			EMaterial Material() const { return material_; }
@@ -218,7 +234,6 @@ namespace SMGE
 			PVec3 GetTotalThrustForce() const;
 
 			PVec3 ComputeAccelerationFromForce(PVec3 totalForce);
-			PVec3 TotalAcceleration() const { return impactAcceleration_ + thrustAcceleration_; }
 
 			const auto& GetContactPlanes() const;
 			bool IsContacting(CRigidBody* other) const;
@@ -232,20 +247,20 @@ namespace SMGE
 		protected:
 			PScalar mass_ = 0.;
 			PVec3 antiGravity_{ 0. };
-			PVec3 normalForce_{ 0. };
+			PVec3 normalForce_{ 0. };	// 필요없다 지워라
 			EMaterial material_ = EMaterial::NONE;
 
-			PVec3 ownUniformVelocity_{ 0. };	// 스스로 내는 등속도
 			PVec3 position_{ 0. };
 			PVec3 oldPosition_{ 0. };
+
+			PVec3 ownUniformVelocity_{ 0. };	// 스스로 내는 등속도
+			PVec3 velocity_{ 0. };	// 현재 속도
 
 			bool isActive_ = false;
 
 			std::set<SContactPlane> contactPlanes_;
 
 			std::forward_list<SForce> thrustForces_;
-			PVec3 impactAcceleration_{ 0. };
-			PVec3 thrustAcceleration_{ 0. };
 
 		protected:
 			const class CWorld& world_;

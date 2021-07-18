@@ -3,6 +3,9 @@
 #include "GECommonIncludes.h"
 #include "Physics.h"
 
+#include <thread>
+#include <chrono>
+
 namespace SMGE
 {
 	namespace Physics
@@ -95,6 +98,14 @@ namespace SMGE
 				return mass * velocity;
 			}
 
+			PVec3 ComputeImpulse(PScalar mass, const PVec3& acc)
+			{
+#ifdef PHYSICS_DEBUG
+				assert(mass >= 0.);
+#endif
+				return mass * acc;
+			}
+
 			PVec3 ComputeImpulse(PScalar mass, const PVec3& Vi, const PVec3& Vf)
 			{
 #ifdef PHYSICS_DEBUG
@@ -104,7 +115,7 @@ namespace SMGE
 				return pf - pi;
 			}
 
-			PVec3 ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2)
+			void ComputeConservedMomentum(PScalar mass1, const PVec3& Vi1, PScalar mass2, const PVec3& Vi2, PVec3& outVf1, PVec3& outVf2)
 			{
 #ifdef PHYSICS_DEBUG
 				assert(mass1 >= 0.);
@@ -119,8 +130,6 @@ namespace SMGE
 				// Pf == m1 * vf1 + m2 * vf2
 				outVf2 = Pf / mass2;	// (m1 * vf1 / m2) == -vf2
 				outVf1 = Pf / mass1;
-
-				return Pf;
 			}
 
 			PFloat ComputeRestitutionCoefficient(const PVec3& Vi1, const PVec3& Vi2, const PVec3& Vf1, const PVec3& Vf2)
@@ -353,8 +362,8 @@ namespace SMGE
 		void CRigidBody::AddForce(SForce f)
 		{
 			if (f.IsImpact())
-			{	// 충격은 1회만 적용되고 곧바로 가속도로 계산해서 넣어둬야함
-				impactAcceleration_ += ComputeAccelerationFromForce(f.force_);
+			{	// 충격은 1회만 적용
+				velocity_ += ComputeAccelerationFromForce(f.force_);
 				return;
 			}
 
@@ -402,6 +411,7 @@ namespace SMGE
 
 			const auto gravityAccel = world_.Gravity();
 
+			////////////////////////////////////////////////////////////////////////////////////////////////
 			PVec3 freeFallForce{ 0. };
 
 			// 접면들로부터 미끌어지는 힘 구하기
@@ -438,28 +448,30 @@ namespace SMGE
 				}
 			}
 
-			const auto thrustForce = freeFallForce + GetTotalThrustForce();
-			thrustAcceleration_ = ComputeAccelerationFromForce(thrustForce);
+			////////////////////////////////////////////////////////////////////////////////////////////////
+			// 속도
+			const auto allForce = freeFallForce + GetTotalThrustForce();
 
-			const auto totalVel = (impactAcceleration_ + thrustAcceleration_) * td;
-			const auto unifoVal = GetOwnUniformVelocity() * td;
-			const auto finalVel = unifoVal + totalVel;
+			const auto thrustAccel = ComputeAccelerationFromForce(allForce);
+			velocity_ += thrustAccel * td;
+			velocity_ += GetOwnUniformVelocity();
 
+			////////////////////////////////////////////////////////////////////////////////////////////////
+			// 이동
 			const auto curPosition = GetPhysicsPosition();
-			const auto moved = finalVel * td;
+			const auto moved = velocity_ * td;
 			SetPhysicsPosition(curPosition + moved);
 
 			////////////////////////////////////////////////////////////////////////////////////////////////
 			// 종료 처리
 			for (auto& f : thrustForces_)
 				f.durationMS_ -= td;
-
 			thrustForces_.remove_if([](auto& f) {	return f.IsExpired();	});
 
-			// 가속도의 변화
+			////////////////////////////////////////////////////////////////////////////////////////////////
+			// 가감속
 			const auto gacc = gravityAccel * td;
-			impactAcceleration_ += gacc;
-			thrustAcceleration_ += gacc;
+			velocity_ += gacc;
 		}
 
 		PVec3 CRigidBody::ComputeAccelerationFromForce(PVec3 totalForce)
@@ -519,6 +531,37 @@ namespace SMGE
 		PFloat CWorld::FrictionalForce(EMaterial going, EMaterial contacting, bool isKinetic) const
 		{
 			return frictionalForceTable_[going][contacting][isKinetic ? 1 : 0];
+		}
+
+		void test()
+		{	// 테스트 코드
+			/*
+			CWorld pworld;
+
+			CRigidBody ball(pworld), wall(pworld), base(pworld);
+
+			ball.SetMass(Constants::_1KG * 3);
+			ball.SetPhysicsPosition({ 0., 0., 0.5 });
+			ball.SetActive(true);
+
+			wall.SetMass(Constants::_InfiniteMass);
+			wall.SetPhysicsPosition({ 3., 0., 0. });
+			wall.SetActive(false);
+
+			base.SetMass(Constants::_InfiniteMass);
+			base.SetPhysicsPosition({ 0., 0., 0. });
+			base.SetActive(false);
+
+			//std::chrono::steady_clock::time_point tp(16);
+			//std::this_thread::sleep_for(std::chrono::duration_cast<std::chrono::milliseconds>().count());
+
+			double time = 0.;
+			do
+			{
+				pworld.Tick(time);
+				::Sleep(Constants::_AFrameTime * Constants::_Second);
+			} while (time += Constants::_AFrameTime);
+			*/
 		}
 	}
 };
